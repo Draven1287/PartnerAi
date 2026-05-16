@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Aside: Learn to work with AI, not just use it</title>
+  <meta name="description" content="A free, visual course on becoming a great AI partner. Built by a 9th grader for anyone in high school and up.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Aside</a>
+    <div class="nav-links">
+      <a href="course.html">Course</a>
+      <a href="playground.html">Playground</a>
+      <a href="projects.html">Projects</a>
+      <a href="for-educators.html">Educators</a>
+      <a href="about.html">About</a>
+      <a href="course.html" class="nav-cta">Start →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="container">
+    <div class="tagline">A new skill is here. Learn it well.</div>
+    <h1>Working with AI is the new writing.<br>This is how you learn to write.</h1>
+    <p class="lead">A free, visual course on becoming a great <em>partner</em> with AI, not just someone who uses it. By the end of this page alone, you'll already know more than most people.</p>
+    <div class="btn-row">
+      <a href="#mini-lesson-1" class="btn btn-primary">Start learning ↓</a>
+      <a href="playground.html" class="btn btn-ghost">Try the playground</a>
+    </div>
+    <div class="hero-meta">
+      <span><strong>For</strong>9th grade and up. All you do is read and try.</span>
+      <span><strong>Time</strong>~5 min on this page. Then go deeper.</span>
+      <span><strong>By</strong>A 9th grader who built his own LLM.</span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MINI-LESSON 1: WHAT IS AN LLM (60 seconds) ============ -->
+<section class="section" id="mini-lesson-1">
+  <div class="container">
+    <span class="section-heading">60-second lesson · 1 of 3</span>
+    <h2>What is an LLM, really?</h2>
+    <p class="lead"><strong>It's a program that learned to predict the next word.</strong> That's the whole trick.</p>
+
+    <div class="diagram">
+      <svg viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Token prediction diagram">
+        <defs>
+          <style>
+            .lbl { font: 600 14px ui-monospace, "SF Mono", Menlo, monospace; fill: #a3a3a3; }
+            .word { font: 500 18px ui-monospace, "SF Mono", Menlo, monospace; fill: #f5f5f5; }
+            .accent { fill: #ff7849; }
+          </style>
+        </defs>
+        <!-- Input sentence -->
+        <text x="300" y="40" text-anchor="middle" class="word">"The cat sat on the ___"</text>
+        <text x="300" y="62" text-anchor="middle" class="lbl">model sees this, predicts next word</text>
+        <!-- Probability bars -->
+        <g transform="translate(120,90)">
+          <text x="80" y="14" text-anchor="end" class="word">mat</text>
+          <rect x="95" y="2" width="280" height="16" rx="3" fill="#1c1c1c" stroke="#262626"/>
+          <rect x="95" y="2" width="180" height="16" rx="3" class="accent"/>
+          <text x="385" y="14" class="lbl">62%</text>
+
+          <text x="80" y="42" text-anchor="end" class="word">couch</text>
+          <rect x="95" y="30" width="280" height="16" rx="3" fill="#1c1c1c" stroke="#262626"/>
+          <rect x="95" y="30" width="74" height="16" rx="3" class="accent" opacity="0.7"/>
+          <text x="385" y="42" class="lbl">25%</text>
+
+          <text x="80" y="70" text-anchor="end" class="word">windowsill</text>
+          <rect x="95" y="58" width="280" height="16" rx="3" fill="#1c1c1c" stroke="#262626"/>
+          <rect x="95" y="58" width="30" height="16" rx="3" class="accent" opacity="0.5"/>
+          <text x="385" y="70" class="lbl">10%</text>
+
+          <text x="80" y="98" text-anchor="end" class="word">roof</text>
+          <rect x="95" y="86" width="280" height="16" rx="3" fill="#1c1c1c" stroke="#262626"/>
+          <rect x="95" y="86" width="9" height="16" rx="3" class="accent" opacity="0.4"/>
+          <text x="385" y="98" class="lbl">3%</text>
+        </g>
+        <text x="300" y="210" text-anchor="middle" class="lbl">It picks the most likely word, then does it again. Trillions of times.</text>
+      </svg>
+    </div>
+
+    <p>That's it. It read trillions of words during training, learned the patterns, and now guesses the next word really well. Apply that one trick over and over, and you get conversations, code, essays, math. Even what looks like "understanding."</p>
+    <p>The catch: it's a pattern-matcher, not a fact-checker. <strong>It can sound confident and still be wrong.</strong> Knowing this is half the skill.</p>
+
+    <p><a href="chapter-1.html">→ The full lesson: Chapter 1 (~10 min)</a></p>
+  </div>
+</section>
+
+<!-- ============ MINI-LESSON 2: GOOD VS BAD PROMPT ============ -->
+<section class="section">
+  <div class="container">
+    <span class="section-heading">60-second lesson · 2 of 3</span>
+    <h2>The single skill almost nobody has.</h2>
+    <p class="lead"><strong>Prompting.</strong> Same model, two different prompts, two completely different answers.</p>
+
+    <div class="compare">
+      <div class="bad">
+        <h4>What most people type</h4>
+        <pre><code>explain photosynthesis</code></pre>
+        <p>You get a generic textbook paragraph. Forgettable.</p>
+      </div>
+      <div class="good">
+        <h4>What works</h4>
+        <pre><code>I'm a 9th grader studying for a bio
+test Friday. Teach me photosynthesis.
+One analogy I can picture. Then quiz
+me with 3 questions.</code></pre>
+        <p>You get a tailored explanation, a vivid analogy, and a quiz.</p>
+      </div>
+    </div>
+
+    <h3>The four ingredients</h3>
+    <div class="ingredient-grid">
+      <div class="ingredient">
+        <div class="num">01</div>
+        <h4>Context</h4>
+        <p>Tell it who you are and what you're doing.</p>
+      </div>
+      <div class="ingredient">
+        <div class="num">02</div>
+        <h4>Role</h4>
+        <p>"Act as a strict editor." Roles change everything.</p>
+      </div>
+      <div class="ingredient">
+        <div class="num">03</div>
+        <h4>Examples</h4>
+        <p>Show it what good looks like. It'll match the pattern.</p>
+      </div>
+      <div class="ingredient">
+        <div class="num">04</div>
+        <h4>Constraints</h4>
+        <p>"In 100 words." "As 3 bullets." Force a shape.</p>
+      </div>
+    </div>
+
+    <p><a href="chapter-2.html">→ The full lesson: Chapter 2 (~12 min)</a></p>
+  </div>
+</section>
+
+<!-- ============ MINI-LESSON 3: LOSE / GAIN ============ -->
+<section class="section">
+  <div class="container">
+    <span class="section-heading">60-second lesson · 3 of 3</span>
+    <h2>The trade nobody is naming.</h2>
+    <p class="lead">AI takes some skills away. It also gives new ones. <strong>The new ones aren't smaller.</strong> They're different: and almost nobody is teaching them yet.</p>
+
+    <div class="lose-gain">
+      <div class="lose">
+        <h4>What gets traded away</h4>
+        <ul>
+          <li>Writing essays from scratch</li>
+          <li>Memorizing facts you can look up</li>
+          <li>Solving routine problems alone</li>
+          <li>Picking a fixed career</li>
+        </ul>
+      </div>
+      <div class="gain">
+        <h4>What you have to grow</h4>
+        <ul>
+          <li>Writing great prompts</li>
+          <li>Seeing patterns across domains</li>
+          <li>Pushing back when AI is wrong</li>
+          <li>Finding your mission</li>
+        </ul>
+      </div>
+    </div>
+
+    <p>Most "AI for everyone" sites are too optimistic ("it's magic!") or too cautious ("it's dangerous!"). This course is honest about the trade. <strong>You lose some things. You can gain bigger things: if you actually learn the new skill.</strong> That's why this site exists.</p>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="section">
+  <div class="container">
+    <div class="callout">
+      <h4>Where to go next</h4>
+      <p>You just got the basics. The course goes deep: what's actually happening inside AI, how to prompt like a pro, how to push back when it's wrong, the pro tips, and 5 build-something projects.</p>
+      <div class="btn-row" style="margin-bottom:0;">
+        <a href="course.html" class="btn btn-primary">See all 5 chapters →</a>
+        <a href="playground.html" class="btn btn-ghost">Try the playground</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHAPTERS ============ -->
+<section class="section">
+  <div class="container">
+    <h2>The five chapters</h2>
+    <div class="chapter-list">
+      <a href="chapter-1.html" class="chapter-card">
+        <div class="num">CHAPTER 01 · ~10 min</div>
+        <h3>What AI actually is</h3>
+        <p>Under the hood. No magic, no mystery.</p>
+      </a>
+      <a href="chapter-2.html" class="chapter-card">
+        <div class="num">CHAPTER 02 · ~12 min</div>
+        <h3>How to talk to AI</h3>
+        <p>Prompting as a real skill.</p>
+      </a>
+      <a href="chapter-3.html" class="chapter-card">
+        <div class="num">CHAPTER 03 · outline</div>
+        <h3>Being a great AI partner</h3>
+        <p>Push back. Don't accept the first answer.</p>
+      </a>
+      <a href="chapter-4.html" class="chapter-card">
+        <div class="num">CHAPTER 04 · outline</div>
+        <h3>Tips &amp; tricks</h3>
+        <p>The pro moves, plain English.</p>
+      </a>
+      <a href="chapter-5.html" class="chapter-card">
+        <div class="num">CHAPTER 05 · outline</div>
+        <h3>Build with AI</h3>
+        <p>Five real projects, weekend-sized.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FROM AARAV ============ -->
+<section class="section">
+  <div class="container">
+    <span class="section-heading">From the author</span>
+    <h2>Built by a 9th grader.</h2>
+    <p>I'm Aarav. I asked my dad: <em>"If AI can write my essays and solve my problems, why am I in school?"</em> He didn't have an answer. Neither did I, until I started using AI seriously and built my own small LLM on my MacBook Air.</p>
+    <p>What I figured out: there's a real skill here. Most people aren't learning it. They're using AI to skip work, which is the boring choice. The interesting choice is using AI to do things you couldn't do without it. <strong>That's what this site teaches.</strong></p>
+    <p><a href="about.html">→ More about the project</a> · <a href="projects.html">→ See the LLM I built</a></p>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p><strong>Aside</strong>: a free, opinionated course on working with AI.</p>
+    <p>Built by Aarav Shah. A youth project supported by the <a href="https://ahimsafdn.org">Ahimsa Foundation</a>.</p>
+    <p style="margin-top:1rem;color:var(--text-faint);font-size:0.85rem;">v1 · 2026 · text and code released openly.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="widget.js"></script>
+</body>
+</html>

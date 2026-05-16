@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Projects · Aside</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Aside</a>
+    <div class="nav-links">
+      <a href="course.html">Course</a>
+      <a href="playground.html">Playground</a>
+      <a href="projects.html">Projects</a>
+      <a href="for-educators.html">Educators</a>
+      <a href="about.html">About</a>
+      <a href="course.html" class="nav-cta">Start →</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="tagline">Projects</div>
+      <h1>Things built with AI as a partner.</h1>
+      <p class="lead">Real projects, real people, real walkthroughs. Seeding the gallery with the founder's project: the rest comes from learners like you.</p>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container">
+
+      <article style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2rem;margin:2rem 0;">
+        <div class="tag">FEATURED PROJECT · BY AARAV</div>
+        <h2 style="margin-top:0.5rem;">I built a small LLM on my MacBook Air.</h2>
+        <p class="lead">15 years old. 1 laptop. ~4 minutes of training. $0.</p>
+
+        <p>The idea: instead of trying to build a frontier model from scratch (which costs $200,000+ in compute), <strong>borrow</strong> a model like Meta's free Llama 3.2 1B Instruct and teach it a new trick.</p>
+
+        <h3>The recipe</h3>
+        <ul>
+          <li><strong>Base model:</strong> Llama 3.2 1B Instruct, 4-bit quantized (free from Meta)</li>
+          <li><strong>Dataset:</strong> 2,000 SQL examples from Hugging Face (<code>b-mc2/sql-create-context</code>)</li>
+          <li><strong>Method:</strong> LoRA fine-tuning: trained only 0.228% of the model's parameters</li>
+          <li><strong>Library:</strong> Apple MLX, built for M-chips</li>
+          <li><strong>Hardware:</strong> MacBook Air M3, 16 GB RAM</li>
+          <li><strong>Time:</strong> ~4 minutes, 300 iterations</li>
+        </ul>
+
+        <h3>The result</h3>
+        <p>Before fine-tuning, asking the model "Show me all students in 10th grade" gave a chatty 72-token markdown response that treated the user like a beginner. After fine-tuning, the same prompt produced a clean 39-token SQL query, ready to paste into a database.</p>
+
+        <div class="stat-grid">
+          <div class="stat"><div class="num">3.18 → 1.18</div><div class="label">training loss (63% drop)</div></div>
+          <div class="stat"><div class="num">300</div><div class="label">iterations</div></div>
+          <div class="stat"><div class="num">~4 min</div><div class="label">total training time</div></div>
+          <div class="stat"><div class="num">1.44 GB</div><div class="label">peak memory used</div></div>
+          <div class="stat"><div class="num">0.228%</div><div class="label">of model parameters trained (via LoRA)</div></div>
+          <div class="stat"><div class="num">$0</div><div class="label">cost</div></div>
+        </div>
+
+        <h3>What I took away</h3>
+        <ul>
+          <li>AI isn't magic. It's math, data, and a lot of training.</li>
+          <li>You don't need a $200K supercomputer to do real ML.</li>
+          <li>Fine-tuning &gt; pre-training for almost anyone who isn't a frontier lab.</li>
+          <li>Apple Silicon is genuinely good for this.</li>
+          <li>If a 9th grader can build a real LLM specialist on a MacBook Air, so can you.</li>
+        </ul>
+
+        <p class="small" style="margin-top:1.5rem;">Tools: <a href="https://github.com/karpathy/nanochat">karpathy/nanochat</a> · <a href="https://huggingface.co">Hugging Face</a> · <a href="https://ml-explore.github.io/mlx/">Apple MLX</a></p>
+      </article>
+
+      <h2>Submit your own project</h2>
+      <p>Did you build something with AI as a partner? Send it in. We'll feature good work here so other learners can see what's possible.</p>
+      <p class="small" style="color:var(--text-faint);">v1 doesn't have a form yet: for now, write up your project as a one-page description with screenshots and email it. Submission link coming in v2.</p>
+
+      <h2>What we're looking for</h2>
+      <ul>
+        <li><strong>Real problems, not toy demos.</strong> Did your project actually solve something or teach you something?</li>
+        <li><strong>An honest story.</strong> What worked, what didn't, where AI was useful and where it wasn't.</li>
+        <li><strong>Beginner-friendly write-ups.</strong> Other learners should be able to copy your approach.</li>
+        <li><strong>Anyone, any age.</strong> 9th graders, college students, professionals, retirees. The gallery is open.</li>
+      </ul>
+
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p><strong>Aside</strong>: a free, opinionated course on working with AI.</p>
+    <p>Built by Aarav Shah. A youth project supported by the <a href="https://ahimsafdn.org">Ahimsa Foundation</a>.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="widget.js"></script>
+</body>
+</html>
