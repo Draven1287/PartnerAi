@@ -1,5 +1,5 @@
 /* ============================================================
-   Aside: sitewide chat widget
+   AI Field Guide: sitewide chat widget
    Runs Llama 3.2 1B Instruct ENTIRELY IN YOUR BROWSER via WebLLM.
    No API key. No backend. No data leaves your machine.
    ============================================================ */
@@ -9,7 +9,7 @@
   const MODEL_ID = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
   const MODEL_LABEL = 'Llama 3.2 1B';
   const SYSTEM_PROMPT =
-    "You are Aside Guide, a friendly AI learning companion on a site called Aside, built by Aarav Shah (a 9th grader). " +
+    "You are AI Field Guide, a friendly AI learning companion on a site built by Aarav Shah (a 9th grader). " +
     "You are running entirely in the user's browser using WebLLM: no API keys, no server. " +
     "You are a 1B-parameter model: small, fast, sometimes wrong. Be honest about your limits. " +
     "Help with anything on the site: explain lessons, ask guiding questions, turn vague goals into better prompts, suggest small projects, and encourage users to verify important facts. " +
@@ -79,6 +79,22 @@
     return arr.slice(0, -1).join(', ') + ', and ' + arr[arr.length - 1];
   }
 
+  function learnerProfilePrompt() {
+    try {
+      const profile = JSON.parse(localStorage.getItem('ai-field-guide-gauge') || 'null');
+      if (!profile) return '';
+      const ageTone = {
+        teen: 'The learner is a teenager. Be direct, clear, and natural. Do not sound babyish or fake-cool.',
+        'young-adult': 'The learner is a young adult. Keep the tone practical, quick, and flexible.',
+        adult: 'The learner is an adult. Be practical and efficient. Do not make it feel like school.',
+        'older-adult': 'The learner is an older adult. Use plain English, patient pacing, and no tech ego.'
+      }[profile.ageRange] || '';
+      return `Learner profile from the AI gauge: ${profile.route || 'unknown route'}, score ${profile.score || 'unknown'}%. ${ageTone}`;
+    } catch (e) {
+      return '';
+    }
+  }
+
   // --- Inject DOM ---
   function injectDOM() {
     if (document.querySelector('.widget-fab')) return;
@@ -100,7 +116,7 @@
     panel.innerHTML = `
       <div class="widget-header">
         <span class="dot"></span>
-        <div class="title">Aside Guide
+        <div class="title">AI Field Guide
           <span class="subtitle">${MODEL_LABEL} · private browser AI</span>
         </div>
         <button class="x" aria-label="Close">×</button>
@@ -298,7 +314,8 @@
       try {
         // Strip 'tip' entries: they're display-only, not for the model.
         const modelHistory = history.filter(m => m.role === 'user' || m.role === 'assistant');
-        const messages = [{ role: 'system', content: SYSTEM_PROMPT }, ...modelHistory];
+        const profilePrompt = learnerProfilePrompt();
+        const messages = [{ role: 'system', content: profilePrompt ? `${SYSTEM_PROMPT} ${profilePrompt}` : SYSTEM_PROMPT }, ...modelHistory];
         const chunks = await engine.chat.completions.create({
           messages,
           stream: true,
@@ -352,7 +369,7 @@
     });
 
     infoBtn.addEventListener('click', () => {
-      addSystemMsg('About: Aside Guide runs Llama 3.2 1B Instruct, an open-source model from Meta, entirely in your browser using WebLLM (WebGPU). No API key, no server, nothing leaves your machine. It is small, so it can make mistakes. Use it as a guide: ask questions, verify important facts, and keep your own judgment active.');
+      addSystemMsg('About: AI Field Guide runs Llama 3.2 1B Instruct, an open-source model from Meta, entirely in your browser using WebLLM (WebGPU). No API key, no server, nothing leaves your machine. It is small, so it can make mistakes. Use it as a guide: ask questions, verify important facts, and keep your own judgment active.');
     });
 
     // Initial render

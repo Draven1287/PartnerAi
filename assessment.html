@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start Here · AI Field Guide</title>
+  <meta name="description" content="A beginner-friendly AI knowledge gauge that routes you into the right learning path.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">AI Field Guide</a>
+    <div class="nav-links">
+      <a href="assessment.html">Start</a>
+      <a href="course.html">Course</a>
+      <a href="playground.html">Playground</a>
+      <a href="projects.html">Projects</a>
+      <a href="for-educators.html">Educators</a>
+      <a href="about.html">About</a>
+      <a href="assessment.html" class="nav-cta">Start</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero assessment-hero">
+    <div class="container">
+      <div class="tagline">Start here</div>
+      <h1>First, map what you know and how you think about AI.</h1>
+      <p class="lead">This is not about judging you. It checks two things at once: what AI concepts you understand and how you reason through real AI situations. You will answer one category at a time, then get a path built for your level and age range.</p>
+      <div class="callout">
+        <h4>One important thing</h4>
+        <p>You do not need to be scared of AI. You also should not worship it. The useful place is in the middle: curious, skeptical, and willing to learn how the system actually works.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="container">
+      <form class="gauge" id="ai-gauge">
+        <div class="gauge-progress">
+          <span id="gauge-step-label">Profile</span>
+          <div><span id="gauge-step-fill"></span></div>
+        </div>
+
+        <article class="gauge-card" data-step="0" data-profile="age">
+          <div class="gauge-kicker">Profile</div>
+          <h2>Who is this course for?</h2>
+          <p>This changes the tone of the path. A teen path should be direct and readable. An adult path should be practical and not school-ish.</p>
+          <label><input type="radio" name="age_range" value="teen"> Teenager, about 13 to 17</label>
+          <label><input type="radio" name="age_range" value="young-adult"> Young adult, about 18 to 25</label>
+          <label><input type="radio" name="age_range" value="adult"> Adult, about 26 to 64</label>
+          <label><input type="radio" name="age_range" value="older-adult"> Older adult, 65+</label>
+          <textarea name="age_other" placeholder="Want to describe yourself differently? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="1" data-category="definition">
+          <div class="gauge-kicker">Category 1</div>
+          <h2>Which answer best explains what AI is?</h2>
+          <p>Pick the answer closest to what you know right now.</p>
+          <label><input type="radio" name="definition" value="0"> A website that gives answers when you type questions.</label>
+          <label><input type="radio" name="definition" value="1"> A computer program that can copy human writing and conversation.</label>
+          <label><input type="radio" name="definition" value="2"> A trained model that finds patterns in data and uses those patterns to make predictions or decisions.</label>
+          <label><input type="radio" name="definition" value="3"> A family of systems, including language models, image models, recommendation systems, robots, agents, and tools that can act across software.</label>
+          <textarea name="definition_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="2" data-category="capability">
+          <div class="gauge-kicker">Category 2</div>
+          <h2>What can modern AI systems actually do?</h2>
+          <p>Imagine someone says, “AI is just a smarter search engine.” What do you think?</p>
+          <label><input type="radio" name="capability" value="0"> That sounds right. It mostly finds information faster.</label>
+          <label><input type="radio" name="capability" value="1"> It can answer questions, write drafts, and summarize text.</label>
+          <label><input type="radio" name="capability" value="2"> It can explain, code, plan, translate, analyze images, simulate conversations, and help build tools.</label>
+          <label><input type="radio" name="capability" value="3"> It can become part of a workflow: using tools, calling APIs, checking files, running code, and helping coordinate multi-step work.</label>
+          <textarea name="capability_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="3" data-category="limits">
+          <div class="gauge-kicker">Category 3</div>
+          <h2>When should you not trust it?</h2>
+          <p>An AI gives you a confident answer about a medical, legal, historical, or scientific fact. What is the best next move?</p>
+          <label><input type="radio" name="limits" value="0"> Trust it if the answer sounds detailed.</label>
+          <label><input type="radio" name="limits" value="1"> Ask it again and see if it says the same thing.</label>
+          <label><input type="radio" name="limits" value="2"> Ask for sources, then check reliable sources yourself.</label>
+          <label><input type="radio" name="limits" value="3"> Treat the answer as a starting point, verify outside the model, and ask what evidence would change the answer.</label>
+          <textarea name="limits_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="4" data-category="learning">
+          <div class="gauge-kicker">Category 4</div>
+          <h2>How should students use AI?</h2>
+          <p>You are stuck on homework. What is the strongest use of AI?</p>
+          <label><input type="radio" name="learning" value="0"> Have it write the answer so you can move on.</label>
+          <label><input type="radio" name="learning" value="1"> Ask it to explain the answer in easier words.</label>
+          <label><input type="radio" name="learning" value="2"> Ask for hints, examples, and a quiz so you still do the thinking.</label>
+          <label><input type="radio" name="learning" value="3"> Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.</label>
+          <textarea name="learning_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="5" data-category="impact">
+          <div class="gauge-kicker">Category 5</div>
+          <h2>How much do you understand the cost question?</h2>
+          <p>Someone says, “AI is bad because it uses too much electricity and water.” What is the best response?</p>
+          <label><input type="radio" name="impact" value="0"> They are wrong. New technology always wins.</label>
+          <label><input type="radio" name="impact" value="1"> They are right. AI should probably be avoided.</label>
+          <label><input type="radio" name="impact" value="2"> The costs are real, but we should compare them with benefits, efficiency improvements, and better infrastructure.</label>
+          <label><input type="radio" name="impact" value="3"> We should ask better questions: which model, what task, how much energy, what alternative, what social benefit, and who pays the cost?</label>
+          <textarea name="impact_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <article class="gauge-card" data-step="6" data-category="systems">
+          <div class="gauge-kicker">Category 6</div>
+          <h2>What do you know beyond chatbots?</h2>
+          <p>What comes after typing questions into a chatbot?</p>
+          <label><input type="radio" name="systems" value="0"> Mostly better chatbots.</label>
+          <label><input type="radio" name="systems" value="1"> Tools that write, summarize, and search faster.</label>
+          <label><input type="radio" name="systems" value="2"> Personal tutors, coding helpers, research assistants, creative tools, and agents that use software.</label>
+          <label><input type="radio" name="systems" value="3"> AI systems connected to data, tools, robots, labs, simulations, businesses, and scientific workflows.</label>
+          <textarea name="systems_other" placeholder="Different answer? Write it here."></textarea>
+        </article>
+
+        <div class="gauge-actions">
+          <button type="button" class="btn btn-ghost" id="gauge-back">Back</button>
+          <button type="button" class="btn btn-primary" id="gauge-next">Next</button>
+          <button type="submit" class="btn btn-primary" id="gauge-finish">Finish</button>
+          <button type="button" class="btn btn-ghost" id="gauge-reset">Reset</button>
+        </div>
+      </form>
+
+      <section class="gauge-result" id="gauge-result" hidden>
+        <div class="gauge-score">
+          <span id="gauge-level">Beginner</span>
+          <strong id="gauge-score">0%</strong>
+        </div>
+        <h2 id="gauge-title">Your starting path</h2>
+        <p id="gauge-copy"></p>
+        <div class="chapter-list" id="gauge-route"></div>
+        <div class="btn-row">
+          <a href="course.html" class="btn btn-ghost">See full course</a>
+          <a href="playground.html" class="btn btn-ghost">Try the playground</a>
+        </div>
+      </section>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p><strong>AI Field Guide</strong>: a free course for understanding what AI is, what it can do, and how to use it without losing your own judgment.</p>
+    <p>Built by Aarav Shah. A youth project supported by the <a href="https://ahimsafdn.org">Ahimsa Foundation</a>.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="widget.js"></script>
+</body>
+</html>

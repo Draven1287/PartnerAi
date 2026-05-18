@@ -166,3 +166,194 @@ function initChat() {
   addMsg("This is a scripted teaching demo: not a real LLM. Try a prompt and I'll teach you what's happening. (For real answers, use the floating chat widget in the corner.)", 'msg-system');
 }
 document.addEventListener('DOMContentLoaded', initChat);
+
+// --- AI knowledge + judgment gauge ---
+function initGauge() {
+  const form = document.getElementById('ai-gauge');
+  const result = document.getElementById('gauge-result');
+  if (!form || !result) return;
+
+  const cards = [...form.querySelectorAll('.gauge-card')];
+  const reset = document.getElementById('gauge-reset');
+  const back = document.getElementById('gauge-back');
+  const next = document.getElementById('gauge-next');
+  const finish = document.getElementById('gauge-finish');
+  const stepLabel = document.getElementById('gauge-step-label');
+  const stepFill = document.getElementById('gauge-step-fill');
+  const levelEl = document.getElementById('gauge-level');
+  const scoreEl = document.getElementById('gauge-score');
+  const titleEl = document.getElementById('gauge-title');
+  const copyEl = document.getElementById('gauge-copy');
+  const routeEl = document.getElementById('gauge-route');
+  const categories = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
+  let current = 0;
+
+  const routes = {
+    beginner: {
+      label: 'Beginner path',
+      title: 'Start with the foundations.',
+      copy: 'You are at the right starting point. Your path should make AI less mysterious before asking you to use it heavily.',
+      chapters: [
+        ['chapter-1.html', 'Chapter 1', 'What AI actually is', 'Learn model, training, prediction, hallucination, and why AI can sound smart while still being wrong.'],
+        ['assessment.html', 'Gauge reflection', 'Retake after Chapter 1', 'Come back and see which answers changed after the basics click.'],
+        ['playground.html', 'Playground', 'Try one careful experiment', 'Ask the same question two ways and compare what changes.']
+      ]
+    },
+    explorer: {
+      label: 'Explorer path',
+      title: 'You know some of the basics. Now build judgment.',
+      copy: 'You probably understand that AI is more than search, but the next step is learning when to trust it, challenge it, and use it as a learning partner.',
+      chapters: [
+        ['chapter-1.html', 'Chapter 1', 'Clean up the model basics', 'Skim this for the vocabulary: model, token, training, inference, hallucination.'],
+        ['chapter-2.html', 'Chapter 2', 'Ask better questions', 'Practice giving context, role, examples, and constraints.'],
+        ['chapter-3.html', 'Chapter 3', 'Protect your own thinking', 'Learn where AI helps your brain and where it can weaken the skill you are building.']
+      ]
+    },
+    builder: {
+      label: 'Builder path',
+      title: 'You are ready to test AI, not just use it.',
+      copy: 'Your answers show enough AI literacy to move toward projects, comparisons, and systems thinking.',
+      chapters: [
+        ['chapter-4.html', 'Chapter 4', 'Use advanced patterns', 'Learn iteration, critique, role design, model choice, and verification loops.'],
+        ['chapter-5.html', 'Chapter 5', 'Build with AI', 'Turn AI from a chat window into a project partner.'],
+        ['projects.html', 'Projects', 'Run a real experiment', 'Compare models, build tools, or design a useful AI workflow.']
+      ]
+    }
+  };
+
+  function selectedValue(name) {
+    const chosen = form.querySelector(`input[name="${name}"]:checked`);
+    return chosen ? Number(chosen.value) : null;
+  }
+
+  function selectedText(name) {
+    const chosen = form.querySelector(`input[name="${name}"]:checked`);
+    return chosen ? chosen.value : '';
+  }
+
+  function routeFor(score) {
+    if (score >= 72) return routes.builder;
+    if (score >= 42) return routes.explorer;
+    return routes.beginner;
+  }
+
+  function toneForAge(age) {
+    if (age === 'teen') return 'Teen path: direct, clear, and not babyish.';
+    if (age === 'young-adult') return 'Young adult path: practical, quick, and flexible.';
+    if (age === 'older-adult') return 'Older adult path: plain English, patient pacing, no tech ego.';
+    return 'Adult path: practical, efficient, and not school-ish.';
+  }
+
+  function renderRoute(route) {
+    routeEl.innerHTML = '';
+    route.chapters.forEach(([href, num, title, description]) => {
+      const a = document.createElement('a');
+      a.href = href;
+      a.className = 'chapter-card';
+      a.innerHTML = `<div class="num">${num}</div><h3>${title}</h3><p>${description}</p>`;
+      routeEl.appendChild(a);
+    });
+  }
+
+  function currentName() {
+    const card = cards[current];
+    if (card.dataset.profile === 'age') return 'age_range';
+    return card.dataset.category;
+  }
+
+  function validateCurrent() {
+    const name = currentName();
+    if (!name) return true;
+    return !!form.querySelector(`input[name="${name}"]:checked`);
+  }
+
+  function showStep(index) {
+    current = Math.max(0, Math.min(index, cards.length - 1));
+    cards.forEach((card, i) => card.classList.toggle('active', i === current));
+    const isFirst = current === 0;
+    const isLast = current === cards.length - 1;
+    back.hidden = isFirst;
+    next.hidden = isLast;
+    finish.hidden = !isLast;
+    stepLabel.textContent = isFirst ? 'Profile' : `Category ${current} of ${cards.length - 1}`;
+    stepFill.style.width = `${Math.round((current) / (cards.length - 1) * 100)}%`;
+  }
+
+  function showIncomplete() {
+    result.hidden = false;
+    levelEl.textContent = 'Pick one';
+    scoreEl.textContent = '';
+    titleEl.textContent = 'Choose an answer to continue.';
+    copyEl.innerHTML = '<span class="gauge-warning">You can still write a different answer in the box, but pick the closest option first so the gauge can route you.</span>';
+    routeEl.innerHTML = '';
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function finishGauge() {
+    const values = categories.map(selectedValue);
+    const answered = values.filter(v => v !== null);
+
+    if (answered.length < categories.length || !selectedText('age_range')) {
+      showIncomplete();
+      return;
+    }
+
+    const raw = answered.reduce((sum, value) => sum + value, 0);
+    const percent = Math.round(raw / (categories.length * 3) * 100);
+    const route = routeFor(percent);
+
+    result.hidden = false;
+    levelEl.textContent = route.label;
+    scoreEl.textContent = `${percent}%`;
+    titleEl.textContent = route.title;
+    copyEl.textContent = `${toneForAge(selectedText('age_range'))} ${route.copy}`;
+    renderRoute(route);
+
+    const saved = {
+      ageRange: selectedText('age_range'),
+      score: percent,
+      route: route.label,
+      answers: Object.fromEntries(categories.map(name => [name, selectedValue(name)])),
+      custom: Object.fromEntries(categories.map(name => [name, form.elements[`${name}_other`]?.value.trim() || ''])),
+      ageNote: form.elements.age_other?.value.trim() || '',
+      savedAt: new Date().toISOString()
+    };
+    localStorage.setItem('ai-field-guide-gauge', JSON.stringify(saved));
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  next?.addEventListener('click', () => {
+    if (!validateCurrent()) {
+      showIncomplete();
+      return;
+    }
+    result.hidden = true;
+    showStep(current + 1);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  back?.addEventListener('click', () => {
+    result.hidden = true;
+    showStep(current - 1);
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (!validateCurrent()) {
+      showIncomplete();
+      return;
+    }
+    finishGauge();
+  });
+
+  reset?.addEventListener('click', () => {
+    form.reset();
+    result.hidden = true;
+    localStorage.removeItem('ai-field-guide-gauge');
+    showStep(0);
+  });
+
+  showStep(0);
+}
+document.addEventListener('DOMContentLoaded', initGauge);
