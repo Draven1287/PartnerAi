@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Course: AI Field Guide</title>
+  <title>Course: Learning AI</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,13 +12,14 @@
 
 <nav class="nav">
   <div class="nav-inner">
-    <a href="index.html" class="nav-logo">AI Field Guide</a>
+    <a href="index.html" class="nav-logo">Learning AI</a>
     <div class="nav-links">
       <a href="assessment.html">Start</a>
-      <a href="course.html">Course</a>
+      <a href="course.html">Lessons</a>
       <a href="playground.html">Playground</a>
       <a href="projects.html">Projects</a>
       <a href="for-educators.html">Educators</a>
+      <a href="settings.html">Settings</a>
       <a href="about.html">About</a>
       <a href="assessment.html" class="nav-cta">Start</a>
     </div>
@@ -29,18 +30,33 @@
   <section class="hero">
     <div class="container">
       <div class="tagline">The course</div>
-      <h1>Learn what AI is, what it can do, and where your judgment still matters.</h1>
-      <p class="lead">Start with the gauge if you are new. If you already know the basics, jump into the chapters that match your level.</p>
+      <h1>Lessons that change based on what you already know.</h1>
+      <p class="lead" id="lessons-hero-copy">Start with the gauge if you are new. If you already took it, this page will recommend a different lesson order for your level.</p>
       <div class="btn-row">
-        <a href="assessment.html" class="btn btn-primary">Take the AI gauge</a>
-        <a href="chapter-1.html" class="btn btn-ghost">Start at Chapter 1</a>
+        <a href="assessment.html" class="btn btn-primary" id="lessons-primary">Take the AI gauge</a>
+        <a href="my-path.html" class="btn btn-ghost">Open My Path</a>
       </div>
+    </div>
+  </section>
+
+  <section class="section-tight" id="personal-lessons" hidden>
+    <div class="container">
+      <div class="lesson-path-head">
+        <div>
+          <span class="section-heading">Recommended for your level</span>
+          <h2 id="lesson-path-title">Your lesson path</h2>
+          <p id="lesson-path-copy"></p>
+        </div>
+        <a href="assessment.html" class="btn btn-ghost">Retake gauge</a>
+      </div>
+      <div class="chapter-list personalized-lessons" id="lesson-path-list"></div>
     </div>
   </section>
 
   <section class="section-tight">
     <div class="container">
-      <div class="chapter-list">
+      <span class="section-heading">Full lesson library</span>
+      <div class="chapter-list" id="full-lesson-list">
         <a href="chapter-1.html" class="chapter-card">
           <div class="num">CHAPTER 01 · Foundations</div>
           <h3>What AI actually is</h3>
@@ -82,12 +98,12 @@
 
 <footer class="footer">
   <div class="container">
-    <p><strong>AI Field Guide</strong>: a free, opinionated course on working with AI.</p>
-    <p>Built by Aarav Shah. A youth project supported by the <a href="https://ahimsafdn.org">Ahimsa Foundation</a>.</p>
+    <p><strong>Learning AI</strong>: a free, opinionated course on working with AI.</p>
+    <p>Built by Aarav Shah.</p>
   </div>
 </footer>
 
-<script src="script.js"></script>
-<script src="widget.js"></script>
+<script src="script.js?v=20260519g"></script>
+<script src="widget.js?v=20260519g"></script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 /* ============================================================
-   AI Field Guide: sitewide chat widget
+   Learning AI: sitewide chat widget
    Runs Llama 3.2 1B Instruct ENTIRELY IN YOUR BROWSER via WebLLM.
    No API key. No backend. No data leaves your machine.
    ============================================================ */
@@ -9,7 +9,7 @@
   const MODEL_ID = 'Llama-3.2-1B-Instruct-q4f32_1-MLC';
   const MODEL_LABEL = 'Llama 3.2 1B';
   const SYSTEM_PROMPT =
-    "You are AI Field Guide, a friendly AI learning companion on a site built by Aarav Shah (a 9th grader). " +
+    "You are the Learning AI Guide, a friendly AI learning companion on a site called Learning AI, built by Aarav Shah (a 9th grader). " +
     "You are running entirely in the user's browser using WebLLM: no API keys, no server. " +
     "You are a 1B-parameter model: small, fast, sometimes wrong. Be honest about your limits. " +
     "Help with anything on the site: explain lessons, ask guiding questions, turn vague goals into better prompts, suggest small projects, and encourage users to verify important facts. " +
@@ -81,15 +81,21 @@
 
   function learnerProfilePrompt() {
     try {
-      const profile = JSON.parse(localStorage.getItem('ai-field-guide-gauge') || 'null');
-      if (!profile) return '';
+      const profile = JSON.parse(localStorage.getItem('modelwise-gauge') || 'null');
+      const settings = JSON.parse(localStorage.getItem('learningai-settings') || 'null');
+      const styleLine = settings
+        ? `Learning style settings: format ${settings.format || 'normal'}, mode ${settings.mode || 'balanced'}, detail ${settings.detail || 'normal'}. ${settings.note ? `Learner note: ${settings.note}` : ''}`
+        : '';
+      if (!profile) return styleLine;
       const ageTone = {
         teen: 'The learner is a teenager. Be direct, clear, and natural. Do not sound babyish or fake-cool.',
         'young-adult': 'The learner is a young adult. Keep the tone practical, quick, and flexible.',
         adult: 'The learner is an adult. Be practical and efficient. Do not make it feel like school.',
         'older-adult': 'The learner is an older adult. Use plain English, patient pacing, and no tech ego.'
       }[profile.ageRange] || '';
-      return `Learner profile from the AI gauge: ${profile.route || 'unknown route'}, score ${profile.score || 'unknown'}%. ${ageTone}`;
+      const user = JSON.parse(localStorage.getItem('modelwise-user') || 'null');
+      const nameLine = user?.name ? `The learner's private display name is ${user.name}. Greet them naturally by name when useful.` : '';
+      return `Learner profile from the AI gauge: ${profile.route || 'unknown route'}, score ${profile.score || 'unknown'}%. ${ageTone} ${nameLine} ${styleLine}`;
     } catch (e) {
       return '';
     }
@@ -116,7 +122,7 @@
     panel.innerHTML = `
       <div class="widget-header">
         <span class="dot"></span>
-        <div class="title">AI Field Guide
+        <div class="title">Learning AI
           <span class="subtitle">${MODEL_LABEL} · private browser AI</span>
         </div>
         <button class="x" aria-label="Close">×</button>
@@ -369,7 +375,7 @@
     });
 
     infoBtn.addEventListener('click', () => {
-      addSystemMsg('About: AI Field Guide runs Llama 3.2 1B Instruct, an open-source model from Meta, entirely in your browser using WebLLM (WebGPU). No API key, no server, nothing leaves your machine. It is small, so it can make mistakes. Use it as a guide: ask questions, verify important facts, and keep your own judgment active.');
+      addSystemMsg('About: Learning AI runs Llama 3.2 1B Instruct, an open-source model from Meta, entirely in your browser using WebLLM (WebGPU). No API key, no server, nothing leaves your machine. It is small, so it can make mistakes. Use it as a guide: ask questions, verify important facts, and keep your own judgment active.');
     });
 
     // Initial render
@@ -380,7 +386,7 @@
   }
 
   // Expose a small public API so other scripts can drive the widget.
-  window.Aside = {
+  window.ModelWise = {
     open() {
       const fab = document.querySelector('.widget-fab');
       const panel = document.querySelector('.widget-panel');
@@ -403,6 +409,7 @@
       }, 250);
     },
   };
+  window.LearningAI = window.ModelWise;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

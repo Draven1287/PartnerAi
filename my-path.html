@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Path · Learning AI</title>
+  <meta name="description" content="Your personalized Learning AI learning path.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="path-page">
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Learning AI</a>
+    <div class="nav-links">
+      <a href="my-path.html">My Path</a>
+      <a href="course.html">Lessons</a>
+      <a href="playground.html">Practice</a>
+      <a href="projects.html">Projects</a>
+      <a href="for-educators.html">Educators</a>
+      <a href="settings.html">Settings</a>
+      <a href="about.html">About</a>
+      <a href="assessment.html" class="nav-cta">Retake</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="path-hero">
+    <div class="wide">
+      <div class="path-hero-grid">
+        <div>
+          <div class="tagline">My Path</div>
+          <h1 id="path-title">Your AI path is loading.</h1>
+          <p class="lead" id="path-copy">Learning AI uses your saved assessment to build a personal learning map.</p>
+          <div class="btn-row">
+            <a id="path-primary" href="assessment.html" class="btn btn-primary">Take assessment</a>
+            <button type="button" class="btn btn-ghost" data-prompt="Use my Learning AI profile to tell me what I should learn next in 3 clear steps.">Ask my guide</button>
+          </div>
+        </div>
+        <div class="path-score-card">
+          <span>Starting signal</span>
+          <strong id="path-score">--</strong>
+          <p id="path-saved">No saved path yet.</p>
+          <p id="path-signal-copy">This can change when you retake the assessment.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="wide">
+      <div id="path-empty" class="path-empty" hidden>
+        <h2>Your path is not built yet.</h2>
+        <p>Take the Learning AI assessment first. It takes a few minutes and creates your starting route.</p>
+        <a href="assessment.html" class="btn btn-primary">Take the assessment</a>
+      </div>
+
+      <div id="path-dashboard" hidden>
+        <section class="path-panel next-step-panel">
+          <span class="section-heading">Next best step</span>
+          <h2 id="next-title">Start here</h2>
+          <p id="next-copy"></p>
+          <a id="next-link" href="course.html" class="btn btn-primary">Continue</a>
+        </section>
+
+        <div class="path-grid">
+          <section class="path-panel">
+            <h2>Your route</h2>
+            <div class="chapter-list" id="path-route"></div>
+          </section>
+
+          <section class="path-panel">
+            <h2>Skill map</h2>
+            <div class="skill-map" id="skill-map"></div>
+          </section>
+        </div>
+
+        <section class="path-panel">
+          <h2>Your tools</h2>
+          <p class="small">These are laid out around your profile, not in random website tabs.</p>
+          <div class="tool-grid" id="path-tools"></div>
+        </section>
+
+        <section class="path-panel">
+          <h2>Your experience settings</h2>
+          <p class="small" id="path-settings-copy">Choose how Learning AI should teach you.</p>
+          <div class="btn-row">
+            <a href="settings.html" class="btn btn-primary">Customize my experience</a>
+          </div>
+        </section>
+
+        <div class="path-grid">
+          <section class="path-panel">
+            <h2>This is what Learning AI knows about you</h2>
+            <ul id="path-known"></ul>
+          </section>
+
+          <section class="path-panel">
+            <h2>Guide setup</h2>
+            <p class="small">This is the context the guide uses to teach you better on this device.</p>
+            <textarea id="path-prompt" readonly></textarea>
+          </section>
+        </div>
+
+        <section class="path-panel manage-panel">
+          <h2>Manage your local profile</h2>
+          <p>Saved only in this browser. No email, no payment, no public profile.</p>
+          <div class="btn-row">
+            <a href="assessment.html" class="btn btn-ghost">Retake assessment</a>
+            <button type="button" class="btn btn-ghost" id="clear-path">Clear saved path</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p><strong>Learning AI</strong>: a free course for understanding what AI is, what it can do, and how to use it without losing your own judgment.</p>
+    <p>Built by Aarav Shah.</p>
+  </div>
+</footer>
+
+<script src="script.js?v=20260519g"></script>
+<script src="widget.js?v=20260519g"></script>
+</body>
+</html>

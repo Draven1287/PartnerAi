@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · Learning AI</title>
+  <meta name="description" content="Customize how Learning AI teaches you.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="path-page settings-page">
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">Learning AI</a>
+    <div class="nav-links">
+      <a href="my-path.html">My Path</a>
+      <a href="course.html">Lessons</a>
+      <a href="playground.html">Practice</a>
+      <a href="projects.html">Projects</a>
+      <a href="settings.html">Settings</a>
+      <a href="about.html">About</a>
+      <a href="assessment.html" class="nav-cta">Retake</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="path-hero">
+    <div class="wide">
+      <div class="path-hero-grid">
+        <div>
+          <div class="tagline">Settings</div>
+          <h1>Make Learning AI teach the way you learn.</h1>
+          <p class="lead">Choose the style that fits you. The site will use it to rewrite lesson cards, guide prompts, and the order of what you see next.</p>
+          <div class="btn-row">
+            <a href="course.html" class="btn btn-primary">See my lessons</a>
+            <button type="button" class="btn btn-ghost" data-prompt="Use my Learning AI settings to explain the next lesson in the way I learn best.">Ask my guide</button>
+          </div>
+        </div>
+        <div class="path-score-card">
+          <span>Learning style</span>
+          <strong id="settings-style-preview">Custom</strong>
+          <p id="settings-summary">Saved only in this browser.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-tight">
+    <div class="wide">
+      <form class="settings-panel" id="learning-settings">
+        <section class="path-panel">
+          <span class="section-heading">Appearance</span>
+          <h2>Choose the way the site looks.</h2>
+          <div class="settings-choice-grid">
+            <label><input type="radio" name="theme" value="dark"> Dark mode</label>
+            <label><input type="radio" name="theme" value="light"> Light mode</label>
+          </div>
+          <div class="settings-color-grid">
+            <label>
+              Accent color
+              <input type="color" name="accentColor" value="#2563eb">
+            </label>
+            <label>
+              Text color
+              <input type="color" name="textColor" value="#121826">
+            </label>
+            <label>
+              Background color
+              <input type="color" name="backgroundColor" value="#f7f9fc">
+            </label>
+            <label>
+              Font size
+              <select name="fontScale">
+                <option value="normal">Normal</option>
+                <option value="large">Large</option>
+                <option value="xl">Extra large</option>
+              </select>
+            </label>
+            <label>
+              Font style
+              <select name="fontFamily">
+                <option value="system">Clean</option>
+                <option value="serif">Book</option>
+                <option value="mono">Code</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="path-panel">
+          <span class="section-heading">Answer format</span>
+          <h2>How should lessons be written?</h2>
+          <div class="settings-choice-grid">
+            <label><input type="radio" name="format" value="bullets"> Bullet points</label>
+            <label><input type="radio" name="format" value="short"> Short paragraphs</label>
+            <label><input type="radio" name="format" value="steps"> Step by step</label>
+            <label><input type="radio" name="format" value="visual"> Visual examples first</label>
+          </div>
+        </section>
+
+        <section class="path-panel">
+          <span class="section-heading">Learning mode</span>
+          <h2>What helps you learn fastest?</h2>
+          <div class="settings-choice-grid">
+            <label><input type="radio" name="mode" value="examples"> Show examples first</label>
+            <label><input type="radio" name="mode" value="practice"> Let me practice fast</label>
+            <label><input type="radio" name="mode" value="project"> Connect it to projects</label>
+            <label><input type="radio" name="mode" value="plain"> Explain it simply first</label>
+          </div>
+        </section>
+
+        <section class="path-panel">
+          <span class="section-heading">Pacing</span>
+          <h2>How much detail should the site show?</h2>
+          <div class="settings-choice-grid">
+            <label><input type="radio" name="detail" value="compact"> Compact</label>
+            <label><input type="radio" name="detail" value="normal"> Normal</label>
+            <label><input type="radio" name="detail" value="deep"> Deeper explanation</label>
+          </div>
+        </section>
+
+        <section class="path-panel">
+          <span class="section-heading">Personal note</span>
+          <h2>Tell the guide how you learn.</h2>
+          <textarea name="note" placeholder="Example: I like bullet points, quick examples, and then one practice challenge."></textarea>
+        </section>
+
+        <section class="path-panel manage-panel">
+          <h2>Save your experience</h2>
+          <p>These settings stay on this device. No account, no email, no tracking.</p>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-primary">Save settings</button>
+            <button type="button" class="btn btn-ghost" id="settings-reset">Reset settings</button>
+          </div>
+        </section>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p><strong>Learning AI</strong>: a free course for understanding what AI is, what it can do, and how to use it without losing your own judgment.</p>
+    <p>Built by Aarav Shah.</p>
+  </div>
+</footer>
+
+<script src="script.js?v=20260519g"></script>
+<script src="widget.js?v=20260519g"></script>
+</body>
+</html>

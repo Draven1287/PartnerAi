@@ -1,5 +1,5 @@
 /* ============================================================
-   AI Field Guide: design system
+   Learning AI: design system
    Editorial, warm, practical. For 9th grade and up.
    ============================================================ */
 
@@ -23,6 +23,7 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
@@ -35,6 +36,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+body[data-font-scale="large"] { font-size: 19px; }
+body[data-font-scale="xl"] { font-size: 21px; }
+body[data-font-family="serif"] { font-family: Georgia, "Times New Roman", serif; }
+body[data-font-family="mono"] { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
 
 /* ---------- typography ---------- */
 h1, h2, h3, h4 { font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; color: var(--text); }
@@ -87,6 +92,27 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .nav-links a.active { color: var(--text); }
 .nav-cta { background: var(--accent); color: var(--on-accent) !important; padding: 0.45rem 0.9rem; border-radius: 6px; font-weight: 500; }
 .nav-cta:hover { background: var(--accent-dim); border: none; }
+.assessment-nav {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.assessment-nav span {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.assessment-nav button {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.85rem;
+}
+.assessment-nav button:hover { border-color: var(--accent); }
 @media (max-width: 760px) {
   .nav-inner {
     align-items: flex-start;
@@ -122,6 +148,11 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   .nav-cta {
     display: none;
   }
+  .assessment-nav {
+    margin-left: 0;
+    width: 100%;
+    justify-content: space-between;
+  }
 }
 
 /* ---------- hero ---------- */
@@ -148,6 +179,28 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .chapter-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
 .chapter-card p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
 .chapter-card .meta { margin-top: 0.6rem; color: var(--text-faint); font-size: 0.85rem; font-family: ui-monospace, monospace; }
+.lesson-path-head {
+  align-items: flex-start;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.lesson-path-head h2 {
+  margin: 0.35rem 0 0.4rem;
+}
+.lesson-path-head p {
+  margin: 0;
+}
+.personalized-lessons {
+  counter-reset: lesson-path;
+}
+.personalized-lesson-card {
+  border-left: 4px solid var(--accent);
+}
+.personalized-lesson-card:first-child {
+  background: var(--surface-2);
+}
 
 /* ---------- pull-out boxes ---------- */
 .callout { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; padding: 1.1rem 1.3rem; margin: 1.5rem 0; }
@@ -314,9 +367,136 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .token-bar .pct { font-family: ui-monospace, monospace; min-width: 40px; color: var(--text-dim); font-size: 0.85rem; text-align: right; }
 
 /* ---------- AI knowledge gauge ---------- */
+.assessment-page .nav-inner {
+  max-width: 960px;
+}
+.assessment-page {
+  --bg: #0f1726;
+  --surface: #1b2637;
+  --surface-2: #243247;
+  --border: #33445c;
+  --text: #f4f7fb;
+  --text-dim: #a7b1c2;
+  --text-faint: #778397;
+  --accent: #1597e5;
+  --accent-dim: #0f77bf;
+  --accent-soft: rgba(21, 151, 229, 0.14);
+  --good: #11b88a;
+  --bad: #ff5f75;
+  --on-accent: #ffffff;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(21, 151, 229, 0.12), transparent 34rem),
+    var(--bg);
+}
+.assessment-page .nav {
+  background: rgba(15, 23, 38, 0.86);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.assessment-page .nav-logo,
+.assessment-page .assessment-nav button {
+  color: var(--text);
+}
+.assessment-page .assessment-nav button {
+  background: rgba(27, 38, 55, 0.86);
+  border-color: rgba(255, 255, 255, 0.12);
+}
 .assessment-hero {
-  padding-bottom: 2rem;
-  text-align: left;
+  padding: 4rem 0 2rem;
+  text-align: center;
+}
+.assessment-hero .container,
+.assessment-page .container {
+  max-width: 860px;
+}
+.assessment-hero .tagline {
+  color: var(--good);
+}
+.assessment-hero h1 {
+  color: var(--text);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.22);
+}
+.assessment-hero .lead {
+  color: var(--text-dim);
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 720px;
+}
+.level-preview,
+.profile-panel {
+  background: rgba(27, 38, 55, 0.9);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.26);
+  margin: 0 auto 1.2rem;
+  max-width: 780px;
+  padding: clamp(1.2rem, 3vw, 2rem);
+}
+.level-preview {
+  display: grid;
+  gap: 1.2rem;
+}
+.level-preview h2 {
+  margin: 0.2rem 0 0.5rem;
+}
+.level-preview p {
+  color: var(--text-dim);
+  margin: 0;
+}
+.level-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.level-card {
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 1rem;
+}
+.level-card span {
+  color: var(--good);
+  display: block;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+.level-card h3 {
+  color: var(--text);
+  margin: 0 0 0.35rem;
+}
+.profile-panel {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+}
+.profile-panel h2 { margin-top: 0.2rem; }
+.profile-panel p,
+.profile-form label,
+.profile-form .small { color: var(--text-dim); }
+.profile-form {
+  display: grid;
+  gap: 0.75rem;
+}
+.profile-form label {
+  color: var(--text-dim);
+  display: grid;
+  font-size: 0.9rem;
+  gap: 0.3rem;
+}
+.profile-form input {
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  color: var(--text);
+  font: inherit;
+  padding: 0.75rem 0.85rem;
+}
+.profile-form input:focus { outline: none; border-color: var(--accent); }
+@media (max-width: 760px) {
+  .level-grid { grid-template-columns: 1fr; }
+  .profile-panel { grid-template-columns: 1fr; }
 }
 .gauge {
   display: grid;
@@ -325,10 +505,10 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   max-width: 780px;
 }
 .gauge-progress {
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid var(--border);
+  background: rgba(27, 38, 55, 0.82);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(18, 24, 38, 0.06);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.2);
   display: grid;
   gap: 0.6rem;
   padding: 0.9rem 1rem;
@@ -341,7 +521,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   text-transform: uppercase;
 }
 .gauge-progress div {
-  background: var(--surface-2);
+  background: rgba(255,255,255,0.08);
   border-radius: 999px;
   height: 8px;
   overflow: hidden;
@@ -354,10 +534,10 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   transition: width 0.2s ease;
 }
 .gauge-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: rgba(27, 38, 55, 0.92);
+  border: 1px solid rgba(255,255,255,0.11);
   border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(18, 24, 38, 0.08);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.28);
   display: none;
   padding: clamp(1.2rem, 3vw, 2rem);
 }
@@ -365,7 +545,9 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .gauge-card h2 {
   margin-top: 0.2rem;
   margin-bottom: 0.6rem;
-  font-size: clamp(1.35rem, 2.3vw, 1.75rem);
+  color: var(--text);
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  text-shadow: 0 2px 0 rgba(0,0,0,0.2);
 }
 .gauge-card p { color: var(--text-dim); }
 .gauge-kicker {
@@ -380,26 +562,26 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   grid-template-columns: 20px 1fr;
   gap: 0.65rem;
   align-items: start;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.13);
   border-radius: 14px;
-  background: #fbfdff;
+  background: #1d2a3b;
   color: var(--text);
   cursor: pointer;
   font-size: 0.96rem;
   line-height: 1.45;
   margin: 0.65rem 0;
-  padding: 0.9rem 1rem;
+  padding: 1.05rem 1.15rem;
   transition: border-color 0.15s, background 0.15s, transform 0.15s, box-shadow 0.15s;
 }
 .gauge-card label:hover {
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
-  box-shadow: 0 10px 22px rgba(18, 24, 38, 0.06);
+  border-color: rgba(21, 151, 229, 0.75);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
   transform: translateY(-1px);
 }
 .gauge-card label:has(input:checked) {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+  border-color: var(--good);
+  background: rgba(17, 184, 138, 0.1);
+  box-shadow: 0 0 0 2px rgba(17, 184, 138, 0.45);
 }
 .gauge-card input[type="radio"] {
   accent-color: var(--accent);
@@ -410,9 +592,9 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   min-height: 72px;
   margin-top: 0.8rem;
   padding: 0.85rem 0.95rem;
-  background: #fbfdff;
+  background: #111b2b;
   color: var(--text);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 14px;
   font: inherit;
   resize: vertical;
@@ -425,12 +607,22 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   justify-content: space-between;
   margin: 1rem 0 0;
 }
+.assessment-page .btn-primary {
+  background: linear-gradient(180deg, #1597e5, #0b7fc9);
+  box-shadow: 0 12px 26px rgba(21, 151, 229, 0.28);
+  min-width: 170px;
+}
+.assessment-page .btn-ghost {
+  background: rgba(27, 38, 55, 0.7);
+  border-color: rgba(255,255,255,0.14);
+  color: var(--text);
+}
 .gauge-result {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
+  background: rgba(27, 38, 55, 0.94);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-left: 4px solid var(--good);
   border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(18, 24, 38, 0.08);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.28);
   margin: 2rem 0 0;
   padding: 1.5rem;
 }
@@ -451,14 +643,350 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 }
 .gauge-score strong {
   color: var(--text);
-  font-size: 2rem;
+  font-size: 1.2rem;
   line-height: 1;
 }
 .gauge-result .chapter-list { margin-bottom: 1.2rem; }
+.known-profile {
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  margin: 1rem 0;
+  padding: 1rem 1.1rem;
+}
+.known-profile h3 {
+  font-size: 1rem;
+  margin: 0 0 0.6rem;
+}
+.known-profile ul {
+  margin-bottom: 0;
+}
+.known-profile textarea {
+  background: #0f1726;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  color: var(--text);
+  font: inherit;
+  min-height: 150px;
+  padding: 0.85rem 0.95rem;
+  resize: vertical;
+  width: 100%;
+}
+.tool-hub {
+  margin: 1.2rem 0;
+}
+.tool-hub h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.3rem;
+}
+.tool-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 0.9rem;
+}
+.tool-card {
+  background: linear-gradient(180deg, #1d2a3b 0%, #172234 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  color: var(--text);
+  display: block;
+  min-height: 150px;
+  padding: 1rem;
+}
+.tool-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 14px 28px rgba(18, 24, 38, 0.08);
+}
+.tool-card .tool-icon {
+  align-items: center;
+  background: var(--accent-soft);
+  border-radius: 12px;
+  color: var(--accent);
+  display: inline-flex;
+  font-weight: 700;
+  height: 38px;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+  width: 38px;
+}
+.tool-card h4 {
+  color: var(--text);
+  font-size: 1rem;
+  margin: 0 0 0.35rem;
+}
+.tool-card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+@media (max-width: 680px) {
+  .tool-grid { grid-template-columns: 1fr; }
+}
 .gauge-warning {
   color: var(--bad);
   font-size: 0.95rem;
   margin-top: 0.6rem;
+}
+
+/* ---------- My Path dashboard ---------- */
+.path-page {
+  --bg: #0f1726;
+  --surface: #1b2637;
+  --surface-2: #243247;
+  --border: #33445c;
+  --text: #f4f7fb;
+  --text-dim: #a7b1c2;
+  --text-faint: #778397;
+  --accent: #1597e5;
+  --accent-dim: #0f77bf;
+  --accent-soft: rgba(21, 151, 229, 0.14);
+  --good: #11b88a;
+  --bad: #ff5f75;
+  --on-accent: #ffffff;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(17, 184, 138, 0.11), transparent 30rem),
+    radial-gradient(circle at 80% 0%, rgba(21, 151, 229, 0.13), transparent 34rem),
+    var(--bg);
+}
+.path-page .nav {
+  background: rgba(15, 23, 38, 0.86);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+.path-page .nav-logo,
+.path-page .nav-links a {
+  color: var(--text);
+}
+body[data-theme="light"].assessment-page,
+body[data-theme="light"].path-page {
+  background: var(--bg);
+}
+body[data-theme="dark"].assessment-page,
+body[data-theme="dark"].path-page {
+  background: var(--bg);
+}
+body[data-theme] .nav,
+body[data-theme].assessment-page .nav,
+body[data-theme].path-page .nav {
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-bottom-color: var(--border);
+}
+body[data-theme] .nav-logo,
+body[data-theme].assessment-page .nav-logo,
+body[data-theme].path-page .nav-logo,
+body[data-theme].path-page .nav-links a {
+  color: var(--text);
+}
+.path-hero {
+  padding: 4rem 0 2rem;
+}
+.path-hero-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  align-items: stretch;
+}
+.path-hero h1 {
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+.path-score-card,
+.path-panel,
+.path-empty {
+  background: rgba(27, 38, 55, 0.92);
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+  padding: clamp(1.2rem, 3vw, 1.7rem);
+}
+.path-score-card span {
+  color: var(--good);
+  display: block;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.path-score-card strong {
+  color: var(--text);
+  display: block;
+  font-size: 3rem;
+  line-height: 1;
+  margin: 1rem 0;
+}
+.path-score-card p {
+  color: var(--text-dim);
+  margin: 0;
+}
+.path-score-card p + p {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+}
+.path-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  margin: 1rem 0;
+}
+.path-panel h2,
+.path-empty h2 {
+  color: var(--text);
+  margin-top: 0;
+}
+.next-step-panel {
+  border-left: 4px solid var(--good);
+}
+.skill-map {
+  display: grid;
+  gap: 0.6rem;
+}
+.skill-item {
+  align-items: center;
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.85rem;
+}
+.skill-item span { color: var(--text); }
+.skill-item strong {
+  color: var(--good);
+  font-size: 0.8rem;
+}
+.path-panel textarea {
+  background: #0f1726;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  color: var(--text);
+  font: inherit;
+  min-height: 220px;
+  padding: 0.85rem 0.95rem;
+  resize: vertical;
+  width: 100%;
+}
+.settings-panel {
+  display: grid;
+  gap: 1rem;
+}
+.settings-choice-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.settings-choice-grid label {
+  align-items: center;
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  gap: 0.7rem;
+  padding: 0.85rem 0.95rem;
+}
+.settings-choice-grid label:has(input:checked) {
+  border-color: var(--good);
+  box-shadow: 0 0 0 1px rgba(17, 184, 138, 0.18);
+}
+.settings-color-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+.settings-color-grid label {
+  color: var(--text-dim);
+  display: grid;
+  gap: 0.35rem;
+}
+.settings-color-grid input,
+.settings-color-grid select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font: inherit;
+  min-height: 42px;
+  padding: 0.45rem 0.65rem;
+}
+.settings-color-grid input[type="color"] {
+  padding: 0.25rem;
+}
+.settings-panel textarea {
+  background: #0f1726;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  color: var(--text);
+  font: inherit;
+  min-height: 140px;
+  padding: 0.85rem 0.95rem;
+  resize: vertical;
+  width: 100%;
+}
+.formatted-copy {
+  white-space: pre-line;
+}
+.manage-panel {
+  margin-top: 1rem;
+}
+@media (max-width: 820px) {
+  .path-hero-grid,
+  .path-grid {
+    grid-template-columns: 1fr;
+  }
+  .settings-choice-grid,
+  .settings-color-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+body[data-theme] .level-preview,
+body[data-theme] .profile-panel,
+body[data-theme] .gauge-progress,
+body[data-theme] .gauge-card,
+body[data-theme] .gauge-result,
+body[data-theme] .path-score-card,
+body[data-theme] .path-panel,
+body[data-theme] .path-empty {
+  background: var(--surface);
+  border-color: var(--border);
+}
+body[data-theme] .level-card,
+body[data-theme] .gauge-progress div,
+body[data-theme] .gauge-card label,
+body[data-theme] .skill-item,
+body[data-theme] .settings-choice-grid label {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+body[data-theme] .profile-form input,
+body[data-theme] .gauge-card textarea,
+body[data-theme] .path-panel textarea,
+body[data-theme] .settings-panel textarea {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+body[data-theme] .assessment-page .btn-primary,
+body[data-theme].assessment-page .btn-primary {
+  background: var(--accent);
+  box-shadow: none;
+}
+body[data-theme] .btn-ghost,
+body[data-theme].assessment-page .btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text);
+}
+body[data-theme] .btn-ghost:hover,
+body[data-theme].assessment-page .btn-ghost:hover {
+  background: var(--surface-2);
+}
+body[data-theme] .gauge-card h2 {
+  text-shadow: none;
 }
 
 /* ---------- Section heading on home ---------- */
