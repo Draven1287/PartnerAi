@@ -778,6 +778,19 @@ body[data-theme].path-page .nav-logo,
 body[data-theme].path-page .nav-links a {
   color: var(--text);
 }
+body[data-theme].assessment-page .assessment-nav span {
+  color: var(--text-dim);
+}
+body[data-theme].assessment-page .assessment-nav button {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  box-shadow: none;
+}
+body[data-theme].assessment-page .assessment-nav button:hover {
+  background: var(--surface-2);
+  border-color: var(--accent);
+}
 .path-hero {
   padding: 4rem 0 2rem;
 }

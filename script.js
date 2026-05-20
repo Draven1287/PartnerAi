@@ -109,7 +109,54 @@ function settingsSummary(settings) {
     dark: 'dark mode',
     light: 'light mode'
   }[settings.theme] || 'default colors';
-  return `${format}, ${mode}, ${detail}, ${theme}`;
+  const focus = focusProfile(settings.focusArea).label.toLowerCase();
+  return `${format}, ${mode}, ${detail}, ${theme}, ${focus}`;
+}
+
+function focusProfile(focus) {
+  return {
+    student: {
+      label: 'Student agency',
+      goal: 'learn how to stay in charge of the thinking while using AI as a tutor, critic, and practice partner',
+      example: 'Use the lesson on homework, studying, writing, and asking for hints without outsourcing your brain.',
+      challenge: 'Ask AI for hints, then answer in your own words before asking it to critique you.'
+    },
+    business: {
+      label: 'Business productivity',
+      goal: 'learn how to use AI and multi-agent workflows to research, plan, draft, check, and ship work faster',
+      example: 'Use the lesson on emails, meetings, research, workflows, and agent teams that divide tasks.',
+      challenge: 'Design a three-agent workflow: researcher, drafter, and reviewer.'
+    },
+    'learning-coder': {
+      label: 'Learning coder',
+      goal: 'learn coding with AI without becoming dependent on copied answers',
+      example: 'Use the lesson on debugging, reading code, asking for explanations, and building small projects.',
+      challenge: 'Ask AI to explain one bug, then fix a similar bug yourself.'
+    },
+    teacher: {
+      label: 'Teacher',
+      goal: 'learn how to guide students, plan lessons, build activities, and set healthy AI boundaries',
+      example: 'Use the lesson on feedback, differentiation, lesson planning, and classroom AI norms.',
+      challenge: 'Turn one lesson into a practice activity with a verification step.'
+    },
+    creative: {
+      label: 'Creative',
+      goal: 'learn how to use AI for ideas and prototypes while keeping your own taste',
+      example: 'Use the lesson on brainstorming, storyboarding, editing, and comparing versions.',
+      challenge: 'Generate three directions, choose one, and explain why it matches your taste.'
+    },
+    personal: {
+      label: 'Personal life',
+      goal: 'learn how to use AI for everyday decisions, planning, learning, and organization',
+      example: 'Use the lesson on schedules, explanations, decisions, and personal projects.',
+      challenge: 'Ask AI to help plan something real, then check what it missed.'
+    }
+  }[focus] || {
+    label: 'General AI use',
+    goal: 'learn AI through practical examples that match your life',
+    example: 'Use the lesson on a real task you care about.',
+    challenge: 'Try the idea once, then ask what changed.'
+  };
 }
 
 function adaptLessonCopy(copy, title, settings) {
@@ -122,20 +169,22 @@ function adaptLessonCopy(copy, title, settings) {
     project: 'Project link: connect this to something you could build or test.',
     plain: 'Plain version: understand the basic idea before adding harder details.'
   }[mode] || copy;
+  const focus = focusProfile(settings.focusArea);
+  const focusLine = `Your focus: ${focus.example}`;
 
   if (format === 'bullets') {
     const detailLine = detail === 'compact' ? 'Keep it short.' : detail === 'deep' ? 'Add one deeper question after the basics.' : 'Learn the idea, then try it.';
-    return `• ${copy}\n• ${modeLine}\n• ${detailLine}`;
+    return `• ${copy}\n• ${focusLine}\n• ${modeLine}\n• ${detailLine}`;
   }
   if (format === 'steps') {
-    return `1. Learn: ${copy}\n2. Try: ${modeLine}\n3. Check: explain ${title.toLowerCase()} in your own words.`;
+    return `1. Learn: ${copy}\n2. Connect: ${focus.example}\n3. Try: ${modeLine}\n4. Check: explain ${title.toLowerCase()} in your own words.`;
   }
   if (format === 'visual') {
-    return `Picture it first: ${modeLine} Then use the lesson to understand ${title.toLowerCase()}.`;
+    return `Picture it first: ${focus.example} Then use the lesson to understand ${title.toLowerCase()}.`;
   }
   if (detail === 'compact') return copy;
-  if (detail === 'deep') return `${copy} Then ask what could go wrong, where the limits are, and how you would test it.`;
-  return `${copy} ${modeLine}`;
+  if (detail === 'deep') return `${copy} ${focusLine} Then ask what could go wrong, where the limits are, and how you would test it.`;
+  return `${copy} ${focusLine} ${modeLine}`;
 }
 
 // --- Scroll progress bar ---
@@ -439,6 +488,7 @@ function initGauge() {
   }
 
   function renderRoute(route) {
+    if (!routeEl) return;
     routeEl.innerHTML = '';
     route.chapters.forEach(([href, num, title, description]) => {
       const a = document.createElement('a');
@@ -477,6 +527,7 @@ function initGauge() {
   function buildKnownFacts(route, percent) {
     const profile = readProfile();
     const age = selectedText('age_range');
+    const focus = focusProfile(selectedText('focus_area'));
     const ageText = {
       teen: 'teenager, about 13 to 17',
       'young-adult': 'young adult, about 18 to 25',
@@ -493,6 +544,7 @@ function initGauge() {
     return [
       profile ? `Private display name: ${profile.name}.` : 'No private display name saved yet.',
       `Age range: ${ageText}.`,
+      `Focus area: ${focus.label}.`,
       `AI level: ${route.label} at ${percent}%.`,
       `Strongest areas: ${strengths.length ? strengths.join(', ') : 'still forming'}.`,
       `Needs support with: ${growth.length ? growth.join(', ') : 'mostly advanced work now'}.`,
@@ -505,10 +557,12 @@ function initGauge() {
   function buildCraftedPrompt(route, percent) {
     const profile = readProfile();
     const name = profile?.name || 'this learner';
+    const focus = focusProfile(selectedText('focus_area'));
     return `You are Learning AI, a personal AI literacy guide for ${name}.
 
 Learner profile:
 - Age/tone: ${toneForAge(selectedText('age_range'))}
+- Focus area: ${focus.label}. Main goal: ${focus.goal}.
 - Current level: ${route.label}, ${percent}% on the AI knowledge and judgment gauge.
 - What they know about AI: ${selectedLabel('definition')}
 - What they think AI can do: ${selectedLabel('capability')}
@@ -517,12 +571,13 @@ Learner profile:
 - How they think about AI costs: ${selectedLabel('impact')}
 - What they know beyond chatbots: ${selectedLabel('systems')}
 
-Teach from this profile. Be clear, modern, and practical. Do not sound cringe. Ask short questions, give examples, and help the learner build real judgment instead of just memorizing definitions.`;
+Teach from this profile. Be clear, modern, and practical. Do not sound cringe. Ask short questions, give examples, and help the learner build real judgment instead of just memorizing definitions. Connect examples to the learner's focus area.`;
   }
 
   function currentName() {
     const card = cards[current];
     if (card.dataset.profile === 'age') return 'age_range';
+    if (card.dataset.profile === 'focus') return 'focus_area';
     return card.dataset.category;
   }
 
@@ -540,7 +595,7 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     back.hidden = isFirst;
     next.hidden = isLast;
     finish.hidden = !isLast;
-    const labels = ['Profile', '1 / 6 · What AI is', '2 / 6 · What AI can do', '3 / 6 · When to verify', '4 / 6 · Learning with AI', '5 / 6 · Costs and tradeoffs', '6 / 6 · Beyond chatbots'];
+    const labels = ['Profile', 'Focus area', '1 / 6 · What AI is', '2 / 6 · What AI can do', '3 / 6 · When to verify', '4 / 6 · Learning with AI', '5 / 6 · Costs and tradeoffs', '6 / 6 · Beyond chatbots'];
     stepLabel.textContent = labels[current] || `Category ${current} of ${cards.length - 1}`;
     stepFill.style.width = `${Math.round((current) / (cards.length - 1) * 100)}%`;
   }
@@ -551,7 +606,7 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     scoreEl.textContent = '';
     titleEl.textContent = 'Choose an answer to continue.';
     copyEl.innerHTML = '<span class="gauge-warning">You can still write a different answer in the box, but pick the closest option first so the gauge can route you.</span>';
-    routeEl.innerHTML = '';
+    if (routeEl) routeEl.innerHTML = '';
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -559,7 +614,7 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     const values = categories.map(selectedValue);
     const answered = values.filter(v => v !== null);
 
-    if (answered.length < categories.length || !selectedText('age_range')) {
+    if (answered.length < categories.length || !selectedText('age_range') || !selectedText('focus_area')) {
       showIncomplete();
       return;
     }
@@ -575,25 +630,31 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     copyEl.textContent = `${toneForAge(selectedText('age_range'))} ${route.copy}`;
     renderRoute(route);
     const facts = buildKnownFacts(route, percent);
-    knownList.innerHTML = '';
-    facts.forEach(fact => {
-      const li = document.createElement('li');
-      li.textContent = fact;
-      knownList.appendChild(li);
-    });
-    craftedPrompt.value = buildCraftedPrompt(route, percent);
+    if (knownList) {
+      knownList.innerHTML = '';
+      facts.forEach(fact => {
+        const li = document.createElement('li');
+        li.textContent = fact;
+        knownList.appendChild(li);
+      });
+    }
+    const guidePrompt = buildCraftedPrompt(route, percent);
+    if (craftedPrompt) craftedPrompt.value = guidePrompt;
     renderTools(route);
 
     const saved = {
       ageRange: selectedText('age_range'),
+      focusArea: selectedText('focus_area'),
+      focusLabel: focusProfile(selectedText('focus_area')).label,
       score: percent,
       route: route.label,
       answers: Object.fromEntries(categories.map(name => [name, selectedValue(name)])),
       answerText: Object.fromEntries(categories.map(name => [name, selectedLabel(name)])),
       custom: Object.fromEntries(categories.map(name => [name, form.elements[`${name}_other`]?.value.trim() || ''])),
       ageNote: form.elements.age_other?.value.trim() || '',
+      focusNote: form.elements.focus_other?.value.trim() || '',
       knownFacts: facts,
-      guidePrompt: craftedPrompt.value,
+      guidePrompt,
       savedAt: new Date().toISOString()
     };
     localStorage.setItem('modelwise-gauge', JSON.stringify(saved));
@@ -683,22 +744,23 @@ function initPersonalizedLessons() {
 
   const settings = readLearningSettings();
   const gauge = readJSON('modelwise-gauge');
+  const activeSettings = { ...settings, focusArea: settings.focusArea || gauge?.focusArea || '' };
 
-  if (settings.format && fullList) {
+  if ((activeSettings.format || activeSettings.focusArea) && fullList) {
     fullList.querySelectorAll('.chapter-card').forEach(card => {
       const title = card.querySelector('h3')?.textContent || 'this lesson';
       const p = card.querySelector('p');
       if (!p) return;
       const base = p.dataset.baseCopy || p.textContent;
       p.dataset.baseCopy = base;
-      p.className = settings.format === 'bullets' || settings.format === 'steps' ? 'formatted-copy' : '';
-      p.textContent = adaptLessonCopy(base, title, settings);
+      p.className = activeSettings.format === 'bullets' || activeSettings.format === 'steps' ? 'formatted-copy' : '';
+      p.textContent = adaptLessonCopy(base, title, activeSettings);
     });
   }
 
   if (!gauge || !gauge.route) {
-    if (settings.format) {
-      document.getElementById('lessons-hero-copy').textContent = `Your lessons are set to ${settingsSummary(settings)}. Take the gauge when you want Learning AI to choose your level too.`;
+    if (activeSettings.format || activeSettings.focusArea) {
+      document.getElementById('lessons-hero-copy').textContent = `Your lessons are set to ${settingsSummary(activeSettings)}. Take the gauge when you want Learning AI to choose your level too.`;
     }
     return;
   }
@@ -745,11 +807,11 @@ function initPersonalizedLessons() {
 
   section.hidden = false;
   document.getElementById('lesson-path-title').textContent = path.title;
-  document.getElementById('lesson-path-copy').textContent = settings.format
-    ? `${path.copy} Teaching style: ${settingsSummary(settings)}.`
+  document.getElementById('lesson-path-copy').textContent = activeSettings.format || activeSettings.focusArea
+    ? `${path.copy} Teaching style: ${settingsSummary(activeSettings)}.`
     : path.copy;
-  document.getElementById('lessons-hero-copy').textContent = settings.format
-    ? `Your saved level is ${gauge.route}. Lessons are currently customized for ${settingsSummary(settings)}.`
+  document.getElementById('lessons-hero-copy').textContent = activeSettings.format || activeSettings.focusArea
+    ? `Your saved level is ${gauge.route}. Lessons are currently customized for ${settingsSummary(activeSettings)}.`
     : `Your saved level is ${gauge.route}. Use the recommended order below, or browse the full library after it.`;
   const primary = document.getElementById('lessons-primary');
   primary.href = path.primary[0];
@@ -766,8 +828,8 @@ function initPersonalizedLessons() {
     const h3 = document.createElement('h3');
     h3.textContent = title;
     const p = document.createElement('p');
-    p.className = settings.format === 'bullets' || settings.format === 'steps' ? 'formatted-copy' : '';
-    p.textContent = adaptLessonCopy(copy, title, settings);
+    p.className = activeSettings.format === 'bullets' || activeSettings.format === 'steps' ? 'formatted-copy' : '';
+    p.textContent = adaptLessonCopy(copy, title, activeSettings);
     a.append(num, h3, p);
     list.appendChild(a);
   });
@@ -783,7 +845,7 @@ function initLearningSettings() {
   const reset = document.getElementById('settings-reset');
 
   function applyToForm(settings) {
-    ['theme', 'format', 'mode', 'detail'].forEach(name => {
+    ['theme', 'focusArea', 'format', 'mode', 'detail'].forEach(name => {
       const value = settings[name];
       if (!value) return;
       const input = form.querySelector(`input[name="${name}"][value="${value}"]`);
@@ -805,6 +867,7 @@ function initLearningSettings() {
       backgroundColor: form.elements.theme.value === 'dark' && form.elements.backgroundColor.value === '#f7f9fc' ? '' : form.elements.backgroundColor.value || '',
       fontScale: form.elements.fontScale.value || 'normal',
       fontFamily: form.elements.fontFamily.value || 'system',
+      focusArea: form.elements.focusArea.value || '',
       format: form.elements.format.value || 'short',
       mode: form.elements.mode.value || 'plain',
       detail: form.elements.detail.value || 'normal',
@@ -873,6 +936,7 @@ function initMyPath() {
   const user = readJSON('modelwise-user');
   const gauge = readJSON('modelwise-gauge');
   const settings = readLearningSettings();
+  const focus = focusProfile(settings.focusArea || gauge?.focusArea || '');
 
   if (!gauge || !gauge.route) {
     root.hidden = true;
@@ -934,8 +998,8 @@ function initMyPath() {
   const settingsCopy = document.getElementById('path-settings-copy');
   if (settingsCopy) {
     settingsCopy.textContent = settings.format
-      ? `Learning AI is set to teach with ${settingsSummary(settings)}.`
-      : 'Choose how Learning AI should teach you: bullets, steps, short explanations, examples, projects, or deeper detail.';
+      ? `Learning AI is set to teach with ${settingsSummary({ ...settings, focusArea: settings.focusArea || gauge.focusArea })}.`
+      : `Learning AI will connect examples to ${focus.label.toLowerCase()}. You can customize the format, color, and style in Settings.`;
   }
   const primary = document.getElementById('path-primary');
   primary.href = routeData.next[0];

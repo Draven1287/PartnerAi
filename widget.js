@@ -83,8 +83,17 @@
     try {
       const profile = JSON.parse(localStorage.getItem('modelwise-gauge') || 'null');
       const settings = JSON.parse(localStorage.getItem('learningai-settings') || 'null');
+      const focusArea = settings?.focusArea || profile?.focusArea || '';
+      const focusLine = {
+        student: 'The learner wants student agency: help them use AI as a tutor and critic without outsourcing their thinking.',
+        business: 'The learner wants business productivity: teach multi-agent workflows, task delegation, review loops, and practical productivity.',
+        'learning-coder': 'The learner is a learning coder: help them understand code, debug, and build without blindly copying.',
+        teacher: 'The learner is focused on teaching: connect ideas to lesson design, feedback, classroom rules, and student learning.',
+        creative: 'The learner is focused on creative work: help with ideation, prototyping, revision, and keeping personal taste.',
+        personal: 'The learner wants everyday use: connect ideas to planning, organization, decisions, and personal learning.'
+      }[focusArea] || '';
       const styleLine = settings
-        ? `Learning style settings: format ${settings.format || 'normal'}, mode ${settings.mode || 'balanced'}, detail ${settings.detail || 'normal'}. ${settings.note ? `Learner note: ${settings.note}` : ''}`
+        ? `Learning style settings: format ${settings.format || 'normal'}, mode ${settings.mode || 'balanced'}, detail ${settings.detail || 'normal'}. ${focusLine} ${settings.note ? `Learner note: ${settings.note}` : ''}`
         : '';
       if (!profile) return styleLine;
       const ageTone = {
@@ -95,7 +104,7 @@
       }[profile.ageRange] || '';
       const user = JSON.parse(localStorage.getItem('modelwise-user') || 'null');
       const nameLine = user?.name ? `The learner's private display name is ${user.name}. Greet them naturally by name when useful.` : '';
-      return `Learner profile from the AI gauge: ${profile.route || 'unknown route'}, score ${profile.score || 'unknown'}%. ${ageTone} ${nameLine} ${styleLine}`;
+      return `Learner profile from the AI gauge: ${profile.route || 'unknown route'}, score ${profile.score || 'unknown'}%. ${ageTone} ${focusLine} ${nameLine} ${styleLine}`;
     } catch (e) {
       return '';
     }
