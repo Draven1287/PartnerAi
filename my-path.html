@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Path · Learning AI</title>
   <meta name="description" content="Your personalized Learning AI learning path.">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260520d">
 </head>
 <body class="path-page">
 
@@ -36,7 +36,6 @@
           <p class="lead" id="path-copy">Learning AI uses your saved assessment to build a personal learning map.</p>
           <div class="btn-row">
             <a id="path-primary" href="assessment.html" class="btn btn-primary">Take assessment</a>
-            <button type="button" class="btn btn-ghost" data-prompt="Use my Learning AI profile to tell me what I should learn next in 3 clear steps.">Ask my guide</button>
           </div>
         </div>
         <div class="path-score-card">
@@ -91,18 +90,10 @@
           </div>
         </section>
 
-        <div class="path-grid">
-          <section class="path-panel">
-            <h2>This is what Learning AI knows about you</h2>
-            <ul id="path-known"></ul>
-          </section>
-
-          <section class="path-panel">
-            <h2>Guide setup</h2>
-            <p class="small">This is the context the guide uses to teach you better on this device.</p>
-            <textarea id="path-prompt" readonly></textarea>
-          </section>
-        </div>
+        <section class="path-panel">
+          <h2>This is what Learning AI knows about you</h2>
+          <ul id="path-known"></ul>
+        </section>
 
         <section class="path-panel manage-panel">
           <h2>Manage your local profile</h2>
@@ -123,7 +114,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260520c"></script>
-<script src="widget.js?v=20260520c"></script>
+<script src="script.js?v=20260520d"></script>
 </body>
 </html>

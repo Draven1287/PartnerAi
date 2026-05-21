@@ -213,16 +213,22 @@ function adaptLessonCopy(copy, title, settings) {
   });
 })();
 
-// --- Wire up data-prompt buttons to the free open-source widget ---
-// Every "Try this" button on the site now sends the prompt to the floating
-// Llama chat (free, open source, in your browser). No closed-tool signups.
+// --- Wire up data-prompt buttons as copy-to-clipboard helpers ---
 document.addEventListener('click', e => {
   const btn = e.target.closest('[data-prompt]');
   if (!btn) return;
   const prompt = btn.getAttribute('data-prompt');
-  if (window.ModelWise && typeof window.ModelWise.sendPrompt === 'function') {
-    window.ModelWise.sendPrompt(prompt);
-  }
+  navigator.clipboard?.writeText(prompt).then(() => {
+    const status = document.getElementById('copy-status');
+    if (status) {
+      status.textContent = 'Copied. Paste it into the AI tool you want to test.';
+      setTimeout(() => { status.textContent = ''; }, 3500);
+    } else {
+      btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = btn.dataset.originalText; }, 1200);
+    }
+  }).catch(() => {});
 });
 
 /* ============================================================
@@ -371,7 +377,6 @@ function initGauge() {
   const copyEl = document.getElementById('gauge-copy');
   const routeEl = document.getElementById('gauge-route');
   const knownList = document.getElementById('known-list');
-  const craftedPrompt = document.getElementById('crafted-prompt');
   const profileChip = document.getElementById('profile-chip');
   const profileJump = document.getElementById('profile-jump');
   const profilePanel = document.getElementById('profile-panel');
@@ -511,15 +516,15 @@ function initGauge() {
     const profile = readProfile();
     if (profile) {
       profileChip.textContent = `Hey, ${profile.name}`;
-      profileJump.textContent = 'Your guide';
+      profileJump.textContent = 'Your profile';
       profileGreeting.textContent = `Hey ${profile.name}, ready to start learning today?`;
-      profileCopy.textContent = 'Your guide will use your name, remember your assessment on this device, and shape the course around your level.';
+      profileCopy.textContent = 'Learning AI will use your name, remember your assessment on this device, and shape the course around your level.';
       profileName.value = profile.name || '';
     } else {
       profileChip.textContent = 'Make it yours';
       profileJump.textContent = 'Set name';
-      profileGreeting.textContent = 'Make this guide yours.';
-      profileCopy.textContent = 'Add a private display name. No one else sees it. It just helps the guide feel like it is yours when you come back.';
+      profileGreeting.textContent = 'Make this path yours.';
+      profileCopy.textContent = 'Add a private display name. No one else sees it. It just helps the course feel like it is yours when you come back.';
     }
   }
 
@@ -590,7 +595,7 @@ function initGauge() {
       firstAction,
       ['playground.html', '02', 'Practice lab', 'Test prompts and compare answers', 'Run small experiments instead of just reading about AI.'],
       ['projects.html', '03', 'Build zone', 'Turn learning into projects', 'Move from chat to real tools, research, and model comparisons.'],
-      ['#', '04', 'Guide', 'Ask your personal guide', 'The assistant uses your local profile for tone, level, and next steps.']
+      ['chapter-4.html', '04', 'Check zone', 'Verify before trusting', 'Learn when to slow down, check sources, and challenge confident answers.']
     ];
     toolGrid.innerHTML = '';
     tools.forEach(([href, icon, label, title, copy]) => {
@@ -630,26 +635,6 @@ function initGauge() {
       `Current view of AI: ${selectedLabel('definition')}`,
       `Beyond-chat understanding: ${selectedLabel('systems')}`
     ];
-  }
-
-  function buildCraftedPrompt(route, percent) {
-    const profile = readProfile();
-    const name = profile?.name || 'this learner';
-    const focus = focusProfile(selectedText('focus_area'));
-    return `You are Learning AI, a personal AI literacy guide for ${name}.
-
-Learner profile:
-- Age/tone: ${toneForAge(selectedText('age_range'))}
-- Focus area: ${focus.label}. Main goal: ${focus.goal}.
-- Current level: ${route.label}, ${percent}% on the AI knowledge and judgment gauge.
-- What they know about AI: ${selectedLabel('definition')}
-- What they think AI can do: ${selectedLabel('capability')}
-- How they handle trust: ${selectedLabel('limits')}
-- How they want to learn with AI: ${selectedLabel('learning')}
-- How they think about AI costs: ${selectedLabel('impact')}
-- What they know beyond chatbots: ${selectedLabel('systems')}
-
-Teach from this profile. Be clear, modern, and practical. Do not sound cringe. Ask short questions, give examples, and help the learner build real judgment instead of just memorizing definitions. Connect examples to the learner's focus area.`;
   }
 
   function currentName() {
@@ -716,8 +701,6 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
         knownList.appendChild(li);
       });
     }
-    const guidePrompt = buildCraftedPrompt(route, percent);
-    if (craftedPrompt) craftedPrompt.value = guidePrompt;
     renderTools(route);
 
     const saved = {
@@ -732,7 +715,6 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
       ageNote: form.elements.age_other?.value.trim() || '',
       focusNote: form.elements.focus_other?.value.trim() || '',
       knownFacts: facts,
-      guidePrompt,
       savedAt: new Date().toISOString()
     };
     localStorage.setItem('modelwise-gauge', JSON.stringify(saved));
@@ -806,14 +788,11 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     })();
     if (savedGauge) {
       const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => !fact.startsWith('Private display name:'));
-      const oldName = oldProfile?.name || '';
-      const cleanedPrompt = oldName
-        ? String(savedGauge.guidePrompt || '').replace(new RegExp(oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 'this learner')
-        : savedGauge.guidePrompt;
+      const gaugeWithoutPrompt = { ...savedGauge };
+      delete gaugeWithoutPrompt['guide' + 'Prompt'];
       localStorage.setItem('modelwise-gauge', JSON.stringify({
-        ...savedGauge,
-        knownFacts: ['No private display name saved yet.', ...cleanedFacts],
-        guidePrompt: cleanedPrompt
+        ...gaugeWithoutPrompt,
+        knownFacts: ['No private display name saved yet.', ...cleanedFacts]
       }));
     }
     profileName.value = '';
@@ -1143,7 +1122,7 @@ function initMyPath() {
 
   const tools = [
     ['playground.html', '01', 'Practice', 'Prompt lab', 'Improve a question and compare the answers.'],
-    ['#', '02', 'Guide', 'Ask Learning AI', 'Use your profile to get a next-step plan.'],
+    ['course.html', '02', 'Lessons', 'Personal lesson order', 'Follow the course sequence matched to your current level.'],
     ['projects.html', '03', 'Build', 'Project starter', 'Turn one idea into a useful AI project.'],
     ['chapter-4.html', '04', 'Check', 'Verification', 'Learn when to slow down and verify.']
   ];
@@ -1164,8 +1143,6 @@ function initMyPath() {
     li.textContent = fact;
     known.appendChild(li);
   });
-  document.getElementById('path-prompt').value = gauge.guidePrompt || 'Take the assessment to generate a guide setup.';
-
   document.getElementById('clear-path')?.addEventListener('click', () => {
     localStorage.removeItem('modelwise-gauge');
     location.reload();

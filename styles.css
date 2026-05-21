@@ -665,8 +665,8 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   margin-top: 0.9rem;
 }
 .tool-card {
-  background: linear-gradient(180deg, #1d2a3b 0%, #172234 100%);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 16px;
   color: var(--text);
   display: block;
@@ -674,6 +674,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
   padding: 1rem;
 }
 .tool-card:hover {
+  background: var(--surface-2);
   border-color: var(--accent);
   box-shadow: 0 14px 28px rgba(18, 24, 38, 0.08);
 }
