@@ -44,7 +44,8 @@ function shade(hex, percent) {
 function applyAppearance(settings = readLearningSettings()) {
   if (!document.body) return;
   const theme = settings.theme || '';
-  document.body.dataset.theme = theme;
+  if (theme) document.body.dataset.theme = theme;
+  else document.body.removeAttribute('data-theme');
   document.body.dataset.fontScale = settings.fontScale || 'normal';
   document.body.dataset.fontFamily = settings.fontFamily || 'system';
 
@@ -382,6 +383,69 @@ function initGauge() {
   const categories = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
   let current = 0;
 
+  const learningQuestionByFocus = {
+    student: {
+      title: 'How should students use AI?',
+      copy: 'You are stuck on homework or studying. What is the strongest use of AI?',
+      options: [
+        'Have it write the answer so you can move on.',
+        'Ask it to explain the answer in easier words.',
+        'Ask for hints, examples, and a quiz so you still do the thinking.',
+        'Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.'
+      ]
+    },
+    business: {
+      title: 'How should you use AI at work?',
+      copy: 'You have a messy work task: research, planning, writing, or follow-up. What is the strongest use of AI?',
+      options: [
+        'Have it produce the final work and send it along.',
+        'Ask it to make the task faster by drafting or summarizing.',
+        'Ask it to structure the work, surface assumptions, and give you a checklist to review.',
+        'Use it as a research assistant, drafter, reviewer, and workflow partner while you keep responsibility for decisions and quality.'
+      ]
+    },
+    'learning-coder': {
+      title: 'How should new coders use AI?',
+      copy: 'Your code is broken or you do not understand what to build next. What is the strongest use of AI?',
+      options: [
+        'Paste the problem in and copy whatever code it gives back.',
+        'Ask it to explain the code or error message.',
+        'Ask for hints, small examples, and tests so you can fix a similar problem yourself.',
+        'Use it as a debugging coach, code reviewer, and practice partner while making sure you can explain and modify the solution.'
+      ]
+    },
+    teacher: {
+      title: 'How should teachers use AI?',
+      copy: 'You are planning a lesson, activity, feedback, or classroom policy. What is the strongest use of AI?',
+      options: [
+        'Have it generate the lesson or feedback and use it as-is.',
+        'Ask it for ideas or simpler wording.',
+        'Ask it for options, misconceptions, checks for understanding, and ways to adapt for different learners.',
+        'Use it as a planning partner, differentiation assistant, and critique tool while you protect student privacy, accuracy, and learning goals.'
+      ]
+    },
+    creative: {
+      title: 'How should creatives use AI?',
+      copy: 'You are stuck on a story, design, video, image, song idea, or campaign. What is the strongest use of AI?',
+      options: [
+        'Have it make the finished piece and call it done.',
+        'Ask it for ideas or a cleaner version.',
+        'Ask it for variations, references, constraints, and critique so you can choose and refine.',
+        'Use it as a brainstormer, prototype partner, editor, and taste-check while keeping authorship, direction, and final judgment yours.'
+      ]
+    },
+    personal: {
+      title: 'How should you use AI in daily life?',
+      copy: 'You are making a plan, learning something, or organizing a real-life task. What is the strongest use of AI?',
+      options: [
+        'Let it decide for you so you do not have to think about it.',
+        'Ask it to make the task faster or simpler.',
+        'Ask it for options, tradeoffs, and a checklist so you can choose carefully.',
+        'Use it as a planning partner and second opinion while keeping your values and final decision in charge.'
+      ]
+    }
+  };
+
   const routes = {
     beginner: {
       label: 'Level 1: Foundation',
@@ -497,6 +561,20 @@ function initGauge() {
       a.innerHTML = `<div class="num">${num}</div><h3>${title}</h3><p>${description}</p>`;
       routeEl.appendChild(a);
     });
+  }
+
+  function updateLearningQuestion() {
+    const focus = selectedText('focus_area') || 'student';
+    const data = learningQuestionByFocus[focus] || learningQuestionByFocus.personal;
+    const title = document.getElementById('learning-question-title');
+    const copy = document.getElementById('learning-question-copy');
+    const options = document.getElementById('learning-options');
+    if (!title || !copy || !options) return;
+    title.textContent = data.title;
+    copy.textContent = data.copy;
+    options.innerHTML = data.options.map((text, index) => (
+      `<label><input type="radio" name="learning" value="${index}"> ${text}</label>`
+    )).join('');
   }
 
   function renderTools(route) {
@@ -660,7 +738,7 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
     localStorage.setItem('modelwise-gauge', JSON.stringify(saved));
     const profile = readProfile();
     if (profile) writeProfile({ ...profile, lastGauge: saved });
-    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.location.href = 'my-path.html';
   }
 
   next?.addEventListener('click', () => {
@@ -717,12 +795,37 @@ Teach from this profile. Be clear, modern, and practical. Do not sound cringe. A
   });
 
   profileClear?.addEventListener('click', () => {
+    const oldProfile = readProfile();
     localStorage.removeItem('modelwise-user');
+    const savedGauge = (() => {
+      try {
+        return JSON.parse(localStorage.getItem('modelwise-gauge') || 'null');
+      } catch (e) {
+        return null;
+      }
+    })();
+    if (savedGauge) {
+      const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => !fact.startsWith('Private display name:'));
+      const oldName = oldProfile?.name || '';
+      const cleanedPrompt = oldName
+        ? String(savedGauge.guidePrompt || '').replace(new RegExp(oldName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), 'this learner')
+        : savedGauge.guidePrompt;
+      localStorage.setItem('modelwise-gauge', JSON.stringify({
+        ...savedGauge,
+        knownFacts: ['No private display name saved yet.', ...cleanedFacts],
+        guidePrompt: cleanedPrompt
+      }));
+    }
     profileName.value = '';
     renderProfile();
   });
 
+  form.querySelectorAll('input[name="focus_area"]').forEach(input => {
+    input.addEventListener('change', updateLearningQuestion);
+  });
+
   renderProfile();
+  updateLearningQuestion();
   showStep(0);
 }
 document.addEventListener('DOMContentLoaded', initGauge);
@@ -1061,7 +1164,7 @@ function initMyPath() {
     li.textContent = fact;
     known.appendChild(li);
   });
-  document.getElementById('path-prompt').value = gauge.guidePrompt || 'Retake the assessment to generate a guide setup.';
+  document.getElementById('path-prompt').value = gauge.guidePrompt || 'Take the assessment to generate a guide setup.';
 
   document.getElementById('clear-path')?.addEventListener('click', () => {
     localStorage.removeItem('modelwise-gauge');

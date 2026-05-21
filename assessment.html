@@ -138,19 +138,21 @@
 
         <article class="gauge-card" data-step="4" data-category="learning">
           <div class="gauge-kicker">Category 4</div>
-          <h2>How should students use AI?</h2>
-          <p>You are stuck on homework. What is the strongest use of AI?</p>
-          <label><input type="radio" name="learning" value="0"> Have it write the answer so you can move on.</label>
-          <label><input type="radio" name="learning" value="1"> Ask it to explain the answer in easier words.</label>
-          <label><input type="radio" name="learning" value="2"> Ask for hints, examples, and a quiz so you still do the thinking.</label>
-          <label><input type="radio" name="learning" value="3"> Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.</label>
+          <h2 id="learning-question-title">How should you use AI without losing control?</h2>
+          <p id="learning-question-copy">Pick the strongest way to use AI for your focus area.</p>
+          <div id="learning-options">
+            <label><input type="radio" name="learning" value="0"> Let it do the main thinking so you can move faster.</label>
+            <label><input type="radio" name="learning" value="1"> Ask it to explain the answer in easier words.</label>
+            <label><input type="radio" name="learning" value="2"> Ask for hints, examples, and a check so you still do the important thinking.</label>
+            <label><input type="radio" name="learning" value="3"> Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.</label>
+          </div>
           <textarea name="learning_other" placeholder="Different answer? Write it here."></textarea>
         </article>
 
         <article class="gauge-card" data-step="5" data-category="impact">
           <div class="gauge-kicker">Category 5</div>
           <h2>How do you think about AI’s real-world costs?</h2>
-          <p>Someone says, “AI is bad because it uses too much electricity and water.” What is the best response?</p>
+          <p>Someone says, “AI has real environmental and social costs.” What is the best response?</p>
           <label><input type="radio" name="impact" value="0"> They are wrong. New technology always wins.</label>
           <label><input type="radio" name="impact" value="1"> They are right. AI should probably be avoided.</label>
           <label><input type="radio" name="impact" value="2"> The costs are real, but we should compare them with benefits, efficiency improvements, and better infrastructure.</label>
@@ -173,7 +175,6 @@
           <button type="button" class="btn btn-ghost" id="gauge-back">Back</button>
           <button type="button" class="btn btn-primary" id="gauge-next">Next</button>
           <button type="submit" class="btn btn-primary" id="gauge-finish">Finish</button>
-          <button type="button" class="btn btn-ghost" id="gauge-reset">Reset</button>
         </div>
       </form>
 
@@ -186,7 +187,6 @@
         <p id="gauge-copy"></p>
         <div class="btn-row">
           <a href="my-path.html" class="btn btn-primary">Open my path</a>
-          <button type="button" class="btn btn-ghost" id="result-retake">Retake assessment</button>
         </div>
       </section>
     </div>
