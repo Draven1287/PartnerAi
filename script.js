@@ -1,7 +1,6 @@
 /* ============================================================
    Learning AI: shared scripts
-   Scripted chatbot demo (v1, no real LLM).
-   Routes prompts to the free open-source Llama widget.
+   Assessment, personalization, and prompt-copy interactions.
    ============================================================ */
 
 function levelIdFromRoute(route) {
@@ -218,144 +217,35 @@ document.addEventListener('click', e => {
   const btn = e.target.closest('[data-prompt]');
   if (!btn) return;
   const prompt = btn.getAttribute('data-prompt');
-  navigator.clipboard?.writeText(prompt).then(() => {
+
+  function showCopyStatus(message) {
     const status = document.getElementById('copy-status');
     if (status) {
-      status.textContent = 'Copied. Paste it into the AI tool you want to test.';
-      setTimeout(() => { status.textContent = ''; }, 3500);
+      status.textContent = message;
+      setTimeout(() => { status.textContent = ''; }, 4500);
     } else {
-      btn.dataset.originalText = btn.dataset.originalText || btn.textContent;
-      btn.textContent = 'Copied';
-      setTimeout(() => { btn.textContent = btn.dataset.originalText; }, 1200);
+      btn.dataset.originalHtml = btn.dataset.originalHtml || btn.innerHTML;
+      btn.textContent = message.startsWith('Copied') ? 'Copied' : 'Copy failed';
+      btn.setAttribute('aria-label', message);
+      setTimeout(() => {
+        btn.innerHTML = btn.dataset.originalHtml;
+        btn.removeAttribute('aria-label');
+      }, 1600);
     }
-  }).catch(() => {});
+  }
+
+  const clipboard = window.navigator && window.navigator.clipboard;
+  if (!clipboard?.writeText) {
+    showCopyStatus('Copy is not available in this browser. Select and copy the prompt manually.');
+    return;
+  }
+
+  clipboard.writeText(prompt).then(() => {
+    showCopyStatus('Copied. Paste it into the AI tool you want to test.');
+  }).catch(() => {
+    showCopyStatus('Copy did not work in this browser. Select and copy the prompt manually.');
+  });
 });
-
-/* ============================================================
-   Scripted demo chatbot
-   Recognises a handful of patterns to teach prompting principles.
-   It is intentionally NOT a real LLM: the point is to show how
-   different *kinds* of prompts produce different *kinds* of replies.
-   ============================================================ */
-
-const DEMO_RESPONSES = [
-  // Pattern: very short / lazy prompt
-  {
-    match: p => p.length < 12 && !/[?]/.test(p),
-    reply: msg =>
-      `I can answer that, but I'll do a much better job if you give me more to work with.\n\nTry telling me:\n• who you are (a student? a teacher? curious?)\n• what you already know\n• what you want me to do with my answer\n\nThe more context, the sharper the response.`,
-  },
-  // Pattern: "what is AI / what is an LLM"
-  {
-    match: p => /what is (an? )?(ai|llm|large language model|chatgpt|claude)/i.test(p),
-    reply: () =>
-      `An LLM (Large Language Model) is a program that learned to predict the next word in a sentence. That's literally the trick.\n\nIt read trillions of words during training. From all that pattern-matching, something useful emerges. It can answer questions, write code, summarise text, etc.\n\nIt doesn't "know" things the way you do. It pattern-matches. That's why it can sound confident and still be wrong. We have a whole lesson on this in Chapter 1.`,
-  },
-  // Pattern: includes role + task ("act as", "you are a")
-  {
-    match: p => /(act as|you are a|pretend you'?re|imagine you'?re)/i.test(p),
-    reply: () =>
-      `Nice, you gave me a role. That single move usually makes my answers way better.\n\nWhen you say "act as a strict editor" or "pretend you're a 9th-grade biology teacher," it shifts my style, vocabulary, and what I emphasise. Try the same prompt without the role and notice the difference.`,
-  },
-  // Pattern: includes examples ("for example", "like this:")
-  {
-    match: p => /(for example|like this|e\.g\.|here'?s an example)/i.test(p),
-    reply: () =>
-      `Great, you showed me an example. That's one of the most powerful prompting moves there is.\n\nLLMs are pattern-matchers. When you show them what "good" looks like, they'll match that pattern. This is called "few-shot prompting." It works on almost everything: writing style, code format, summary length, you name it.`,
-  },
-  // Pattern: "teach me" / "explain to me"
-  {
-    match: p => /(teach me|explain (to me|this|it)|help me understand|how does)/i.test(p),
-    reply: msg =>
-      `Good move, you asked me to teach, not just to answer.\n\nIn a real chat with me (or with common AI tools), this kind of prompt unlocks the *tutor mode*. Try going further: ask me to assume you're smart but ignorant, ask follow-up questions, and ask me to test you at the end.\n\nThat's how you actually learn from AI instead of just consuming it.`,
-  },
-  // Pattern: asks for an essay / homework
-  {
-    match: p => /(write (me )?(an? )?essay|do my homework|write my paper)/i.test(p),
-    reply: () =>
-      `I'll be honest with you here.\n\nI *can* write that essay. Real AI will too. But every time you outsource the thinking before you've practised doing it yourself, the muscle weakens. There's actual research on this. It's called cognitive offloading.\n\nA better move: ask me to help you brainstorm, push back on your draft, find the weak parts of your argument, or test if you understand your own thesis. That makes you sharper, not duller. Chapter 3 goes deep on this.`,
-  },
-  // Pattern: includes specifics / numbers / structured request
-  {
-    match: p => /(in \d+|under \d+|exactly \d+|step.by.step|bullet|list)/i.test(p),
-    reply: () =>
-      `You gave me a constraint. That's another high-leverage prompting move.\n\nConstraints like "in 100 words," "as 3 bullets," "step-by-step," or "for a 14-year-old" force the model to pick a shape and stick to it. Without constraints, you get whatever the model felt like producing, often longer and mushier than you wanted.`,
-  },
-];
-
-// Generic fallback responses that lightly riff on what the user wrote.
-const FALLBACKS = [
-  msg => `Here's what I notice about your prompt: it's a question, but it doesn't tell me much about *you*, what you already know, what you'll do with the answer, or what level of detail you want. Try adding even one of those and watch the response get sharper.\n\nReal AI like common AI tools will still try to answer this, but the answer will be generic. That's the trade.`,
-  msg => `That's a fine prompt. Want to see it get even better? Try:\n\n• Adding a role ("act as a ___")\n• Adding an example of the output you want\n• Adding a constraint ("in 3 bullets" / "under 100 words")\n\nEvery one of those moves sharpens the answer. Real AI rewards specificity.`,
-  msg => `Real AI would answer this. What I want you to notice: the more specific you are, the more specific the answer. Vague in → vague out. That's the whole rule.\n\n(This is a scripted teaching demo. Use the floating chat widget for a real answer.)`,
-];
-
-let fbIndex = 0;
-function generateReply(userMsg) {
-  const trimmed = userMsg.trim();
-  for (const rule of DEMO_RESPONSES) {
-    if (rule.match(trimmed)) return rule.reply(trimmed);
-  }
-  const fb = FALLBACKS[fbIndex % FALLBACKS.length];
-  fbIndex++;
-  return fb(trimmed);
-}
-
-// --- Wire up chat widget (if present on the page) ---
-function initChat() {
-  const root = document.getElementById('chat');
-  if (!root) return;
-
-  const win = root.querySelector('.chat-window');
-  const ta = root.querySelector('textarea');
-  const btn = root.querySelector('button.send');
-
-  function addMsg(text, cls) {
-    const div = document.createElement('div');
-    div.className = 'msg ' + cls;
-    div.textContent = text;
-    win.appendChild(div);
-    win.scrollTop = win.scrollHeight;
-    return div;
-  }
-
-  function send() {
-    const val = ta.value.trim();
-    if (!val) return;
-    addMsg(val, 'msg-user');
-    ta.value = '';
-    ta.style.height = 'auto';
-    const thinking = addMsg('thinking…', 'msg-system');
-    setTimeout(() => {
-      thinking.remove();
-      addMsg(generateReply(val), 'msg-ai');
-    }, 500 + Math.random() * 600);
-  }
-
-  btn.addEventListener('click', send);
-  ta.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      send();
-    }
-  });
-  ta.addEventListener('input', () => {
-    ta.style.height = 'auto';
-    ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
-  });
-
-  // Quick-chip prompts
-  root.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      ta.value = chip.textContent;
-      ta.focus();
-    });
-  });
-
-  // Initial system message
-  addMsg("This is a scripted teaching demo: not a real LLM. Try a prompt and I'll teach you what's happening. (For real answers, use the floating chat widget in the corner.)", 'msg-system');
-}
-document.addEventListener('DOMContentLoaded', initChat);
 
 // --- AI knowledge + judgment gauge ---
 function initGauge() {
@@ -364,19 +254,15 @@ function initGauge() {
   if (!form || !result) return;
 
   const cards = [...form.querySelectorAll('.gauge-card')];
-  const reset = document.getElementById('gauge-reset');
   const back = document.getElementById('gauge-back');
   const next = document.getElementById('gauge-next');
   const finish = document.getElementById('gauge-finish');
-  const retake = document.getElementById('result-retake');
   const stepLabel = document.getElementById('gauge-step-label');
   const stepFill = document.getElementById('gauge-step-fill');
   const levelEl = document.getElementById('gauge-level');
   const scoreEl = document.getElementById('gauge-score');
   const titleEl = document.getElementById('gauge-title');
   const copyEl = document.getElementById('gauge-copy');
-  const routeEl = document.getElementById('gauge-route');
-  const knownList = document.getElementById('known-list');
   const profileChip = document.getElementById('profile-chip');
   const profileJump = document.getElementById('profile-jump');
   const profilePanel = document.getElementById('profile-panel');
@@ -388,10 +274,31 @@ function initGauge() {
   const categories = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
   let current = 0;
 
+  function shuffleArray(items) {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  function shuffleLabels(container) {
+    if (!container || container.dataset.shuffled === 'true') return;
+    const labels = [...container.querySelectorAll(':scope > label')];
+    if (labels.length < 2) return;
+    shuffleArray(labels).forEach(label => container.appendChild(label));
+    container.dataset.shuffled = 'true';
+  }
+
+  function shuffleStaticQuestionOptions() {
+    form.querySelectorAll('.gauge-card[data-category]:not([data-category="learning"])').forEach(shuffleLabels);
+  }
+
   const learningQuestionByFocus = {
     student: {
       title: 'How should students use AI?',
-      copy: 'You are stuck on homework or studying. What is the strongest use of AI?',
+      copy: 'You are stuck on homework or studying. What would you actually do?',
       options: [
         'Have it write the answer so you can move on.',
         'Ask it to explain the answer in easier words.',
@@ -401,7 +308,7 @@ function initGauge() {
     },
     business: {
       title: 'How should you use AI at work?',
-      copy: 'You have a messy work task: research, planning, writing, or follow-up. What is the strongest use of AI?',
+      copy: 'You have a messy work task: research, planning, writing, or follow-up. What would you actually do?',
       options: [
         'Have it produce the final work and send it along.',
         'Ask it to make the task faster by drafting or summarizing.',
@@ -411,7 +318,7 @@ function initGauge() {
     },
     'learning-coder': {
       title: 'How should new coders use AI?',
-      copy: 'Your code is broken or you do not understand what to build next. What is the strongest use of AI?',
+      copy: 'Your code is broken or you do not understand what to build next. What would you actually do?',
       options: [
         'Paste the problem in and copy whatever code it gives back.',
         'Ask it to explain the code or error message.',
@@ -421,7 +328,7 @@ function initGauge() {
     },
     teacher: {
       title: 'How should teachers use AI?',
-      copy: 'You are planning a lesson, activity, feedback, or classroom policy. What is the strongest use of AI?',
+      copy: 'You are planning a lesson, activity, feedback, or classroom policy. What would you actually do?',
       options: [
         'Have it generate the lesson or feedback and use it as-is.',
         'Ask it for ideas or simpler wording.',
@@ -431,7 +338,7 @@ function initGauge() {
     },
     creative: {
       title: 'How should creatives use AI?',
-      copy: 'You are stuck on a story, design, video, image, song idea, or campaign. What is the strongest use of AI?',
+      copy: 'You are stuck on a story, design, video, image, song idea, or campaign. What would you actually do?',
       options: [
         'Have it make the finished piece and call it done.',
         'Ask it for ideas or a cleaner version.',
@@ -441,7 +348,7 @@ function initGauge() {
     },
     personal: {
       title: 'How should you use AI in daily life?',
-      copy: 'You are making a plan, learning something, or organizing a real-life task. What is the strongest use of AI?',
+      copy: 'You are making a plan, learning something, or organizing a real-life task. What would you actually do?',
       options: [
         'Let it decide for you so you do not have to think about it.',
         'Ask it to make the task faster or simpler.',
@@ -455,32 +362,17 @@ function initGauge() {
     beginner: {
       label: 'Level 1: Foundation',
       title: 'Your AI level is: Foundation',
-      copy: 'You are at the right starting point. Your path should make AI less mysterious before asking you to use it heavily.',
-      chapters: [
-        ['chapter-1.html', 'Chapter 1', 'What AI actually is', 'Learn model, training, prediction, hallucination, and why AI can sound smart while still being wrong.'],
-        ['chapter-2.html', 'Chapter 2', 'One useful prompt pattern', 'Learn how context, role, examples, and constraints change the answer.'],
-        ['playground.html', 'Practice', 'Compare two prompts', 'Ask the same question two ways and notice what changes.']
-      ]
+      copy: 'You are at the right starting point. Your path should make AI less mysterious before asking you to use it heavily.'
     },
     explorer: {
       label: 'Level 2: Explorer',
       title: 'Your AI level is: Explorer',
-      copy: 'You probably understand that AI is more than search, but the next step is learning when to trust it, challenge it, and use it as a learning partner.',
-      chapters: [
-        ['chapter-2.html', 'Chapter 2', 'Ask better questions', 'Practice giving context, role, examples, and constraints.'],
-        ['chapter-3.html', 'Chapter 3', 'Protect your own thinking', 'Learn where AI helps your brain and where it can weaken the skill you are building.'],
-        ['chapter-4.html', 'Chapter 4', 'Check the answer', 'Build verification habits before trusting important claims.']
-      ]
+      copy: 'You probably understand that AI is more than search, but the next step is learning when to trust it, challenge it, and use it as a learning partner.'
     },
     builder: {
       label: 'Level 3: Builder',
       title: 'Your AI level is: Builder',
-      copy: 'Your answers show enough AI literacy to move toward projects, comparisons, and systems thinking.',
-      chapters: [
-        ['chapter-5.html', 'Chapter 5', 'Start a build', 'Turn AI from a chat window into a project partner.'],
-        ['projects.html', 'Projects', 'Run a real experiment', 'Compare models, build tools, or design a useful AI workflow.'],
-        ['chapter-4.html', 'Chapter 4', 'Use verification loops', 'Choose models, challenge answers, and test outputs.']
-      ]
+      copy: 'Your answers show enough AI literacy to move toward projects, comparisons, and systems thinking.'
     }
   };
 
@@ -533,20 +425,10 @@ function initGauge() {
     const learning = selectedValue('learning');
     const definition = selectedValue('definition');
     const capability = selectedValue('capability');
-    if (limits < 2 || learning < 2) return routes.explorer;
+    if (limits < 2 || learning < 2) return routes.beginner;
     if (score >= 72 && definition >= 2 && capability >= 2) return routes.builder;
     if (score >= 42) return routes.explorer;
     return routes.beginner;
-  }
-
-  function signalFor(route, score) {
-    const routeId = levelIdFromRoute(route.label);
-    const message = {
-      beginner: 'Foundation signal',
-      explorer: 'Explorer signal',
-      builder: 'Builder signal'
-    }[routeId] || 'Starting signal';
-    return `${message}: ${score}%`;
   }
 
   function toneForAge(age) {
@@ -554,18 +436,6 @@ function initGauge() {
     if (age === 'young-adult') return 'Young adult path: practical, quick, and flexible.';
     if (age === 'older-adult') return 'Older adult path: plain English, patient pacing, no tech ego.';
     return 'Adult path: practical, efficient, and not school-ish.';
-  }
-
-  function renderRoute(route) {
-    if (!routeEl) return;
-    routeEl.innerHTML = '';
-    route.chapters.forEach(([href, num, title, description]) => {
-      const a = document.createElement('a');
-      a.href = href;
-      a.className = 'chapter-card';
-      a.innerHTML = `<div class="num">${num}</div><h3>${title}</h3><p>${description}</p>`;
-      routeEl.appendChild(a);
-    });
   }
 
   function updateLearningQuestion() {
@@ -577,34 +447,11 @@ function initGauge() {
     if (!title || !copy || !options) return;
     title.textContent = data.title;
     copy.textContent = data.copy;
+    options.dataset.shuffled = 'false';
     options.innerHTML = data.options.map((text, index) => (
       `<label><input type="radio" name="learning" value="${index}"> ${text}</label>`
     )).join('');
-  }
-
-  function renderTools(route) {
-    const toolGrid = document.getElementById('tool-grid');
-    if (!toolGrid) return;
-    const routeId = levelIdFromRoute(route.label);
-    const firstAction = {
-      beginner: ['chapter-1.html', '01', 'Start here', 'Learn what AI is', 'Get the mental model before tools and projects.'],
-      explorer: ['chapter-2.html', '01', 'Start here', 'Practice a better prompt', 'Use AI as tutor, critic, and thinking partner.'],
-      builder: ['chapter-5.html', '01', 'Start here', 'Start a project', 'Build or test something real.']
-    }[routeId] || ['course.html', '01', 'Start here', route.title, 'Start with the path matched to your current level.'];
-    const tools = [
-      firstAction,
-      ['playground.html', '02', 'Practice lab', 'Test prompts and compare answers', 'Run small experiments instead of just reading about AI.'],
-      ['projects.html', '03', 'Build zone', 'Turn learning into projects', 'Move from chat to real tools, research, and model comparisons.'],
-      ['chapter-4.html', '04', 'Check zone', 'Verify before trusting', 'Learn when to slow down, check sources, and challenge confident answers.']
-    ];
-    toolGrid.innerHTML = '';
-    tools.forEach(([href, icon, label, title, copy]) => {
-      const a = document.createElement('a');
-      a.href = href;
-      a.className = 'tool-card';
-      a.innerHTML = `<span class="tool-icon">${icon}</span><h4>${label}: ${title}</h4><p>${copy}</p>`;
-      toolGrid.appendChild(a);
-    });
+    shuffleLabels(options);
   }
 
   function buildKnownFacts(route, percent) {
@@ -669,7 +516,6 @@ function initGauge() {
     scoreEl.textContent = '';
     titleEl.textContent = 'Choose an answer to continue.';
     copyEl.innerHTML = '<span class="gauge-warning">You can still write a different answer in the box, but pick the closest option first so the gauge can route you.</span>';
-    if (routeEl) routeEl.innerHTML = '';
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -686,22 +532,7 @@ function initGauge() {
     const percent = Math.round(raw / (categories.length * 3) * 100);
     const route = routeFor(percent);
 
-    result.hidden = false;
-    levelEl.textContent = route.label;
-    scoreEl.textContent = signalFor(route, percent);
-    titleEl.textContent = route.title;
-    copyEl.textContent = `${toneForAge(selectedText('age_range'))} ${route.copy}`;
-    renderRoute(route);
     const facts = buildKnownFacts(route, percent);
-    if (knownList) {
-      knownList.innerHTML = '';
-      facts.forEach(fact => {
-        const li = document.createElement('li');
-        li.textContent = fact;
-        knownList.appendChild(li);
-      });
-    }
-    renderTools(route);
 
     const saved = {
       ageRange: selectedText('age_range'),
@@ -748,21 +579,6 @@ function initGauge() {
     finishGauge();
   });
 
-  reset?.addEventListener('click', () => {
-    form.reset();
-    result.hidden = true;
-    localStorage.removeItem('modelwise-gauge');
-    showStep(0);
-  });
-
-  retake?.addEventListener('click', () => {
-    form.reset();
-    result.hidden = true;
-    localStorage.removeItem('modelwise-gauge');
-    showStep(0);
-    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-
   profileJump?.addEventListener('click', () => {
     profilePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
@@ -804,6 +620,7 @@ function initGauge() {
   });
 
   renderProfile();
+  shuffleStaticQuestionOptions();
   updateLearningQuestion();
   showStep(0);
 }
@@ -857,7 +674,7 @@ function initPersonalizedLessons() {
         ['chapter-1.html', '01 · Foundation', 'What AI actually is', 'Build the basic picture: models, training, prediction, and hallucination.'],
         ['chapter-2.html', '02 · First skill', 'How to talk to AI', 'Learn one reliable prompt pattern without getting buried in jargon.'],
         ['playground.html', '03 · Practice', 'Try two versions of the same prompt', 'See how changing the question changes the answer.'],
-        ['chapter-3.html', '04 · Judgment', 'Use AI without losing your thinking', 'Learn when AI helps and when it gets in the way.']
+        ['chapter-3.html', '04 · Preview', 'Use AI without losing your thinking', 'Learn when AI helps and when it gets in the way.']
       ]
     },
     explorer: {
@@ -866,20 +683,20 @@ function initPersonalizedLessons() {
       primary: ['chapter-2.html', 'Start Chapter 2'],
       lessons: [
         ['chapter-2.html', '01 · Prompt skill', 'Ask better questions', 'Practice context, roles, examples, constraints, and follow-up prompts.'],
-        ['chapter-3.html', '02 · Judgment', 'Protect your own thinking', 'Learn how to use AI for critique, practice, and feedback without outsourcing the hard part.'],
-        ['chapter-4.html', '03 · Verification', 'Check the answer', 'Build habits for sources, uncertainty, claims, and mistakes.'],
+        ['chapter-3.html', '02 · Preview', 'Protect your own thinking', 'Learn how to use AI for critique, practice, and feedback without outsourcing the hard part.'],
+        ['chapter-4.html', '03 · Preview', 'Check the answer', 'Build habits for sources, uncertainty, claims, and mistakes.'],
         ['playground.html', '04 · Lab', 'Run prompt experiments', 'Compare answers and notice where the model gets stronger or weaker.']
       ]
     },
     builder: {
       title: 'Level 3: Builder path',
       copy: 'You are ready to treat AI like a system you can test. This path starts with building, then loops back into verification and judgment.',
-      primary: ['chapter-5.html', 'Start Chapter 5'],
+      primary: ['chapter-5.html', 'Open Chapter 5 preview'],
       lessons: [
-        ['chapter-5.html', '01 · Build', 'Build with AI', 'Move from chat to projects, workflows, experiments, and model comparisons.'],
+        ['chapter-5.html', '01 · Project outline', 'Build with AI', 'Move from chat to projects, workflows, experiments, and model comparisons.'],
         ['projects.html', '02 · Project', 'Run a real experiment', 'Turn one idea into a testable project.'],
-        ['chapter-4.html', '03 · Verification', 'Build a checking loop', 'Challenge outputs before trusting or publishing them.'],
-        ['chapter-3.html', '04 · Judgment', 'Use AI as a partner', 'Keep your own taste, reasoning, and responsibility in the loop.']
+        ['chapter-4.html', '03 · Preview', 'Build a checking loop', 'Challenge outputs before trusting or publishing them.'],
+        ['chapter-3.html', '04 · Preview', 'Use AI as a partner', 'Keep your own taste, reasoning, and responsibility in the loop.']
       ]
     }
   };
@@ -1046,19 +863,19 @@ function initMyPath() {
       next: ['chapter-2.html', 'Practice a stronger prompt', 'Use AI as a tutor, critic, and thinking partner.'],
       cards: [
         ['chapter-2.html', 'Chapter 2', 'Ask better questions', 'Upgrade your prompt habits.'],
-        ['chapter-3.html', 'Chapter 3', 'Protect your thinking', 'Use AI without outsourcing your brain.'],
-        ['chapter-4.html', 'Chapter 4', 'Check the answer', 'Build verification habits.']
+        ['chapter-3.html', 'Chapter 3 · Preview', 'Protect your thinking', 'Use AI without outsourcing your brain.'],
+        ['chapter-4.html', 'Chapter 4 · Preview', 'Check the answer', 'Build verification habits.']
       ]
     },
     builder: {
       title: 'Your AI level is: Builder',
       copy: 'You are ready to test AI, not just use it. Build, compare, verify, and publish what you learn.',
       signal: 'This is a launch point. It means your path can move into experiments, projects, and model comparisons.',
-      next: ['chapter-5.html', 'Start a project', 'Turn AI from a chat window into a project partner.'],
+      next: ['chapter-5.html', 'Open project outline', 'Turn AI from a chat window into a project partner.'],
       cards: [
-        ['chapter-5.html', 'Chapter 5', 'Start a build', 'Make something real.'],
+        ['chapter-5.html', 'Chapter 5 · Project outline', 'Start a build', 'Make something real.'],
         ['projects.html', 'Projects', 'Run an experiment', 'Compare models or build a tool.'],
-        ['chapter-4.html', 'Chapter 4', 'Verification loop', 'Test outputs before trusting them.']
+        ['chapter-4.html', 'Chapter 4 · Preview', 'Verification loop', 'Test outputs before trusting them.']
       ]
     }
   }[routeId] || null;
