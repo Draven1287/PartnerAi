@@ -576,7 +576,6 @@ function initGauge() {
   const profileGreeting = document.getElementById('profile-greeting');
   const profileCopy = document.getElementById('profile-copy');
   const profileName = document.getElementById('profile-name');
-  const profileEmail = document.getElementById('profile-email');
   const profileSave = document.getElementById('profile-save');
   const profileClear = document.getElementById('profile-clear');
   const categories = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
@@ -701,7 +700,14 @@ function initGauge() {
 
   function readProfile() {
     try {
-      return JSON.parse(safeGetStorage('modelwise-user') || 'null');
+      const profile = JSON.parse(safeGetStorage('modelwise-user') || 'null');
+      if (profile?.email) {
+        const cleaned = { ...profile };
+        delete cleaned.email;
+        safeSetStorage('modelwise-user', JSON.stringify(cleaned));
+        return cleaned;
+      }
+      return profile;
     } catch (e) {
       return null;
     }
@@ -721,17 +727,13 @@ function initGauge() {
       profileChip.textContent = `Hey, ${profile.name}`;
       profileJump.textContent = 'Your profile';
       profileGreeting.textContent = `Hey ${profile.name}, ready to start learning today?`;
-      profileCopy.textContent = profile.email
-        ? 'Learning AI will use your name, remember your assessment on this device, and keep your V2 update email locally for now.'
-        : 'Learning AI will use your name, remember your assessment on this device, and shape the course around your level.';
+      profileCopy.textContent = 'Learning AI will use your name, remember your assessment on this device, and shape the course around your level.';
       profileName.value = profile.name || '';
-      if (profileEmail) profileEmail.value = profile.email || '';
     } else {
       profileChip.textContent = 'Make it yours';
       profileJump.textContent = 'Set name';
       profileGreeting.textContent = 'Make this path yours.';
-      profileCopy.textContent = 'Add a private display name and, if you want, an email for V2 updates. This is saved only in this browser for now.';
-      if (profileEmail) profileEmail.value = '';
+      profileCopy.textContent = 'Add a private display name. No one else sees it. It just helps the course feel like it is yours when you come back.';
     }
   }
 
@@ -788,7 +790,6 @@ function initGauge() {
     });
     return [
       profile ? `Private display name: ${profile.name}.` : 'No private display name saved yet.',
-      profile?.email ? `V2 update email saved locally: ${profile.email}.` : 'No V2 update email saved.',
       `Age range: ${ageText}.`,
       `Focus area: ${focus.label}.`,
       `AI level: ${route.label} at ${percent}%.`,
@@ -904,20 +905,14 @@ function initGauge() {
 
   profileSave?.addEventListener('click', () => {
     const name = profileName.value.trim();
-    const email = profileEmail?.value.trim() || '';
     if (!name) {
       profileName.focus();
-      return;
-    }
-    if (email && !profileEmail.checkValidity()) {
-      profileEmail.focus();
       return;
     }
     const existing = readProfile() || {};
     writeProfile({
       ...existing,
       name,
-      email,
       createdAt: existing.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
     });
@@ -939,11 +934,10 @@ function initGauge() {
       ));
       safeSetStorage('modelwise-gauge', JSON.stringify({
         ...savedGauge,
-        knownFacts: ['No private display name saved yet.', 'No V2 update email saved.', ...cleanedFacts]
+        knownFacts: ['No private display name saved yet.', ...cleanedFacts]
       }));
     }
     profileName.value = '';
-    if (profileEmail) profileEmail.value = '';
     renderProfile();
   });
 
