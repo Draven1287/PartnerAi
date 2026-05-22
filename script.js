@@ -13,10 +13,261 @@ function levelIdFromRoute(route) {
 
 function readLearningSettings() {
   try {
-    return JSON.parse(localStorage.getItem('learningai-settings') || 'null') || {};
+    return JSON.parse(safeGetStorage('learningai-settings') || 'null') || {};
   } catch (e) {
     return {};
   }
+}
+
+function safeGetStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (e) {
+    return null;
+  }
+}
+
+function safeSetStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function safeRemoveStorage(key) {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function showStorageWarning(message = 'Could not save on this device. You can still use the site, but progress may not persist.') {
+  const existing = document.getElementById('storage-warning');
+  if (existing) {
+    existing.textContent = message;
+    existing.hidden = false;
+    return;
+  }
+  const target = document.querySelector('main .container') || document.querySelector('main .wide') || document.querySelector('main');
+  if (!target) return;
+  const warning = document.createElement('div');
+  warning.id = 'storage-warning';
+  warning.className = 'callout callout-bad';
+  warning.textContent = message;
+  target.prepend(warning);
+}
+
+const LESSON_SEQUENCE = [
+  {
+    id: 'chapter-1',
+    href: 'chapter-1.html',
+    stage: 'Foundation',
+    label: 'Chapter 1',
+    title: 'What AI actually is',
+    copy: 'Models, training, prediction, hallucination, and why chat is only one small part of AI.'
+  },
+  {
+    id: 'chapter-2',
+    href: 'chapter-2.html',
+    stage: 'Foundation',
+    label: 'Chapter 2',
+    title: 'How to talk to AI',
+    copy: 'Learn context, roles, examples, constraints, and follow-up questions.'
+  },
+  {
+    id: 'chapter-3',
+    href: 'chapter-3.html',
+    stage: 'Explorer',
+    label: 'Chapter 3',
+    title: 'Being a great AI partner',
+    copy: 'Use AI for critique, practice, feedback, and agency without handing over your thinking.'
+  },
+  {
+    id: 'chapter-4',
+    href: 'chapter-4.html',
+    stage: 'Explorer',
+    label: 'Chapter 4',
+    title: 'How to check and challenge AI',
+    copy: 'Build habits for sources, uncertainty, claims, mistakes, and decision risk.'
+  },
+  {
+    id: 'chapter-5',
+    href: 'chapter-5.html',
+    stage: 'Builder',
+    label: 'Chapter 5',
+    title: 'Build with AI',
+    copy: 'Move from chat to projects, workflows, experiments, and model comparisons.'
+  }
+];
+
+const PROJECT_CATALOG = [
+  {
+    id: 'study-coach-card',
+    stage: 'Foundation',
+    focus: 'student',
+    title: 'Build an AI study coach prompt card',
+    copy: 'Create a reusable prompt that gives hints, examples, and a quiz without writing the final answer for you.',
+    tools: 'Any free chat tool or a notebook',
+    deliverable: 'One prompt card plus a before and after answer.'
+  },
+  {
+    id: 'business-workflow-map',
+    stage: 'Foundation',
+    focus: 'business',
+    title: 'Map one messy workflow',
+    copy: 'Pick one repeated task, then design a researcher, drafter, and reviewer workflow you could run manually.',
+    tools: 'Paper, docs, or any free chat tool',
+    deliverable: 'A three-step workflow with human checkpoints.'
+  },
+  {
+    id: 'debug-coach',
+    stage: 'Foundation',
+    focus: 'learning-coder',
+    title: 'Use AI as a debugging coach',
+    copy: 'Bring one small bug and ask for hints, tests, and explanations before asking for the fix.',
+    tools: 'Browser editor, local files, or any free chat tool',
+    deliverable: 'A bug note that explains what broke and how you fixed it.'
+  },
+  {
+    id: 'lesson-activity-check',
+    stage: 'Foundation',
+    focus: 'teacher',
+    title: 'Turn one topic into an activity',
+    copy: 'Use AI to draft an activity, then add checks for understanding, misconceptions, and privacy boundaries.',
+    tools: 'Docs or any free chat tool',
+    deliverable: 'One activity plan with a verification step.'
+  },
+  {
+    id: 'creative-versions',
+    stage: 'Foundation',
+    focus: 'creative',
+    title: 'Generate, critique, revise',
+    copy: 'Ask for three directions, choose one, critique it, and revise it using your own taste.',
+    tools: 'Any free chat or image planning tool',
+    deliverable: 'Three concepts, one critique, one revised direction.'
+  },
+  {
+    id: 'decision-helper',
+    stage: 'Foundation',
+    focus: 'personal',
+    title: 'Build a decision helper',
+    copy: 'Use AI to list options, tradeoffs, missing information, and what you should verify before deciding.',
+    tools: 'Any free chat tool or a notes app',
+    deliverable: 'A decision table with a final human choice.'
+  },
+  {
+    id: 'verification-ladder',
+    stage: 'Explorer',
+    focus: 'general',
+    title: 'Run a verification ladder',
+    copy: 'Ask AI for an answer, mark three claims, verify one outside the model, and record what changed.',
+    tools: 'Browser search plus any free chat tool',
+    deliverable: 'Three claims, one checked source, one corrected answer.'
+  },
+  {
+    id: 'model-comparison',
+    stage: 'Explorer',
+    focus: 'general',
+    title: 'Compare two AI answers',
+    copy: 'Give the same task to two tools or two prompt versions. Score clarity, usefulness, mistakes, and what you would trust.',
+    tools: 'Two free tools, or one tool with two prompt versions',
+    deliverable: 'A comparison table and a trust decision.'
+  },
+  {
+    id: 'agency-contract',
+    stage: 'Explorer',
+    focus: 'general',
+    title: 'Write your AI agency contract',
+    copy: 'Decide what AI is allowed to do for you, what it must never do, and when you have to slow down.',
+    tools: 'Notes app or docs',
+    deliverable: 'A one-page rule sheet for your own AI use.'
+  },
+  {
+    id: 'mini-tool-spec',
+    stage: 'Builder',
+    focus: 'general',
+    title: 'Design a mini AI-powered tool',
+    copy: 'Write a spec for a small tool, define inputs and outputs, then ask AI to critique what could fail.',
+    tools: 'Docs, plain HTML, or any free chat tool',
+    deliverable: 'A tool spec, risk list, and first prototype plan.'
+  },
+  {
+    id: 'local-model-test',
+    stage: 'Builder',
+    focus: 'general',
+    title: 'Plan a local model test',
+    copy: 'Compare what a small local model could do versus a bigger hosted model, without paying for either.',
+    tools: 'LM Studio optional, Hugging Face Chat optional',
+    deliverable: 'A test plan with tasks, expected limits, and results.'
+  }
+];
+
+function projectForContext(focus, progress = readLearningProgress()) {
+  const done = completedLessonCount(progress);
+  const stage = done >= 4 ? 'Builder' : done >= 2 ? 'Explorer' : 'Foundation';
+  return PROJECT_CATALOG.find(project => project.stage === stage && project.focus === focus)
+    || PROJECT_CATALOG.find(project => project.stage === stage && project.focus === 'general')
+    || PROJECT_CATALOG[0];
+}
+
+function readLearningProgress() {
+  try {
+    return JSON.parse(safeGetStorage('learningai-progress') || 'null') || { completed: {} };
+  } catch (e) {
+    return { completed: {} };
+  }
+}
+
+function saveLearningProgress(progress) {
+  return safeSetStorage('learningai-progress', JSON.stringify({
+    completed: progress.completed || {},
+    savedAt: new Date().toISOString()
+  }));
+}
+
+function readProjectProgress() {
+  try {
+    return JSON.parse(safeGetStorage('learningai-project-progress') || 'null') || { completed: {} };
+  } catch (e) {
+    return { completed: {} };
+  }
+}
+
+function saveProjectProgress(progress) {
+  return safeSetStorage('learningai-project-progress', JSON.stringify({
+    completed: progress.completed || {},
+    savedAt: new Date().toISOString()
+  }));
+}
+
+function completedProjectCount(progress = readProjectProgress()) {
+  return PROJECT_CATALOG.filter(item => progress.completed?.[item.id]).length;
+}
+
+function currentLessonId() {
+  const page = location.pathname.split('/').pop() || '';
+  const lesson = LESSON_SEQUENCE.find(item => item.href === page);
+  return lesson?.id || '';
+}
+
+function completedLessonCount(progress = readLearningProgress()) {
+  return LESSON_SEQUENCE.filter(item => progress.completed?.[item.id]).length;
+}
+
+function nextLesson(progress = readLearningProgress()) {
+  return LESSON_SEQUENCE.find(item => !progress.completed?.[item.id]) || null;
+}
+
+function stageStatus(progress = readLearningProgress()) {
+  return ['Foundation', 'Explorer', 'Builder'].map(stage => {
+    const lessons = LESSON_SEQUENCE.filter(item => item.stage === stage);
+    const done = lessons.filter(item => progress.completed?.[item.id]).length;
+    return { stage, done, total: lessons.length };
+  });
 }
 
 function hexToRgb(hex) {
@@ -68,6 +319,22 @@ function applyAppearance(settings = readLearningSettings()) {
     target.setProperty('--text', text || '#121826');
     target.setProperty('--text-dim', '#4b5870');
     target.setProperty('--text-faint', '#7a869a');
+  } else if (theme === 'sepia') {
+    target.setProperty('--bg', '#f4ecd8');
+    target.setProperty('--surface', '#fffaf0');
+    target.setProperty('--surface-2', '#eadfc7');
+    target.setProperty('--border', '#d8c9ab');
+    target.setProperty('--text', '#1f1a14');
+    target.setProperty('--text-dim', '#564a3a');
+    target.setProperty('--text-faint', '#766a59');
+  } else if (theme === 'high-contrast') {
+    target.setProperty('--bg', '#ffffff');
+    target.setProperty('--surface', '#ffffff');
+    target.setProperty('--surface-2', '#f2f2f2');
+    target.setProperty('--border', '#111111');
+    target.setProperty('--text', '#000000');
+    target.setProperty('--text-dim', '#222222');
+    target.setProperty('--text-faint', '#444444');
   }
   if (accent) {
     const rgb = hexToRgb(accent);
@@ -107,7 +374,9 @@ function settingsSummary(settings) {
   }[settings.detail] || 'normal detail';
   const theme = {
     dark: 'dark mode',
-    light: 'light mode'
+    light: 'light mode',
+    sepia: 'warm sepia',
+    'high-contrast': 'high contrast'
   }[settings.theme] || 'default colors';
   const focus = focusProfile(settings.focusArea).label.toLowerCase();
   return `${format}, ${mode}, ${detail}, ${theme}, ${focus}`;
@@ -159,6 +428,40 @@ function focusProfile(focus) {
   };
 }
 
+function ageToneProfile(ageRange) {
+  return {
+    teen: 'Keep it direct, concrete, and not over-explained.',
+    'young-adult': 'Use practical examples that connect school, work, and early career decisions.',
+    adult: 'Keep it practical and time-aware, with workplace and life examples.',
+    'older-adult': 'Use plain language, avoid jargon, and connect ideas to real decisions.'
+  }[ageRange] || 'Use clear examples and avoid assuming what the learner already knows.';
+}
+
+function levelProfile(level) {
+  const route = levelIdFromRoute(level);
+  return {
+    beginner: {
+      label: 'Foundation',
+      framing: 'Build the mental model slowly before using AI heavily.',
+      challenge: 'Your check: explain the idea in plain language.'
+    },
+    explorer: {
+      label: 'Explorer',
+      framing: 'Use this as a fast calibration. You may know pieces already, but the goal is cleaner vocabulary and better judgment.',
+      challenge: 'Your check: name one place this idea could fail.'
+    },
+    builder: {
+      label: 'Builder',
+      framing: 'Treat this as a systems audit before projects. You are checking whether you understand what you are building on.',
+      challenge: 'Your check: turn the idea into a small test or project rule.'
+    }
+  }[route] || {
+    label: 'Foundation',
+    framing: 'Build the mental model clearly before moving faster.',
+    challenge: 'Your check: explain the idea in your own words.'
+  };
+}
+
 function adaptLessonCopy(copy, title, settings) {
   const format = settings.format || 'short';
   const mode = settings.mode || 'plain';
@@ -170,21 +473,25 @@ function adaptLessonCopy(copy, title, settings) {
     plain: 'Plain version: understand the basic idea before adding harder details.'
   }[mode] || copy;
   const focus = focusProfile(settings.focusArea);
+  const level = levelProfile(settings.route || settings.level);
+  const tone = ageToneProfile(settings.ageRange);
   const focusLine = `Your focus: ${focus.example}`;
+  const levelLine = `${level.label} framing: ${level.framing}`;
+  const challengeLine = level.challenge;
 
   if (format === 'bullets') {
     const detailLine = detail === 'compact' ? 'Keep it short.' : detail === 'deep' ? 'Add one deeper question after the basics.' : 'Learn the idea, then try it.';
-    return `• ${copy}\n• ${focusLine}\n• ${modeLine}\n• ${detailLine}`;
+    return `• ${copy}\n• ${levelLine}\n• ${focusLine}\n• ${modeLine}\n• ${detailLine}`;
   }
   if (format === 'steps') {
-    return `1. Learn: ${copy}\n2. Connect: ${focus.example}\n3. Try: ${modeLine}\n4. Check: explain ${title.toLowerCase()} in your own words.`;
+    return `1. Learn: ${copy}\n2. Calibrate: ${level.framing}\n3. Connect: ${focus.example}\n4. Try: ${modeLine}\n5. Check: ${challengeLine}`;
   }
   if (format === 'visual') {
-    return `Picture it first: ${focus.example} Then use the lesson to understand ${title.toLowerCase()}.`;
+    return `Picture it first: ${focus.example} Then use ${title.toLowerCase()} as a ${level.label.toLowerCase()} lens. ${challengeLine}`;
   }
   if (detail === 'compact') return copy;
-  if (detail === 'deep') return `${copy} ${focusLine} Then ask what could go wrong, where the limits are, and how you would test it.`;
-  return `${copy} ${focusLine} ${modeLine}`;
+  if (detail === 'deep') return `${copy} ${levelLine} ${focusLine} Then ask what could go wrong, where the limits are, and how you would test it. ${tone}`;
+  return `${copy} ${levelLine} ${focusLine} ${modeLine}`;
 }
 
 // --- Scroll progress bar ---
@@ -269,6 +576,7 @@ function initGauge() {
   const profileGreeting = document.getElementById('profile-greeting');
   const profileCopy = document.getElementById('profile-copy');
   const profileName = document.getElementById('profile-name');
+  const profileEmail = document.getElementById('profile-email');
   const profileSave = document.getElementById('profile-save');
   const profileClear = document.getElementById('profile-clear');
   const categories = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
@@ -393,15 +701,18 @@ function initGauge() {
 
   function readProfile() {
     try {
-      return JSON.parse(localStorage.getItem('modelwise-user') || 'null');
+      return JSON.parse(safeGetStorage('modelwise-user') || 'null');
     } catch (e) {
       return null;
     }
   }
 
   function writeProfile(profile) {
-    localStorage.setItem('modelwise-user', JSON.stringify(profile));
-    renderProfile();
+    if (safeSetStorage('modelwise-user', JSON.stringify(profile))) {
+      renderProfile();
+    } else {
+      showStorageWarning('Could not save your display name in this browser.');
+    }
   }
 
   function renderProfile() {
@@ -410,13 +721,17 @@ function initGauge() {
       profileChip.textContent = `Hey, ${profile.name}`;
       profileJump.textContent = 'Your profile';
       profileGreeting.textContent = `Hey ${profile.name}, ready to start learning today?`;
-      profileCopy.textContent = 'Learning AI will use your name, remember your assessment on this device, and shape the course around your level.';
+      profileCopy.textContent = profile.email
+        ? 'Learning AI will use your name, remember your assessment on this device, and keep your V2 update email locally for now.'
+        : 'Learning AI will use your name, remember your assessment on this device, and shape the course around your level.';
       profileName.value = profile.name || '';
+      if (profileEmail) profileEmail.value = profile.email || '';
     } else {
       profileChip.textContent = 'Make it yours';
       profileJump.textContent = 'Set name';
       profileGreeting.textContent = 'Make this path yours.';
-      profileCopy.textContent = 'Add a private display name. No one else sees it. It just helps the course feel like it is yours when you come back.';
+      profileCopy.textContent = 'Add a private display name and, if you want, an email for V2 updates. This is saved only in this browser for now.';
+      if (profileEmail) profileEmail.value = '';
     }
   }
 
@@ -473,6 +788,7 @@ function initGauge() {
     });
     return [
       profile ? `Private display name: ${profile.name}.` : 'No private display name saved yet.',
+      profile?.email ? `V2 update email saved locally: ${profile.email}.` : 'No V2 update email saved.',
       `Age range: ${ageText}.`,
       `Focus area: ${focus.label}.`,
       `AI level: ${route.label} at ${percent}%.`,
@@ -548,7 +864,10 @@ function initGauge() {
       knownFacts: facts,
       savedAt: new Date().toISOString()
     };
-    localStorage.setItem('modelwise-gauge', JSON.stringify(saved));
+    if (!safeSetStorage('modelwise-gauge', JSON.stringify(saved))) {
+      showStorageWarning('Could not save your assessment in this browser. You can still browse lessons, but My Path may not persist.');
+      return;
+    }
     const profile = readProfile();
     if (profile) writeProfile({ ...profile, lastGauge: saved });
     window.location.href = 'my-path.html';
@@ -585,33 +904,46 @@ function initGauge() {
 
   profileSave?.addEventListener('click', () => {
     const name = profileName.value.trim();
+    const email = profileEmail?.value.trim() || '';
     if (!name) {
       profileName.focus();
       return;
     }
-    writeProfile({ name, createdAt: new Date().toISOString() });
+    if (email && !profileEmail.checkValidity()) {
+      profileEmail.focus();
+      return;
+    }
+    const existing = readProfile() || {};
+    writeProfile({
+      ...existing,
+      name,
+      email,
+      createdAt: existing.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
   });
 
   profileClear?.addEventListener('click', () => {
     const oldProfile = readProfile();
-    localStorage.removeItem('modelwise-user');
+    safeRemoveStorage('modelwise-user');
     const savedGauge = (() => {
       try {
-        return JSON.parse(localStorage.getItem('modelwise-gauge') || 'null');
+        return JSON.parse(safeGetStorage('modelwise-gauge') || 'null');
       } catch (e) {
         return null;
       }
     })();
     if (savedGauge) {
-      const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => !fact.startsWith('Private display name:'));
-      const gaugeWithoutPrompt = { ...savedGauge };
-      delete gaugeWithoutPrompt['guide' + 'Prompt'];
-      localStorage.setItem('modelwise-gauge', JSON.stringify({
-        ...gaugeWithoutPrompt,
-        knownFacts: ['No private display name saved yet.', ...cleanedFacts]
+      const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => (
+        !fact.startsWith('Private display name:') && !fact.startsWith('V2 update email saved locally:')
+      ));
+      safeSetStorage('modelwise-gauge', JSON.stringify({
+        ...savedGauge,
+        knownFacts: ['No private display name saved yet.', 'No V2 update email saved.', ...cleanedFacts]
       }));
     }
     profileName.value = '';
+    if (profileEmail) profileEmail.value = '';
     renderProfile();
   });
 
@@ -635,7 +967,7 @@ function initPersonalizedLessons() {
 
   function readJSON(key) {
     try {
-      return JSON.parse(localStorage.getItem(key) || 'null');
+      return JSON.parse(safeGetStorage(key) || 'null');
     } catch (e) {
       return null;
     }
@@ -643,7 +975,14 @@ function initPersonalizedLessons() {
 
   const settings = readLearningSettings();
   const gauge = readJSON('modelwise-gauge');
-  const activeSettings = { ...settings, focusArea: settings.focusArea || gauge?.focusArea || '' };
+  const activeSettings = {
+    ...settings,
+    focusArea: settings.focusArea || gauge?.focusArea || '',
+    ageRange: gauge?.ageRange || '',
+    route: gauge?.route || ''
+  };
+  const progress = readLearningProgress();
+  const next = nextLesson(progress);
 
   if ((activeSettings.format || activeSettings.focusArea) && fullList) {
     fullList.querySelectorAll('.chapter-card').forEach(card => {
@@ -665,65 +1004,36 @@ function initPersonalizedLessons() {
   }
 
   const routeId = levelIdFromRoute(gauge.route);
-  const paths = {
-    beginner: {
-      title: 'Level 1: Foundation path',
-      copy: 'Start with the mental model first. This path assumes AI still feels unclear, so it explains the basics before asking you to use tools heavily.',
-      primary: ['chapter-1.html', 'Start Chapter 1'],
-      lessons: [
-        ['chapter-1.html', '01 · Foundation', 'What AI actually is', 'Build the basic picture: models, training, prediction, and hallucination.'],
-        ['chapter-2.html', '02 · First skill', 'How to talk to AI', 'Learn one reliable prompt pattern without getting buried in jargon.'],
-        ['playground.html', '03 · Practice', 'Try two versions of the same prompt', 'See how changing the question changes the answer.'],
-        ['chapter-3.html', '04 · Preview', 'Use AI without losing your thinking', 'Learn when AI helps and when it gets in the way.']
-      ]
-    },
-    explorer: {
-      title: 'Level 2: Explorer path',
-      copy: 'You know some basics. This path moves faster into judgment, verification, and using AI as a thinking partner instead of a search box.',
-      primary: ['chapter-2.html', 'Start Chapter 2'],
-      lessons: [
-        ['chapter-2.html', '01 · Prompt skill', 'Ask better questions', 'Practice context, roles, examples, constraints, and follow-up prompts.'],
-        ['chapter-3.html', '02 · Preview', 'Protect your own thinking', 'Learn how to use AI for critique, practice, and feedback without outsourcing the hard part.'],
-        ['chapter-4.html', '03 · Preview', 'Check the answer', 'Build habits for sources, uncertainty, claims, and mistakes.'],
-        ['playground.html', '04 · Lab', 'Run prompt experiments', 'Compare answers and notice where the model gets stronger or weaker.']
-      ]
-    },
-    builder: {
-      title: 'Level 3: Builder path',
-      copy: 'You are ready to treat AI like a system you can test. This path starts with building, then loops back into verification and judgment.',
-      primary: ['chapter-5.html', 'Open Chapter 5 preview'],
-      lessons: [
-        ['chapter-5.html', '01 · Project outline', 'Build with AI', 'Move from chat to projects, workflows, experiments, and model comparisons.'],
-        ['projects.html', '02 · Project', 'Run a real experiment', 'Turn one idea into a testable project.'],
-        ['chapter-4.html', '03 · Preview', 'Build a checking loop', 'Challenge outputs before trusting or publishing them.'],
-        ['chapter-3.html', '04 · Preview', 'Use AI as a partner', 'Keep your own taste, reasoning, and responsibility in the loop.']
-      ]
-    }
-  };
-
-  const path = paths[routeId];
-  if (!path) return;
+  const level = levelProfile(routeId);
+  const lessons = LESSON_SEQUENCE.map((item, index) => [
+    item.href,
+    `${String(index + 1).padStart(2, '0')} · ${item.stage}`,
+    item.title,
+    item.copy,
+    item.id
+  ]);
 
   section.hidden = false;
-  document.getElementById('lesson-path-title').textContent = path.title;
+  document.getElementById('lesson-path-title').textContent = 'Your sequence: Foundation to Explorer to Builder';
   document.getElementById('lesson-path-copy').textContent = activeSettings.format || activeSettings.focusArea
-    ? `${path.copy} Teaching style: ${settingsSummary(activeSettings)}.`
-    : path.copy;
+    ? `Everyone starts with Chapter 1. Your current signal is ${level.label}, so the examples, pacing, and challenge prompts use ${settingsSummary(activeSettings)}.`
+    : `Everyone starts with Chapter 1. Your current signal is ${level.label}, so the course changes the framing instead of skipping the foundation.`;
   document.getElementById('lessons-hero-copy').textContent = activeSettings.format || activeSettings.focusArea
-    ? `Your saved level is ${gauge.route}. Lessons are currently customized for ${settingsSummary(activeSettings)}.`
-    : `Your saved level is ${gauge.route}. Use the recommended order below, or browse the full library after it.`;
+    ? `Your saved level is ${gauge.route}. Start at Chapter 1, then move through Foundation, Explorer, and Builder with ${settingsSummary(activeSettings)}.`
+    : `Your saved level is ${gauge.route}. Start at Chapter 1 and move forward as you complete each lesson.`;
   const primary = document.getElementById('lessons-primary');
-  primary.href = path.primary[0];
-  primary.textContent = path.primary[1];
+  primary.href = next ? next.href : 'projects.html';
+  primary.textContent = next ? `Continue: ${next.title}` : 'Start a project';
 
   list.innerHTML = '';
-  path.lessons.forEach(([href, step, title, copy]) => {
+  lessons.forEach(([href, step, title, copy, id]) => {
     const a = document.createElement('a');
     a.className = 'chapter-card personalized-lesson-card';
+    if (progress.completed?.[id]) a.classList.add('is-complete');
     a.href = href;
     const num = document.createElement('div');
     num.className = 'num';
-    num.textContent = step;
+    num.textContent = progress.completed?.[id] ? `${step} · Done` : step;
     const h3 = document.createElement('h3');
     h3.textContent = title;
     const p = document.createElement('p');
@@ -734,6 +1044,100 @@ function initPersonalizedLessons() {
   });
 }
 document.addEventListener('DOMContentLoaded', initPersonalizedLessons);
+
+// --- Lesson-specific personalization panel ---
+function initLessonPersonalizationPanel() {
+  const lessonId = currentLessonId();
+  if (!lessonId) return;
+  const lesson = LESSON_SEQUENCE.find(item => item.id === lessonId);
+  const container = document.querySelector('main .section-tight .container') || document.querySelector('main .container');
+  if (!lesson || !container) return;
+
+  let gauge = null;
+  try {
+    gauge = JSON.parse(safeGetStorage('modelwise-gauge') || 'null');
+  } catch (e) {
+    gauge = null;
+  }
+
+  const settings = readLearningSettings();
+  const activeSettings = {
+    ...settings,
+    focusArea: settings.focusArea || gauge?.focusArea || '',
+    ageRange: gauge?.ageRange || '',
+    route: gauge?.route || ''
+  };
+  if (!activeSettings.focusArea && !activeSettings.route && !activeSettings.format) return;
+
+  const focus = focusProfile(activeSettings.focusArea);
+  const level = levelProfile(activeSettings.route || activeSettings.level);
+  const project = projectForContext(activeSettings.focusArea);
+  const panel = document.createElement('section');
+  panel.className = 'lesson-personal-panel';
+  panel.innerHTML = `
+    <span class="section-heading">For your path</span>
+    <h2>${lesson.title}, built for ${level.label.toLowerCase()} ${focus.label.toLowerCase()}</h2>
+    <div class="path-mini-grid">
+      <div>
+        <strong>How to read this lesson</strong>
+        <p>${level.framing}</p>
+      </div>
+      <div>
+        <strong>Your focus</strong>
+        <p>${focus.goal}.</p>
+      </div>
+      <div>
+        <strong>Do this before moving on</strong>
+        <p>${focus.challenge} ${level.challenge}</p>
+      </div>
+    </div>
+    <p class="small"><strong>Project connection:</strong> ${project.title}. ${project.copy}</p>
+  `;
+  container.appendChild(panel);
+}
+document.addEventListener('DOMContentLoaded', initLessonPersonalizationPanel);
+
+// --- Lesson progress controls ---
+function initLessonProgress() {
+  const lessonId = currentLessonId();
+  if (!lessonId) return;
+  const lesson = LESSON_SEQUENCE.find(item => item.id === lessonId);
+  const container = document.querySelector('main .section-tight .container') || document.querySelector('main .container');
+  if (!lesson || !container) return;
+
+  const progress = readLearningProgress();
+  const complete = Boolean(progress.completed?.[lessonId]);
+  const panel = document.createElement('section');
+  panel.className = 'lesson-progress-panel';
+  panel.innerHTML = `
+    <div>
+      <span class="section-heading">${lesson.stage} progress</span>
+      <h2>${complete ? 'This lesson is marked complete.' : 'Save your progress when you finish.'}</h2>
+      <p>${complete ? 'My Path will use this to move you toward the next stage.' : 'Learning AI saves progress only in this browser, then recommends the next lesson or project.'}</p>
+    </div>
+    <button type="button" class="btn btn-primary" id="mark-lesson-complete">${complete ? 'Completed' : 'Mark lesson complete'}</button>
+  `;
+  container.appendChild(panel);
+
+  panel.querySelector('#mark-lesson-complete')?.addEventListener('click', () => {
+    const nextProgress = readLearningProgress();
+    nextProgress.completed = nextProgress.completed || {};
+    nextProgress.completed[lessonId] = new Date().toISOString();
+    if (!saveLearningProgress(nextProgress)) {
+      showStorageWarning('Could not save lesson progress in this browser.');
+      return;
+    }
+    const next = nextLesson(nextProgress);
+    panel.querySelector('h2').textContent = 'Progress saved.';
+    panel.querySelector('p').textContent = !next
+      ? 'You finished the lesson sequence. Open Projects to keep building.'
+      : `Next up: ${next.title}.`;
+    const btn = panel.querySelector('#mark-lesson-complete');
+    btn.textContent = 'Saved';
+    btn.disabled = true;
+  });
+}
+document.addEventListener('DOMContentLoaded', initLessonProgress);
 
 // --- Settings page ---
 function initLearningSettings() {
@@ -793,7 +1197,10 @@ function initLearningSettings() {
   form.addEventListener('submit', e => {
     e.preventDefault();
     const settings = readForm();
-    localStorage.setItem('learningai-settings', JSON.stringify(settings));
+    if (!safeSetStorage('learningai-settings', JSON.stringify(settings))) {
+      showStorageWarning('Could not save settings in this browser.');
+      return;
+    }
     applyAppearance(settings);
     render(settings);
   });
@@ -805,7 +1212,7 @@ function initLearningSettings() {
   });
 
   reset?.addEventListener('click', () => {
-    localStorage.removeItem('learningai-settings');
+    safeRemoveStorage('learningai-settings');
     form.reset();
     document.body.removeAttribute('data-theme');
     document.body.removeAttribute('data-font-scale');
@@ -826,7 +1233,7 @@ function initMyPath() {
 
   function readJSON(key) {
     try {
-      return JSON.parse(localStorage.getItem(key) || 'null');
+      return JSON.parse(safeGetStorage(key) || 'null');
     } catch (e) {
       return null;
     }
@@ -835,6 +1242,7 @@ function initMyPath() {
   const user = readJSON('modelwise-user');
   const gauge = readJSON('modelwise-gauge');
   const settings = readLearningSettings();
+  const progress = readLearningProgress();
   const focus = focusProfile(settings.focusArea || gauge?.focusArea || '');
 
   if (!gauge || !gauge.route) {
@@ -844,39 +1252,28 @@ function initMyPath() {
   }
 
   const routeId = levelIdFromRoute(gauge.route);
+  const next = nextLesson(progress);
+  const doneCount = completedLessonCount(progress);
+  const projectDoneCount = completedProjectCount();
+  const matchedProject = projectForContext(settings.focusArea || gauge?.focusArea || '', progress);
   const routeData = {
     beginner: {
       title: 'Your AI level is: Foundation',
       copy: 'Start by building the mental model. You will learn what AI is before you lean on it.',
       signal: 'This is not a grade. It means the course should start with clear foundations and fewer assumptions.',
-      next: ['chapter-1.html', 'Learn what AI is', 'Start with models, training, prediction, and hallucination.'],
-      cards: [
-        ['chapter-1.html', 'Chapter 1', 'What AI actually is', 'Build the foundation.'],
-        ['chapter-2.html', 'Chapter 2', 'One useful prompt pattern', 'Learn context, role, examples, and constraints.'],
-        ['playground.html', 'Practice', 'Compare two prompts', 'See how different questions change the answer.']
-      ]
+      nextCopy: 'Start with models, training, prediction, and hallucination.'
     },
     explorer: {
       title: 'Your AI level is: Explorer',
-      copy: 'You know some basics. Now the move is judgment: ask better, challenge answers, and verify.',
+      copy: 'You know some basics. You still start at Chapter 1, but the course treats it like calibration, then moves you into judgment and verification.',
       signal: 'This is not fixed. It means you are ready for stronger examples, trust checks, and real practice.',
-      next: ['chapter-2.html', 'Practice a stronger prompt', 'Use AI as a tutor, critic, and thinking partner.'],
-      cards: [
-        ['chapter-2.html', 'Chapter 2', 'Ask better questions', 'Upgrade your prompt habits.'],
-        ['chapter-3.html', 'Chapter 3 · Preview', 'Protect your thinking', 'Use AI without outsourcing your brain.'],
-        ['chapter-4.html', 'Chapter 4 · Preview', 'Check the answer', 'Build verification habits.']
-      ]
+      nextCopy: 'Use the early chapters to sharpen vocabulary, then move into partner skill and verification.'
     },
     builder: {
       title: 'Your AI level is: Builder',
-      copy: 'You are ready to test AI, not just use it. Build, compare, verify, and publish what you learn.',
+      copy: 'You are ready to test AI, not just use it. You still start at Chapter 1 as a systems check before building.',
       signal: 'This is a launch point. It means your path can move into experiments, projects, and model comparisons.',
-      next: ['chapter-5.html', 'Open project outline', 'Turn AI from a chat window into a project partner.'],
-      cards: [
-        ['chapter-5.html', 'Chapter 5 · Project outline', 'Start a build', 'Make something real.'],
-        ['projects.html', 'Projects', 'Run an experiment', 'Compare models or build a tool.'],
-        ['chapter-4.html', 'Chapter 4 · Preview', 'Verification loop', 'Test outputs before trusting them.']
-      ]
+      nextCopy: 'Move through the sequence quickly, then spend more time on projects and model comparisons.'
     }
   }[routeId] || null;
 
@@ -889,9 +1286,14 @@ function initMyPath() {
   root.hidden = false;
   empty.hidden = true;
 
+  const badge = document.getElementById('active-persona-badge');
+  if (badge) {
+    badge.hidden = false;
+    badge.textContent = `Active path: ${focus.label} · ${routeData.title.replace('Your AI level is: ', '')}`;
+  }
   document.getElementById('path-title').textContent = user?.name ? `Hey ${user.name}, here is your path.` : routeData.title;
-  document.getElementById('path-copy').textContent = routeData.copy;
-  document.getElementById('path-score').textContent = `${gauge.score}%`;
+  document.getElementById('path-copy').textContent = `${routeData.copy} Progress: ${doneCount} of ${LESSON_SEQUENCE.length} lessons and ${projectDoneCount} projects complete.`;
+  document.getElementById('path-score').textContent = `${doneCount}/${LESSON_SEQUENCE.length}`;
   document.getElementById('path-saved').textContent = gauge.savedAt ? `Saved ${new Date(gauge.savedAt).toLocaleDateString()}` : 'Saved on this device.';
   document.getElementById('path-signal-copy').textContent = routeData.signal;
   const settingsCopy = document.getElementById('path-settings-copy');
@@ -901,22 +1303,50 @@ function initMyPath() {
       : `Learning AI will connect examples to ${focus.label.toLowerCase()}. You can customize the format, color, and style in Settings.`;
   }
   const primary = document.getElementById('path-primary');
-  primary.href = routeData.next[0];
-  primary.textContent = 'Continue';
-  document.getElementById('next-title').textContent = routeData.next[1];
-  document.getElementById('next-copy').textContent = routeData.next[2];
+  primary.href = next ? next.href : 'projects.html';
+  primary.textContent = next ? 'Continue' : 'Start a project';
+  document.getElementById('next-title').textContent = next ? next.title : 'Start a project';
+  document.getElementById('next-copy').textContent = next ? routeData.nextCopy : 'You finished the lesson sequence. Now use Projects to apply what you learned.';
   const nextLink = document.getElementById('next-link');
-  nextLink.href = routeData.next[0];
+  nextLink.href = next ? next.href : 'projects.html';
+  nextLink.textContent = next ? 'Continue' : 'Open projects';
 
   const routeBox = document.getElementById('path-route');
   routeBox.innerHTML = '';
-  routeData.cards.forEach(([href, label, title, copy]) => {
+  LESSON_SEQUENCE.forEach(item => {
     const a = document.createElement('a');
     a.className = 'chapter-card';
-    a.href = href;
-    a.innerHTML = `<div class="num">${label}</div><h3>${title}</h3><p>${copy}</p>`;
+    if (progress.completed?.[item.id]) a.classList.add('is-complete');
+    a.href = item.href;
+    a.innerHTML = `<div class="num">${item.stage}${progress.completed?.[item.id] ? ' · Done' : ''}</div><h3>${item.title}</h3><p>${adaptLessonCopy(item.copy, item.title, { ...settings, focusArea: settings.focusArea || gauge.focusArea, ageRange: gauge.ageRange, route: gauge.route })}</p>`;
     routeBox.appendChild(a);
   });
+
+  const stageBox = document.getElementById('path-stages');
+  if (stageBox) {
+    stageBox.innerHTML = '';
+    stageStatus(progress).forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'stage-card';
+      div.innerHTML = `<strong>${item.stage}</strong><span>${item.done} of ${item.total} complete</span>`;
+      stageBox.appendChild(div);
+    });
+  }
+
+  const projectBox = document.getElementById('path-project');
+  if (projectBox && matchedProject) {
+    const projectProgress = readProjectProgress();
+    const isProjectDone = Boolean(projectProgress.completed?.[matchedProject.id]);
+    projectBox.innerHTML = `
+      <span class="section-heading">${matchedProject.stage} project</span>
+      <h2>${matchedProject.title}</h2>
+      <p>${matchedProject.copy}</p>
+      <p class="small"><strong>Cost:</strong> $0 · <strong>Tools:</strong> ${matchedProject.tools}</p>
+      <p class="small"><strong>Deliverable:</strong> ${matchedProject.deliverable}</p>
+      <p class="small"><strong>Status:</strong> ${isProjectDone ? 'Completed on this device.' : 'Not completed yet.'}</p>
+      <a href="projects.html" class="btn btn-primary">See project catalog</a>
+    `;
+  }
 
   const skillMap = document.getElementById('skill-map');
   const answerLabels = {
@@ -938,8 +1368,8 @@ function initMyPath() {
   });
 
   const tools = [
-    ['playground.html', '01', 'Practice', 'Prompt lab', 'Improve a question and compare the answers.'],
-    ['course.html', '02', 'Lessons', 'Personal lesson order', 'Follow the course sequence matched to your current level.'],
+    ['playground.html', '01', 'Practice', 'Prompt practice', 'Improve a question and compare the answers in an outside tool.'],
+    ['course.html', '02', 'Lessons', 'Personal sequence', 'Follow the same lesson ladder with examples matched to your current level.'],
     ['projects.html', '03', 'Build', 'Project starter', 'Turn one idea into a useful AI project.'],
     ['chapter-4.html', '04', 'Check', 'Verification', 'Learn when to slow down and verify.']
   ];
@@ -961,8 +1391,92 @@ function initMyPath() {
     known.appendChild(li);
   });
   document.getElementById('clear-path')?.addEventListener('click', () => {
-    localStorage.removeItem('modelwise-gauge');
+    safeRemoveStorage('modelwise-gauge');
     location.reload();
   });
 }
 document.addEventListener('DOMContentLoaded', initMyPath);
+
+// --- Projects catalog ---
+function initProjectsCatalog() {
+  const root = document.getElementById('project-catalog');
+  if (!root) return;
+  const settings = readLearningSettings();
+  let gauge = null;
+  try {
+    gauge = JSON.parse(safeGetStorage('modelwise-gauge') || 'null');
+  } catch (e) {
+    gauge = null;
+  }
+  const focus = settings.focusArea || gauge?.focusArea || '';
+  const preferred = projectForContext(focus);
+  const progress = readProjectProgress();
+
+  const grouped = ['Foundation', 'Explorer', 'Builder'].map(stage => ({
+    stage,
+    projects: PROJECT_CATALOG.filter(project => project.stage === stage)
+  }));
+
+  root.innerHTML = '';
+  grouped.forEach(group => {
+    const section = document.createElement('section');
+    section.className = 'project-stage';
+    section.innerHTML = `<div class="section-heading">${group.stage}</div><h2>${group.stage} projects</h2>`;
+    const grid = document.createElement('div');
+    grid.className = 'project-grid';
+    group.projects.forEach(project => {
+      const card = document.createElement('article');
+      card.className = 'project-card';
+      if (project.id === preferred?.id) card.classList.add('is-recommended');
+      if (progress.completed?.[project.id]) card.classList.add('is-complete');
+      card.innerHTML = `
+        <div class="tag">${project.focus === 'general' ? 'All learners' : focusProfile(project.focus).label}</div>
+        <h3>${project.title}</h3>
+        <p>${project.copy}</p>
+        <p class="small"><strong>Cost:</strong> $0 · <strong>Tools:</strong> ${project.tools}</p>
+        <p class="small"><strong>Deliverable:</strong> ${project.deliverable}</p>
+        <button type="button" class="btn btn-ghost project-complete-btn" data-project-id="${project.id}">${progress.completed?.[project.id] ? 'Completed' : 'Mark complete'}</button>
+      `;
+      grid.appendChild(card);
+    });
+    section.appendChild(grid);
+    root.appendChild(section);
+  });
+
+  root.addEventListener('click', event => {
+    const button = event.target.closest('[data-project-id]');
+    if (!button) return;
+    const nextProgress = readProjectProgress();
+    nextProgress.completed = nextProgress.completed || {};
+    const card = button.closest('.project-card');
+    const isComplete = Boolean(nextProgress.completed[button.dataset.projectId]);
+
+    if (isComplete) {
+      delete nextProgress.completed[button.dataset.projectId];
+      if (!saveProjectProgress(nextProgress)) {
+        showStorageWarning('Could not update project progress in this browser.');
+        return;
+      }
+      button.textContent = 'Mark complete';
+      card?.classList.remove('is-complete');
+      return;
+    }
+
+    const verified = window.confirm(
+      'Before you mark this complete:\n\n' +
+      '1. Did you check the AI output for mistakes or bias?\n' +
+      '2. Did you adapt the work instead of copying blindly?\n\n' +
+      'Click OK to record this project as complete.'
+    );
+    if (!verified) return;
+
+    nextProgress.completed[button.dataset.projectId] = new Date().toISOString();
+    if (!saveProjectProgress(nextProgress)) {
+      showStorageWarning('Could not save project progress in this browser.');
+      return;
+    }
+    button.textContent = 'Completed';
+    card?.classList.add('is-complete');
+  });
+}
+document.addEventListener('DOMContentLoaded', initProjectsCatalog);

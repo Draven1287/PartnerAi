@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>My Path · Learning AI</title>
   <meta name="description" content="Your personalized Learning AI learning path.">
-  <link rel="stylesheet" href="styles.css?v=20260520f">
+  <link rel="stylesheet" href="styles.css?v=20260522b">
 </head>
 <body class="path-page">
 
@@ -32,6 +32,7 @@
       <div class="path-hero-grid">
         <div>
           <div class="tagline">My Path</div>
+          <div id="active-persona-badge" class="persona-badge" hidden>Active path loading</div>
           <h1 id="path-title">Your AI path is loading.</h1>
           <p class="lead" id="path-copy">Learning AI uses your saved assessment to build a personal learning map.</p>
           <div class="btn-row">
@@ -77,6 +78,17 @@
         </div>
 
         <section class="path-panel">
+          <h2>Stage progress</h2>
+          <p class="small">Everyone moves from Foundation to Explorer to Builder. Your assessment changes the framing, not the need to build the base.</p>
+          <div class="stage-grid" id="path-stages"></div>
+        </section>
+
+        <section class="path-panel" id="path-project">
+          <h2>Your next project</h2>
+          <p class="small">A free project will load from your level and focus area.</p>
+        </section>
+
+        <section class="path-panel">
           <h2>Your tools</h2>
           <p class="small">These are laid out around your profile, not in random website tabs.</p>
           <div class="tool-grid" id="path-tools"></div>
@@ -98,6 +110,10 @@
         <section class="path-panel manage-panel">
           <h2>Manage your local profile</h2>
           <p>Saved only in this browser. No email, no payment, no public profile.</p>
+          <div class="callout">
+            <h4>Local storage notice</h4>
+            <p>Your progress is saved only in this browser on this device. Clearing site data, using a private window, or switching devices can reset your path.</p>
+          </div>
           <div class="btn-row">
             <button type="button" class="btn btn-ghost" id="clear-path">Clear saved path</button>
           </div>
@@ -114,6 +130,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260520f"></script>
+<script src="script.js?v=20260522b"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Settings · Learning AI</title>
   <meta name="description" content="Customize how Learning AI teaches you.">
-  <link rel="stylesheet" href="styles.css?v=20260520f">
+  <link rel="stylesheet" href="styles.css?v=20260522b">
 </head>
 <body class="path-page settings-page">
 
@@ -33,7 +33,7 @@
         <div>
           <div class="tagline">Settings</div>
           <h1>Make Learning AI teach the way you learn.</h1>
-          <p class="lead">Choose the style that fits you. The site will use it to rewrite lesson cards and shape how your learning path is presented.</p>
+          <p class="lead">Choose the style that fits you. The site will use it to rewrite lesson cards, path cards, and project recommendations.</p>
           <div class="btn-row">
             <a href="course.html" class="btn btn-primary">See my lessons</a>
           </div>
@@ -52,23 +52,18 @@
       <form class="settings-panel" id="learning-settings">
         <section class="path-panel">
           <span class="section-heading">Appearance</span>
-          <h2>Choose the way the site looks.</h2>
+          <h2>Choose a verified interface theme.</h2>
+          <p class="small">These themes are designed to keep lesson text readable. Accent color is still customizable, but text and background contrast stay guarded.</p>
           <div class="settings-choice-grid">
             <label><input type="radio" name="theme" value="dark"> Dark mode</label>
             <label><input type="radio" name="theme" value="light"> Light mode</label>
+            <label><input type="radio" name="theme" value="sepia"> Warm sepia</label>
+            <label><input type="radio" name="theme" value="high-contrast"> High contrast</label>
           </div>
           <div class="settings-color-grid">
             <label>
               Accent color
               <input type="color" name="accentColor" value="#2563eb">
-            </label>
-            <label>
-              Text color
-              <input type="color" name="textColor" value="#121826">
-            </label>
-            <label>
-              Background color
-              <input type="color" name="backgroundColor" value="#f7f9fc">
             </label>
             <label>
               Font size
@@ -87,6 +82,8 @@
               </select>
             </label>
           </div>
+          <input type="hidden" name="textColor" value="">
+          <input type="hidden" name="backgroundColor" value="">
         </section>
 
         <section class="path-panel">
@@ -143,6 +140,10 @@
         <section class="path-panel manage-panel">
           <h2>Save your experience</h2>
           <p>These settings stay on this device. No account, no email, no tracking.</p>
+          <div class="callout">
+            <h4>Local storage notice</h4>
+            <p>Your progress and settings are saved only in this browser on this device. Clearing site data, using a private window, or switching devices can reset your path.</p>
+          </div>
           <div class="btn-row">
             <button type="submit" class="btn btn-primary">Save settings</button>
             <button type="button" class="btn btn-ghost" id="settings-reset">Reset settings</button>
@@ -160,6 +161,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260520f"></script>
+<script src="script.js?v=20260522b"></script>
 </body>
 </html>

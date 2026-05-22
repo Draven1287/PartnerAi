@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>For Educators · Learning AI</title>
   <meta name="description" content="A practical teaching guide for AI literacy workshops, classrooms, parent nights, and adult learning.">
-  <link rel="stylesheet" href="styles.css?v=20260520f">
+  <link rel="stylesheet" href="styles.css?v=20260522b">
 </head>
 <body>
 
@@ -17,7 +17,7 @@
     <div class="nav-links">
       <a href="assessment.html">Start</a>
       <a href="course.html">Lessons</a>
-      <a href="playground.html">Playground</a>
+      <a href="playground.html">Practice</a>
       <a href="projects.html">Projects</a>
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
@@ -48,8 +48,30 @@
         </ul>
       </div>
 
+      <div id="print-button-container" class="btn-row">
+        <button type="button" class="btn btn-ghost" onclick="window.print()">Print workshop plan or save as PDF</button>
+      </div>
+
       <h2>The 20-40-20 workshop shape</h2>
       <p>For classrooms, faculty workshops, and parent nights, a simple rhythm works: 20 minutes teaching, 40 minutes practicing, 20 minutes sharing. Anything more lecture-heavy tends to make AI feel abstract.</p>
+
+      <div class="ingredient-grid">
+        <div class="ingredient">
+          <div class="num">20</div>
+          <h4>Teach the frame</h4>
+          <p>Show one weak AI answer, improve the prompt, then name the durable skill: context, role, examples, constraints, and verification.</p>
+        </div>
+        <div class="ingredient">
+          <div class="num">40</div>
+          <h4>Practice in pairs</h4>
+          <p>Learners pick a real task, run a prompt, revise it, and write down what the AI helped with, missed, or made worse.</p>
+        </div>
+        <div class="ingredient">
+          <div class="num">20</div>
+          <h4>Share the judgment</h4>
+          <p>Groups share one useful result, one failure, one verification step, and one rule for when they would or would not use AI again.</p>
+        </div>
+      </div>
 
       <div class="diagram">
         <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="20 40 20 teaching rhythm">
@@ -93,6 +115,25 @@ Use one analogy and end with a question.</code></pre>
         <div>
           <h4>Students</h4>
           <p>Start with curiosity and identity. Let them stress-test AI, find mistakes, compare answers, and build small things. Do not lead with “this makes homework easier.”</p>
+        </div>
+      </div>
+
+      <h2>Three useful versions</h2>
+      <div class="chapter-list">
+        <div class="chapter-card">
+          <div class="num">CLASSROOM · 80 MIN</div>
+          <h3>AI agency lab</h3>
+          <p>Students compare a copied answer, a hint-based tutor answer, and their own revised answer. The final artifact is a personal AI use rule.</p>
+        </div>
+        <div class="chapter-card">
+          <div class="num">FACULTY · 80 MIN</div>
+          <h3>Lesson redesign sprint</h3>
+          <p>Teachers use AI to generate activities, then critique them for misconceptions, privacy, assessment quality, and student thinking.</p>
+        </div>
+        <div class="chapter-card">
+          <div class="num">PARENT NIGHT · 80 MIN</div>
+          <h3>What to allow, what to ask</h3>
+          <p>Families learn the difference between AI as shortcut and AI as coach, then leave with practical questions to ask at home.</p>
         </div>
       </div>
 
@@ -148,6 +189,6 @@ Use one analogy and end with a question.</code></pre>
   </div>
 </footer>
 
-<script src="script.js?v=20260520f"></script>
+<script src="script.js?v=20260522b"></script>
 </body>
 </html>

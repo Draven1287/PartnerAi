@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chapter 1: What AI actually is · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260520f">
+  <link rel="stylesheet" href="styles.css?v=20260522b">
 </head>
 <body>
 
@@ -16,7 +16,7 @@
     <div class="nav-links">
       <a href="assessment.html">Start</a>
       <a href="course.html">Lessons</a>
-      <a href="playground.html">Playground</a>
+      <a href="playground.html">Practice</a>
       <a href="projects.html">Projects</a>
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
@@ -41,15 +41,15 @@
       <div class="tldr">
         <h4>TL;DR: the four things to remember</h4>
         <ul>
-          <li>An LLM is a program that learned to <strong>guess the next word</strong>.</li>
+          <li>An LLM is a program that learned to <strong>predict likely next tokens</strong>.</li>
           <li>It learned by adjusting billions of <strong>parameters</strong>. Not by storing facts.</li>
           <li>It will sound <strong>confident even when wrong</strong>. Verify what matters.</li>
-          <li>Today's AI is the <strong>worst AI you'll ever use</strong>. The curve keeps climbing.</li>
+          <li>Today's AI is probably the <strong>least capable AI you'll use</strong>. The curve keeps climbing.</li>
         </ul>
       </div>
 
       <h2>The one-sentence version</h2>
-      <p><strong>An LLM is a program that learned to guess the next word, really well.</strong> Conversations, code, essays, and math all come from that one ability, applied over and over.</p>
+      <p><strong>A useful simplification: many LLMs are trained to predict likely next tokens from context.</strong> A token can be a word, part of a word, punctuation, or a character. Real AI assistants also add instruction tuning, safety training, retrieval, tools, and product rules around that core model.</p>
 
       <div class="diagram">
         <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Token prediction">
@@ -60,7 +60,7 @@
             </style>
           </defs>
           <text x="300" y="38" text-anchor="middle" class="word1">"The cat sat on the ___"</text>
-          <text x="300" y="58" text-anchor="middle" class="lbl1">model predicts the next word</text>
+          <text x="300" y="58" text-anchor="middle" class="lbl1">model predicts likely next tokens</text>
           <g transform="translate(120,80)">
             <text x="80" y="14" text-anchor="end" class="word1">mat</text>
             <rect x="95" y="2" width="280" height="14" rx="3" fill="#1c1c1c" stroke="#262626"/>
@@ -82,8 +82,8 @@
 
       <h2>How they learned</h2>
       <p>Imagine feeding a computer every book, every Wikipedia article, every academic paper, a huge chunk of the internet, and a lot of code. Trillions of words.</p>
-      <p>Then ask it, over and over: <em>"What's the next word?"</em> Every wrong guess nudges its internal settings, billions of numbers called <strong>parameters</strong>, to make a better guess next time.</p>
-      <p>Do this millions of times on giant computers. The result: a program that's shockingly good at predicting words. So good that <strong>intelligence kind of emerges</strong> from it.</p>
+      <p>Then ask it, over and over: <em>"What token is likely next?"</em> Every wrong guess nudges its internal settings, billions of numbers called <strong>parameters</strong>, to make a better guess next time.</p>
+      <p>Do this millions of times on giant computers. The result: a program that's shockingly good at predicting tokens in context. At enough scale, those learned patterns can produce behavior that looks like reasoning, planning, coding, and explanation.</p>
 
       <h2>The four stages of building one</h2>
 
@@ -109,7 +109,7 @@
           <rect x="185" y="20" width="150" height="90" rx="8" class="stagebox"/>
           <text x="197" y="40" class="stagenum">02 · PRE-TRAIN</text>
           <text x="197" y="62" class="stagetitle">Read internet</text>
-          <text x="197" y="82" class="stagedesc">$100M+ in GPUs</text>
+          <text x="197" y="82" class="stagedesc">huge compute cost</text>
           <text x="197" y="98" class="stagedesc">(labs do this)</text>
           <line x1="340" y1="65" x2="355" y2="65" class="arrow" marker-end="url(#a)"/>
           <!-- stage 3 -->
@@ -138,7 +138,7 @@
       <p>Models don't read words. They read <strong>tokens</strong>, chunks of words. <code>"unbelievable"</code> might be three: <code>un</code>, <code>believ</code>, <code>able</code>.</p>
 
       <h3>2. Pre-train</h3>
-      <p>The big-money, big-computer phase. The model reads vast piles of text and tunes its parameters until it's great at predicting tokens. <strong>Costs $100M+.</strong> Only frontier labs (OpenAI, Anthropic, Meta, Google) do this.</p>
+      <p>The big-money, big-computer phase. The model reads vast piles of text and tunes its parameters until it's great at predicting tokens. For frontier models, public estimates put training compute in the tens to hundreds of millions of dollars, depending on the model and what the estimate counts. Only major labs usually do this at frontier scale.</p>
 
       <h3>3. Fine-tune</h3>
       <p>Teaches the generalist model specific skills: "be helpful," "follow instructions," "write SQL." A much smaller training run. <strong>You can actually do this yourself on a laptop</strong>. See <a href="projects.html">Projects</a>.</p>
@@ -161,13 +161,13 @@
       <p>More data + more compute + smarter methods, all improving in parallel.</p>
       <div class="callout">
         <h4>The line worth remembering</h4>
-        <p><em>The AI you're using today is the worst AI you'll ever use for the rest of your life.</em> Every model release is more capable. The skill you build now compounds for decades.</p>
+        <p><em>The AI you're using today may be the least capable AI you'll use for the rest of your life.</em> Models keep improving. The judgment skill you build now compounds for decades.</p>
       </div>
 
       <h2>The scale</h2>
       <div class="stat-grid">
-        <div class="stat"><div class="num">~1.7T</div><div class="label">parameters in a frontier model</div></div>
-        <div class="stat"><div class="num">~$100M+</div><div class="label">to pre-train one</div></div>
+        <div class="stat"><div class="num">100B+</div><div class="label">parameters in many large frontier-scale models</div></div>
+        <div class="stat"><div class="num">$10M-$100M+</div><div class="label">estimated frontier training compute range</div></div>
         <div class="stat"><div class="num">trillions</div><div class="label">of tokens trained on</div></div>
         <div class="stat"><div class="num">ms</div><div class="label">per token at inference</div></div>
       </div>
@@ -177,6 +177,13 @@
       <div class="try-row">
         <button class="try-btn" data-prompt="Explain how a large language model works to me as if I'm 14, smart, and curious. Use one analogy. Then ask me a question to check if I understood."><span class="icon">▸</span>Copy this prompt</button>
       </div>
+
+      <div class="callout callout-good">
+        <h4>Checkpoint</h4>
+        <p>After you try the prompt, ask the model: "Argue against your own explanation. What might be oversimplified or wrong?" Notice whether it becomes more careful.</p>
+      </div>
+
+      <p class="small">Sources for this chapter's technical framing include <a href="https://developers.google.com/machine-learning/crash-course/llm" target="_blank" rel="noopener">Google ML Crash Course on LLMs</a>, <a href="https://openai.com/index/why-language-models-hallucinate/" target="_blank" rel="noopener">OpenAI's hallucination explainer</a>, and <a href="https://hai.stanford.edu/news/inside-new-ai-index-expensive-new-models-targeted-investments-and-more" target="_blank" rel="noopener">Stanford HAI's AI Index discussion of frontier training-cost estimates</a>.</p>
 
       <div class="lesson-nav">
         <a href="course.html"><span class="label">↑ Back</span>All chapters</a>
@@ -194,6 +201,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260520f"></script>
+<script src="script.js?v=20260522b"></script>
 </body>
 </html>
