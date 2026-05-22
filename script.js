@@ -869,6 +869,8 @@ function initGauge() {
       showStorageWarning('Could not save your assessment in this browser. You can still browse lessons, but My Path may not persist.');
       return;
     }
+    safeRemoveStorage('learningai-progress');
+    safeRemoveStorage('learningai-project-progress');
     const profile = readProfile();
     if (profile) writeProfile({ ...profile, lastGauge: saved });
     window.location.href = 'my-path.html';
@@ -1255,19 +1257,19 @@ function initMyPath() {
       title: 'Your AI level is: Foundation',
       copy: 'Start by building the mental model. You will learn what AI is before you lean on it.',
       signal: 'This is not a grade. It means the course should start with clear foundations and fewer assumptions.',
-      nextCopy: 'Start with models, training, prediction, and hallucination.'
+      nextCopy: 'Start with Chapter 1. This version will move slowly through models, training, prediction, and hallucination.'
     },
     explorer: {
       title: 'Your AI level is: Explorer',
       copy: 'You know some basics. You still start at Chapter 1, but the course treats it like calibration, then moves you into judgment and verification.',
       signal: 'This is not fixed. It means you are ready for stronger examples, trust checks, and real practice.',
-      nextCopy: 'Use the early chapters to sharpen vocabulary, then move into partner skill and verification.'
+      nextCopy: 'Start with Chapter 1. For you, the early chapters act like calibration before partner skill and verification.'
     },
     builder: {
       title: 'Your AI level is: Builder',
       copy: 'You are ready to test AI, not just use it. You still start at Chapter 1 as a systems check before building.',
       signal: 'This is a launch point. It means your path can move into experiments, projects, and model comparisons.',
-      nextCopy: 'Move through the sequence quickly, then spend more time on projects and model comparisons.'
+      nextCopy: 'Start with Chapter 1. For you, it is a systems check before you move into projects and model comparisons.'
     }
   }[routeId] || null;
 
@@ -1298,12 +1300,12 @@ function initMyPath() {
   }
   const primary = document.getElementById('path-primary');
   primary.href = next ? next.href : 'projects.html';
-  primary.textContent = next ? 'Continue' : 'Start a project';
-  document.getElementById('next-title').textContent = next ? next.title : 'Start a project';
+  primary.textContent = next ? (next.id === 'chapter-1' ? 'Start Chapter 1' : 'Continue') : 'Start a project';
+  document.getElementById('next-title').textContent = next ? `${next.label}: ${next.title}` : 'Start a project';
   document.getElementById('next-copy').textContent = next ? routeData.nextCopy : 'You finished the lesson sequence. Now use Projects to apply what you learned.';
   const nextLink = document.getElementById('next-link');
   nextLink.href = next ? next.href : 'projects.html';
-  nextLink.textContent = next ? 'Continue' : 'Open projects';
+  nextLink.textContent = next ? (next.id === 'chapter-1' ? 'Start Chapter 1' : 'Continue') : 'Open projects';
 
   const routeBox = document.getElementById('path-route');
   routeBox.innerHTML = '';
