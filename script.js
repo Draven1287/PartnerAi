@@ -869,8 +869,6 @@ function initGauge() {
       showStorageWarning('Could not save your assessment in this browser. You can still browse lessons, but My Path may not persist.');
       return;
     }
-    safeRemoveStorage('learningai-progress');
-    safeRemoveStorage('learningai-project-progress');
     const profile = readProfile();
     if (profile) writeProfile({ ...profile, lastGauge: saved });
     window.location.href = 'my-path.html';
@@ -1089,7 +1087,7 @@ function initLessonPersonalizationPanel() {
     </div>
     <p class="small"><strong>Project connection:</strong> ${project.title}. ${project.copy}</p>
   `;
-  container.appendChild(panel);
+  container.insertBefore(panel, container.firstElementChild);
 }
 document.addEventListener('DOMContentLoaded', initLessonPersonalizationPanel);
 
@@ -1250,6 +1248,7 @@ function initMyPath() {
   const routeId = levelIdFromRoute(gauge.route);
   const next = nextLesson(progress);
   const doneCount = completedLessonCount(progress);
+  const progressPercent = Math.round(doneCount / LESSON_SEQUENCE.length * 100);
   const projectDoneCount = completedProjectCount();
   const matchedProject = projectForContext(settings.focusArea || gauge?.focusArea || '', progress);
   const routeData = {
@@ -1288,8 +1287,8 @@ function initMyPath() {
     badge.textContent = `Active path: ${focus.label} · ${routeData.title.replace('Your AI level is: ', '')}`;
   }
   document.getElementById('path-title').textContent = user?.name ? `Hey ${user.name}, here is your path.` : routeData.title;
-  document.getElementById('path-copy').textContent = `${routeData.copy} Progress: ${doneCount} of ${LESSON_SEQUENCE.length} lessons and ${projectDoneCount} projects complete.`;
-  document.getElementById('path-score').textContent = `${doneCount}/${LESSON_SEQUENCE.length}`;
+  document.getElementById('path-copy').textContent = `${routeData.copy} Course progress: ${progressPercent}%. Projects completed: ${projectDoneCount}.`;
+  document.getElementById('path-score').textContent = `${progressPercent}%`;
   document.getElementById('path-saved').textContent = gauge.savedAt ? `Saved ${new Date(gauge.savedAt).toLocaleDateString()}` : 'Saved on this device.';
   document.getElementById('path-signal-copy').textContent = routeData.signal;
   const settingsCopy = document.getElementById('path-settings-copy');

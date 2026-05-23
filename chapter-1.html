@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chapter 1: What AI actually is · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260522d">
+  <link rel="stylesheet" href="styles.css?v=20260522e">
 </head>
 <body>
 
@@ -51,6 +51,11 @@
       <h2>The one-sentence version</h2>
       <p><strong>A useful simplification: many LLMs are trained to predict likely next tokens from context.</strong> A token can be a word, part of a word, punctuation, or a character. Real AI assistants also add instruction tuning, safety training, retrieval, tools, and product rules around that core model.</p>
 
+      <div class="callout callout-good">
+        <h4>Do this first</h4>
+        <p>Before reading more, explain AI in one sentence in your own words. Then read the next section and change your sentence. The goal is not memorizing; it is upgrading your mental model.</p>
+      </div>
+
       <div class="diagram">
         <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Token prediction">
           <defs>
@@ -75,10 +80,15 @@
             <rect x="95" y="50" width="22" height="14" rx="3" fill="#ff7849" opacity="0.5"/>
             <text x="385" y="62" class="lbl1">8%</text>
           </g>
-          <text x="300" y="180" text-anchor="middle" class="lbl1">Pick the most likely word. Repeat. Trillions of times.</text>
+          <text x="300" y="180" text-anchor="middle" class="lbl1">Pick likely tokens. Repeat many times.</text>
         </svg>
         <div class="caption">How an LLM works, every time you hit send.</div>
       </div>
+
+      <details class="quick-check">
+        <summary>Quick check: what is a token?</summary>
+        <p>A token is a chunk of text. It might be a whole word, part of a word, punctuation, or a character. Models predict tokens, then those tokens turn back into text you can read.</p>
+      </details>
 
       <h2>How they learned</h2>
       <p>Imagine feeding a computer every book, every Wikipedia article, every academic paper, a huge chunk of the internet, and a lot of code. Trillions of words.</p>
@@ -124,7 +134,7 @@
           <text x="547" y="40" class="stagenum">04 · INFERENCE</text>
           <text x="547" y="62" class="stagetitle">You chat</text>
           <text x="547" y="82" class="stagedesc">Model picks</text>
-          <text x="547" y="98" class="stagedesc">words live</text>
+          <text x="547" y="98" class="stagedesc">tokens live</text>
           <defs>
             <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M0,0 L10,5 L0,10 Z" fill="#6b6b6b"/>
@@ -166,14 +176,14 @@
 
       <h2>The scale</h2>
       <div class="stat-grid">
-        <div class="stat"><div class="num">100B+</div><div class="label">parameters in many large frontier-scale models</div></div>
-        <div class="stat"><div class="num">$10M-$100M+</div><div class="label">estimated frontier training compute range</div></div>
-        <div class="stat"><div class="num">trillions</div><div class="label">of tokens trained on</div></div>
-        <div class="stat"><div class="num">ms</div><div class="label">per token at inference</div></div>
+        <div class="stat"><div class="num">100B+</div><div class="label">learned settings in many very large models</div></div>
+        <div class="stat"><div class="num">$10M-$100M+</div><div class="label">public estimates for frontier training compute</div></div>
+        <div class="stat"><div class="num">trillions</div><div class="label">text chunks used during training</div></div>
+        <div class="stat"><div class="num">milliseconds</div><div class="label">rough time to generate each small chunk of text</div></div>
       </div>
 
       <h2>Try it</h2>
-      <p>Send this to a real model. Notice how it explains things in <em>its</em> words, then asks if you got it.</p>
+      <p>Click the button to copy the prompt. Open an AI tool in another tab, paste it, and run it. Then come back here.</p>
       <div class="try-row">
         <button class="try-btn" data-prompt="Explain how a large language model works to me as if I'm 14, smart, and curious. Use one analogy. Then ask me a question to check if I understood."><span class="icon">▸</span>Copy this prompt</button>
       </div>
@@ -201,6 +211,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260522d"></script>
+<script src="script.js?v=20260522e"></script>
 </body>
 </html>

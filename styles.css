@@ -293,8 +293,24 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
 .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
-.stat .num { font-size: 1.6rem; font-weight: 500; color: var(--accent); letter-spacing: -0.02em; }
+.stat .num { font-size: clamp(1.25rem, 4vw, 1.6rem); font-weight: 500; color: var(--accent); letter-spacing: 0; line-height: 1.1; overflow-wrap: anywhere; }
 .stat .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
+details.quick-check {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem;
+}
+details.quick-check summary {
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 700;
+}
+details.quick-check p {
+  color: var(--text-dim);
+  margin: 0.75rem 0 0;
+}
 
 /* ---------- TL;DR box at top of chapters ---------- */
 .tldr {

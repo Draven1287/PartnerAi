@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chapter 2: How to talk to AI · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260522d">
+  <link rel="stylesheet" href="styles.css?v=20260522e">
 </head>
 <body>
 
@@ -76,6 +76,11 @@ test if I got it.</code></pre>
 
       <p>The great prompt isn't long because it's flashier. It's long because it <em>carries information the model needed</em> to do a good job.</p>
 
+      <div class="callout">
+        <h4>Important nuance</h4>
+        <p>You do not need to repeat all of that context forever. In a brand-new chat, give the model the full setup. In an ongoing chat, use shorter follow-ups because the model already has the context from earlier messages.</p>
+      </div>
+
       <h2>The four ingredients of a great prompt</h2>
       <p>You don't always need all four. But you'll be amazed how often you should.</p>
 
@@ -119,7 +124,7 @@ not working. Be specific.</code></pre>
 
 Short. Two words. Slightly mysterious.
 Generate 10.</code></pre>
-      <p>Called <strong>few-shot prompting</strong>. Two examples can change everything.</p>
+      <p>This is called <strong>few-shot prompting</strong>. It means you show the model a few examples of the pattern you want instead of trying to describe the pattern from scratch.</p>
 
       <h2>The cardinal rule: don't accept the first answer</h2>
       <p>Beginners send a prompt, read the reply, move on. Pros treat the first reply as a draft.</p>
@@ -140,7 +145,7 @@ Generate 10.</code></pre>
       </div>
 
       <h2>Try it</h2>
-      <p>Send this prompt to a real model. Notice how role + constraint produces something five words couldn't.</p>
+      <p>Click Copy, paste the prompt into an AI tool, replace <code>[PASTE HERE]</code> with your own paragraph, and run it. The point is to see how role + constraints change the answer.</p>
       <div class="try-row">
         <button class="try-btn" data-prompt="Act as a strict but encouraging writing coach. I'll give you a paragraph. Tell me:&#10;1) What's working (1 sentence)&#10;2) The biggest weakness (1 sentence)&#10;3) One concrete rewrite&#10;&#10;Paragraph:&#10;&#10;[PASTE HERE]"><span class="icon">▸</span>Copy this prompt</button>
         <a href="playground.html" class="try-btn"><span class="icon">▸</span>Open practice lab</a>
@@ -169,6 +174,6 @@ Generate 10.</code></pre>
   </div>
 </footer>
 
-<script src="script.js?v=20260522d"></script>
+<script src="script.js?v=20260522e"></script>
 </body>
 </html>
