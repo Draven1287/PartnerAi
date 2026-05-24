@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning AI V2 Prototype</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <aside class="side">
+      <a class="brand" href="index.html">Learning AI V2</a>
+      <p>Local prototype. Not the live site.</p>
+      <nav>
+        <a href="#path">Path</a>
+        <a href="#study-coach">Study Coach</a>
+        <a href="#toolkit">Toolkit</a>
+      </nav>
+    </aside>
+
+    <section class="main">
+      <header class="hero-panel">
+        <span>First V2 slice</span>
+        <h1>Student Study Coach</h1>
+        <p>Use AI to learn more, not think less. This prototype tests the V2 lesson loop before the full 30-lesson course is built.</p>
+      </header>
+
+      <section class="panel" id="path">
+        <div class="panel-head">
+          <span>12-lesson core</span>
+          <h2>The path we prove before building all 30.</h2>
+        </div>
+        <div class="path-grid">
+          <button class="path-card active">1. Why AI matters</button>
+          <button class="path-card active">2. First useful conversation</button>
+          <button class="path-card">3. What AI is</button>
+          <button class="path-card">4. What an LLM is</button>
+          <button class="path-card">5. Prompt repair</button>
+          <button class="path-card">6. Follow-ups</button>
+          <button class="path-card">7. Why AI gets wrong</button>
+          <button class="path-card">8. Verify sources</button>
+          <button class="path-card">9. Tutor, not cheating</button>
+          <button class="path-card">10. Privacy and bias</button>
+          <button class="path-card">11. Prompt to workflow</button>
+          <button class="path-card">12. Mini capstone</button>
+        </div>
+      </section>
+
+      <section class="panel" id="study-coach">
+        <div class="panel-head">
+          <span>Interactive lesson block</span>
+          <h2>Bad tutor vs. good tutor.</h2>
+        </div>
+        <div class="compare-grid">
+          <article class="response-card weak">
+            <span>Weak</span>
+            <h3>Answer machine</h3>
+            <p>"The answer is 42. Use this explanation in your assignment."</p>
+            <button data-choice="weak">Choose this</button>
+          </article>
+          <article class="response-card strong">
+            <span>Strong</span>
+            <h3>Study coach</h3>
+            <p>"Try first. I will give one hint, ask a check question, then explain what changed."</p>
+            <button data-choice="strong">Choose this</button>
+          </article>
+        </div>
+        <p class="feedback" id="feedback">Choose the response that protects learning.</p>
+      </section>
+
+      <section class="panel" id="toolkit">
+        <div class="panel-head">
+          <span>My AI Toolkit</span>
+          <h2>Build a Study Coach Card.</h2>
+        </div>
+        <form class="card-builder" id="card-builder">
+          <label>Subject <input name="subject" placeholder="Biology"></label>
+          <label>Learning goal <input name="goal" placeholder="Understand photosynthesis"></label>
+          <label>AI should <textarea name="should" placeholder="Give hints before answers, quiz me, and check my explanation."></textarea></label>
+          <label>AI should not <textarea name="should_not" placeholder="Write my final homework answer."></textarea></label>
+          <button type="submit">Save locally</button>
+        </form>
+        <pre id="card-output">Your saved Study Coach Card will appear here.</pre>
+      </section>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -195,6 +195,93 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .chapter-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
 .chapter-card p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
 .chapter-card .meta { margin-top: 0.6rem; color: var(--text-faint); font-size: 0.85rem; font-family: ui-monospace, monospace; }
+
+.v2-preview-grid,
+.arc-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 1.4rem;
+}
+.arc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 1rem 1.1rem;
+}
+.arc-card summary {
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 650;
+  list-style-position: outside;
+}
+.arc-card p {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  margin: 0.8rem 0;
+}
+.arc-card ul {
+  color: var(--text);
+  font-size: 0.92rem;
+  margin-bottom: 0;
+}
+.tutor-lab {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1.5rem 0;
+}
+.tutor-card,
+.toolkit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.tutor-card span {
+  color: var(--accent);
+  display: inline-block;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+}
+.tutor-card h3,
+.toolkit-card h3,
+.toolkit-card h2 {
+  margin-top: 0;
+}
+.tutor-card.weak {
+  border-color: color-mix(in srgb, var(--bad) 35%, var(--border));
+}
+.tutor-card.strong {
+  border-color: color-mix(in srgb, var(--good) 35%, var(--border));
+}
+.feature-list {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.feature-row {
+  align-items: start;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(160px, 0.45fr) 1fr;
+  padding: 1rem 1.1rem;
+}
+.feature-row:last-child { border-bottom: 0; }
+.feature-row strong { color: var(--text); }
+.feature-row span { color: var(--text-dim); }
+@media (max-width: 700px) {
+  .tutor-lab,
+  .feature-row {
+    grid-template-columns: 1fr;
+  }
+}
 .lesson-path-head {
   align-items: flex-start;
   display: flex;
@@ -621,7 +708,8 @@ details.quick-check p {
   background: var(--accent-soft);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
 }
-.gauge-card input[type="radio"] {
+.gauge-card input[type="radio"],
+.gauge-card input[type="checkbox"] {
   accent-color: var(--accent);
   margin-top: 0.2rem;
 }

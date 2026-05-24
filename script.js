@@ -684,8 +684,13 @@ function initGauge() {
   };
 
   function selectedValue(name) {
-    const chosen = form.querySelector(`input[name="${name}"]:checked`);
-    return chosen ? Number(chosen.value) : null;
+    const chosen = [...form.querySelectorAll(`input[name="${name}"]:checked`)];
+    if (!chosen.length) return null;
+    return Math.max(...chosen.map(input => Number(input.value)));
+  }
+
+  function selectedValues(name) {
+    return [...form.querySelectorAll(`input[name="${name}"]:checked`)].map(input => Number(input.value));
   }
 
   function selectedText(name) {
@@ -694,8 +699,8 @@ function initGauge() {
   }
 
   function selectedLabel(name) {
-    const chosen = form.querySelector(`input[name="${name}"]:checked`);
-    return chosen ? chosen.closest('label').textContent.trim() : '';
+    const chosen = [...form.querySelectorAll(`input[name="${name}"]:checked`)];
+    return chosen.map(input => input.closest('label').textContent.trim()).join(' | ');
   }
 
   function readProfile() {
@@ -749,6 +754,12 @@ function initGauge() {
   }
 
   function toneForAge(age) {
+    if (age === 'early-high-school') return 'Early high school path: direct, visual, and not babyish.';
+    if (age === 'late-high-school') return 'Late high school path: practical, honest, and future-focused.';
+    if (age === 'college') return 'College or early career path: practical, quick, and flexible.';
+    if (age === 'adult-beginner') return 'Adult beginner path: plain English, efficient pacing, no tech ego.';
+    if (age === 'educator') return 'Educator path: classroom-aware, privacy-aware, and student-agency focused.';
+    if (age === 'builder') return 'Builder path: systems view, testing, projects, and less hand-holding.';
     if (age === 'teen') return 'Teen path: direct, clear, and not babyish.';
     if (age === 'young-adult') return 'Young adult path: practical, quick, and flexible.';
     if (age === 'older-adult') return 'Older adult path: plain English, patient pacing, no tech ego.';
@@ -763,10 +774,10 @@ function initGauge() {
     const options = document.getElementById('learning-options');
     if (!title || !copy || !options) return;
     title.textContent = data.title;
-    copy.textContent = data.copy;
+    copy.textContent = `${data.copy} Select every move you would actually use.`;
     options.dataset.shuffled = 'false';
     options.innerHTML = data.options.map((text, index) => (
-      `<label><input type="radio" name="learning" value="${index}"> ${text}</label>`
+      `<label><input type="checkbox" name="learning" value="${index}"> ${text}</label>`
     )).join('');
     shuffleLabels(options);
   }
@@ -775,7 +786,13 @@ function initGauge() {
     const profile = readProfile();
     const age = selectedText('age_range');
     const focus = focusProfile(selectedText('focus_area'));
-    const ageText = {
+    const learnerStageText = {
+      'early-high-school': 'early high school',
+      'late-high-school': 'late high school',
+      college: 'college or early career',
+      'adult-beginner': 'adult beginner',
+      educator: 'educator or parent',
+      builder: 'builder already making things',
       teen: 'teenager, about 13 to 17',
       'young-adult': 'young adult, about 18 to 25',
       adult: 'adult, about 26 to 64',
@@ -790,8 +807,11 @@ function initGauge() {
     });
     return [
       profile ? `Private display name: ${profile.name}.` : 'No private display name saved yet.',
-      `Age range: ${ageText}.`,
+      `Learner stage: ${learnerStageText}.`,
       `Focus area: ${focus.label}.`,
+      `Primary goal: ${selectedLabel('primary_goal') || 'not selected'}.`,
+      `Learning style: ${selectedLabel('learning_style') || 'not selected'}.`,
+      `Main concern: ${selectedLabel('main_concern') || 'not selected'}.`,
       `AI level: ${route.label} at ${percent}%.`,
       `Strongest areas: ${strengths.length ? strengths.join(', ') : 'still forming'}.`,
       `Needs support with: ${growth.length ? growth.join(', ') : 'mostly advanced work now'}.`,
@@ -803,8 +823,9 @@ function initGauge() {
 
   function currentName() {
     const card = cards[current];
-    if (card.dataset.profile === 'age') return 'age_range';
+    if (card.dataset.profile === 'age' || card.dataset.profile === 'stage') return 'age_range';
     if (card.dataset.profile === 'focus') return 'focus_area';
+    if (card.dataset.profile) return card.dataset.profile;
     return card.dataset.category;
   }
 
@@ -822,17 +843,17 @@ function initGauge() {
     back.hidden = isFirst;
     next.hidden = isLast;
     finish.hidden = !isLast;
-    const labels = ['Profile', 'Focus area', '1 / 6 · What AI is', '2 / 6 · What AI can do', '3 / 6 · When to verify', '4 / 6 · Learning with AI', '5 / 6 · Costs and tradeoffs', '6 / 6 · Beyond chatbots'];
+    const labels = ['Learner stage', 'Focus area', 'Goal', 'Learning style', 'Main concern', '1 / 6 · What AI is', '2 / 6 · What AI can do', '3 / 6 · When to verify', '4 / 6 · Learning with AI', '5 / 6 · Costs and tradeoffs', '6 / 6 · Beyond chatbots'];
     stepLabel.textContent = labels[current] || `Category ${current} of ${cards.length - 1}`;
     stepFill.style.width = `${Math.round((current) / (cards.length - 1) * 100)}%`;
   }
 
   function showIncomplete() {
     result.hidden = false;
-    levelEl.textContent = 'Pick one';
+    levelEl.textContent = 'Choose at least one';
     scoreEl.textContent = '';
     titleEl.textContent = 'Choose an answer to continue.';
-    copyEl.innerHTML = '<span class="gauge-warning">You can still write a different answer in the box, but pick the closest option first so the gauge can route you.</span>';
+    copyEl.innerHTML = '<span class="gauge-warning">For profile questions, choose one. For AI questions, select every answer that fits. You can still add nuance in the box.</span>';
     result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -840,7 +861,7 @@ function initGauge() {
     const values = categories.map(selectedValue);
     const answered = values.filter(v => v !== null);
 
-    if (answered.length < categories.length || !selectedText('age_range') || !selectedText('focus_area')) {
+    if (answered.length < categories.length || !selectedText('age_range') || !selectedText('focus_area') || !selectedText('primary_goal') || !selectedText('learning_style') || !selectedText('main_concern')) {
       showIncomplete();
       return;
     }
@@ -855,13 +876,21 @@ function initGauge() {
       ageRange: selectedText('age_range'),
       focusArea: selectedText('focus_area'),
       focusLabel: focusProfile(selectedText('focus_area')).label,
+      primaryGoal: selectedText('primary_goal'),
+      primaryGoalLabel: selectedLabel('primary_goal'),
+      learningStyle: selectedText('learning_style'),
+      learningStyleLabel: selectedLabel('learning_style'),
+      mainConcern: selectedText('main_concern'),
+      mainConcernLabel: selectedLabel('main_concern'),
       score: percent,
       route: route.label,
       answers: Object.fromEntries(categories.map(name => [name, selectedValue(name)])),
+      selectedAnswers: Object.fromEntries(categories.map(name => [name, selectedValues(name)])),
       answerText: Object.fromEntries(categories.map(name => [name, selectedLabel(name)])),
       custom: Object.fromEntries(categories.map(name => [name, form.elements[`${name}_other`]?.value.trim() || ''])),
       ageNote: form.elements.age_other?.value.trim() || '',
       focusNote: form.elements.focus_other?.value.trim() || '',
+      goalNote: form.elements.primary_goal_other?.value.trim() || '',
       knownFacts: facts,
       savedAt: new Date().toISOString()
     };
@@ -1010,11 +1039,11 @@ function initPersonalizedLessons() {
   section.hidden = false;
   document.getElementById('lesson-path-title').textContent = 'Your sequence: Foundation to Explorer to Builder';
   document.getElementById('lesson-path-copy').textContent = activeSettings.format || activeSettings.focusArea
-    ? `Everyone starts with Chapter 1. Your current signal is ${level.label}, so the examples, pacing, and challenge prompts use ${settingsSummary(activeSettings)}.`
-    : `Everyone starts with Chapter 1. Your current signal is ${level.label}, so the course changes the framing instead of skipping the foundation.`;
+    ? `V1 is the preview. Everyone starts with Chapter 1. Your current signal is ${level.label}, so examples, pacing, and challenge prompts use ${settingsSummary(activeSettings)}.`
+    : `V1 is the preview. Everyone starts with Chapter 1. Your current signal is ${level.label}, so the course changes framing instead of skipping the foundation.`;
   document.getElementById('lessons-hero-copy').textContent = activeSettings.format || activeSettings.focusArea
-    ? `Your saved level is ${gauge.route}. Start at Chapter 1, then move through Foundation, Explorer, and Builder with ${settingsSummary(activeSettings)}.`
-    : `Your saved level is ${gauge.route}. Start at Chapter 1 and move forward as you complete each lesson.`;
+    ? `Your saved level is ${gauge.route}. These V1 preview lessons start at Chapter 1, then V2 expands into a full 30-lesson path with ${settingsSummary(activeSettings)}.`
+    : `Your saved level is ${gauge.route}. These V1 preview lessons start at Chapter 1 and point toward the full V2 path.`;
   const primary = document.getElementById('lessons-primary');
   primary.href = next ? next.href : 'projects.html';
   primary.textContent = next ? `Continue: ${next.title}` : 'Start a project';
