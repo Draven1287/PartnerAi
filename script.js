@@ -67,40 +67,40 @@ const LESSON_SEQUENCE = [
     href: 'chapter-1.html',
     stage: 'Foundation',
     label: 'Chapter 1',
-    title: 'What AI actually is',
-    copy: 'Models, training, prediction, hallucination, and why chat is only one small part of AI.'
+    title: 'Why AI matters, and why you stay in charge',
+    copy: 'Start with agency: what AI can help with, what you still decide, and what you should verify.'
   },
   {
     id: 'chapter-2',
     href: 'chapter-2.html',
     stage: 'Foundation',
     label: 'Chapter 2',
-    title: 'How to talk to AI',
-    copy: 'Learn context, roles, examples, constraints, and follow-up questions.'
+    title: 'Your first useful AI conversation',
+    copy: 'Repair a weak study prompt and learn how AI can coach instead of giving the answer away.'
   },
   {
     id: 'chapter-3',
     href: 'chapter-3.html',
-    stage: 'Explorer',
+    stage: 'Foundation',
     label: 'Chapter 3',
-    title: 'Being a great AI partner',
-    copy: 'Use AI for critique, practice, feedback, and agency without handing over your thinking.'
+    title: 'What AI actually is',
+    copy: 'Build a plain-English mental model: AI is trained software that uses patterns to generate, classify, recommend, predict, or act.'
   },
   {
     id: 'chapter-4',
     href: 'chapter-4.html',
-    stage: 'Explorer',
+    stage: 'Foundation',
     label: 'Chapter 4',
-    title: 'How to check and challenge AI',
-    copy: 'Build habits for sources, uncertainty, claims, mistakes, and decision risk.'
+    title: 'What an LLM is, without the magic',
+    copy: 'Learn tokens, context, likely continuations, and why fluent language is not the same as verified truth.'
   },
   {
     id: 'chapter-5',
     href: 'chapter-5.html',
-    stage: 'Builder',
+    stage: 'Foundation',
     label: 'Chapter 5',
-    title: 'Build with AI',
-    copy: 'Move from chat to projects, workflows, experiments, and model comparisons.'
+    title: 'Prompt repair: goal, context, constraints, format',
+    copy: 'Turn weak prompts into useful task instructions that improve output without replacing your judgment.'
   }
 ];
 
@@ -1395,7 +1395,7 @@ function initMyPath() {
     ['playground.html', '01', 'Practice', 'Prompt practice', 'Improve a question and compare the answers in an outside tool.'],
     ['course.html', '02', 'Lessons', 'Personal sequence', 'Follow the same lesson ladder with examples matched to your current level.'],
     ['projects.html', '03', 'Build', 'Project starter', 'Turn one idea into a useful AI project.'],
-    ['chapter-4.html', '04', 'Check', 'Verification', 'Learn when to slow down and verify.']
+    ['chapter-5.html', '04', 'Repair', 'Prompt repair', 'Turn a vague prompt into a useful request with goal, context, constraints, and format.']
   ];
   const toolsBox = document.getElementById('path-tools');
   toolsBox.innerHTML = '';

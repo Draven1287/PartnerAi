@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 1: What AI actually is · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260524b">
+  <title>Lesson 1: Why AI matters · Learning AI</title>
+  <link rel="stylesheet" href="styles.css?v=20260526a">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
       <a href="about.html">About</a>
-      <a href="course.html" class="nav-cta">All chapters</a>
+      <a href="course.html" class="nav-cta">All lessons</a>
     </div>
   </div>
 </nav>
@@ -30,188 +30,89 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="tagline">V1 preview 01 · ~10 min</div>
-      <h1>What AI actually is.</h1>
-      <p class="lead">No magic. By the end of this chapter you'll understand exactly what's happening when you talk to an AI tool.</p>
+      <div class="tagline">V2 core lesson 01 · agency</div>
+      <h1>Why AI matters, and why you stay in charge.</h1>
+      <p class="lead">AI is powerful, but the point is not to let it run your life. The skill is learning where it helps, where it misleads, and what decisions stay yours.</p>
     </div>
   </section>
 
   <section class="section-tight">
     <div class="container">
-
-      <div class="tldr">
-        <h4>TL;DR: the four things to remember</h4>
-        <ul>
-          <li>An LLM is a program that learned to <strong>predict likely next tokens</strong>.</li>
-          <li>It learned by adjusting billions of <strong>parameters</strong>. Not by storing facts.</li>
-          <li>It will sound <strong>confident even when wrong</strong>. Verify what matters.</li>
-          <li>Today's AI is probably the <strong>least capable AI you'll use</strong>. The curve keeps climbing.</li>
-        </ul>
+      <div class="lesson-lab">
+        <span class="section-heading">Try first</span>
+        <h2>Someone you know got called out for using AI.</h2>
+        <p>In one setting, AI is allowed for brainstorming and practice, but not for final answers. One person says learning is pointless now. Another says AI is always cheating. What is the least-bad answer?</p>
+        <div class="choice-grid">
+          <details class="choice-card">
+            <summary>Never use AI for school.</summary>
+            <p>Too extreme. It protects you from cheating, but it also blocks useful learning tools like hints, quizzes, feedback, and source checks.</p>
+          </details>
+          <details class="choice-card">
+            <summary>Use AI for everything because everyone else will.</summary>
+            <p>Fast, but weak. If AI does the thinking before you build the skill, you become dependent on it.</p>
+          </details>
+          <details class="choice-card best">
+            <summary>Use AI when it helps you learn, and keep proof of your thinking.</summary>
+            <p>Best. AI can help you practice, test, plan, and revise. You still own the goal, the proof, and the final decision.</p>
+          </details>
+        </div>
       </div>
 
-      <h2>The one-sentence version</h2>
-      <p><strong>A useful simplification: many LLMs are trained to predict likely next tokens from context.</strong> A token can be a word, part of a word, punctuation, or a character. Real AI assistants also add instruction tuning, safety training, retrieval, tools, and product rules around that core model.</p>
+      <h2>The main idea</h2>
+      <p>AI is a new kind of tool. It can explain, draft, summarize, code, plan, brainstorm, and critique. That does not mean it should replace your thinking.</p>
+      <p>The real skill is <strong>agency</strong>: you choose the goal, you check the answer, you decide what matters, and you take responsibility for the final work.</p>
 
       <div class="callout callout-good">
-        <h4>Do this first</h4>
-        <p>Before reading more, explain AI in one sentence in your own words. Then read the next section and change your sentence. The goal is not memorizing; it is upgrading your mental model.</p>
+        <h4>Agency check</h4>
+        <p>AI can give options. You choose goals, values, and final decisions.</p>
       </div>
 
-      <div class="diagram">
-        <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Token prediction">
-          <defs>
-            <style>
-              .lbl1 { font: 600 13px ui-monospace, monospace; fill: #a3a3a3; }
-              .word1 { font: 500 18px ui-monospace, monospace; fill: #f5f5f5; }
-            </style>
-          </defs>
-          <text x="300" y="38" text-anchor="middle" class="word1">"The cat sat on the ___"</text>
-          <text x="300" y="58" text-anchor="middle" class="lbl1">model predicts likely next tokens</text>
-          <g transform="translate(120,80)">
-            <text x="80" y="14" text-anchor="end" class="word1">mat</text>
-            <rect x="95" y="2" width="280" height="14" rx="3" fill="#1c1c1c" stroke="#262626"/>
-            <rect x="95" y="2" width="180" height="14" rx="3" fill="#ff7849"/>
-            <text x="385" y="14" class="lbl1">62%</text>
-            <text x="80" y="38" text-anchor="end" class="word1">couch</text>
-            <rect x="95" y="26" width="280" height="14" rx="3" fill="#1c1c1c" stroke="#262626"/>
-            <rect x="95" y="26" width="74" height="14" rx="3" fill="#ff7849" opacity="0.7"/>
-            <text x="385" y="38" class="lbl1">25%</text>
-            <text x="80" y="62" text-anchor="end" class="word1">roof</text>
-            <rect x="95" y="50" width="280" height="14" rx="3" fill="#1c1c1c" stroke="#262626"/>
-            <rect x="95" y="50" width="22" height="14" rx="3" fill="#ff7849" opacity="0.5"/>
-            <text x="385" y="62" class="lbl1">8%</text>
-          </g>
-          <text x="300" y="180" text-anchor="middle" class="lbl1">Pick likely tokens. Repeat many times.</text>
-        </svg>
-        <div class="caption">How an LLM works, every time you hit send.</div>
+      <h2>Trap to catch</h2>
+      <div class="compare">
+        <div class="bad">
+          <h4>Sounds responsible, but too simple</h4>
+          <p>"If AI helped, then the work is not really yours."</p>
+        </div>
+        <div class="good">
+          <h4>Better thinking</h4>
+          <p>"It depends what AI did. Did it help me learn, or did it replace the thinking I was supposed to do?"</p>
+        </div>
+      </div>
+
+      <h2>Try it with AI</h2>
+      <p>Copy this prompt into an AI tool. Then decide what you agree with, what you would change, and what still needs your judgment.</p>
+      <div class="try-row">
+        <button class="try-btn" data-prompt="I am learning how to use AI without letting it think for me. Give me 5 useful ways AI can help a learner or worker improve, and 5 risky ways AI can weaken learning or judgment. For each one, explain what the human should still decide or verify."><span class="icon">▸</span>Copy this prompt</button>
+      </div>
+
+      <h2>Save to your AI Toolkit</h2>
+      <div class="toolkit-card">
+        <h3>AI Opportunity Statement</h3>
+        <pre><code>I want AI to help me ________.
+I will not let AI decide ________ for me.
+Before I trust AI, I will check ________.</code></pre>
       </div>
 
       <details class="quick-check">
-        <summary>Quick check: what is a token?</summary>
-        <p>A token is a chunk of text. It might be a whole word, part of a word, punctuation, or a character. Models predict tokens, then those tokens turn back into text you can read.</p>
+        <summary>Mastery check</summary>
+        <p>Write one useful opportunity and one boundary. If you can do that, you understand the point of Lesson 1.</p>
       </details>
 
-      <h2>How they learned</h2>
-      <p>Imagine feeding a computer every book, every Wikipedia article, every academic paper, a huge chunk of the internet, and a lot of code. Trillions of words.</p>
-      <p>Then ask it, over and over: <em>"What token is likely next?"</em> Every wrong guess nudges its internal settings, billions of numbers called <strong>parameters</strong>, to make a better guess next time.</p>
-      <p>Do this millions of times on giant computers. The result: a program that's shockingly good at predicting tokens in context. At enough scale, those learned patterns can produce behavior that looks like reasoning, planning, coding, and explanation.</p>
-
-      <h2>The four stages of building one</h2>
-
-      <div class="diagram">
-        <svg viewBox="0 0 700 130" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Four stages">
-          <defs>
-            <style>
-              .stagebox { fill: #1c1c1c; stroke: #ff7849; stroke-width: 1.5; }
-              .stagenum { font: 600 11px ui-monospace, monospace; fill: #ff7849; letter-spacing: 0.1em; }
-              .stagetitle { font: 600 14px -apple-system, system-ui, sans-serif; fill: #f5f5f5; }
-              .stagedesc { font: 400 11px -apple-system, system-ui, sans-serif; fill: #a3a3a3; }
-              .arrow { stroke: #6b6b6b; stroke-width: 1.5; fill: none; }
-            </style>
-          </defs>
-          <!-- stage 1 -->
-          <rect x="10" y="20" width="150" height="90" rx="8" class="stagebox"/>
-          <text x="22" y="40" class="stagenum">01 · TOKENIZE</text>
-          <text x="22" y="62" class="stagetitle">Chop text</text>
-          <text x="22" y="82" class="stagedesc">"The cat" →</text>
-          <text x="22" y="98" class="stagedesc">[The] [cat]</text>
-          <line x1="165" y1="65" x2="180" y2="65" class="arrow" marker-end="url(#a)"/>
-          <!-- stage 2 -->
-          <rect x="185" y="20" width="150" height="90" rx="8" class="stagebox"/>
-          <text x="197" y="40" class="stagenum">02 · PRE-TRAIN</text>
-          <text x="197" y="62" class="stagetitle">Read internet</text>
-          <text x="197" y="82" class="stagedesc">huge compute cost</text>
-          <text x="197" y="98" class="stagedesc">(labs do this)</text>
-          <line x1="340" y1="65" x2="355" y2="65" class="arrow" marker-end="url(#a)"/>
-          <!-- stage 3 -->
-          <rect x="360" y="20" width="150" height="90" rx="8" class="stagebox"/>
-          <text x="372" y="40" class="stagenum">03 · FINE-TUNE</text>
-          <text x="372" y="62" class="stagetitle">Specialize</text>
-          <text x="372" y="82" class="stagedesc">"be helpful,"</text>
-          <text x="372" y="98" class="stagedesc">teach a skill</text>
-          <line x1="515" y1="65" x2="530" y2="65" class="arrow" marker-end="url(#a)"/>
-          <!-- stage 4 -->
-          <rect x="535" y="20" width="150" height="90" rx="8" class="stagebox"/>
-          <text x="547" y="40" class="stagenum">04 · INFERENCE</text>
-          <text x="547" y="62" class="stagetitle">You chat</text>
-          <text x="547" y="82" class="stagedesc">Model picks</text>
-          <text x="547" y="98" class="stagedesc">tokens live</text>
-          <defs>
-            <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-              <path d="M0,0 L10,5 L0,10 Z" fill="#6b6b6b"/>
-            </marker>
-          </defs>
-        </svg>
-        <div class="caption">Every LLM you've ever used went through these four stages.</div>
-      </div>
-
-      <h3>1. Tokenize</h3>
-      <p>Models don't read words. They read <strong>tokens</strong>, chunks of words. <code>"unbelievable"</code> might be three: <code>un</code>, <code>believ</code>, <code>able</code>.</p>
-
-      <h3>2. Pre-train</h3>
-      <p>The big-money, big-computer phase. The model reads vast piles of text and tunes its parameters until it's great at predicting tokens. For frontier models, public estimates put training compute in the tens to hundreds of millions of dollars, depending on the model and what the estimate counts. Only major labs usually do this at frontier scale.</p>
-
-      <h3>3. Fine-tune</h3>
-      <p>Teaches the generalist model specific skills: "be helpful," "follow instructions," "write SQL." A much smaller training run. <strong>You can actually do this yourself on a laptop</strong>. See <a href="projects.html">Projects</a>.</p>
-
-      <h3>4. Inference</h3>
-      <p>What happens when you hit send. The model takes your message, predicts tokens one at a time, and streams back an answer.</p>
-
-      <h2>Why this explains everything weird about AI</h2>
-
-      <h3>Why it hallucinates</h3>
-      <p>Because it's a pattern-matcher, not a database. A confident-sounding question gets a confident-sounding answer, whether the answer is true or not. It's not lying. It just doesn't have a separate truth-checker. <strong>Rule: verify the things that matter</strong> (dates, citations, quotes, names). Treat AI like a smart friend who occasionally bluffs.</p>
-
-      <h3>Why context matters so much</h3>
-      <p>Every word in your prompt steers the predictions. Vague in → vague out. Rich in → rich out. That's why Chapter 2 exists.</p>
-
-      <h3>Why prompts feel like spells</h3>
-      <p>They kind of are. Saying "act as a strict editor" pushes the model toward editor-shaped predictions. Saying "in 100 words" pushes it toward short ones. Small wording changes → big output shifts.</p>
-
-      <h3>Why AI keeps getting better, fast</h3>
-      <p>More data + more compute + smarter methods, all improving in parallel.</p>
-      <div class="callout">
-        <h4>The line worth remembering</h4>
-        <p><em>The AI you're using today may be the least capable AI you'll use for the rest of your life.</em> Models keep improving. The judgment skill you build now compounds for decades.</p>
-      </div>
-
-      <h2>The scale</h2>
-      <div class="stat-grid">
-        <div class="stat"><div class="num">100B+</div><div class="label">learned settings in many very large models</div></div>
-        <div class="stat"><div class="num">$10M-$100M+</div><div class="label">public estimates for frontier training compute</div></div>
-        <div class="stat"><div class="num">trillions</div><div class="label">text chunks used during training</div></div>
-        <div class="stat"><div class="num">milliseconds</div><div class="label">rough time to generate each small chunk of text</div></div>
-      </div>
-
-      <h2>Try it</h2>
-      <p>Click the button to copy the prompt. Open an AI tool in another tab, paste it, and run it. Then come back here.</p>
-      <div class="try-row">
-        <button class="try-btn" data-prompt="Explain how a large language model works to me as if I'm 14, smart, and curious. Use one analogy. Then ask me a question to check if I understood."><span class="icon">▸</span>Copy this prompt</button>
-      </div>
-
-      <div class="callout callout-good">
-        <h4>Checkpoint</h4>
-        <p>After you try the prompt, ask the model: "Argue against your own explanation. What might be oversimplified or wrong?" Notice whether it becomes more careful.</p>
-      </div>
-
-      <p class="small">Sources for this chapter's technical framing include <a href="https://developers.google.com/machine-learning/crash-course/llm" target="_blank" rel="noopener">Google ML Crash Course on LLMs</a>, <a href="https://openai.com/index/why-language-models-hallucinate/" target="_blank" rel="noopener">OpenAI's hallucination explainer</a>, and <a href="https://hai.stanford.edu/news/inside-new-ai-index-expensive-new-models-targeted-investments-and-more" target="_blank" rel="noopener">Stanford HAI's AI Index discussion of frontier training-cost estimates</a>.</p>
-
       <div class="lesson-nav">
-        <a href="course.html"><span class="label">↑ Back</span>All chapters</a>
-        <a href="chapter-2.html" class="next"><span class="label">Next →</span>Chapter 2 · How to talk to AI</a>
+        <a href="course.html"><span class="label">↑ Back</span>All lessons</a>
+        <a href="chapter-2.html" class="next"><span class="label">Next →</span>Lesson 2 · First useful AI conversation</a>
       </div>
-
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
-    <p><strong>Learning AI</strong>: a free, opinionated course on working with AI.</p>
+    <p><strong>Learning AI</strong>: a practical path for learning, judging, and building with AI.</p>
     <p>Built by Aarav Shah.</p>
   </div>
 </footer>
 
-<script src="script.js?v=20260524b"></script>
+<script src="script.js?v=20260526a"></script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 4: Tips &amp; tricks · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260524b">
+  <title>Lesson 4: What an LLM is · Learning AI</title>
+  <link rel="stylesheet" href="styles.css?v=20260526a">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
       <a href="about.html">About</a>
-      <a href="course.html" class="nav-cta">All chapters</a>
+      <a href="course.html" class="nav-cta">All lessons</a>
     </div>
   </div>
 </nav>
@@ -30,77 +30,83 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="tagline">V1 preview 04 · verification outline</div>
-      <h1>Tips &amp; tricks.</h1>
-      <p class="lead">The pro moves, in plain English. Steal what's useful.</p>
+      <div class="tagline">V2 core lesson 04 · language models</div>
+      <h1>What an LLM is, without the magic.</h1>
+      <p class="lead">An LLM can sound smart because it is good at language, not because every sentence is checked against reality.</p>
     </div>
   </section>
 
   <section class="section-tight">
     <div class="container">
-
-      <div class="early-access-notice">
-        <h4>Early Access Preview</h4>
-        <p>These tips are usable now. The next version will add worked examples and copyable practice prompts for each one.</p>
+      <div class="lesson-lab">
+        <span class="section-heading">Next-token lab</span>
+        <h2>Context changes what comes next.</h2>
+        <div class="choice-grid">
+          <details class="choice-card">
+            <summary>"The student opened the ___"</summary>
+            <p>Possible: book, laptop, door, test. Without context, several answers fit.</p>
+          </details>
+          <details class="choice-card">
+            <summary>"The student opened the ___ to fix the Python error."</summary>
+            <p>Now laptop or editor is more likely. Context steers the next words.</p>
+          </details>
+          <details class="choice-card">
+            <summary>"The student opened the ___ and found a fake citation."</summary>
+            <p>Now article, source, or page may fit. Language skill still does not prove truth.</p>
+          </details>
+        </div>
       </div>
 
-      <h2>The tips</h2>
+      <h2>The main idea</h2>
+      <p><strong>LLM</strong> means large language model. It works with text chunks called <strong>tokens</strong>. It uses the current context to generate likely next tokens, one after another.</p>
+      <p>That is why it can write, explain, translate, summarize, and code. It is also why it can sound fluent while being wrong.</p>
 
-      <h3>Tip 1 · Give it a role</h3>
-      <p>"Act as a strict editor." "Be a patient biology teacher." "You're a skeptical interviewer." Roles are the single highest-leverage prompting move.</p>
-
-      <h3>Tip 2 · Show, don't tell</h3>
-      <p>Want output in a specific style? Paste in 2-3 examples of what "good" looks like. The model will match the pattern.</p>
-
-      <h3>Tip 3 · Constrain the shape</h3>
-      <p>"In 100 words." "As 3 bullets." "Step-by-step." Constraints prevent default mush.</p>
-
-      <h3>Tip 4 · Iterate, don't restart</h3>
-      <p>If the first answer is 80% right, refine in the same chat. Restarting from scratch loses the context the model has already built up.</p>
-
-      <h3>Tip 5 · Tell it what NOT to do</h3>
-      <p>"Don't use the word 'unique.'" "Don't apologise." "Don't list pros and cons: just give your opinion." Negative constraints are powerful.</p>
-
-      <h3>Tip 6 · Long projects? Ask for a summary, then continue</h3>
-      <p>For multi-day or multi-session work, periodically ask: <em>"Summarise everything we've decided so far in 10 bullets, so I can paste it into a fresh chat."</em> That's how you maintain continuity.</p>
-
-      <h3>Tip 7 · Pick the right model for the job</h3>
-      <ul>
-        <li><strong>Reasoning-heavy tasks</strong> (math, hard logic, code review): use the slower "thinking" models.</li>
-        <li><strong>Quick chat / casual</strong>: use the faster, cheaper models.</li>
-        <li><strong>Creative writing</strong>: most frontier models work well; try a few and see which voice you like.</li>
-      </ul>
-
-      <h3>Tip 8 · Save your best prompts</h3>
-      <p>If a prompt works really well, save it. Build a personal library. The best prompts are templates you reuse across hundreds of conversations.</p>
-
-      <h3>Tip 9 · Ask for the underlying principle</h3>
-      <p>When you get a good answer, follow up with <em>"What's the underlying principle? When does this not apply?"</em> That turns a one-time answer into a permanent piece of understanding.</p>
-
-      <h3>Tip 10 · Treat the AI like a smart friend, not an oracle</h3>
-      <p>Sometimes it's right, sometimes it's bluffing. Verify the things that matter.</p>
-
-      <div class="callout callout-good">
-        <h4>Checkpoint</h4>
-        <p>Choose one real task and apply three tips from this page. Keep the before prompt, the after prompt, and one note about what improved.</p>
+      <h2>Trap to repair</h2>
+      <div class="compare">
+        <div class="bad">
+          <h4>Bad explanation</h4>
+          <p>"LLMs know facts because they read the internet."</p>
+        </div>
+        <div class="good">
+          <h4>Better explanation</h4>
+          <p>"LLMs generate fact-like text from patterns. Important facts need sources, tools, or verification."</p>
+        </div>
       </div>
+
+      <h2>Try it with AI</h2>
+      <div class="try-row">
+        <button class="try-btn" data-prompt="Complete this sentence in three different contexts: 'The student opened the ___'. Then explain how context changed your prediction. After that, tell me why a likely continuation is not the same as a verified fact."><span class="icon">▸</span>Copy token lab prompt</button>
+      </div>
+
+      <h2>Save to your AI Toolkit</h2>
+      <div class="toolkit-card">
+        <h3>Explain LLMs To A Friend</h3>
+        <pre><code>An LLM is ________.
+It works with tokens, which are ________.
+Context matters because ________.
+I still verify important facts because ________.</code></pre>
+      </div>
+
+      <details class="quick-check">
+        <summary>Mastery check</summary>
+        <p>Use these four words in your own explanation: model, tokens, context, verify.</p>
+      </details>
 
       <div class="lesson-nav">
-        <a href="chapter-3.html"><span class="label">← Previous</span>Chapter 3 · Being a great AI partner</a>
-        <a href="chapter-5.html" class="next"><span class="label">Next →</span>Chapter 5 · Build with AI</a>
+        <a href="chapter-3.html"><span class="label">← Previous</span>Lesson 3 · What AI is</a>
+        <a href="chapter-5.html" class="next"><span class="label">Next →</span>Lesson 5 · Prompt repair</a>
       </div>
-
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
-    <p><strong>Learning AI</strong>: a free, opinionated course on working with AI.</p>
+    <p><strong>Learning AI</strong>: a practical path for learning, judging, and building with AI.</p>
     <p>Built by Aarav Shah.</p>
   </div>
 </footer>
 
-<script src="script.js?v=20260524b"></script>
+<script src="script.js?v=20260526a"></script>
 </body>
 </html>

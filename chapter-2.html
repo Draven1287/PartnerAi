@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chapter 2: How to talk to AI · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260524b">
+  <title>Lesson 2: Your first useful AI conversation · Learning AI</title>
+  <link rel="stylesheet" href="styles.css?v=20260526a">
 </head>
 <body>
 
@@ -22,7 +22,7 @@
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
       <a href="about.html">About</a>
-      <a href="course.html" class="nav-cta">All chapters</a>
+      <a href="course.html" class="nav-cta">All lessons</a>
     </div>
   </div>
 </nav>
@@ -30,151 +30,74 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="tagline">V1 preview 02 · ~12 min</div>
-      <h1>How to talk to AI.</h1>
-      <p class="lead">Prompting is a real skill. Most people use AI vaguely. By the end of this chapter, you'll know the moves that make answers sharper.</p>
+      <div class="tagline">V2 core lesson 02 · first win</div>
+      <h1>Your first useful AI conversation.</h1>
+      <p class="lead">Most people ask AI vague questions and get vague answers. This lesson gives you a useful win: a better learning conversation that protects your thinking.</p>
     </div>
   </section>
 
   <section class="section-tight">
     <div class="container">
-
-      <div class="tldr">
-        <h4>TL;DR: the four moves</h4>
-        <ul>
-          <li><strong>Prompting is the new writing.</strong> Same skill, new shape.</li>
-          <li>Use four ingredients: <strong>context, role, examples, constraints.</strong></li>
-          <li><strong>First answer = draft.</strong> The conversation is the product.</li>
-          <li>Don't outsource what you should be learning. Make yourself sharper.</li>
-        </ul>
+      <div class="lesson-lab">
+        <span class="section-heading">Repair the prompt</span>
+        <h2>The weak version</h2>
+        <pre><code>Help me understand this topic.</code></pre>
+        <p>It is not wrong, but it gives the AI almost nothing to work with. Repair it by adding four pieces: topic, goal, current understanding, and what the AI should not do.</p>
       </div>
-
-      <h2>Prompting is the new writing</h2>
-      <p>For a thousand years, "good writing" meant arranging words so a <em>human</em> understood you. Now there's a second kind: arranging words so an <em>AI</em> understands you.</p>
-      <p>Same vocabulary. Different moves. <strong>This is the skill the next decade runs on: and almost no one is teaching it.</strong></p>
-
-      <h2>Bad prompt vs. great prompt</h2>
-      <p>Same goal, two ways: "help me understand photosynthesis."</p>
 
       <div class="compare">
         <div class="bad">
-          <h4>Bad</h4>
-          <pre><code>explain photosynthesis</code></pre>
-          <p>Generic textbook paragraph. Forgettable.</p>
+          <h4>Weak tutor</h4>
+          <p>"Here is the answer. Memorize these terms and you should be fine."</p>
+          <p class="small">Fast, but it gives the answer away.</p>
         </div>
         <div class="good">
-          <h4>Great</h4>
-          <pre><code>I'm a 9th grader studying for a bio
-test Friday. I know plants make food
-from sunlight but not the mechanism.
-
-Teach me. Use one analogy I can
-picture. Then ask me 3 questions to
-test if I got it.</code></pre>
-          <p>Tailored explanation, vivid analogy, active quiz.</p>
+          <h4>Better tutor</h4>
+          <p>"First, explain the idea in your own words. I will give one hint, then quiz you before I show the full explanation."</p>
+          <p class="small">Slower, but it protects learning.</p>
         </div>
       </div>
 
-      <p>The great prompt isn't long because it's flashier. It's long because it <em>carries information the model needed</em> to do a good job.</p>
+      <h2>The trap answer</h2>
+      <p>Watch out for AI help that looks supportive but does not teach much:</p>
+      <blockquote>"Do you understand now?"</blockquote>
+      <p>That question is too vague. A better tutor asks a specific check: <em>"What are the key parts, and how do they connect?"</em></p>
 
-      <div class="callout">
-        <h4>Important nuance</h4>
-        <p>You do not need to repeat all of that context forever. In a brand-new chat, give the model the full setup. In an ongoing chat, use shorter follow-ups because the model already has the context from earlier messages.</p>
-      </div>
-
-      <h2>The four ingredients of a great prompt</h2>
-      <p>You don't always need all four. But you'll be amazed how often you should.</p>
-
-      <div class="ingredient-grid">
-        <div class="ingredient">
-          <div class="num">01</div>
-          <h4>Context</h4>
-          <p>Who you are, what you're doing, what level you're at.</p>
-        </div>
-        <div class="ingredient">
-          <div class="num">02</div>
-          <h4>Role</h4>
-          <p>Tell the AI who to be. "Act as a strict editor." Highest leverage move there is.</p>
-        </div>
-        <div class="ingredient">
-          <div class="num">03</div>
-          <h4>Examples</h4>
-          <p>Show, don't tell. Paste in 2-3 examples of what good looks like.</p>
-        </div>
-        <div class="ingredient">
-          <div class="num">04</div>
-          <h4>Constraints</h4>
-          <p>"In 100 words." "3 bullets." "For a 14-year-old." Force a shape.</p>
-        </div>
-      </div>
-
-      <h3>Each one, with a worked example</h3>
-
-      <h4>Role: the cheat code</h4>
-      <pre><code>Act as a brutally honest writing coach.
-Read this paragraph and tell me what's
-not working. Be specific.</code></pre>
-      <p>Roles shift vocabulary, tone, and what gets emphasized. Try the same prompt without a role: completely different answer.</p>
-
-      <h4>Examples: show, don't tell</h4>
-      <pre><code>Help me name a new podcast. Style:
-
-- "Reply All"
-- "Hard Fork"
-- "Search Engine"
-
-Short. Two words. Slightly mysterious.
-Generate 10.</code></pre>
-      <p>This is called <strong>few-shot prompting</strong>. It means you show the model a few examples of the pattern you want instead of trying to describe the pattern from scratch.</p>
-
-      <h2>The cardinal rule: don't accept the first answer</h2>
-      <p>Beginners send a prompt, read the reply, move on. Pros treat the first reply as a draft.</p>
-      <ul>
-        <li><em>"Make this shorter."</em></li>
-        <li><em>"Now argue against your own answer."</em></li>
-        <li><em>"What did you miss?"</em></li>
-        <li><em>"Where could you be wrong?"</em></li>
-      </ul>
-      <p><strong>The conversation is the product, not the first message.</strong></p>
-
-      <h2>The biggest beginner mistake</h2>
-      <p>Asking AI to <em>do</em> things you should be <em>learning</em>. "Write my essay." "Solve my problem set."</p>
-      <p>The AI will do it. The cost is your own development. Early research on cognitive offloading and critical thinking suggests a real risk: outsourcing thinking before you've built the underlying skill can reduce the mental effort that learning requires.</p>
-      <div class="callout callout-good">
-        <h4>The better move</h4>
-        <p>Use AI to learn the thing <em>faster</em>, not skip past it. "Teach me X." "Test me on Y." "Help me debug my thinking on Z." That partnership makes you sharper. Outsourcing makes you weaker.</p>
-      </div>
-
-      <h2>Try it</h2>
-      <p>Click Copy, paste the prompt into an AI tool, replace <code>[PASTE HERE]</code> with your own paragraph, and run it. The point is to see how role + constraints change the answer.</p>
+      <h2>Copy this useful starter</h2>
       <div class="try-row">
-        <button class="try-btn" data-prompt="Act as a strict but encouraging writing coach. I'll give you a paragraph. Tell me:&#10;1) What's working (1 sentence)&#10;2) The biggest weakness (1 sentence)&#10;3) One concrete rewrite&#10;&#10;Paragraph:&#10;&#10;[PASTE HERE]"><span class="icon">▸</span>Copy this prompt</button>
-        <a href="playground.html" class="try-btn"><span class="icon">▸</span>Open practice lab</a>
+        <button class="try-btn" data-prompt="I am learning [TOPIC] for [class, work, project, or personal goal]. My goal is to understand it, not just get the answer. Here is what I think so far: [WHAT I KNOW]. Act as a learning coach. First ask me one question to check my understanding. Then give one hint. Do not give the full answer until I try."><span class="icon">▸</span>Copy learning coach prompt</button>
       </div>
 
-      <div class="callout callout-good">
-        <h4>Checkpoint</h4>
-        <p>Rewrite one weak prompt three different ways: one with a role, one with examples, and one with constraints. Compare the outputs before you mark this lesson complete.</p>
+      <h2>Save to your AI Toolkit</h2>
+      <div class="toolkit-card">
+        <h3>First Useful AI Conversation</h3>
+        <pre><code>I am working on ________.
+My goal is ________.
+I already understand ________.
+Help me by ________.
+Do not ________ before I try.</code></pre>
       </div>
 
-      <p class="small">Research note: learning-risk claims are intentionally phrased as risk, not certainty. For context, see <a href="https://www.microsoft.com/en-us/research/publication/the-impact-of-generative-ai-on-critical-thinking-self-reported-reductions-in-cognitive-effort-and-confidence-effects-from-a-survey-of-knowledge-workers/" target="_blank" rel="noopener">Microsoft Research on generative AI and critical thinking</a> and <a href="https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research" target="_blank" rel="noopener">UNESCO guidance on generative AI in education</a>.</p>
+      <details class="quick-check">
+        <summary>Mastery check</summary>
+        <p>Run the prompt once. Then write what changed after your follow-up. The win is not the first answer; the win is improving the conversation.</p>
+      </details>
 
       <div class="lesson-nav">
-        <a href="chapter-1.html"><span class="label">← Previous</span>Chapter 1 · What AI actually is</a>
-        <a href="chapter-3.html" class="next"><span class="label">Next →</span>Chapter 3 · Preview</a>
+        <a href="chapter-1.html"><span class="label">← Previous</span>Lesson 1 · Why AI matters</a>
+        <a href="chapter-3.html" class="next"><span class="label">Next →</span>Lesson 3 · What AI actually is</a>
       </div>
-
     </div>
   </section>
 </main>
 
 <footer class="footer">
   <div class="container">
-    <p><strong>Learning AI</strong>: a free, opinionated course on working with AI.</p>
+    <p><strong>Learning AI</strong>: a practical path for learning, judging, and building with AI.</p>
     <p>Built by Aarav Shah.</p>
   </div>
 </footer>
 
-<script src="script.js?v=20260524b"></script>
+<script src="script.js?v=20260526a"></script>
 </body>
 </html>

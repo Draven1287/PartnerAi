@@ -259,6 +259,42 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .tutor-card.strong {
   border-color: color-mix(in srgb, var(--good) 35%, var(--border));
 }
+.lesson-lab {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(18, 24, 38, 0.08);
+  margin: 0 0 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+.lesson-lab h2 {
+  margin-top: 0.35rem;
+}
+.choice-grid {
+  display: grid;
+  gap: 0.8rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  margin: 1rem 0;
+}
+.choice-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+.choice-card summary {
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 650;
+}
+.choice-card p {
+  color: var(--text-dim);
+  font-size: 0.94rem;
+  margin: 0.65rem 0 0;
+}
+.choice-card.best {
+  border-color: color-mix(in srgb, var(--good) 35%, var(--border));
+}
 .feature-list {
   border: 1px solid var(--border);
   border-radius: 10px;
