@@ -23,6 +23,17 @@
         <span>First V2 slice</span>
         <h1>Learning AI V2 Local Host</h1>
         <p>This local prototype tests the active V2 lesson loop before publishing the full 30-lesson sequence.</p>
+        <div class="session-panel" id="session-panel">
+          <label for="session-name">Name for local session tracking</label>
+          <div class="hero-controls">
+            <input id="session-name" type="text" placeholder="Your first name or nickname" />
+            <button id="start-session" type="button">Start Session</button>
+          </div>
+          <p class="status" id="session-status-text">No active participant session.</p>
+          <p class="status small" id="session-active-count">No active users logged.</p>
+          <p class="status small" id="session-total-time">Community time: 0m 0s</p>
+          <ul id="active-user-list"></ul>
+        </div>
         <div class="hero-controls">
           <label>
             Learning mode
@@ -41,40 +52,13 @@
 
       <section class="panel" id="path">
         <div class="panel-head">
-          <span>12-lesson core</span>
-          <h2>The path we test before full 30-launch.</h2>
+          <span>30-lesson path</span>
+          <h2>Complete the full learning journey one lesson at a time.</h2>
         </div>
-        <div class="path-grid">
-          <div class="path-card-row">
-            <button class="path-card" data-index="0">1. Why AI matters</button>
-            <a class="lesson-link" href="lesson.html?lesson=lesson-1">Open v1-style lesson</a>
-          </div>
-          <div class="path-card-row">
-            <button class="path-card" data-index="1">2. First useful conversation</button>
-            <a class="lesson-link" href="lesson.html?lesson=lesson-2">Open v1-style lesson</a>
-          </div>
-          <div class="path-card-row">
-            <button class="path-card" data-index="2">3. What AI is</button>
-            <a class="lesson-link" href="lesson.html?lesson=lesson-3">Open v1-style lesson</a>
-          </div>
-          <div class="path-card-row">
-            <button class="path-card" data-index="3">4. What an LLM is</button>
-            <a class="lesson-link" href="lesson.html?lesson=lesson-4">Open v1-style lesson</a>
-          </div>
-          <div class="path-card-row">
-            <button class="path-card" data-index="4">5. Prompt repair</button>
-            <a class="lesson-link" href="lesson.html?lesson=lesson-5">Open v1-style lesson</a>
-          </div>
-          <button class="path-card" data-index="5">6. Follow-ups</button>
-          <button class="path-card" data-index="6">7. Why AI gets wrong</button>
-          <button class="path-card" data-index="7">8. Verify sources</button>
-          <button class="path-card" data-index="8">9. Tutor, not cheating</button>
-          <button class="path-card" data-index="9">10. Privacy and bias</button>
-          <button class="path-card" data-index="10">11. Prompt to workflow</button>
-          <button class="path-card" data-index="11">12. Mini capstone</button>
+        <div class="path-grid" id="path-grid">
         </div>
         <div class="mini-progress">
-          <p id="path-progress">0 / 12 lessons completed</p>
+          <p id="path-progress">0 / 30 lessons completed</p>
           <div class="progress-track"><span id="progress-fill" style="width:0%"></span></div>
         </div>
       </section>
@@ -147,6 +131,7 @@
       </section>
     </section>
   </main>
+  <script src="lesson-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

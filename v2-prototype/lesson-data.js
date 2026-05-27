@@ -7,7 +7,7 @@ window.V2_LESSON_BLUEPRINT = [
     subtitle: 'Start from your choices, not from hype.',
     hook: {
       title: 'You see this all the time at school and home.',
-      scenario: 'A friend uses AI and gets better grades. Another friend says that is cheating. One more says AI is dangerous. What should you do right now?'
+      scenario: 'A friend uses AI and gets better grades. Another friend says AI is dangerous. One more says AI is a shortcut for everything. What should you do?'
     },
     tryFirst: {
       prompt: 'Pick the least-bad starting response.',
@@ -21,19 +21,19 @@ window.V2_LESSON_BLUEPRINT = [
           feedback: 'You will get speed, but you may outsource understanding and never build judgment.'
         },
         {
-          label: 'Use AI when it helps you learn, and keep proof of your thinking.',
-          feedback: 'Strong. You are setting a practical rule: use AI as support, not as a replacement for thought.',
+          label: 'Use AI when it helps me learn, and keep proof of my thinking.',
+          feedback: 'Strong. You are setting a practical rule: use AI as support, not a replacement.',
           correct: true
         }
       ]
     },
     reveal: {
       title: 'Agency is the real skill.',
-      body: 'AI can be useful, but every useful learner keeps ownership: choose your goal, ask for checks, and decide what counts as done.',
-      mistake: 'A fluent answer can still be wrong or low effort. Never confuse output speed with understanding.',
-      good: 'Use AI when it improves your judgment, planning, or reflection. Skip it when it tempts you to stop thinking.'
+      body: 'AI is useful when humans keep the goal, method, and verification in charge.',
+      mistake: 'A fluent answer can still be wrong or low-value. Never confuse output speed with understanding.',
+      good: 'Use AI when it improves your reasoning process, and skip it when it tempts you to stop thinking.'
     },
-    prompt: 'I am deciding whether AI can help me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts for students or workers, and mark one check question for each risky shortcut.',
+    prompt: 'I am deciding whether AI can help me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts, and mark one check question for each risky shortcut.',
     saveTemplate: {
       line1: 'I want AI to help me ________.',
       line2: 'I will not let AI decide ________.',
@@ -65,7 +65,7 @@ window.V2_LESSON_BLUEPRINT = [
           feedback: 'Better than generic, but missing constraints and a check step.'
         },
         {
-          label: 'You are my tutor. I am studying photosynthesis. Ask me one question first, give one hint, then give one short explanation. Ask me to test one example before finalizing.',
+          label: 'You are my tutor. I am studying photosynthesis. Ask me one question first, give one hint, then explain in simple language. Ask me to test one example before finalizing.',
           feedback: 'Strong. You gave role, context, structure, and a required learner check.',
           correct: true
         }
@@ -73,7 +73,7 @@ window.V2_LESSON_BLUEPRINT = [
     },
     reveal: {
       title: 'Good prompts create a loop, not one-shot magic.',
-      body: 'A useful request includes role, current level, what help you want, and what the AI should not do for you.',
+      body: 'A useful request includes role, context, what help you want, and what AI should not do for you.',
       mistake: 'Even good prompts fail if you accept a full answer immediately without checking your own understanding.',
       good: 'Ask for a short output first, then one follow-up with your own attempt.'
     },
@@ -95,7 +95,7 @@ window.V2_LESSON_BLUEPRINT = [
     subtitle: 'AI is a pattern system, not a human mind.',
     hook: {
       title: 'A classmate says AI "understands" everything.',
-      scenario: 'You are helping a friend decide whether to trust an AI response that sounds very confident.'
+      scenario: 'You are helping a friend decide whether to trust an AI response that sounds confident.'
     },
     tryFirst: {
       prompt: 'Which frame keeps your options open?',
@@ -117,9 +117,9 @@ window.V2_LESSON_BLUEPRINT = [
     },
     reveal: {
       title: 'Patterns are useful, not infallible.',
-      body: 'AI is strongest at generating probable language patterns; that helps you get useful drafts and ideas fast.',
+      body: 'AI is strong at generating language patterns fast; that helps you get useful drafts and ideas quickly.',
       mistake: 'A polished paragraph can still be fabricated or weakly grounded.',
-      good: 'Use AI to generate options, then test and refine each output against your own understanding.'
+      good: 'Use AI for options, then test and refine each output against your own understanding.'
     },
     prompt: 'Explain AI to a 14-year-old in 3 simple lines. Then ask 2 trap questions I can use to check if my definition is too naive.',
     saveTemplate: {
@@ -163,16 +163,16 @@ window.V2_LESSON_BLUEPRINT = [
       title: 'LLM behavior is constrained by context and token budget.',
       body: 'If critical constraints are missing, output can drift. If context is narrow, output can be wrong and confident.',
       mistake: 'Assuming it "remembers" everything like a person leads to trust mistakes.',
-      good: 'Add context limits, output format, and a verification step to make usage safer.'
+      good: 'Add context limits, output format, and verification so behavior becomes predictable.'
     },
-    prompt: 'Give me one short exercise to teach a peer the difference between fluency and truth using only one AI answer example.',
+    prompt: 'Give me one short exercise to teach a peer the difference between fluency and truth using one AI answer example.',
     saveTemplate: {
       line1: 'Model: ________',
       line2: 'Token: ________',
       line3: 'Context: ________',
       line4: 'Verify with: ________'
     },
-    mastery: 'Explain in your own words how tokens, context, and verification connect.',
+    mastery: 'Explain how tokens, context, and verification connect.',
     next: 'lesson-5'
   },
   {
@@ -206,8 +206,8 @@ window.V2_LESSON_BLUEPRINT = [
     },
     reveal: {
       title: 'Repair quality is your skill.',
-      body: 'Prompts are executable instructions. The better your prompt design, the better your control loop becomes.',
-      mistake: 'A "better-looking" prompt can still be wrong if the goal is unclear.',
+      body: 'Prompts are executable instructions. Better structure gives better control.',
+      mistake: 'A polished sentence can still fail if the goal is unclear.',
       good: 'Keep goals concrete, constraints explicit, and ask for a quick self-check from the AI.'
     },
     prompt: 'Create a prompt-repair template with goal, context, constraints, format, and quality check. Fill it for your current study or work task.',
@@ -222,3 +222,92 @@ window.V2_LESSON_BLUEPRINT = [
     next: 'lesson-6'
   }
 ];
+
+const EXTRA_V2_LESSONS = [
+  'Data, Training, And Patterns',
+  'Context Windows And Memory',
+  'Why AI Hallucinates',
+  'Models And Tools',
+  'Prompting Is Clear Communication',
+  'Better Follow-Ups',
+  'Roles, Formats, And Constraints',
+  'Getting AI To Teach You',
+  'Human Agency With AI',
+  'Verification And Sources',
+  'Bias, Fairness, And Perspective',
+  'Privacy And Personal Data',
+  'When Not To Use AI',
+  'AI For Studying And School',
+  'AI For Writing And Research',
+  'AI For Coding And Debugging',
+  'AI For Creative Work',
+  'AI For Personal Productivity',
+  'AI For Business And Workflows',
+  'AI For Teachers And Classrooms',
+  'From Prompt To Workflow',
+  'Designing AI Tools',
+  'Intro To Agents',
+  'Evaluation And Testing',
+  'Build A Capstone Project'
+];
+
+function makeChoices(index, lessonTitle) {
+  const weak = {
+    label: 'I can use this topic without checking results first.',
+    feedback: 'No check step means you can accidentally trust an output that seems right but is wrong.',
+  };
+  const balanced = {
+    label: `I can use AI for fast drafts, but I will review for evidence and gaps.`,
+    feedback: 'You are moving in the right direction, but this stays high-value only if you add a test step.',
+  };
+  const strong = {
+    label: `I will define a clear goal, constraints, and a quality check before using ${lessonTitle}.`,
+    feedback: 'Strong. This is how prompts become reliable learning tools.',
+    correct: true
+  };
+
+  const useTwoChoices = index % 3 === 0;
+  return useTwoChoices ? [weak, strong] : [weak, balanced, strong];
+}
+
+function makeGeneratedLesson(index, title) {
+  const lessonIndex = index + 1;
+  const slug = `lesson-${lessonIndex}`;
+  const choices = makeChoices(lessonIndex, title);
+  const scenario = `You are working on a real task where ${title.toLowerCase()} can either save you time or confuse you. Pick the setup that keeps you in control.`;
+
+  return {
+    id: slug,
+    index: lessonIndex,
+    slug,
+    title,
+    subtitle: `Learn ${title.toLowerCase()} through one repeatable learner loop: try, test, improve.`,
+    hook: {
+      title: `${title} becomes a practical skill when it is used in context.`,
+      scenario
+    },
+    tryFirst: {
+      prompt: `Which setup best reflects high-leverage use of ${title.toLowerCase()}?`,
+      choices
+    },
+    reveal: {
+      title: `${title} is more than memorizing terms.`,
+      body: `${title} works when you define what success looks like and add a verification step before you reuse the output.`,
+      mistake: 'If context is missing, your output can look polished while being incomplete or false.',
+      good: 'Build a repeatable habit: prompt, inspect, improve, and record what changed.'
+    },
+    prompt: `For this lesson, write a usable prompt that includes purpose, context, constraints, desired format, and one check question you will run before finalizing.`,
+    saveTemplate: {
+      line1: 'Goal: ________',
+      line2: 'Context: ________',
+      line3: 'Constraint: ________',
+      line4: 'Validation check: ________'
+    },
+    mastery: `Create one ${title.toLowerCase()} artifact you can reuse next time.`,
+    next: lessonIndex + 1 <= 30 ? `lesson-${lessonIndex + 1}` : null
+  };
+}
+
+for (let i = 0; i < EXTRA_V2_LESSONS.length; i += 1) {
+  window.V2_LESSON_BLUEPRINT.push(makeGeneratedLesson(i + 5, EXTRA_V2_LESSONS[i]));
+}

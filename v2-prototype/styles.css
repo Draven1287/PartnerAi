@@ -203,6 +203,33 @@ pre {
   font: inherit;
 }
 
+.session-panel {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+  margin-bottom: 1rem;
+  padding: 1rem;
+}
+
+.session-panel input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  min-height: 42px;
+  padding: 0.6rem 0.75rem;
+}
+
+.session-panel ul {
+  margin: 0.6rem 0 0 1.1rem;
+  padding: 0;
+}
+
+#active-user-list {
+  color: var(--muted);
+  list-style: disc;
+  margin-top: 0.45rem;
+}
+
 .lesson-page-note {
   margin-top: 0.85rem;
   color: var(--muted);
