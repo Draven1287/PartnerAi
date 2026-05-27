@@ -9,78 +9,141 @@
 <body>
   <main class="shell">
     <aside class="side">
-      <a class="brand" href="index.html">Learning AI V2</a>
-      <p>Local prototype. Not the live site.</p>
+      <a class="brand" href="../index.html">Learning AI V2</a>
+      <p>Local prototype for the new V2 flow.</p>
       <nav>
         <a href="#path">Path</a>
         <a href="#study-coach">Study Coach</a>
-        <a href="#toolkit">Toolkit</a>
+        <a href="#projects">Projects</a>
       </nav>
     </aside>
 
     <section class="main">
       <header class="hero-panel">
         <span>First V2 slice</span>
-        <h1>Student Study Coach</h1>
-        <p>Use AI to learn more, not think less. This prototype tests the V2 lesson loop before the full 30-lesson course is built.</p>
+        <h1>Learning AI V2 Local Host</h1>
+        <p>This local prototype tests the active V2 lesson loop before publishing the full 30-lesson sequence.</p>
+        <div class="hero-controls">
+          <label>
+            Learning mode
+            <select id="profile-mode">
+              <option value="student">Student</option>
+              <option value="adult">Adult beginner</option>
+              <option value="builder">Builder / coder</option>
+              <option value="teacher">Educator</option>
+              <option value="creative">Creative / personal</option>
+            </select>
+          </label>
+          <button id="start-path" type="button">Start V2 path</button>
+        </div>
+        <p class="status" id="progress-status">Pick a lesson from the path to begin.</p>
       </header>
 
       <section class="panel" id="path">
         <div class="panel-head">
           <span>12-lesson core</span>
-          <h2>The path we prove before building all 30.</h2>
+          <h2>The path we test before full 30-launch.</h2>
         </div>
         <div class="path-grid">
-          <button class="path-card active">1. Why AI matters</button>
-          <button class="path-card active">2. First useful conversation</button>
-          <button class="path-card">3. What AI is</button>
-          <button class="path-card">4. What an LLM is</button>
-          <button class="path-card">5. Prompt repair</button>
-          <button class="path-card">6. Follow-ups</button>
-          <button class="path-card">7. Why AI gets wrong</button>
-          <button class="path-card">8. Verify sources</button>
-          <button class="path-card">9. Tutor, not cheating</button>
-          <button class="path-card">10. Privacy and bias</button>
-          <button class="path-card">11. Prompt to workflow</button>
-          <button class="path-card">12. Mini capstone</button>
+          <div class="path-card-row">
+            <button class="path-card" data-index="0">1. Why AI matters</button>
+            <a class="lesson-link" href="lesson.html?lesson=lesson-1">Open v1-style lesson</a>
+          </div>
+          <div class="path-card-row">
+            <button class="path-card" data-index="1">2. First useful conversation</button>
+            <a class="lesson-link" href="lesson.html?lesson=lesson-2">Open v1-style lesson</a>
+          </div>
+          <div class="path-card-row">
+            <button class="path-card" data-index="2">3. What AI is</button>
+            <a class="lesson-link" href="lesson.html?lesson=lesson-3">Open v1-style lesson</a>
+          </div>
+          <div class="path-card-row">
+            <button class="path-card" data-index="3">4. What an LLM is</button>
+            <a class="lesson-link" href="lesson.html?lesson=lesson-4">Open v1-style lesson</a>
+          </div>
+          <div class="path-card-row">
+            <button class="path-card" data-index="4">5. Prompt repair</button>
+            <a class="lesson-link" href="lesson.html?lesson=lesson-5">Open v1-style lesson</a>
+          </div>
+          <button class="path-card" data-index="5">6. Follow-ups</button>
+          <button class="path-card" data-index="6">7. Why AI gets wrong</button>
+          <button class="path-card" data-index="7">8. Verify sources</button>
+          <button class="path-card" data-index="8">9. Tutor, not cheating</button>
+          <button class="path-card" data-index="9">10. Privacy and bias</button>
+          <button class="path-card" data-index="10">11. Prompt to workflow</button>
+          <button class="path-card" data-index="11">12. Mini capstone</button>
+        </div>
+        <div class="mini-progress">
+          <p id="path-progress">0 / 12 lessons completed</p>
+          <div class="progress-track"><span id="progress-fill" style="width:0%"></span></div>
+        </div>
+      </section>
+
+      <section class="panel" id="lesson-detail">
+        <div class="panel-head">
+          <span>Current lesson</span>
+          <h2 id="lesson-title">Select lesson one.</h2>
+          <p id="lesson-subtitle">No active lesson yet.</p>
+        </div>
+        <div id="interactive-block" class="compare-grid">
+          <article class="response-card weak">
+            <span>Scenario A</span>
+            <h3>Weak move</h3>
+            <p id="weak-copy">Choose a lesson to load one.</p>
+            <button id="choose-weak" type="button">Mark as weak choice</button>
+          </article>
+          <article class="response-card strong">
+            <span>Scenario B</span>
+            <h3>Stronger move</h3>
+            <p id="strong-copy">Choose a lesson to load one.</p>
+            <button id="choose-strong" type="button">Mark as stronger choice</button>
+          </article>
+        </div>
+        <p class="feedback" id="feedback">Lesson feedback will appear after you make a choice.</p>
+
+        <div class="kit-section">
+          <h3>Lesson starter prompt</h3>
+          <p id="lesson-prompt">Choose a lesson to generate a starter prompt.</p>
+          <button id="copy-prompt" type="button">Copy starter prompt</button>
+        </div>
+        <div class="kit-section">
+          <button id="complete-lesson" type="button">Mark lesson complete</button>
         </div>
       </section>
 
       <section class="panel" id="study-coach">
         <div class="panel-head">
-          <span>Interactive lesson block</span>
-          <h2>Bad tutor vs. good tutor.</h2>
+          <span>Interactive task</span>
+          <h2>Bad tutor vs. good tutor pattern</h2>
         </div>
         <div class="compare-grid">
           <article class="response-card weak">
             <span>Weak</span>
             <h3>Answer machine</h3>
             <p>"The answer is 42. Use this explanation in your assignment."</p>
-            <button data-choice="weak">Choose this</button>
           </article>
           <article class="response-card strong">
             <span>Strong</span>
             <h3>Study coach</h3>
             <p>"Try first. I will give one hint, ask a check question, then explain what changed."</p>
-            <button data-choice="strong">Choose this</button>
           </article>
         </div>
-        <p class="feedback" id="feedback">Choose the response that protects learning.</p>
       </section>
 
-      <section class="panel" id="toolkit">
+      <section class="panel" id="projects">
         <div class="panel-head">
           <span>My AI Toolkit</span>
-          <h2>Build a Study Coach Card.</h2>
+          <h2>Build reusable cards and keep progress.</h2>
         </div>
         <form class="card-builder" id="card-builder">
-          <label>Subject <input name="subject" placeholder="Biology"></label>
-          <label>Learning goal <input name="goal" placeholder="Understand photosynthesis"></label>
+          <label>Lesson area <input name="subject" placeholder="study, writing, work, creative"></label>
+          <label>Learning goal <input name="goal" placeholder="Understand the core idea"></label>
           <label>AI should <textarea name="should" placeholder="Give hints before answers, quiz me, and check my explanation."></textarea></label>
-          <label>AI should not <textarea name="should_not" placeholder="Write my final homework answer."></textarea></label>
+          <label>AI should not <textarea name="should_not" placeholder="Write my final work without me doing the thinking."></textarea></label>
           <button type="submit">Save locally</button>
         </form>
         <pre id="card-output">Your saved Study Coach Card will appear here.</pre>
+        <div class="project-grid" id="card-stack"></div>
       </section>
     </section>
   </main>
