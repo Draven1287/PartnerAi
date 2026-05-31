@@ -36,6 +36,10 @@ async function submit(body) {
 }
 
 try {
+  const adminPage = await fetch(`${baseUrl}/admin`);
+  assert.equal(adminPage.status, 200);
+  assert.match(await adminPage.text(), /Learning AI Admin/);
+
   const noConsent = await submit({ name: 'No Consent', minutes: 99, consent: false });
   assert.equal(noConsent.response.status, 400);
   assert.equal(noConsent.body.error, 'consent_required');

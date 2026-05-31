@@ -238,6 +238,25 @@ function adminHtml() {
     .metric span { color: var(--text-dim); font-size: 13px; }
     .section-title { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
     .section-title h2 { font-size: 18px; margin: 0; }
+    .login-panel {
+      margin: 12vh auto 0;
+      max-width: 520px;
+    }
+    .login-panel h1 { font-size: clamp(2rem, 5vw, 3rem); }
+    .login-form { display: grid; gap: 12px; margin-top: 18px; }
+    .remember-row { align-items: center; color: var(--text-dim); display: flex; gap: 8px; }
+    .remember-row input { height: 16px; width: 16px; }
+    .error { color: #b42318; margin-top: 10px; min-height: 1.4em; }
+    .hidden { display: none !important; }
+    .link-button {
+      background: transparent;
+      border: 0;
+      color: var(--text-dim);
+      padding: 0;
+      text-align: left;
+      text-decoration: underline;
+    }
+    .link-button:hover { background: transparent; color: var(--accent); }
     @media (max-width: 820px) {
       .admin-shell { grid-template-columns: 1fr; }
       .sidebar { border-bottom: 1px solid var(--border); border-right: 0; }
@@ -247,7 +266,17 @@ function adminHtml() {
   </style>
 </head>
 <body>
-  <div class="admin-shell">
+  <section class="panel login-panel hidden" id="login-panel">
+    <h1>Learning AI Admin</h1>
+    <p class="muted">Enter the private admin token to view learner minutes.</p>
+    <form class="login-form" id="login-form">
+      <input id="token-input" type="password" autocomplete="current-password" placeholder="Admin token" required>
+      <label class="remember-row"><input id="remember-token" type="checkbox" checked> Remember this browser</label>
+      <button type="submit">Open admin</button>
+    </form>
+    <p class="error" id="login-error"></p>
+  </section>
+  <div class="admin-shell hidden" id="admin-shell">
     <aside class="sidebar">
       <div class="brand">Learning AI Admin</div>
       <div class="nav-group">
@@ -258,8 +287,7 @@ function adminHtml() {
       </div>
       <div class="nav-group">
         <div class="nav-label">Admin</div>
-        <a class="nav-item" href="#">Export</a>
-        <a class="nav-item" href="#">Settings</a>
+        <button class="link-button" id="logout" type="button">Forget token</button>
       </div>
     </aside>
     <main>
@@ -302,8 +330,26 @@ function adminHtml() {
     </main>
   </div>
   <script>
-    const token = new URLSearchParams(location.search).get('token') || '';
+    const tokenKey = 'learningai-admin-token';
+    const queryToken = new URLSearchParams(location.search).get('token') || '';
+    let token = queryToken || localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey) || '';
+    let shouldRememberToken = Boolean(queryToken || localStorage.getItem(tokenKey));
     let leaderboard = [];
+
+    if (queryToken) {
+      history.replaceState(null, '', location.pathname + location.hash);
+    }
+
+    function saveToken(value) {
+      sessionStorage.setItem(tokenKey, value);
+      if (shouldRememberToken) localStorage.setItem(tokenKey, value);
+      if (!shouldRememberToken) localStorage.removeItem(tokenKey);
+    }
+
+    function forgetToken() {
+      localStorage.removeItem(tokenKey);
+      sessionStorage.removeItem(tokenKey);
+    }
 
     function text(value) {
       return value == null ? '' : String(value);
@@ -342,20 +388,56 @@ function adminHtml() {
       }));
     }
 
+    function showLogin(message = '') {
+      document.getElementById('admin-shell').classList.add('hidden');
+      document.getElementById('login-panel').classList.remove('hidden');
+      document.getElementById('login-error').textContent = message;
+      document.getElementById('token-input').focus();
+    }
+
+    function showAdmin() {
+      document.getElementById('login-panel').classList.add('hidden');
+      document.getElementById('admin-shell').classList.remove('hidden');
+    }
+
     async function load() {
+      if (!token) {
+        showLogin();
+        return;
+      }
       const headers = token ? { 'x-admin-token': token } : {};
       const res = await fetch('/api/admin/leaderboard', { headers });
+      if (res.status === 401) {
+        forgetToken();
+        token = '';
+        showLogin('That token did not work.');
+        return;
+      }
       if (!res.ok) throw new Error('Could not load leaderboard');
       const data = await res.json();
       leaderboard = data.leaderboard || [];
+      saveToken(token);
+      showAdmin();
       render();
     }
 
     const search = document.getElementById('search');
     const sort = document.getElementById('sort');
     document.getElementById('refresh').addEventListener('click', load);
+    document.getElementById('logout').addEventListener('click', () => {
+      forgetToken();
+      token = '';
+      showLogin();
+    });
+    document.getElementById('login-form').addEventListener('submit', event => {
+      event.preventDefault();
+      token = document.getElementById('token-input').value.trim();
+      shouldRememberToken = document.getElementById('remember-token').checked;
+      if (!token) return showLogin('Enter the admin token.');
+      load().catch(error => showLogin(error.message));
+    });
     [search, sort].forEach(input => input.addEventListener('input', render));
-    load().catch(error => alert(error.message));
+    load().catch(error => showLogin(error.message));
   </script>
 </body>
 </html>`;
@@ -418,7 +500,6 @@ export function createServer({ dataFile = DATA_FILE, adminToken = ADMIN_TOKEN } 
       }
 
       if (req.method === 'GET' && url.pathname === '/admin') {
-        if (!isAdmin(req, url, adminToken)) return sendHtml(res, 401, '<h1>Unauthorized</h1>');
         return sendHtml(res, 200, adminHtml());
       }
 
