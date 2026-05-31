@@ -226,6 +226,30 @@ function adaptLessonCopy(copy, title, settings) {
   });
 })();
 
+// --- Assessment gate ---
+(function enforceAssessmentGate() {
+  const path = location.pathname.split('/').pop() || 'index.html';
+  const protectedPages = new Set([
+    'course.html',
+    'playground.html',
+    'projects.html',
+    'chapter-1.html',
+    'chapter-2.html',
+    'chapter-3.html',
+    'chapter-4.html',
+    'chapter-5.html'
+  ]);
+  if (!protectedPages.has(path)) return;
+  try {
+    const gauge = JSON.parse(localStorage.getItem('modelwise-gauge') || 'null');
+    if (gauge?.route && gauge?.savedAt) return;
+  } catch (error) {
+    // Fall through to assessment if saved data is unreadable.
+  }
+  const target = encodeURIComponent(path);
+  window.location.replace(`assessment.html?start=assessment&next=${target}`);
+})();
+
 // --- Wire up data-prompt buttons as copy-to-clipboard helpers ---
 document.addEventListener('click', e => {
   const btn = e.target.closest('[data-prompt]');
@@ -565,7 +589,9 @@ function initGauge() {
     localStorage.setItem('modelwise-gauge', JSON.stringify(saved));
     const profile = readProfile();
     if (profile) writeProfile({ ...profile, lastGauge: saved });
-    window.location.href = 'my-path.html';
+    const nextPath = new URLSearchParams(location.search).get('next');
+    const safeNext = nextPath && /^[a-z0-9-]+\.html$/i.test(nextPath) ? nextPath : 'my-path.html';
+    window.location.href = safeNext;
   }
 
   next?.addEventListener('click', () => {
@@ -1001,6 +1027,16 @@ function initPrivateProgressSync(user) {
   panel.hidden = false;
   if (user?.name) nameInput.value = user.name;
 
+  function rememberName(name) {
+    const cleaned = String(name || '').trim();
+    if (!cleaned) return;
+    localStorage.setItem('modelwise-user', JSON.stringify({
+      ...(user || {}),
+      name: cleaned,
+      updatedAt: new Date().toISOString()
+    }));
+  }
+
   function progressStorageKey(name) {
     return `learningai-private-minutes:${String(name || '').trim().toLowerCase() || 'local'}`;
   }
@@ -1028,31 +1064,33 @@ function initPrivateProgressSync(user) {
   form.addEventListener('submit', async event => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(form));
+    const name = String(data.name || '').trim();
     const minutes = Number(data.minutes);
     status.textContent = 'Sending...';
     try {
       const result = await window.LearningAIBackend.submitMinutes({
-        name: data.name,
+        name,
         minutes,
         consent: true
       });
       if (!result.ok) {
-        status.textContent = result.error || 'Could not send minutes.';
+        status.textContent = result.error ? `Could not save: ${result.error}.` : 'Could not send minutes.';
         return;
       }
-      const progress = readSavedProgress(data.name);
+      rememberName(name);
+      const progress = readSavedProgress(name);
       progress.totalMinutes = Number(progress.totalMinutes || 0) + minutes;
       progress.entries = [
         ...(progress.entries || []),
         { minutes, savedAt: new Date().toISOString() }
       ].slice(-50);
-      writeSavedProgress(data.name, progress);
-      renderSavedProgress(data.name);
-      form.reset();
-      if (user?.name) nameInput.value = user.name;
+      writeSavedProgress(name, progress);
+      renderSavedProgress(name);
+      form.elements.minutes.value = '';
+      nameInput.value = name;
       status.textContent = 'Saved. Your minutes stay visible on this device.';
     } catch (error) {
-      status.textContent = 'Could not reach the backend.';
+      status.textContent = `Could not reach the backend${error?.message ? `: ${error.message}` : '.'}`;
     }
   });
 }
