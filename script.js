@@ -230,6 +230,7 @@ function adaptLessonCopy(copy, title, settings) {
 (function enforceAssessmentGate() {
   const path = location.pathname.split('/').pop() || 'index.html';
   const protectedPages = new Set([
+    'index.html',
     'course.html',
     'playground.html',
     'projects.html',
