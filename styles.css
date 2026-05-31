@@ -115,7 +115,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .assessment-nav button:hover { border-color: var(--accent); }
 @media (max-width: 760px) {
   .nav-inner {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
     gap: 0.65rem;
     padding: 0.75rem 0.9rem;
@@ -123,9 +123,6 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 
   .nav-logo {
     font-size: 1.15rem;
-    line-height: 1.2;
-    text-align: center;
-    width: 100%;
   }
 
   .nav-links {
@@ -156,19 +153,6 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
     width: 100%;
     justify-content: space-between;
   }
-  .assessment-nav span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .btn-row {
-    display: grid;
-    gap: 0.65rem;
-  }
-  .btn + .btn {
-    margin-left: 0;
-  }
 }
 
 /* ---------- hero ---------- */
@@ -195,129 +179,6 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 .chapter-card h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
 .chapter-card p { margin: 0; color: var(--text-dim); font-size: 0.95rem; }
 .chapter-card .meta { margin-top: 0.6rem; color: var(--text-faint); font-size: 0.85rem; font-family: ui-monospace, monospace; }
-
-.v2-preview-grid,
-.arc-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  margin-top: 1.4rem;
-}
-.arc-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
-  padding: 1rem 1.1rem;
-}
-.arc-card summary {
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 650;
-  list-style-position: outside;
-}
-.arc-card p {
-  color: var(--text-dim);
-  font-size: 0.95rem;
-  margin: 0.8rem 0;
-}
-.arc-card ul {
-  color: var(--text);
-  font-size: 0.92rem;
-  margin-bottom: 0;
-}
-.tutor-lab {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 1.5rem 0;
-}
-.tutor-card,
-.toolkit-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1.2rem;
-}
-.tutor-card span {
-  color: var(--accent);
-  display: inline-block;
-  font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-}
-.tutor-card h3,
-.toolkit-card h3,
-.toolkit-card h2 {
-  margin-top: 0;
-}
-.tutor-card.weak {
-  border-color: color-mix(in srgb, var(--bad) 35%, var(--border));
-}
-.tutor-card.strong {
-  border-color: color-mix(in srgb, var(--good) 35%, var(--border));
-}
-.lesson-lab {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  box-shadow: 0 18px 50px rgba(18, 24, 38, 0.08);
-  margin: 0 0 2rem;
-  padding: clamp(1rem, 3vw, 1.5rem);
-}
-.lesson-lab h2 {
-  margin-top: 0.35rem;
-}
-.choice-grid {
-  display: grid;
-  gap: 0.8rem;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  margin: 1rem 0;
-}
-.choice-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.9rem 1rem;
-}
-.choice-card summary {
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 650;
-}
-.choice-card p {
-  color: var(--text-dim);
-  font-size: 0.94rem;
-  margin: 0.65rem 0 0;
-}
-.choice-card.best {
-  border-color: color-mix(in srgb, var(--good) 35%, var(--border));
-}
-.feature-list {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.feature-row {
-  align-items: start;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: minmax(160px, 0.45fr) 1fr;
-  padding: 1rem 1.1rem;
-}
-.feature-row:last-child { border-bottom: 0; }
-.feature-row strong { color: var(--text); }
-.feature-row span { color: var(--text-dim); }
-@media (max-width: 700px) {
-  .tutor-lab,
-  .feature-row {
-    grid-template-columns: 1fr;
-  }
-}
 .lesson-path-head {
   align-items: flex-start;
   display: flex;
@@ -416,24 +277,8 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
 .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; text-align: center; }
-.stat .num { font-size: clamp(1.25rem, 4vw, 1.6rem); font-weight: 500; color: var(--accent); letter-spacing: 0; line-height: 1.1; overflow-wrap: anywhere; }
+.stat .num { font-size: 1.6rem; font-weight: 500; color: var(--accent); letter-spacing: -0.02em; }
 .stat .label { font-size: 0.8rem; color: var(--text-dim); margin-top: 0.2rem; }
-details.quick-check {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin: 1.5rem 0;
-  padding: 0.9rem 1rem;
-}
-details.quick-check summary {
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 700;
-}
-details.quick-check p {
-  color: var(--text-dim);
-  margin: 0.75rem 0 0;
-}
 
 /* ---------- TL;DR box at top of chapters ---------- */
 .tldr {
@@ -642,21 +487,6 @@ details.quick-check p {
 }
 .profile-form input:focus { outline: none; border-color: var(--accent); }
 @media (max-width: 760px) {
-  .assessment-page .nav-inner {
-    align-items: center;
-    display: grid;
-    gap: 0.75rem;
-    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
-  }
-  .assessment-page .nav-logo {
-    text-align: left;
-    width: auto;
-  }
-  .assessment-page .assessment-nav {
-    justify-content: flex-end;
-    margin-left: 0;
-    width: auto;
-  }
   .level-grid { grid-template-columns: 1fr; }
   .profile-panel { grid-template-columns: 1fr; }
 }
@@ -740,12 +570,11 @@ details.quick-check p {
   transform: translateY(-1px);
 }
 .gauge-card label:has(input:checked) {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: var(--good);
+  background: rgba(17, 184, 138, 0.1);
+  box-shadow: 0 0 0 2px rgba(17, 184, 138, 0.45);
 }
-.gauge-card input[type="radio"],
-.gauge-card input[type="checkbox"] {
+.gauge-card input[type="radio"] {
   accent-color: var(--accent);
   margin-top: 0.2rem;
 }
@@ -1035,8 +864,8 @@ body[data-theme].assessment-page .assessment-nav button:hover {
 }
 .settings-choice-grid label {
   align-items: center;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: #111b2b;
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
   color: var(--text);
   cursor: pointer;
@@ -1045,9 +874,8 @@ body[data-theme].assessment-page .assessment-nav button:hover {
   padding: 0.85rem 0.95rem;
 }
 .settings-choice-grid label:has(input:checked) {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+  border-color: var(--good);
+  box-shadow: 0 0 0 1px rgba(17, 184, 138, 0.18);
 }
 .settings-color-grid {
   display: grid;
@@ -1074,8 +902,8 @@ body[data-theme].assessment-page .assessment-nav button:hover {
   padding: 0.25rem;
 }
 .settings-panel textarea {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  background: #0f1726;
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 12px;
   color: var(--text);
   font: inherit;
@@ -1084,186 +912,20 @@ body[data-theme].assessment-page .assessment-nav button:hover {
   resize: vertical;
   width: 100%;
 }
-.gauge-card label:focus-within,
-.settings-choice-grid label:focus-within,
-.profile-form input:focus-visible,
-.gauge-card textarea:focus-visible,
-.path-panel textarea:focus-visible,
-.settings-panel textarea:focus-visible,
-.settings-color-grid input:focus-visible,
-.settings-color-grid select:focus-visible,
-.btn:focus-visible,
-.nav-links a:focus-visible,
-.assessment-nav button:focus-visible {
-  border-color: var(--accent);
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
-}
 .formatted-copy {
   white-space: pre-line;
 }
-.chapter-card.is-complete {
-  border-color: var(--good);
-  box-shadow: 0 0 0 1px rgba(17, 184, 138, 0.12);
-}
-.lesson-progress-panel {
-  align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
-  margin: 3rem 0 1rem;
-  padding: 1.2rem;
-}
-.lesson-progress-panel h2 {
-  color: var(--text);
-  margin: 0.35rem 0;
-}
-.lesson-progress-panel p {
-  color: var(--text-dim);
-  margin: 0;
-}
-.lesson-progress-panel .btn:disabled {
-  cursor: default;
-  opacity: 0.75;
-}
-.lesson-personal-panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
-  border-radius: 12px;
-  margin: 3rem 0 1rem;
-  padding: 1.2rem;
-}
-.lesson-personal-panel h2 {
-  margin: 0.35rem 0 1rem;
-}
-.lesson-personal-panel p {
-  color: var(--text-dim);
-}
-.path-mini-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin: 1rem 0;
-}
-.path-mini-grid > div {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.9rem;
-}
-.path-mini-grid strong {
-  color: var(--text);
-  display: block;
-  margin-bottom: 0.35rem;
-}
-.path-mini-grid p {
-  margin: 0;
-}
-.stage-grid,
-.project-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-.stage-card,
-.project-card {
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1rem;
-}
-.stage-card strong,
-.project-card h3 {
-  color: var(--text);
-}
-.stage-card span {
-  color: var(--text-dim);
-  display: block;
-  margin-top: 0.35rem;
-}
-.project-stage {
-  margin: 2rem 0;
-}
-.project-card.is-recommended {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);
-}
-.project-card.is-complete {
-  border-color: var(--good);
-}
-.project-card p {
-  color: var(--text-dim);
-}
-.project-card .small strong {
-  color: var(--text);
-}
-.project-complete-btn {
-  margin-top: 0.75rem;
-  width: 100%;
-}
 .manage-panel {
   margin-top: 1rem;
-}
-.early-access-notice {
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--accent);
-  border-radius: 10px;
-  margin: 0 0 2rem;
-  padding: 1rem 1.2rem;
-}
-.early-access-notice h4 {
-  color: var(--accent);
-  letter-spacing: 0.08em;
-  margin: 0 0 0.35rem;
-  text-transform: uppercase;
-}
-.early-access-notice p {
-  color: var(--text-dim);
-  margin: 0;
-}
-.persona-badge {
-  background: var(--accent-soft);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  color: var(--accent);
-  display: inline-block;
-  font-size: 0.88rem;
-  font-weight: 700;
-  margin: 0 0 0.9rem;
-  padding: 0.35rem 0.75rem;
 }
 @media (max-width: 820px) {
   .path-hero-grid,
   .path-grid {
     grid-template-columns: 1fr;
   }
-  .lesson-progress-panel {
-    align-items: stretch;
-    flex-direction: column;
-  }
   .settings-choice-grid,
-  .settings-color-grid,
-  .stage-grid,
-  .path-mini-grid,
-  .project-grid {
+  .settings-color-grid {
     grid-template-columns: 1fr;
-  }
-  .btn,
-  .try-btn,
-  .project-complete-btn,
-  .gauge-card label,
-  .settings-choice-grid label {
-    min-height: 44px;
-  }
-  input[type="radio"],
-  input[type="checkbox"] {
-    min-height: 22px;
-    min-width: 22px;
   }
 }
 
@@ -1310,44 +972,6 @@ body[data-theme].assessment-page .btn-ghost:hover {
 }
 body[data-theme] .gauge-card h2 {
   text-shadow: none;
-}
-
-@media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 12pt;
-  }
-  .nav,
-  .footer,
-  .progress-bar,
-  .btn-row,
-  #print-button-container {
-    display: none !important;
-  }
-  main,
-  .container,
-  .wide,
-  .section,
-  .section-tight {
-    margin: 0 !important;
-    max-width: 100% !important;
-    padding: 0 !important;
-  }
-  h1,
-  h2,
-  h3 {
-    color: #000000 !important;
-    page-break-after: avoid;
-  }
-  .callout,
-  .ingredient,
-  .chapter-card,
-  .early-access-notice {
-    background: transparent !important;
-    border: 1px solid #999999 !important;
-    page-break-inside: avoid;
-  }
 }
 
 /* ---------- Section heading on home ---------- */

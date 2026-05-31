@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Course: Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260526a">
+  <link rel="stylesheet" href="styles.css?v=20260520f">
 </head>
 <body>
 
@@ -16,8 +16,7 @@
     <div class="nav-links">
       <a href="assessment.html">Start</a>
       <a href="course.html">Lessons</a>
-      <a href="v2.html">V2 Preview</a>
-      <a href="playground.html">Practice</a>
+      <a href="playground.html">Playground</a>
       <a href="projects.html">Projects</a>
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
@@ -31,11 +30,10 @@
   <section class="hero">
     <div class="container">
       <div class="tagline">The course</div>
-      <h1>Same sequence. Different framing for each learner.</h1>
-      <p class="lead" id="lessons-hero-copy">These five V1 preview lessons show the direction. V2 expands the path into 30 interactive lessons with a personal AI Toolkit, projects, and stronger personalization.</p>
+      <h1>Lessons that change based on what you already know.</h1>
+      <p class="lead" id="lessons-hero-copy">Start with the gauge if you are new. If you already took it, this page will recommend a different lesson order for your level.</p>
       <div class="btn-row">
         <a href="assessment.html" class="btn btn-primary" id="lessons-primary">Take the AI gauge</a>
-        <a href="v2.html" class="btn btn-ghost">Preview V2</a>
         <a href="my-path.html" class="btn btn-ghost">Open My Path</a>
       </div>
     </div>
@@ -44,7 +42,7 @@
   <section class="section-tight">
     <div class="container">
       <div class="status-strip">
-        <strong>V1 preview:</strong> These five lessons are the public preview. V2 is planned as a 30-lesson interactive path from AI basics to building useful AI workflows.
+        <strong>V1 status:</strong> Chapters 1-2 are complete. Chapters 3-5 are previews while the full lessons are being written. The playground is a copy-paste prompt lab, not a built-in chatbot.
       </div>
     </div>
   </section>
@@ -53,7 +51,7 @@
     <div class="container">
       <div class="lesson-path-head">
         <div>
-          <span class="section-heading">Personalized sequence</span>
+          <span class="section-heading">Recommended for your level</span>
           <h2 id="lesson-path-title">Your lesson path</h2>
           <p id="lesson-path-copy"></p>
         </div>
@@ -68,29 +66,29 @@
       <span class="section-heading">Full lesson library</span>
       <div class="chapter-list" id="full-lesson-list">
         <a href="chapter-1.html" class="chapter-card">
-          <div class="num">V2 CORE 01 · Agency</div>
-          <h3>Why AI matters, and why you stay in charge</h3>
-          <p>Start with the real skill: using AI without handing over your judgment.</p>
+          <div class="num">CHAPTER 01 · Foundations</div>
+          <h3>What AI actually is</h3>
+          <p>Models, training, prediction, hallucination, and why chat is only one small part of AI.</p>
         </a>
         <a href="chapter-2.html" class="chapter-card">
-          <div class="num">V2 CORE 02 · First win</div>
-          <h3>Your first useful AI conversation</h3>
-          <p>Repair a weak study prompt and make AI coach your thinking instead of giving the answer away.</p>
+          <div class="num">CHAPTER 02 · First skill</div>
+          <h3>How to talk to AI</h3>
+          <p>Prompting as the doorway: context, role, examples, constraints, and better follow-up questions.</p>
         </a>
         <a href="chapter-3.html" class="chapter-card">
-          <div class="num">V2 CORE 03 · Mental model</div>
-          <h3>What AI actually is</h3>
-          <p>AI is trained software that uses patterns to generate, classify, recommend, predict, or act.</p>
+          <div class="num">CHAPTER 03 · Preview</div>
+          <h3>Being a great AI partner</h3>
+          <p>Use AI to teach, challenge, critique, and practice without letting it replace the thinking you need to build.</p>
         </a>
         <a href="chapter-4.html" class="chapter-card">
-          <div class="num">V2 CORE 04 · LLMs</div>
-          <h3>What an LLM is, without the magic</h3>
-          <p>Tokens, context, likely continuations, and why fluent language is not the same as verified truth.</p>
+          <div class="num">CHAPTER 04 · Preview</div>
+          <h3>How to check and challenge AI</h3>
+          <p>Hallucinations, sources, uncertainty, model limits, and the habits that keep you from being fooled.</p>
         </a>
         <a href="chapter-5.html" class="chapter-card">
-          <div class="num">V2 CORE 05 · Prompt repair</div>
-          <h3>Prompt repair: goal, context, constraints, format</h3>
-          <p>Turn weak prompts into useful task instructions without outsourcing judgment.</p>
+          <div class="num">CHAPTER 05 · Project outline</div>
+          <h3>Build with AI</h3>
+          <p>Move beyond chat. Build tutors, workflows, research experiments, tools, and model comparisons.</p>
         </a>
       </div>
     </div>
@@ -99,9 +97,9 @@
   <section class="section">
     <div class="container">
       <h2>How to use this course</h2>
-      <p><strong>If you are new, take the gauge first.</strong> It checks knowledge and judgment, then changes how the course talks to you.</p>
-      <p><strong>If you already know the basics, still start at Lesson 1.</strong> For you, the early lessons act like calibration before harder work.</p>
-      <p><strong>Build as you go.</strong> Reading about AI is not enough. You need to test prompts, compare answers, catch mistakes, and finish small projects.</p>
+      <p><strong>If you are new, take the gauge first.</strong> It checks knowledge and judgment, then suggests a route.</p>
+      <p><strong>If you already know the basics, skip around.</strong> The chapters are now paths: foundations, asking, judgment, verification, and building.</p>
+      <p><strong>Try things as you go.</strong> Reading about AI is not enough. You need to test prompts, compare answers, catch mistakes, and build small projects.</p>
     </div>
   </section>
 </main>
@@ -113,18 +111,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260526a"></script>
-<!-- Google tag (gtag.js) -->
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LJPB13PTD3"></script>
-
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-
-  gtag("config", "G-LJPB13PTD3");
-</script>
-
+<script src="script.js?v=20260530ga"></script>
 </body>
 </html>

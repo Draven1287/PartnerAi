@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Practice · Learning AI</title>
-  <link rel="stylesheet" href="styles.css?v=20260526a">
+  <title>Playground · Learning AI</title>
+  <link rel="stylesheet" href="styles.css?v=20260520f">
 </head>
 <body>
 
@@ -16,8 +16,7 @@
     <div class="nav-links">
       <a href="assessment.html">Start</a>
       <a href="course.html">Lessons</a>
-      <a href="v2.html">V2 Preview</a>
-      <a href="playground.html">Practice</a>
+      <a href="playground.html">Playground</a>
       <a href="projects.html">Projects</a>
       <a href="for-educators.html">Educators</a>
       <a href="settings.html">Settings</a>
@@ -30,9 +29,9 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="tagline">Practice</div>
-      <h1>Prompt Sandbox.</h1>
-      <p class="lead">Work with prompt formulas without an embedded chatbot. Copy a structured template, paste it into your preferred AI tool, and evaluate how the output changes.</p>
+      <div class="tagline">Playground</div>
+      <h1>Try things, see what happens.</h1>
+      <p class="lead">Practice writing better AI prompts without needing a built-in chatbot. Copy a prompt, paste it into any AI tool you already use, and compare what changes.</p>
     </div>
   </section>
 
@@ -40,8 +39,8 @@
     <div class="container">
 
       <div class="callout">
-        <h4>Copy-paste workbench</h4>
-        <p>This site does not process prompts on our servers. Click any prompt below to copy it, open an external tool like DuckDuckGo AI Chat, Hugging Face Chat, ChatGPT, Gemini, or LM Studio, then test what changes. External tools have their own privacy rules and usage limits.</p>
+        <h4>Prompt lab</h4>
+        <p>Click any prompt below to copy it. Then paste it into ChatGPT, Gemini, DuckDuckGo AI Chat, Hugging Face Chat, or another AI tool. The point is to notice how better instructions create better answers.</p>
         <p id="copy-status" class="small"></p>
       </div>
 
@@ -58,14 +57,14 @@
 
       <h3>Weak prompts</h3>
       <div class="try-row">
-        <button class="try-btn" data-prompt="explain this topic">▸ Copy: "explain this topic"</button>
-        <button class="try-btn" data-prompt="write my essay on the French Revolution">▸ Copy: "write my essay on..."</button>
-        <button class="try-btn" data-prompt="help with math">▸ Copy: "help with math"</button>
+        <button class="try-btn" data-prompt="explain photosynthesis">▸ Try: "explain photosynthesis"</button>
+        <button class="try-btn" data-prompt="write my essay on the French Revolution">▸ Try: "write my essay on..."</button>
+        <button class="try-btn" data-prompt="help with math">▸ Try: "help with math"</button>
       </div>
 
       <h3>Strong prompts</h3>
       <div class="try-row">
-        <button class="try-btn" data-prompt="Act as a patient learning coach. I am learning this for a class, project, or work task. Teach it with one analogy I can picture. Then ask me 3 questions to check if I got it before giving the full answer.">▸ Learning coach prompt</button>
+        <button class="try-btn" data-prompt="Act as a patient 9th-grade biology teacher. I'm studying for a test Friday. Teach me photosynthesis with one analogy I can picture. Then ask me 3 questions to check if I got it.">▸ Tutor-style biology prompt</button>
         <button class="try-btn" data-prompt="Act as a brutally honest writing coach. Read this paragraph and in 3 bullets tell me: 1) what's working, 2) the biggest weakness, 3) one concrete rewrite. Paragraph: The dog ran fast across the field, like a fast dog, and he was happy and free, running fast.">▸ Writing coach prompt</button>
         <button class="try-btn" data-prompt="I'm a beginner. Walk me through making a simple webpage about my favourite hobby. Step by step. Give me the HTML in one block, then explain each section in plain English.">▸ Build-a-webpage prompt</button>
       </div>
@@ -80,9 +79,9 @@
       <h2>Free places to try prompts</h2>
       <p>These are external tools. Learning AI does not pay for or run them.</p>
       <ul>
-        <li><a href="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" target="_blank" rel="noopener">DuckDuckGo AI Chat</a>: no-signup AI chat option; available models can change.</li>
-        <li><a href="https://huggingface.co/chat/" target="_blank" rel="noopener">Hugging Face Chat</a>: a way to try many available models; licenses, access, and limits vary by model and account.</li>
-        <li><a href="https://lmstudio.ai/" target="_blank" rel="noopener">LM Studio</a>: desktop app for running compatible downloaded models locally; offline use depends on setup, model files, and hardware.</li>
+        <li><a href="https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat" target="_blank" rel="noopener">DuckDuckGo AI Chat</a>: anonymous, no signup, runs Llama 3.3 70B + Mistral Small + more</li>
+        <li><a href="https://huggingface.co/chat/" target="_blank" rel="noopener">Hugging Face Chat</a>: hosts dozens of open-source models, free</li>
+        <li><a href="https://lmstudio.ai/" target="_blank" rel="noopener">LM Studio</a>: free desktop app to run open-source models on your own computer</li>
       </ul>
 
     </div>
@@ -96,18 +95,6 @@
   </div>
 </footer>
 
-<script src="script.js?v=20260526a"></script>
-<!-- Google tag (gtag.js) -->
-
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-LJPB13PTD3"></script>
-
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag("js", new Date());
-
-  gtag("config", "G-LJPB13PTD3");
-</script>
-
+<script src="script.js?v=20260530ga"></script>
 </body>
 </html>
