@@ -974,9 +974,85 @@ function initMyPath() {
     li.textContent = fact;
     known.appendChild(li);
   });
+
+  initPrivateProgressSync(user);
+
   document.getElementById('clear-path')?.addEventListener('click', () => {
     localStorage.removeItem('modelwise-gauge');
+    localStorage.removeItem('learningai-private-minutes');
+    Object.keys(localStorage)
+      .filter(key => key.startsWith('learningai-private-minutes:'))
+      .forEach(key => localStorage.removeItem(key));
     location.reload();
   });
 }
 document.addEventListener('DOMContentLoaded', initMyPath);
+
+function initPrivateProgressSync(user) {
+  const panel = document.getElementById('private-progress-panel');
+  const form = document.getElementById('private-progress-form');
+  const status = document.getElementById('private-progress-status');
+  const nameInput = document.getElementById('progress-name');
+  const totalEl = document.getElementById('private-progress-total');
+  const backendReady = Boolean(window.LEARNING_AI_BACKEND_URL && window.LearningAIBackend?.submitMinutes);
+
+  if (!panel || !form || !status || !nameInput || !totalEl || !backendReady) return;
+
+  panel.hidden = false;
+  if (user?.name) nameInput.value = user.name;
+
+  function progressStorageKey(name) {
+    return `learningai-private-minutes:${String(name || '').trim().toLowerCase() || 'local'}`;
+  }
+
+  function readSavedProgress(name = nameInput.value) {
+    try {
+      return JSON.parse(localStorage.getItem(progressStorageKey(name)) || 'null') || { totalMinutes: 0, entries: [] };
+    } catch (error) {
+      return { totalMinutes: 0, entries: [] };
+    }
+  }
+
+  function writeSavedProgress(name, progress) {
+    localStorage.setItem(progressStorageKey(name), JSON.stringify(progress));
+  }
+
+  function renderSavedProgress(name = nameInput.value) {
+    const progress = readSavedProgress(name);
+    totalEl.textContent = String(progress.totalMinutes || 0);
+  }
+
+  renderSavedProgress();
+  nameInput.addEventListener('input', () => renderSavedProgress());
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    const minutes = Number(data.minutes);
+    status.textContent = 'Sending...';
+    try {
+      const result = await window.LearningAIBackend.submitMinutes({
+        name: data.name,
+        minutes,
+        consent: true
+      });
+      if (!result.ok) {
+        status.textContent = result.error || 'Could not send minutes.';
+        return;
+      }
+      const progress = readSavedProgress(data.name);
+      progress.totalMinutes = Number(progress.totalMinutes || 0) + minutes;
+      progress.entries = [
+        ...(progress.entries || []),
+        { minutes, savedAt: new Date().toISOString() }
+      ].slice(-50);
+      writeSavedProgress(data.name, progress);
+      renderSavedProgress(data.name);
+      form.reset();
+      if (user?.name) nameInput.value = user.name;
+      status.textContent = 'Saved. Your minutes stay visible on this device.';
+    } catch (error) {
+      status.textContent = 'Could not reach the backend.';
+    }
+  });
+}

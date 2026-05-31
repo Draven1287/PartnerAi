@@ -90,6 +90,27 @@
           </div>
         </section>
 
+        <section class="path-panel private-progress-panel" id="private-progress-panel" hidden>
+          <h2>Private learning time</h2>
+          <p class="small">This logs your name and minutes to the private Learning AI backend. You can see your own saved minutes here; the full sorted list stays in the admin view.</p>
+          <div class="private-progress-total">
+            <span>Your saved minutes</span>
+            <strong id="private-progress-total">0</strong>
+          </div>
+          <form class="private-progress-form" id="private-progress-form">
+            <label>
+              <span>Name</span>
+              <input name="name" id="progress-name" maxlength="40" autocomplete="given-name" required>
+            </label>
+            <label>
+              <span>Minutes</span>
+              <input name="minutes" type="number" min="1" max="300" step="1" required>
+            </label>
+            <button type="submit" class="btn btn-primary">Save minutes</button>
+          </form>
+          <p class="small" id="private-progress-status" aria-live="polite"></p>
+        </section>
+
         <section class="path-panel">
           <h2>This is what Learning AI knows about you</h2>
           <ul id="path-known"></ul>
@@ -114,6 +135,8 @@
   </div>
 </footer>
 
+<script src="backend-config.js?v=20260530backend"></script>
+<script src="backend-client.js?v=20260530backend"></script>
 <script src="script.js?v=20260530ga"></script>
 </body>
 </html>
