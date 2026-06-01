@@ -315,3 +315,7 @@ Before real users:
   - DNS for `api.learningai4you.com` resolves to `157.245.240.153`.
   - Direct TCP checks to `157.245.240.153` on ports `80` and `443` timed out, so the current V2 `request_timeout` symptom is a Coolify/server/proxy/network availability problem, not just a frontend form bug.
   - Next deploy step: commit/push the backend/V2 changes, then manually redeploy `partnerai-api-prod` in Coolify and verify `/health` returns the new build marker. If the API host still times out, fix Coolify server reachability, Cloudflare DNS/proxy mode, firewall, or the Coolify proxy before debugging V2 signup.
+- 2026-06-01 push update:
+  - Backend foundation commit pushed to GitHub: `ebcdd3e Build V2 backend foundation`.
+  - Working tree was clean immediately after the push.
+  - `https://api.learningai4you.com/health` still timed out after the GitHub push, so the next required step is still Coolify/manual redeploy or server/proxy/network repair.
