@@ -329,3 +329,12 @@ Before real users:
   - Replaced `coolify-backend/README.md` with a backend deployment runbook.
   - It documents the Coolify app settings, required runtime env, redeploy checklist, expected verifier output, timeout troubleshooting, and local check commands.
   - The main production blocker remains external reachability for `api.learningai4you.com`; V2 signup/login cannot be tested live until that verifier passes.
+- 2026-06-01 V2 onboarding flow plan and first implementation:
+  - Required learner flow is now: hidden account screen -> six-category questionnaire -> saved assessment -> dashboard with shell navigation.
+  - The shell navigation must stay hidden during account creation, sign in, backend account check, and questionnaire categories 1-6.
+  - The shell navigation appears only after category 6 is completed and the assessment is saved. Post-onboarding links are Dashboard, Lessons, Settings, About, Projects, and Educators.
+  - The V2 questionnaire now uses six V1-aligned categories: definition, capability, limits, learning control, impact, and systems beyond chatbots.
+  - The questionnaire is a stepper, not one long form. It keeps a local draft while moving between categories and only writes the final assessment object at the end.
+  - If a backend session exists, finishing the questionnaire must save through `PUT /api/v2/assessment`; if that save fails, the learner stays on the questionnaire instead of unlocking the dashboard.
+  - Palette direction: keep the calm V1 paper/ink/white surface base; use blue for primary actions; reserve teal, violet, green, and amber for arcs, progress states, and feedback; avoid a one-color blue/purple gradient UI.
+  - Local browser verification on the served deploy repo confirmed the onboarding nav is hidden on account check and on the auth screen, with no browser console errors. Full signup-to-questionnaire verification still depends on the live API becoming reachable.

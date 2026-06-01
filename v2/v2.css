@@ -13,6 +13,8 @@
 /* ---- Layout: V1-style single course surface ---- */
 .layout { display: block; }
 #app { min-width: 0; }
+body.v2-onboarding .progress-bar { display: none; }
+.v2-shell-nav[hidden] { display: none; }
 
 .v2-badge {
   display: inline-flex; align-items: center; justify-content: center;
@@ -24,6 +26,19 @@
 .v2-badge::after { content: 'V2'; font-size: 0.55rem; line-height: 1; color: var(--on-accent); }
 .nav-links a.active { color: var(--accent); }
 .nav-cta { cursor: pointer; border: 0; font: inherit; }
+
+/* ---- V2 palette direction ----
+   Base stays V1 calm: paper, ink, white surfaces, soft borders.
+   Primary action uses blue. Teal, violet, green, and amber are reserved for
+   arcs, states, and progress so the UI does not collapse into one hue.
+*/
+:root {
+  --v2-blue: #2563eb;
+  --v2-teal: #0891b2;
+  --v2-violet: #7c3aed;
+  --v2-green: #16a34a;
+  --v2-amber: #d97706;
+}
 
 .view { padding-bottom: 2.5rem; }
 .hero.compact { padding: 1.5rem 0 0.75rem; }
@@ -61,9 +76,25 @@
 .arc-progress-row { display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: center; }
 .arc-progress-row progress { grid-column: 1 / -1; width: 100%; height: 8px; accent-color: var(--accent); }
 .diagnostic-card { max-width: 780px; margin: 1rem auto 0; }
+.diagnostic-card h1 { margin-bottom: 0.7rem; }
+.diagnostic-card h2 { margin: 0.35rem 0 0.4rem; }
+.diagnostic-progress { margin-bottom: 1rem; }
 .diagnostic-options { display: grid; gap: 0.65rem; margin: 1rem 0; }
 .diagnostic-options label { display: flex; gap: 0.65rem; align-items: flex-start; border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--bg); cursor: pointer; }
 .diagnostic-options input { width: auto; margin-top: 0.2rem; }
+.diagnostic-card textarea {
+  width: 100%;
+  min-height: 76px;
+  margin-top: 0.15rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font: inherit;
+  resize: vertical;
+}
+.diagnostic-card textarea:focus { outline: none; border-color: var(--accent); }
 .lesson-tile.locked { opacity: 0.62; cursor: not-allowed; }
 .lesson-tile.current { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 .mz.locked { pointer-events: none; opacity: 0.62; }

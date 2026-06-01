@@ -22,7 +22,12 @@
 (function () {
   let LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
   let ARCS = window.V2_ARCS ? Object.values(window.V2_ARCS) : [];
-  const KEY = { progress: 'learningai-progress', settings: 'learningai-settings', toolkit: 'learningai-toolkit' };
+  const KEY = {
+    progress: 'learningai-progress',
+    settings: 'learningai-settings',
+    toolkit: 'learningai-toolkit',
+    diagnosticDraft: 'learningai-v2-diagnostic-draft'
+  };
   const api = window.LearningAIV2Api || null;
   let authChecked = !api;
   let currentUser = null;
@@ -34,22 +39,83 @@
   // arc colors for the mosaic (one hue per arc)
   const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
   const DIAGNOSTIC_QUESTIONS = [
-    { key: 'goal', title: 'What do you most want AI to help you do?', options: [
-      ['learn', 'Learn something faster'], ['make', 'Build or make something'], ['judge', 'Check if an answer is trustworthy']
-    ] },
-    { key: 'confidence', title: 'When an AI answer sounds confident, what do you usually do?', options: [
-      ['foundation', 'I tend to trust it'], ['explorer', 'I skim it and keep going'], ['builder', 'I check the important parts']
-    ] },
-    { key: 'style', title: 'What kind of lesson helps you most?', options: [
-      ['examples', 'Show me examples'], ['practice', 'Let me try it'], ['systems', 'Show me the system behind it']
-    ] },
-    { key: 'concern', title: 'What feels most risky about using AI?', options: [
-      ['wrong', 'Getting wrong information'], ['privacy', 'Sharing something private'], ['overuse', 'Letting it think for me']
-    ] }
+    {
+      key: 'definition',
+      category: 'Category 1',
+      title: 'When someone says “AI,” what do they mean?',
+      copy: 'Pick the answer you could explain and use reliably right now.',
+      options: [
+        ['0', 'A website that gives answers when you type questions.'],
+        ['1', 'A computer program that can copy human writing and conversation.'],
+        ['2', 'A trained model that finds patterns in data and uses those patterns to make predictions or decisions.'],
+        ['3', 'A family of systems: language models, image models, recommendation systems, robots, agents, and tools that can act across software.']
+      ]
+    },
+    {
+      key: 'capability',
+      category: 'Category 2',
+      title: 'What can modern AI systems actually do?',
+      copy: 'Imagine someone says, “AI is just a smarter search engine.” What do you think?',
+      options: [
+        ['0', 'That sounds right. It mostly finds information faster.'],
+        ['1', 'It can answer questions, write drafts, and summarize text.'],
+        ['2', 'It can explain, code, plan, translate, analyze images, simulate conversations, and help build tools.'],
+        ['3', 'It can become part of a workflow: using tools, calling APIs, checking files, running code, and coordinating multi-step work.']
+      ]
+    },
+    {
+      key: 'limits',
+      category: 'Category 3',
+      title: 'When should you slow down and check?',
+      copy: 'An AI gives a confident answer about a medical, legal, historical, or scientific fact. What would you actually do next?',
+      options: [
+        ['0', 'Trust it if the answer sounds detailed.'],
+        ['1', 'Ask it again and see if it says the same thing.'],
+        ['2', 'Ask for sources, then check reliable sources yourself.'],
+        ['3', 'Treat the answer as a starting point, verify outside the model, and ask what evidence would change the answer.']
+      ]
+    },
+    {
+      key: 'learning',
+      category: 'Category 4',
+      title: 'How should you use AI without losing control?',
+      copy: 'Pick what you would actually do when you are learning something new.',
+      options: [
+        ['0', 'Let it do the main thinking so you can move faster.'],
+        ['1', 'Ask it to explain the answer in easier words.'],
+        ['2', 'Ask for hints, examples, and a check so you still do the important thinking.'],
+        ['3', 'Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.']
+      ]
+    },
+    {
+      key: 'impact',
+      category: 'Category 5',
+      title: 'How do you think about AI’s real-world costs?',
+      copy: 'Someone says, “AI has real environmental and social costs.” What would you actually say back?',
+      options: [
+        ['0', 'They are wrong. New technology always wins.'],
+        ['1', 'They are right. AI should probably be avoided.'],
+        ['2', 'The costs are real, but we should compare them with benefits, efficiency improvements, and better infrastructure.'],
+        ['3', 'We should ask better questions: which model, what task, how much energy, what alternative, what social benefit, and who pays the cost?']
+      ]
+    },
+    {
+      key: 'systems',
+      category: 'Category 6',
+      title: 'What do you know beyond chatbots?',
+      copy: 'What comes after typing questions into a chatbot?',
+      options: [
+        ['0', 'Mostly better chatbots.'],
+        ['1', 'Tools that write, summarize, and search faster.'],
+        ['2', 'Personal tutors, coding helpers, research assistants, creative tools, and agents that use software.'],
+        ['3', 'AI systems connected to data, tools, robots, labs, simulations, businesses, and scientific workflows.']
+      ]
+    }
   ];
 
   const app = document.getElementById('app');
   const progressBarFill = document.querySelector('.progress-bar > div');
+  const shellNav = document.getElementById('v2-shell-nav');
 
   // ---------- storage ----------
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -563,6 +629,7 @@
       }
       currentUser = result.user;
       await hydrateFromServer();
+      if (!hasAssessment()) location.hash = '#/questionnaire';
       render();
     });
     return h('div', { class: 'container view auth-view' }, [form]);
@@ -605,6 +672,23 @@
     return !!assessmentResult();
   }
 
+  function setShellVisible(visible) {
+    document.body.classList.toggle('v2-onboarding', !visible);
+    document.body.classList.toggle('v2-shell-ready', visible);
+    if (shellNav) shellNav.hidden = !visible;
+  }
+
+  function updateShellChrome(routeParts) {
+    const onDiagnostic = routeParts?.[0] === 'diagnostic' || routeParts?.[0] === 'questionnaire';
+    const ready = authChecked && (!api || (currentUser && hasAssessment() && !onDiagnostic));
+    setShellVisible(Boolean(ready));
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      const href = link.getAttribute('href') || '';
+      const active = (href === '#/' && (!routeParts || routeParts.length === 0)) || (href === '#/lessons' && routeParts?.[0] === 'lessons');
+      link.classList.toggle('active', active);
+    });
+  }
+
   function learningMode() {
     const a = assessmentResult() || {};
     const confidence = String(a.responses?.find?.(r => r.key === 'confidence')?.value || a.level || a.route || '').toLowerCase();
@@ -616,51 +700,141 @@
   function diagnosticSummary() {
     const a = assessmentResult();
     if (!a) return 'Take the diagnostic to set your starting point.';
-    const goal = a.responses?.find?.(r => r.key === 'goal')?.label || a.primaryGoal || 'Build stronger AI habits';
-    const concern = a.responses?.find?.(r => r.key === 'concern')?.label || a.mainConcern || 'Use AI with judgment';
-    return `${goal}. Watch for: ${concern}.`;
+    const weakest = a.weakestCategory ? `Focus area: ${a.weakestCategory}.` : '';
+    const strongest = a.strongestCategory ? `Strength: ${a.strongestCategory}.` : '';
+    return [a.primaryGoal || 'Build stronger AI habits.', weakest, strongest].filter(Boolean).join(' ');
   }
 
   function viewDiagnostic() {
-    const answers = {};
+    const draft = readJson(KEY.diagnosticDraft, { index: 0, answers: {}, notes: {} });
+    draft.answers = draft.answers || {};
+    draft.notes = draft.notes || {};
+    const total = DIAGNOSTIC_QUESTIONS.length;
+    const index = Math.max(0, Math.min(Number(draft.index) || 0, total - 1));
+    const question = DIAGNOSTIC_QUESTIONS[index];
     const message = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
-    const groups = DIAGNOSTIC_QUESTIONS.map((q, qi) => h('fieldset', { class: 'diagnostic-group' }, [
-      h('legend', null, `${qi + 1}. ${q.title}`),
-      h('div', { class: 'diagnostic-options' }, q.options.map(([value, label]) => h('label', null, [
-        h('input', { type: 'radio', name: q.key, value, onchange: () => { answers[q.key] = { value, label }; } }),
-        h('span', null, label)
-      ])))
-    ]));
-    const submit = h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
-      if (Object.keys(answers).length !== DIAGNOSTIC_QUESTIONS.length) {
-        message.textContent = 'Answer each question first.';
-        return;
-      }
-      const level = answers.confidence.value === 'foundation' ? 'Foundation' : answers.confidence.value === 'builder' ? 'Builder' : 'Explorer';
+
+    function saveDraft(nextDraft) {
+      set(KEY.diagnosticDraft, JSON.stringify(nextDraft));
+    }
+
+    function selectedAnswer() {
+      return draft.answers[question.key] || null;
+    }
+
+    function saveCurrentAnswer(value, label) {
+      draft.answers[question.key] = {
+        key: question.key,
+        category: question.category,
+        value,
+        label,
+        score: Number(value)
+      };
+      saveDraft(draft);
+    }
+
+    function buildAssessment() {
+      const responses = DIAGNOSTIC_QUESTIONS.map(q => ({
+        ...(draft.answers[q.key] || {}),
+        freeText: String(draft.notes[q.key] || '').trim()
+      }));
+      const totalScore = responses.reduce((sum, response) => sum + (Number(response.score) || 0), 0);
+      const maxScore = DIAGNOSTIC_QUESTIONS.length * 3;
+      const scorePercent = Math.round((totalScore / maxScore) * 100);
+      const level = scorePercent < 45 ? 'Foundation' : scorePercent < 75 ? 'Explorer' : 'Builder';
+      const sorted = responses.slice().sort((a, b) => (Number(a.score) || 0) - (Number(b.score) || 0));
+      const weakest = sorted[0]?.category || '';
+      const strongest = sorted[sorted.length - 1]?.category || '';
       const assessment = {
         level,
         route: level,
-        primaryGoal: answers.goal.label,
-        learningStyle: answers.style.label,
-        mainConcern: answers.concern.label,
+        score: scorePercent,
+        scoreRaw: totalScore,
+        maxScore,
+        primaryGoal: 'Learn AI with judgment, practice, and useful projects.',
+        learningStyle: 'Interactive V2 lessons with checks before moving on.',
+        mainConcern: weakest ? `Needs the most support in ${weakest}.` : 'Build strong AI judgment.',
+        weakestCategory: weakest,
+        strongestCategory: strongest,
         completedAt: new Date().toISOString(),
-        responses: DIAGNOSTIC_QUESTIONS.map(q => ({ key: q.key, value: answers[q.key].value, label: answers[q.key].label }))
+        responses
       };
+      return assessment;
+    }
+
+    function canMove() {
+      if (selectedAnswer()) return true;
+      message.textContent = `Choose one answer for ${question.category} first.`;
+      return false;
+    }
+
+    const progressFill = h('span', { style: `width:${Math.round(((index + 1) / total) * 100)}%` });
+    const options = h('div', { class: 'diagnostic-options' }, question.options.map(([value, label]) => h('label', null, [
+      h('input', {
+        type: 'radio',
+        name: question.key,
+        value,
+        checked: selectedAnswer()?.value === value ? 'true' : null,
+        onchange: () => saveCurrentAnswer(value, label)
+      }),
+      h('span', null, label)
+    ])));
+    const note = h('textarea', {
+      placeholder: 'Optional: add nuance in your own words.',
+      oninput: event => {
+        draft.notes[question.key] = event.target.value;
+        saveDraft(draft);
+      }
+    }, draft.notes[question.key] || '');
+    const back = h('button', { class: 'btn btn-ghost', type: 'button', disabled: index === 0 ? 'true' : null, onclick: () => {
+      draft.index = Math.max(0, index - 1);
+      saveDraft(draft);
+      render();
+    } }, 'Back');
+    const next = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => {
+      if (!canMove()) return;
+      draft.index = Math.min(total - 1, index + 1);
+      saveDraft(draft);
+      render();
+    } }, 'Next category');
+    const finish = h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
+      if (!canMove()) return;
+      const missing = DIAGNOSTIC_QUESTIONS.find(q => !draft.answers[q.key]);
+      if (missing) {
+        draft.index = DIAGNOSTIC_QUESTIONS.indexOf(missing);
+        saveDraft(draft);
+        render();
+        return;
+      }
+      const assessment = buildAssessment();
+      message.textContent = 'Saving your starting point...';
+      if (api && currentUser) {
+        const saved = await api.saveAssessment(assessment).catch(() => ({ ok: false }));
+        if (!saved.ok) {
+          message.textContent = saved.error || 'Could not save yet. Try again when the backend is reachable.';
+          return;
+        }
+      }
       set('modelwise-gauge', JSON.stringify(assessment));
       serverState = { ...(serverState || {}), assessment };
-      message.textContent = 'Saving your starting point...';
-      await api?.saveAssessment(assessment).catch(() => {});
+      localStorage.removeItem(KEY.diagnosticDraft);
       location.hash = '#/';
       render();
-    } }, 'Save my starting point');
+    } }, 'Finish and open dashboard');
+
     return h('div', { class: 'container view auth-view' }, [
-      accountBar(),
       h('section', { class: 'lesson-card diagnostic-card' }, [
-        h('div', { class: 'tagline' }, 'Diagnostic first'),
+        h('div', { class: 'gauge-progress diagnostic-progress' }, [
+          h('span', null, `${question.category} of 6`),
+          h('div', null, progressFill)
+        ]),
         h('h1', null, 'Set your starting point'),
-        h('p', { class: 'lead' }, 'Before lessons unlock, answer four quick questions so V2 can frame the course around how you learn and what you want to build.'),
-        ...groups,
-        h('div', { class: 'row-gap' }, [submit]),
+        h('div', { class: 'gauge-kicker' }, question.category),
+        h('h2', null, question.title),
+        h('p', { class: 'lead' }, question.copy),
+        options,
+        note,
+        h('div', { class: 'gauge-actions' }, [back, index === total - 1 ? finish : next]),
         message
       ])
     ]);
@@ -721,7 +895,7 @@
           h('div', { class: 'row-gap' }, [
             next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, done ? `Continue lesson ${next.num}` : `Start lesson ${next.num}`)
                  : h('a', { class: 'btn btn-primary', href: '../projects.html' }, 'Start a project'),
-            h('a', { class: 'btn btn-ghost', href: '#/diagnostic' }, 'Retake diagnostic')
+            h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, 'Retake questionnaire')
           ])
         ]),
         h('aside', { class: 'dashboard-panel' }, [
@@ -838,7 +1012,9 @@
   // ============================================================
   function render() {
     if (!app) return;
+    const parts = (location.hash.replace(/^#/, '') || '/').split('/').filter(Boolean);
     if (!authChecked) {
+      updateShellChrome(parts);
       app.innerHTML = '';
       app.appendChild(h('div', { class: 'container view' }, [
         h('section', { class: 'lesson-card' }, [
@@ -850,15 +1026,15 @@
       return;
     }
     if (api && !currentUser) {
+      updateShellChrome(parts);
       app.innerHTML = '';
       app.appendChild(viewAuthGate());
       updateTopProgress();
       return;
     }
-    const parts = (location.hash.replace(/^#/, '') || '/').split('/').filter(Boolean);
     let node;
-    if (api && currentUser && !hasAssessment() && parts[0] !== 'diagnostic') node = viewDiagnostic();
-    else if (parts[0] === 'diagnostic') node = viewDiagnostic();
+    if (api && currentUser && !hasAssessment() && parts[0] !== 'diagnostic' && parts[0] !== 'questionnaire') node = viewDiagnostic();
+    else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewLessons(false);
     else if (parts[0] === 'lessons') node = viewLessons(true);
     else if (parts[0] === 'lesson' && parts[1]) node = viewLesson(parts[1], parseInt(parts[2] || '0', 10) || 0);
@@ -867,6 +1043,7 @@
 
     app.innerHTML = '';
     app.appendChild(node);
+    updateShellChrome(parts);
     updateTopProgress();
     window.scrollTo(0, 0);
   }
