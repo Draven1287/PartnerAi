@@ -18,6 +18,7 @@
     const response = await fetch(`${base}/api/minutes`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(payload)
     });
 

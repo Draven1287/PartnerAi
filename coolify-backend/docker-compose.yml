@@ -7,6 +7,8 @@ services:
       NODE_ENV: production
       PORT: 8787
       DATA_FILE: /app/data/minutes.json
+      DB_FILE: /app/data/learning-ai.sqlite
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://learningai4you.com,https://www.learningai4you.com}
       ADMIN_TOKEN: ${ADMIN_TOKEN:?ADMIN_TOKEN is required}
     expose:
       - "8787"

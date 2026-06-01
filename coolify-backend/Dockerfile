@@ -1,13 +1,14 @@
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=8787
 ENV DATA_FILE=/app/data/minutes.json
+ENV DB_FILE=/app/data/learning-ai.sqlite
 
 COPY package.json ./
-COPY server.mjs ./
+COPY server.mjs store.mjs ./
 
 RUN mkdir -p /app/data \
   && addgroup -S learningai \

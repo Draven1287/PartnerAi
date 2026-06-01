@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning AI · V2</title>
+  <meta name="description" content="Learning AI V2: a hidden account-based beta for saving course progress, lesson interactions, and toolkit cards.">
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Inherit the live site's design system, then layer V2 components on top -->
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="v2.css">
+</head>
+<body>
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#/" class="nav-logo">Learning AI <span class="v2-badge">V2</span></a>
+    <div class="nav-links">
+      <a href="../assessment.html">Start</a>
+      <a href="#/lessons">Lessons</a>
+      <a href="../playground.html">Practice</a>
+      <a href="../projects.html">Projects</a>
+      <a href="../for-educators.html">Educators</a>
+      <a href="../settings.html">Settings</a>
+      <a href="../about.html">About</a>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <main id="app" aria-live="polite"><!-- views render here --></main>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="muted">Learning AI · hidden V2 beta · email is only used to sign in and save progress.</p>
+  </div>
+</footer>
+
+<script src="../backend-config.js"></script>
+<script src="v2-api.js"></script>
+<script src="lessons.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
