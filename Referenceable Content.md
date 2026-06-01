@@ -325,3 +325,7 @@ Before real users:
   - It checks DNS, TCP 443 reachability, `/health`, `/admin`, learner auth guard, and admin API guard.
   - It can check another backend URL with `LEARNING_AI_API_URL=https://example.com node tools/verify-live-backend.mjs`.
   - Current result: DNS passes for `api.learningai4you.com -> 157.245.240.153`, but TCP 443, `/health`, `/admin`, `/api/auth/me`, and `/api/admin/learners` all time out. That means the immediate production issue is still server/proxy/network reachability.
+- 2026-06-01 Coolify runbook update:
+  - Replaced `coolify-backend/README.md` with a backend deployment runbook.
+  - It documents the Coolify app settings, required runtime env, redeploy checklist, expected verifier output, timeout troubleshooting, and local check commands.
+  - The main production blocker remains external reachability for `api.learningai4you.com`; V2 signup/login cannot be tested live until that verifier passes.
