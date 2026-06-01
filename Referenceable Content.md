@@ -319,3 +319,9 @@ Before real users:
   - Backend foundation commit pushed to GitHub: `ebcdd3e Build V2 backend foundation`.
   - Working tree was clean immediately after the push.
   - `https://api.learningai4you.com/health` still timed out after the GitHub push, so the next required step is still Coolify/manual redeploy or server/proxy/network repair.
+- 2026-06-01 live verification tool:
+  - Added `tools/verify-live-backend.mjs`.
+  - Run it with `node tools/verify-live-backend.mjs`.
+  - It checks DNS, TCP 443 reachability, `/health`, `/admin`, learner auth guard, and admin API guard.
+  - It can check another backend URL with `LEARNING_AI_API_URL=https://example.com node tools/verify-live-backend.mjs`.
+  - Current result: DNS passes for `api.learningai4you.com -> 157.245.240.153`, but TCP 443, `/health`, `/admin`, `/api/auth/me`, and `/api/admin/learners` all time out. That means the immediate production issue is still server/proxy/network reachability.

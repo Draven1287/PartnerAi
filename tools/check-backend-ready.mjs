@@ -38,6 +38,7 @@ assertExists('coolify-backend/curriculum-seed.json');
 assertExists('coolify-backend/Dockerfile');
 assertExists('coolify-backend/docker-compose.yml');
 assertExists('coolify-backend/test-server.mjs');
+assertExists('tools/verify-live-backend.mjs');
 assertExists('backend-config.js');
 assertExists('backend-client.js');
 assertExists('v2/v2-api.js');
@@ -190,6 +191,7 @@ for (const path of publicHtml) {
 run('node', ['--check', 'coolify-backend/server.mjs']);
 run('node', ['--check', 'coolify-backend/db.mjs']);
 run('node', ['--check', 'coolify-backend/test-server.mjs']);
+run('node', ['--check', 'tools/verify-live-backend.mjs']);
 run('node', ['--check', 'script.js']);
 run('node', ['--check', 'backend-client.js']);
 run('node', ['--check', 'v2/app.js']);
