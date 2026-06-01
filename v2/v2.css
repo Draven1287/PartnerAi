@@ -15,16 +15,69 @@
 #app { min-width: 0; }
 
 .v2-badge {
-  font-size: 0.6em; font-weight: 700; letter-spacing: 0.05em;
-  background: var(--accent); color: var(--on-accent);
-  padding: 0.1em 0.45em; border-radius: 999px; vertical-align: middle; margin-left: 0.25em;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.65rem; height: 0.9rem;
+  font-size: 0; font-weight: 700; letter-spacing: 0;
+  background: var(--accent) !important; color: var(--on-accent) !important;
+  padding: 0; border-radius: 999px; vertical-align: middle; margin-left: 0.25em;
 }
+.v2-badge::after { content: 'V2'; font-size: 0.55rem; line-height: 1; color: var(--on-accent); }
 .nav-links a.active { color: var(--accent); }
 .nav-cta { cursor: pointer; border: 0; font: inherit; }
 
 .view { padding-bottom: 2.5rem; }
 .hero.compact { padding: 1.5rem 0 0.75rem; }
 .row-gap { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 1rem; }
+
+
+/* ---- V2 learner dashboard ---- */
+.v2-dashboard { padding-top: 1.25rem; }
+.dashboard-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(290px, 0.8fr);
+  gap: 1.2rem;
+  align-items: stretch;
+  margin: 1rem 0 1.3rem;
+}
+.dashboard-primary,
+.dashboard-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 18px 60px rgba(18, 24, 38, 0.06);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+.dashboard-primary h1 { margin: 0.25rem 0 0.65rem; max-width: 13ch; }
+.dashboard-primary .lead { max-width: 62ch; }
+.dashboard-panel { display: grid; align-content: start; gap: 0.75rem; }
+.dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.dash-stat { border: 1px solid var(--border); border-radius: 10px; background: var(--bg); padding: 0.75rem; min-width: 0; }
+.dash-stat strong { display: block; font-size: 1.55rem; line-height: 1.1; color: var(--text); }
+.dash-stat span { color: var(--text-dim); font-size: 0.82rem; }
+.dashboard-grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 1rem; align-items: start; }
+.dashboard-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.dashboard-section h2 { margin-top: 0; }
+.arc-progress-list { display: grid; gap: 0.6rem; }
+.arc-progress-row { display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: center; }
+.arc-progress-row progress { grid-column: 1 / -1; width: 100%; height: 8px; accent-color: var(--accent); }
+.diagnostic-card { max-width: 780px; margin: 1rem auto 0; }
+.diagnostic-options { display: grid; gap: 0.65rem; margin: 1rem 0; }
+.diagnostic-options label { display: flex; gap: 0.65rem; align-items: flex-start; border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--bg); cursor: pointer; }
+.diagnostic-options input { width: auto; margin-top: 0.2rem; }
+.lesson-tile.locked { opacity: 0.62; cursor: not-allowed; }
+.lesson-tile.current { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.mz.locked { pointer-events: none; opacity: 0.62; }
+.mz.current { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mz.just-unlocked { animation: tile-pop 520ms ease; }
+@keyframes tile-pop { 0% { transform: scale(0.92); filter: saturate(0.7); } 70% { transform: scale(1.08); } 100% { transform: scale(1); filter: saturate(1); } }
+@media (max-width: 860px) {
+  .dashboard-hero, .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard-primary h1 { max-width: none; }
+}
+@media (max-width: 560px) {
+  .dashboard-stats { grid-template-columns: 1fr; }
+  .mosaic { max-width: 100%; }
+}
 
 /* ---- My Path ---- */
 .mypath-progress { margin: 1.25rem 0; }
@@ -61,7 +114,7 @@
 /* ---- Progress mosaic: one square per lesson, revealing a painting ---- */
 .mosaic-wrap { margin: 1.25rem 0; }
 .mosaic {
-  --painting-image: url("mona-lisa.jpg");
+  --painting-image: url("mona-lisa-progress.png");
   display: grid; grid-template-columns: repeat(6, 1fr); gap: 7px; max-width: 430px;
 }
 .mz {

@@ -29,9 +29,23 @@
   let serverState = null;
 
   // step kinds that REQUIRE completion before Next unlocks
-  const GATED = new Set(['classify', 'exitCheck', 'toolkitSave', 'promptRepair', 'biasSpot', 'agentDesign']);
+  const GATED = new Set(['classify', 'exitCheck', 'toolkitSave', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
   // arc colors for the mosaic (one hue per arc)
   const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
+  const DIAGNOSTIC_QUESTIONS = [
+    { key: 'goal', title: 'What do you most want AI to help you do?', options: [
+      ['learn', 'Learn something faster'], ['make', 'Build or make something'], ['judge', 'Check if an answer is trustworthy']
+    ] },
+    { key: 'confidence', title: 'When an AI answer sounds confident, what do you usually do?', options: [
+      ['foundation', 'I tend to trust it'], ['explorer', 'I skim it and keep going'], ['builder', 'I check the important parts']
+    ] },
+    { key: 'style', title: 'What kind of lesson helps you most?', options: [
+      ['examples', 'Show me examples'], ['practice', 'Let me try it'], ['systems', 'Show me the system behind it']
+    ] },
+    { key: 'concern', title: 'What feels most risky about using AI?', options: [
+      ['wrong', 'Getting wrong information'], ['privacy', 'Sharing something private'], ['overuse', 'Letting it think for me']
+    ] }
+  ];
 
   const app = document.getElementById('app');
   const progressBarFill = document.querySelector('.progress-bar > div');
@@ -44,11 +58,16 @@
   function saveProgress(p) { return set(KEY.progress, JSON.stringify({ completed: p.completed || {}, savedAt: new Date().toISOString() })); }
   function readToolkit() { const t = readJson(KEY.toolkit, []); return Array.isArray(t) ? t : []; }
   function saveToolkit(c) { return set(KEY.toolkit, JSON.stringify(c.slice(0, 50))); }
+  function readPendingToolkit() { const t = readJson('learningai-v2-pending-toolkit', []); return Array.isArray(t) ? t : []; }
+  function savePendingToolkit(c) { return set('learningai-v2-pending-toolkit', JSON.stringify(c.slice(0, 50))); }
+  function readPendingProgress() { const t = readJson('learningai-v2-pending-progress', []); return Array.isArray(t) ? t : []; }
+  function savePendingProgress(c) { return set('learningai-v2-pending-progress', JSON.stringify(c.slice(0, 100))); }
 
   function applyServerState(state) {
     if (!state) return;
     serverState = state;
     currentUser = state.user || currentUser;
+    if (state.assessment) set('modelwise-gauge', JSON.stringify(state.assessment));
     if (Array.isArray(state.progress)) {
       const completed = {};
       state.progress.forEach(row => {
@@ -57,15 +76,62 @@
       saveProgress({ completed });
     }
     if (Array.isArray(state.toolkit)) {
-      saveToolkit(state.toolkit.map(card => ({
+      const pending = readPendingToolkit();
+      const syncedCards = state.toolkit.map(card => ({
         id: card.id,
         type: card.cardType,
         lessonId: card.lessonId,
         fields: card.payload?.fields || card.payload || {},
         fieldLabels: card.payload?.fieldLabels || {},
         createdAt: card.createdAt
-      })));
+      }));
+      const syncedIds = new Set(syncedCards.map(card => card.id));
+      saveToolkit([...pending.filter(card => !syncedIds.has(card.id)), ...syncedCards]);
     }
+  }
+
+  function queueProgressSave(progress) {
+    const key = `${progress.lessonId}:${progress.completed ? 'done' : 'step'}`;
+    const pending = readPendingProgress().filter(item => item.key !== key);
+    pending.unshift({ key, progress, queuedAt: new Date().toISOString() });
+    savePendingProgress(pending);
+  }
+
+  async function saveProgressToBackend(progress) {
+    if (!api || !currentUser) {
+      queueProgressSave(progress);
+      return false;
+    }
+    const result = await api.saveProgress(progress).catch(() => ({ ok: false }));
+    if (!result.ok) {
+      queueProgressSave(progress);
+      return false;
+    }
+    return true;
+  }
+
+  async function syncPendingProgress() {
+    if (!api || !currentUser) return;
+    const pending = readPendingProgress();
+    if (!pending.length) return;
+    const stillPending = [];
+    for (const item of pending) {
+      const result = await api.saveProgress(item.progress).catch(() => ({ ok: false }));
+      if (!result.ok) stillPending.push(item);
+    }
+    savePendingProgress(stillPending);
+  }
+
+  async function syncPendingToolkit() {
+    if (!api || !currentUser) return;
+    const pending = readPendingToolkit();
+    if (!pending.length) return;
+    const stillPending = [];
+    for (const card of pending) {
+      const result = await api.saveToolkit({ id: card.id, cardType: card.type, lessonId: card.lessonId, payload: { fields: card.fields, fieldLabels: card.fieldLabels || {} } }).catch(() => ({ ok: false }));
+      if (!result.ok) stillPending.push(card);
+    }
+    savePendingToolkit(stillPending);
   }
 
   // ---------- theming (mirrors V1 applyAppearance for common themes) ----------
@@ -103,14 +169,17 @@
 
   // ---------- progress ----------
   function isDone(id) { return !!readProgress().completed[id]; }
-  function doneCount() { const c = readProgress().completed; return LESSONS.filter(l => c[l.id]).length; }
+  function doneCount() { const c = readProgress().completed; return LESSONS.filter(l => !l.stub && c[l.id]).length; }
   function markComplete(id) {
+    const lesson = LESSONS.find(l => l.id === id);
+    if (!lesson || lesson.stub) return;
     const p = readProgress();
     p.completed[id] = { completedAt: new Date().toISOString() };
     saveProgress(p);
-    api?.saveProgress({ lessonId: id, completed: true, currentStep: 999 }).catch(() => {});
+    set('learningai-v2-last-complete', id);
+    saveProgressToBackend({ lessonId: id, completed: true, currentStep: 999 });
   }
-  function nextIncomplete() { const c = readProgress().completed; return LESSONS.find(l => !c[l.id]) || null; }
+  function nextIncomplete() { const c = readProgress().completed; return LESSONS.find(l => !l.stub && !c[l.id]) || null; }
   function updateTopProgress() { if (progressBarFill) progressBarFill.style.width = `${Math.round(doneCount() / LESSONS.length * 100)}%`; }
 
   function recordInteraction(step, payload) {
@@ -120,7 +189,8 @@
       lessonId: currentLessonId,
       stepIndex,
       stepKind: step.kind,
-      payload
+      payload,
+      correct: typeof payload?.correct === 'boolean' ? payload.correct : null
     }).catch(() => {});
   }
 
@@ -133,11 +203,15 @@
       const col = i % 6;
       const row = Math.floor(i / 6);
       const filled = !!done[l.id];
+      const locked = !!l.stub;
+      const current = l.id === opts.currentId;
+      const justUnlocked = l.id === get('learningai-v2-last-complete');
       const cell = h('a', {
-        class: 'mz' + (filled ? ' filled' : '') + (l.id === opts.activeId ? ' active' : ''),
-        href: `#/lesson/${l.id}/0`,
-        title: `${l.num}. ${l.title}${filled ? ' ✓' : ''}`,
-        style: `--tile-col:${col};--tile-row:${row};`
+        class: 'mz' + (filled ? ' filled' : '') + (locked ? ' locked' : '') + (current ? ' current' : '') + (l.id === opts.activeId ? ' active' : '') + (justUnlocked ? ' just-unlocked' : ''),
+        href: locked ? '#/lessons' : `#/lesson/${l.id}/0`,
+        title: `${l.num}. ${l.title}${filled ? ' ✓' : locked ? ' locked' : ''}`,
+        style: `--tile-col:${col};--tile-row:${row};`,
+        'aria-disabled': locked ? 'true' : null
       });
       cell.appendChild(h('span', { class: 'mz-num' }, String(l.num)));
       grid.appendChild(cell);
@@ -159,18 +233,16 @@
         body.appendChild(h('article', { class: 'tk-card' }, [
           h('span', { class: 'tk-type' }, `${card.type}${lesson ? ' · ' + lesson.title : ''}`),
           ...fields,
-          h('button', { class: 'tk-del', onclick: () => { deleteCard(card.id); } }, 'Remove')
         ]));
       });
     }
     return h('section', { class: 'lesson-toolkit', id: 'lesson-toolkit' }, [
       h('div', { class: 'section-heading' }, 'Your lesson toolkit'),
       h('h2', null, cards.length ? 'Reusable cards from the lessons' : 'Save the useful stuff as you go'),
-      h('p', { class: 'muted' }, 'This is not a separate path. It is the working notebook you build while completing lesson steps. Stored on this device.'),
+      h('p', { class: 'muted' }, 'This is not a separate path. It is the working notebook you build while completing lesson steps. When you are signed in, it syncs to the backend.'),
       body
     ]);
   }
-  function deleteCard(id) { saveToolkit(readToolkit().filter(c => c.id !== id)); render(); }
 
   // ---------- copy ----------
   function copyText(text, btn) {
@@ -226,9 +298,36 @@
         h('p', { class: 'muted' }, 'Read laterally — check the claim against other sources first:'), h('ol', null, (s.steps || []).map(x => h('li', null, x))),
         s.note ? h('p', { class: 'why' }, s.note) : null]);
     },
-    workflowChain(s) {
+    workflowChain(s, ctx) {
+      const correct = s.correct || [];
+      const choices = (s.choices || correct).slice().sort((a, b) => a.localeCompare(b));
+      const picked = [];
+      const fb = h('p', { class: 'step-feedback' }, '');
+      const list = h('ol', { class: 'workflow-picked' });
+      const buttons = choices.map(choice => h('button', { class: 'chip', onclick: (e) => {
+        const expected = correct[picked.length];
+        const ok = choice === expected;
+        recordInteraction(s, { choice, expected, position: picked.length + 1, correct: ok });
+        if (!ok) {
+          fb.textContent = `Not yet — before “${choice}”, you need “${expected}.”`;
+          e.target.classList.add('wrong');
+          setTimeout(() => e.target.classList.remove('wrong'), 900);
+          return;
+        }
+        picked.push(choice);
+        e.target.disabled = true;
+        e.target.classList.add('right');
+        list.appendChild(h('li', null, choice));
+        if (picked.length === correct.length) {
+          fb.textContent = '✓ That is a repeatable workflow, not just a one-off prompt.';
+          ctx.unlock();
+        } else {
+          fb.textContent = `Good. Pick step ${picked.length + 1}.`;
+        }
+      } }, choice));
       return card([tag('Build a workflow'), h('h2', null, s.title), h('div', { class: 'callout' }, [h('strong', null, 'Goal: '), s.goal]),
-        h('p', { class: 'muted' }, 'Correct order:'), h('ol', null, (s.correct || []).map(x => h('li', null, x))), s.note ? h('p', { class: 'why' }, s.note) : null]);
+        h('p', { class: 'muted' }, 'Pick the workflow steps in the safest useful order:'), h('div', { class: 'chip-row' }, buttons), list, fb,
+        s.note ? h('p', { class: 'why' }, s.note) : null, lockHint('Build the workflow in order to continue.')]);
     },
     evalTest(s) {
       const btn = h('button', { class: 'btn btn-primary', onclick: () => copyText(s.prompt, btn) }, 'Copy the eval prompt');
@@ -246,10 +345,16 @@
             const row = e.target.closest('.classify-row');
             if (row.dataset.done) return;
             const ok = bi === item.answer;
-            row.dataset.done = '1'; row.classList.add(ok ? 'right' : 'wrong'); e.target.classList.add('selected');
             recordInteraction(s, { item: item.text, selected: s.buckets[bi], correct: ok });
-            if (ok) { correct++; if (correct === s.items.length) { fb.textContent = '✓ ' + (s.reveal || 'All sorted — nice.'); ctx.unlock(); } }
-            else fb.textContent = `Not quite — that one belongs in “${s.buckets[item.answer]}.”`;
+            if (ok) {
+              row.dataset.done = '1'; row.classList.remove('wrong'); row.classList.add('right'); e.target.classList.add('selected');
+              correct++; if (correct === s.items.length) { fb.textContent = '✓ ' + (s.reveal || 'All sorted — nice.'); ctx.unlock(); }
+            }
+            else {
+              row.classList.add('wrong'); e.target.classList.add('wrong');
+              fb.textContent = `Not quite — that one belongs in “${s.buckets[item.answer]}.” Try that row again.`;
+              setTimeout(() => { row.classList.remove('wrong'); e.target.classList.remove('wrong'); }, 900);
+            }
           }
         }, b));
         return h('div', { class: 'classify-row' }, [h('span', { class: 'classify-text' }, item.text), h('div', { class: 'chip-row' }, btns)]);
@@ -295,7 +400,7 @@
         h('input', { type: 'text', 'data-key': f.key, placeholder: f.placeholder || '' })]));
       const fb = h('p', { class: 'step-feedback' }, '');
       const saveBtn = h('button', {
-        class: 'btn btn-primary', onclick: (e) => {
+        class: 'btn btn-primary', onclick: async (e) => {
           const wrap = e.target.closest('.lesson-card');
           const fields = {}, labels = {}; let any = false;
           wrap.querySelectorAll('input[data-key]').forEach(inp => {
@@ -308,9 +413,11 @@
           const cardId = 'card-' + Date.now();
           cards.unshift({ id: cardId, type: s.cardType, lessonId: currentLessonId, fields, fieldLabels: labels, createdAt: new Date().toISOString() });
           saveToolkit(cards);
-          api?.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => {});
-          recordInteraction(s, { fields });
-          fb.textContent = 'Saved to your lesson toolkit ✓'; ctx.unlock();
+          fb.textContent = 'Saved locally. Syncing...';
+          const synced = api ? await api.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => ({ ok: false })) : { ok: false, skipped: true };
+          if (!synced.ok) savePendingToolkit([cards[0], ...readPendingToolkit().filter(card => card.id !== cardId)]);
+          recordInteraction(s, { fields, synced: !!synced.ok });
+          fb.textContent = synced.ok ? 'Saved to your backend toolkit ✓' : 'Saved locally. It is queued to sync after the backend is available.'; ctx.unlock();
         }
       }, 'Save to my toolkit');
       return card([tag('Save an artifact'), h('h2', null, s.title), h('div', { class: 'pr-fields' }, inputs),
@@ -395,10 +502,22 @@
 
   async function hydrateFromServer() {
     if (!api) return;
-    const state = await api.state();
-    if (state.ok) applyServerState(state.state);
     const localGauge = readJson('modelwise-gauge', null);
-    if (localGauge) api.saveAssessment(localGauge).catch(() => {});
+    await syncPendingProgress();
+    await syncPendingToolkit();
+    let state = await api.state();
+    if (currentUser && !get('learningai-v2-imported')) {
+      const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit(), assessment: localGauge || null }).catch(() => ({ ok: false }));
+      if (imported.ok) {
+        set('learningai-v2-imported', new Date().toISOString());
+        state = await api.state();
+      } else {
+        return;
+      }
+    }
+    if (state.ok) applyServerState(state.state);
+    if (localGauge && !state?.state?.assessment) api.saveAssessment(localGauge).catch(() => {});
+    api.saveVisit({ path: location.hash || '#/', referrer: document.referrer || '' }).catch(() => {});
   }
 
   function accountBar() {
@@ -409,50 +528,156 @@
     ]);
   }
 
-  function viewLessons() {
+  function assessmentResult() {
+    return serverState?.assessment || readJson('modelwise-gauge', null);
+  }
+
+  function hasAssessment() {
+    return !!assessmentResult();
+  }
+
+  function learningMode() {
+    const a = assessmentResult() || {};
+    const confidence = String(a.responses?.find?.(r => r.key === 'confidence')?.value || a.level || a.route || '').toLowerCase();
+    if (confidence.includes('builder')) return 'Builder mode';
+    if (confidence.includes('foundation')) return 'Foundation mode';
+    return 'Explorer mode';
+  }
+
+  function diagnosticSummary() {
+    const a = assessmentResult();
+    if (!a) return 'Take the diagnostic to set your starting point.';
+    const goal = a.responses?.find?.(r => r.key === 'goal')?.label || a.primaryGoal || 'Build stronger AI habits';
+    const concern = a.responses?.find?.(r => r.key === 'concern')?.label || a.mainConcern || 'Use AI with judgment';
+    return `${goal}. Watch for: ${concern}.`;
+  }
+
+  function viewDiagnostic() {
+    const answers = {};
+    const message = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
+    const groups = DIAGNOSTIC_QUESTIONS.map((q, qi) => h('fieldset', { class: 'diagnostic-group' }, [
+      h('legend', null, `${qi + 1}. ${q.title}`),
+      h('div', { class: 'diagnostic-options' }, q.options.map(([value, label]) => h('label', null, [
+        h('input', { type: 'radio', name: q.key, value, onchange: () => { answers[q.key] = { value, label }; } }),
+        h('span', null, label)
+      ])))
+    ]));
+    const submit = h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
+      if (Object.keys(answers).length !== DIAGNOSTIC_QUESTIONS.length) {
+        message.textContent = 'Answer each question first.';
+        return;
+      }
+      const level = answers.confidence.value === 'foundation' ? 'Foundation' : answers.confidence.value === 'builder' ? 'Builder' : 'Explorer';
+      const assessment = {
+        level,
+        route: level,
+        primaryGoal: answers.goal.label,
+        learningStyle: answers.style.label,
+        mainConcern: answers.concern.label,
+        completedAt: new Date().toISOString(),
+        responses: DIAGNOSTIC_QUESTIONS.map(q => ({ key: q.key, value: answers[q.key].value, label: answers[q.key].label }))
+      };
+      set('modelwise-gauge', JSON.stringify(assessment));
+      serverState = { ...(serverState || {}), assessment };
+      message.textContent = 'Saving your starting point...';
+      await api?.saveAssessment(assessment).catch(() => {});
+      location.hash = '#/';
+      render();
+    } }, 'Save my starting point');
+    return h('div', { class: 'container view auth-view' }, [
+      accountBar(),
+      h('section', { class: 'lesson-card diagnostic-card' }, [
+        h('div', { class: 'tagline' }, 'Diagnostic first'),
+        h('h1', null, 'Set your starting point'),
+        h('p', { class: 'lead' }, 'Before lessons unlock, answer four quick questions so V2 can frame the course around how you learn and what you want to build.'),
+        ...groups,
+        h('div', { class: 'row-gap' }, [submit]),
+        message
+      ])
+    ]);
+  }
+
+  function viewLessons(showCatalog = false) {
     const c = readProgress().completed;
     const done = doneCount();
     const pct = Math.round(done / LESSONS.length * 100);
     const next = nextIncomplete();
+    const authoredTotal = LESSONS.filter(l => !l.stub).length;
+    const mode = learningMode();
+
+    const arcCards = ARCS.map((arcName, ai) => {
+      const inArc = LESSONS.filter(l => l.arc === arcName && !l.stub);
+      const arcDone = inArc.filter(l => c[l.id]).length;
+      return h('div', { class: 'arc-progress-row' }, [
+        h('strong', null, `Arc ${ai + 1}: ${arcName}`),
+        h('span', { class: 'muted' }, `${arcDone}/${inArc.length || LESSONS.filter(l => l.arc === arcName).length}`),
+        h('progress', { value: String(arcDone), max: String(inArc.length || 1) })
+      ]);
+    });
 
     const sections = ARCS.map((arcName, ai) => {
       const inArc = LESSONS.filter(l => l.arc === arcName);
       if (!inArc.length) return null;
       return h('section', { class: 'arc' }, [
         h('h2', { class: 'arc-title' }, [h('span', { class: 'arc-num', style: `background:${ARC_COLORS[ai]}1a;color:${ARC_COLORS[ai]}` }, `Arc ${ai + 1}`), arcName]),
-        h('div', { class: 'lesson-grid' }, inArc.map(l => h('a', {
-          class: 'lesson-tile' + (c[l.id] ? ' completed' : '') + (l.stub ? ' stub' : ''), href: `#/lesson/${l.id}/0`
-        }, [
-          h('span', { class: 'lt-num' }, c[l.id] ? '✓' : String(l.num)),
-          h('span', { class: 'lt-title' }, l.title),
-          h('span', { class: 'lt-q' }, l.coreQuestion),
-          l.stub ? h('span', { class: 'lt-badge' }, 'soon') : null
-        ])))
+        h('div', { class: 'lesson-grid' }, inArc.map(l => {
+          const locked = !!l.stub;
+          const current = next && next.id === l.id;
+          return h('a', {
+            class: 'lesson-tile' + (c[l.id] ? ' completed' : '') + (locked ? ' locked' : '') + (current ? ' current' : ''),
+            href: locked ? '#/lessons' : `#/lesson/${l.id}/0`,
+            'aria-disabled': locked ? 'true' : null
+          }, [
+            h('span', { class: 'lt-num' }, c[l.id] ? '✓' : String(l.num)),
+            h('span', { class: 'lt-title' }, l.title),
+            h('span', { class: 'lt-q' }, l.coreQuestion),
+            locked ? h('span', { class: 'lt-badge' }, 'locked') : current ? h('span', { class: 'lt-badge' }, 'next') : null
+          ]);
+        }))
       ]);
     }).filter(Boolean);
 
-    const nextQuestion = next ? next.coreQuestion : 'What can I build now that I understand the basics?';
-    return h('div', { class: 'container view' }, [
+    return h('div', { class: 'container view v2-dashboard' }, [
       accountBar(),
-      h('header', { class: 'hero compact' }, [
-        h('div', { class: 'tagline' }, next ? `Next question · Lesson ${next.num}` : 'Course complete'),
-        h('h1', null, nextQuestion),
-        h('p', { class: 'lead' }, next ? `${next.title}. Finish each interactive part to reveal another piece of the painting.` : 'Every square is filled. Your next move is a project.')
+      h('section', { class: 'dashboard-hero' }, [
+        h('div', { class: 'dashboard-primary' }, [
+          h('div', { class: 'tagline' }, next ? `${mode} · Next lesson ${next.num}` : 'Course progress'),
+          h('h1', null, next ? next.coreQuestion : 'Every authored lesson is complete'),
+          h('p', { class: 'lead' }, next ? `${next.title}. Complete the guided interactions to reveal the next painting tile.` : 'Review your toolkit, then start a real project with the patterns you saved.'),
+          h('div', { class: 'dashboard-stats' }, [
+            h('div', { class: 'dash-stat' }, [h('strong', null, `${done}`), h('span', null, 'tiles revealed')]),
+            h('div', { class: 'dash-stat' }, [h('strong', null, `${pct}%`), h('span', null, 'complete')]),
+            h('div', { class: 'dash-stat' }, [h('strong', null, `${readToolkit().length}`), h('span', null, 'toolkit cards')])
+          ]),
+          h('div', { class: 'row-gap' }, [
+            next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, done ? `Continue lesson ${next.num}` : `Start lesson ${next.num}`)
+                 : h('a', { class: 'btn btn-primary', href: '../projects.html' }, 'Start a project'),
+            h('a', { class: 'btn btn-ghost', href: '#/diagnostic' }, 'Retake diagnostic')
+          ])
+        ]),
+        h('aside', { class: 'dashboard-panel' }, [
+          h('div', { class: 'tagline' }, 'Progress painting'),
+          buildMosaic({ currentId: next?.id }),
+          h('p', { class: 'muted mosaic-caption' }, `${done} / ${LESSONS.length} lesson tiles revealed. ${LESSONS.length - authoredTotal} future lessons are locked until authored.`)
+        ])
       ]),
-      h('div', { class: 'mosaic-wrap' }, [
-        buildMosaic(),
-        h('p', { class: 'muted mosaic-caption' }, `${done} / ${LESSONS.length} painting tiles revealed (${pct}%)`)
+      h('section', { class: 'dashboard-grid' }, [
+        h('div', { class: 'dashboard-section' }, [
+          h('h2', null, 'Your learning mode'),
+          h('p', null, diagnosticSummary()),
+          h('div', { class: 'arc-progress-list' }, arcCards),
+          !showCatalog ? h('p', { class: 'row-gap' }, h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'View all lessons')) : null
+        ]),
+        h('div', { class: 'dashboard-section' }, [buildToolkitPanel()])
       ]),
-      next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, done ? `Continue: ${next.num}. ${next.title}` : `Start: ${next.num}. ${next.title}`)
-           : h('div', { class: 'callout callout-good' }, '🎉 Every square filled — you finished all 30 lessons.'),
-      buildToolkitPanel(),
-      ...sections
+      ...(showCatalog ? sections : [])
     ]);
   }
 
   function viewLesson(id, stepIndex) {
     const lesson = LESSONS.find(l => l.id === id);
     if (!lesson) return notFound();
+    if (lesson.stub) return viewLockedLesson(lesson);
     currentLessonId = id;
     const total = lesson.steps.length;
     const idx = Math.max(0, Math.min(stepIndex, total - 1));
@@ -481,7 +706,7 @@
     const renderer = steps[step.kind] || steps.reveal;
     const body = renderer(step, ctx);
 
-    api?.saveProgress({ lessonId: id, currentStep: idx, completed: false }).catch(() => {});
+    saveProgressToBackend({ lessonId: id, currentStep: idx, completed: false });
 
     return h('div', { class: 'container view lesson-view' }, [
       accountBar(),
@@ -520,6 +745,18 @@
     ]);
   }
 
+  function viewLockedLesson(lesson) {
+    return h('div', { class: 'container view' }, [
+      accountBar(),
+      h('section', { class: 'lesson-card' }, [
+        h('div', { class: 'tagline' }, 'Locked lesson'),
+        h('h1', null, `${lesson.num}. ${lesson.title}`),
+        h('p', { class: 'lead' }, 'This lesson is intentionally locked until it has real gated interactions, a useful toolkit artifact, and an exit check.'),
+        h('a', { class: 'btn btn-primary', href: '#/lessons' }, 'Back to dashboard')
+      ])
+    ]);
+  }
+
   function notFound() {
     return h('div', { class: 'container view' }, [
       h('header', { class: 'hero compact' }, [h('h1', null, 'Not found'), h('p', { class: 'lead' }, 'That page does not exist.')]),
@@ -551,8 +788,10 @@
     }
     const parts = (location.hash.replace(/^#/, '') || '/').split('/').filter(Boolean);
     let node;
-    if (parts.length === 0) node = viewLessons();
-    else if (parts[0] === 'lessons') node = viewLessons();
+    if (api && currentUser && !hasAssessment() && parts[0] !== 'diagnostic') node = viewDiagnostic();
+    else if (parts[0] === 'diagnostic') node = viewDiagnostic();
+    else if (parts.length === 0) node = viewLessons(false);
+    else if (parts[0] === 'lessons') node = viewLessons(true);
     else if (parts[0] === 'lesson' && parts[1]) node = viewLesson(parts[1], parseInt(parts[2] || '0', 10) || 0);
     else if (parts[0] === 'done' && parts[1]) node = viewDone(parts[1]);
     else node = viewLessons();
