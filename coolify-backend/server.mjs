@@ -4,18 +4,15 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash, randomBytes, randomUUID, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
-import bcrypt from 'bcryptjs';
-import { createDb } from './db.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
 const DATA_FILE = process.env.DATA_FILE || join(__dirname, 'data', 'minutes.json');
 const BUILD_SHA = process.env.BUILD_SHA || process.env.COOLIFY_GIT_COMMIT_SHA || 'local';
 const BUILD_TIME = process.env.BUILD_TIME || new Date().toISOString();
-const ADMIN_TOKEN = String(process.env.ADMIN_TOKEN || '').trim();
-const ALLOW_ADMIN_TOKEN = String(process.env.ALLOW_ADMIN_TOKEN || '').toLowerCase() === 'true';
 const SESSION_DAYS = 30;
 const ADMIN_SESSION_HOURS = 8;
+const PASSWORD_RESET_MINUTES = 60;
 const DEFAULT_ORIGINS = [
   'https://learningai4you.com',
   'https://www.learningai4you.com',
@@ -24,14 +21,19 @@ const DEFAULT_ORIGINS = [
   'http://127.0.0.1:8124',
   'http://127.0.0.1:8125',
   'http://127.0.0.1:8126',
+  'http://127.0.0.1:8127',
   'http://localhost:8123',
   'http://localhost:8124',
   'http://localhost:8125',
-  'http://localhost:8126'
+  'http://localhost:8126',
+  'http://localhost:8127'
 ];
 const ALLOWED_ORIGINS = new Set(String(process.env.CORS_ORIGINS || DEFAULT_ORIGINS.join(',')).split(',').map(origin => origin.trim()).filter(Boolean));
 const RATE_LIMITS = new Map();
 const scrypt = promisify(scryptCallback);
+const LESSON_STATUSES = new Set(['draft', 'published', 'locked']);
+const LESSON_LEVELS = new Set(['foundation', 'explorer', 'builder']);
+const STEP_KINDS = new Set(['coldOpen', 'classify', 'reveal', 'compare', 'promptRepair', 'nextWord', 'tryLive', 'toolkitSave', 'exitCheck', 'verify', 'biasSpot', 'workflowChain', 'agentDesign', 'evalTest']);
 
 if (process.env.NODE_ENV === 'production') {
   if (!process.env.DATABASE_URL && !process.env.POSTGRES_PASSWORD) throw new Error('DATABASE_URL or POSTGRES_PASSWORD is required in production');
@@ -70,6 +72,146 @@ function isSafePassword(password) {
   return typeof password === 'string' && password.length >= 8 && password.length <= 200;
 }
 
+function isSafeLessonId(lessonId) {
+  return /^chapter-([1-9]|[12]\d|30)$/.test(String(lessonId || ''));
+}
+
+function safeText(value, max) {
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, max);
+}
+
+function validateLessonPatch(body) {
+  if (!body || typeof body !== 'object') return null;
+  const patch = {};
+  if ('title' in body) {
+    patch.title = safeText(body.title, 180);
+    if (!patch.title) return null;
+  }
+  if ('arc' in body) {
+    patch.arc = safeText(body.arc, 120);
+    if (!patch.arc) return null;
+  }
+  if ('coreQuestion' in body) patch.coreQuestion = safeText(body.coreQuestion, 240);
+  if ('blurb' in body) patch.blurb = safeText(body.blurb, 360);
+  if ('status' in body) {
+    patch.status = String(body.status || '');
+    if (!LESSON_STATUSES.has(patch.status)) return null;
+  }
+  if ('levelId' in body) {
+    patch.levelId = String(body.levelId || '');
+    if (!LESSON_LEVELS.has(patch.levelId)) return null;
+  }
+  if ('sortOrder' in body) {
+    patch.sortOrder = Number(body.sortOrder);
+    if (!Number.isFinite(patch.sortOrder)) return null;
+  }
+  if ('minutes' in body) {
+    patch.minutes = Number(body.minutes);
+    if (!Number.isFinite(patch.minutes) || patch.minutes < 1 || patch.minutes > 60) return null;
+  }
+  if ('resources' in body) {
+    if (!Array.isArray(body.resources)) return null;
+    patch.resources = body.resources.slice(0, 20).map(resource => ({
+      label: safeText(resource?.label, 160),
+      url: String(resource?.url || '').trim().slice(0, 500)
+    }));
+    if (patch.resources.some(resource => resource.label && !/^https:\/\//i.test(resource.url))) return null;
+  }
+  return patch;
+}
+
+function validateSteps(body) {
+  const steps = Array.isArray(body?.steps) ? body.steps : null;
+  if (!steps || steps.length > 80) return null;
+  return steps.map((step, index) => {
+    const kind = String(step?.kind || '');
+    if (!STEP_KINDS.has(kind)) return null;
+    const payload = step?.payload && typeof step.payload === 'object' && !Array.isArray(step.payload) ? step.payload : {};
+    return {
+      stepIndex: index,
+      stepId: safeText(step.stepId || '', 160),
+      kind,
+      gated: Boolean(step.gated),
+      title: safeText(step.title || payload.title || '', 180),
+      sortOrder: Number.isFinite(Number(step.sortOrder)) ? Number(step.sortOrder) : index,
+      payload
+    };
+  });
+}
+
+function validateQuizAnswer(body) {
+  if (!body || typeof body !== 'object' || !isSafeLessonId(body.lessonId)) return null;
+  const stepIndex = Number(body.stepIndex);
+  if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > 200) return null;
+  const answer = body.answer && typeof body.answer === 'object' && !Array.isArray(body.answer) ? body.answer : { value: body.answer ?? null };
+  return {
+    lessonId: String(body.lessonId),
+    stepIndex,
+    quizKey: safeText(body.quizKey || '', 120),
+    answer,
+    correct: typeof body.correct === 'boolean' ? body.correct : null,
+    feedback: safeText(body.feedback || '', 1000)
+  };
+}
+
+function validateActivityCompletion(body) {
+  if (!body || typeof body !== 'object' || !isSafeLessonId(body.lessonId)) return null;
+  const stepIndex = Number(body.stepIndex);
+  if (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > 200) return null;
+  const activityKind = safeText(body.activityKind || 'activity', 80);
+  if (!activityKind || /[^a-zA-Z0-9_-]/.test(activityKind)) return null;
+  const payload = body.payload && typeof body.payload === 'object' && !Array.isArray(body.payload) ? body.payload : {};
+  return {
+    lessonId: String(body.lessonId),
+    stepIndex,
+    activityKind,
+    activityKey: safeText(body.activityKey || '', 120),
+    payload
+  };
+}
+
+function validateFeedbackRequest(body) {
+  if (!body || typeof body !== 'object') return null;
+  const lessonId = body.lessonId ? String(body.lessonId) : null;
+  if (lessonId && !isSafeLessonId(lessonId)) return null;
+  const stepIndex = body.stepIndex == null ? null : Number(body.stepIndex);
+  if (stepIndex != null && (!Number.isInteger(stepIndex) || stepIndex < 0 || stepIndex > 200)) return null;
+  const prompt = body.prompt && typeof body.prompt === 'object' && !Array.isArray(body.prompt) ? body.prompt : { text: safeText(body.prompt || body.text || '', 2000) };
+  return {
+    lessonId,
+    stepIndex,
+    requestType: safeText(body.requestType || 'feedback', 80),
+    prompt
+  };
+}
+
+function validateProjectReview(body) {
+  if (!body || typeof body !== 'object') return null;
+  const title = safeText(body.title || '', 180);
+  if (!title) return null;
+  const projectUrl = String(body.projectUrl || '').trim().slice(0, 500);
+  if (projectUrl && !/^https:\/\//i.test(projectUrl)) return null;
+  const artifact = body.artifact && typeof body.artifact === 'object' && !Array.isArray(body.artifact) ? body.artifact : {};
+  return { title, projectUrl, artifact };
+}
+
+function validateTutorSession(body) {
+  if (!body || typeof body !== 'object') return null;
+  const lessonId = body.lessonId ? String(body.lessonId) : null;
+  if (lessonId && !isSafeLessonId(lessonId)) return null;
+  const topic = safeText(body.topic || '', 180);
+  if (!topic) return null;
+  return { lessonId, topic };
+}
+
+function validateTutorMessage(body) {
+  if (!body || typeof body !== 'object') return null;
+  const content = String(body.content || '').trim().slice(0, 4000);
+  if (!content) return null;
+  const metadata = body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata) ? body.metadata : {};
+  return { role: 'learner', content, metadata };
+}
+
 function hashToken(token) {
   return createHash('sha256').update(String(process.env.SESSION_SECRET || 'dev-secret')).update(':').update(token).digest('hex');
 }
@@ -84,6 +226,10 @@ function expiresAt(days = SESSION_DAYS) {
 
 function adminExpiresAt() {
   return new Date(Date.now() + ADMIN_SESSION_HOURS * 60 * 60 * 1000).toISOString();
+}
+
+function minutesFromNow(minutes) {
+  return new Date(Date.now() + minutes * 60 * 1000).toISOString();
 }
 
 function parseCookies(req) {
@@ -119,7 +265,7 @@ function sendJson(res, status, data, options = {}) {
   const headers = {
     'content-type': 'application/json; charset=utf-8',
     'access-control-allow-methods': 'GET,POST,PUT,OPTIONS',
-    'access-control-allow-headers': 'content-type,x-csrf-token,x-admin-token',
+    'access-control-allow-headers': 'content-type,x-csrf-token',
     'access-control-allow-credentials': 'true',
     'vary': 'Origin',
     'cache-control': 'no-store',
@@ -177,7 +323,14 @@ async function verifyPassword(password, stored) {
     const actual = await scrypt(password, salt, expected.length);
     return expected.length === actual.length && timingSafeEqual(expected, actual);
   }
-  return bcrypt.compare(password, stored);
+  const bcrypt = await import('bcryptjs');
+  return bcrypt.default.compare(password, stored);
+}
+
+async function hashPassword(password) {
+  const salt = randomBytes(16).toString('base64url');
+  const hash = await scrypt(String(password), salt, 64);
+  return `scrypt:${salt}:${Buffer.from(hash).toString('base64url')}`;
 }
 
 function clientIp(req) {
@@ -273,10 +426,7 @@ async function requireUser(req, res, db, { csrf = false } = {}) {
   return session;
 }
 
-async function requireAdmin(req, res, db, { csrf = false, url = null } = {}) {
-  if (ALLOW_ADMIN_TOKEN && ADMIN_TOKEN && ((req.headers['x-admin-token'] || url?.searchParams.get('token')) === ADMIN_TOKEN)) {
-    return { admin: { id: null, email: 'legacy-token-admin' }, legacyToken: true };
-  }
+async function requireAdmin(req, res, db, { csrf = false } = {}) {
   const token = parseCookies(req).lai_admin_session;
   const session = await db.sessionForToken('admin', hashToken(token || ''));
   if (!session) {
@@ -301,7 +451,7 @@ async function handleSignup(req, res, db) {
   if (!isSafePassword(password)) return sendJson(res, 400, { ok: false, error: 'invalid_password' }, { req });
   if (!isSafeName(displayName)) return sendJson(res, 400, { ok: false, error: 'invalid_display_name' }, { req });
   if (await db.findUserByEmail(email)) return sendJson(res, 409, { ok: false, error: 'email_exists' }, { req });
-  const user = await db.createUser({ email, passwordHash: await bcrypt.hash(password, 12), displayName });
+  const user = await db.createUser({ email, passwordHash: await hashPassword(password), displayName });
   const sessionToken = randomToken();
   const csrfToken = randomToken();
   await db.createSession({ kind: 'learner', userId: user.id, tokenHash: hashToken(sessionToken), csrfTokenHash: hashToken(csrfToken), expiresAt: expiresAt() });
@@ -353,13 +503,33 @@ async function handleAdminLogout(req, res, db) {
 
 async function handlePasswordResetRequest(req, res, db) {
   if (!rateLimit(req, 'password-reset-request', 5, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
-  await readJsonBody(req);
-  return sendJson(res, 200, { ok: true, message: 'If this email exists, an admin can help reset it.' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  const email = normalizeEmail(body.email);
+  const token = randomToken();
+  let created = null;
+  if (isSafeEmail(email)) {
+    created = await db.createPasswordResetToken({
+      email,
+      tokenHash: hashToken(token),
+      expiresAt: minutesFromNow(PASSWORD_RESET_MINUTES)
+    });
+  }
+  const payload = { ok: true, message: 'If this email exists, a password reset can be completed with the provided reset token.' };
+  if (created && process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_RESET_TOKEN_RETURN === 'true') payload.resetToken = token;
+  return sendJson(res, 200, payload, { req });
 }
 
-async function handlePasswordResetConfirm(req, res) {
-  await readJsonBody(req);
-  return sendJson(res, 501, { ok: false, error: 'admin_assisted_reset_only' }, { req });
+async function handlePasswordResetConfirm(req, res, db) {
+  if (!rateLimit(req, 'password-reset-confirm', 8, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  const token = String(body.token || '').trim();
+  const password = String(body.password || '');
+  if (!/^[A-Za-z0-9_-]{24,200}$/.test(token)) return sendJson(res, 400, { ok: false, error: 'invalid_reset_token' }, { req });
+  if (!isSafePassword(password)) return sendJson(res, 400, { ok: false, error: 'invalid_password' }, { req });
+  const reset = await db.confirmPasswordReset({ tokenHash: hashToken(token), passwordHash: await hashPassword(password) });
+  return reset ? sendJson(res, 200, { ok: true }, { req }) : sendJson(res, 400, { ok: false, error: 'invalid_reset_token' }, { req });
 }
 
 async function handleV1Minutes(req, res, db, dataFile, dbReady = true) {
@@ -380,6 +550,22 @@ async function handleV1Minutes(req, res, db, dataFile, dbReady = true) {
   rows.push({ id: randomUUID(), name, nameKey: nameKey(name), minutes: Math.round(minutes), createdAt: nowIso(), fallback: true });
   await writeRows(rows, dataFile);
   return sendJson(res, 201, { ok: true, fallback: 'legacy_json' }, { req });
+}
+
+function csvEscape(value) {
+  return `"${String(value == null ? '' : value).replaceAll('"', '""')}"`;
+}
+
+function learnerCsv(rows) {
+  return ['email,displayName,totalMinutes,visitCount,currentLesson,completionPercent,lastActiveAt', ...rows.map(row => [
+    row.email,
+    row.displayName,
+    row.totalMinutes,
+    row.visitCount,
+    row.currentLesson,
+    row.completionPercent,
+    row.lastActiveAt || ''
+  ].map(csvEscape).join(','))].join('\n');
 }
 
 function adminHtml() {
@@ -405,7 +591,8 @@ function adminHtml() {
     .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:22px; box-shadow:0 18px 60px rgba(18,24,38,.06); margin:22px 0; }
     .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
     .stat strong { display:block; font-size:32px; }
-    input, select { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font:inherit; background:#fff; }
+    input, select, textarea { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font:inherit; background:#fff; }
+    textarea { min-height:220px; resize:vertical; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; line-height:1.45; }
     button, .btn { border:0; border-radius:8px; padding:12px 16px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; font:inherit; }
     button.secondary { background:#eef4f8; color:var(--text); }
     button.danger { background:#b42318; }
@@ -419,7 +606,15 @@ function adminHtml() {
     .login { max-width:460px; margin:12vh auto; }
     .muted { color:var(--faint); }
     .pill { display:inline-block; background:var(--surface-2); border-radius:999px; padding:4px 10px; color:var(--dim); font-size:13px; }
+    .editor-grid { display:grid; grid-template-columns:minmax(220px,320px) minmax(0,1fr); gap:18px; align-items:start; }
+    .lesson-list { max-height:640px; overflow:auto; }
+    .lesson-list button { display:block; width:100%; margin:0 0 8px; background:#fff; color:var(--text); border:1px solid var(--border); text-align:left; font-weight:600; }
+    .lesson-list button.active { border-color:var(--accent); background:#e9efff; color:var(--accent); }
+    .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .field-wide { grid-column:1 / -1; }
+    label span { display:block; margin:0 0 6px; color:var(--dim); font-size:14px; font-weight:700; }
     @media (max-width:850px) { .shell { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--border); } .grid { grid-template-columns:1fr 1fr; } main { padding:22px; } h1 { font-size:34px; } }
+    @media (max-width:850px) { .editor-grid, .form-grid { grid-template-columns:1fr; } .field-wide { grid-column:auto; } }
   </style>
 </head>
 <body>
@@ -440,6 +635,7 @@ function adminHtml() {
         <button data-view="overview" class="active">Overview</button>
         <button data-view="learners">Learners</button>
         <button data-view="lessons">Lessons</button>
+        <button data-view="content">Content</button>
         <button data-view="export">Export</button>
       </div>
       <p class="muted" id="build-marker"></p>
@@ -454,6 +650,7 @@ function adminHtml() {
 <script>
 let csrfToken = '';
 let currentView = 'overview';
+let selectedContentLessonId = '';
 const app = document.getElementById('app');
 const login = document.getElementById('login');
 const content = document.getElementById('content');
@@ -491,6 +688,7 @@ async function render() {
   if (currentView === 'overview') return renderOverview();
   if (currentView === 'learners') return renderLearners();
   if (currentView === 'lessons') return renderLessons();
+  if (currentView === 'content') return renderContentEditor();
   if (currentView === 'export') return renderExport();
 }
 async function renderOverview() {
@@ -515,22 +713,186 @@ async function renderLearners() {
   const tbody = document.getElementById('learner-rows');
   function draw(filter='') {
     tbody.innerHTML = rows.filter(r => (r.displayName + ' ' + r.email).toLowerCase().includes(filter.toLowerCase())).map(r => '<tr>'+
-      '<td>'+esc(r.displayName)+(r.disabled?' <span class="pill">disabled</span>':'')+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.totalMinutes)+'</td><td>'+esc(r.completionPercent)+'%</td><td>'+esc(r.currentLesson || '')+'</td><td>'+esc(r.visitCount)+'</td><td>'+esc(fmtDate(r.lastActiveAt))+'</td><td><button class="secondary" data-id="'+esc(r.id)+'" data-action="'+(r.disabled?'enable':'disable')+'">'+(r.disabled?'Enable':'Disable')+'</button></td></tr>').join('');
-    tbody.querySelectorAll('button[data-id]').forEach(btn => btn.addEventListener('click', async () => { await api('/api/admin/account-action', { method:'POST', body:{ userId:btn.dataset.id, action:btn.dataset.action } }); renderLearners(); }));
+      '<td>'+esc(r.displayName)+(r.disabled?' <span class="pill">disabled</span>':'')+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.totalMinutes)+'</td><td>'+esc(r.completionPercent)+'%</td><td>'+esc(r.currentLesson || '')+'</td><td>'+esc(r.visitCount)+'</td><td>'+esc(fmtDate(r.lastActiveAt))+'</td><td class="row"><button class="secondary" data-detail="'+esc(r.id)+'">Details</button><button class="secondary" data-id="'+esc(r.id)+'" data-action="'+(r.disabled?'enable':'disable')+'">'+(r.disabled?'Enable':'Disable')+'</button></td></tr>').join('');
+    tbody.querySelectorAll('button[data-detail]').forEach(btn => btn.addEventListener('click', () => renderLearnerDetail(btn.dataset.detail)));
+    tbody.querySelectorAll('button[data-id]').forEach(btn => btn.addEventListener('click', async () => { await accountAction({ userId:btn.dataset.id, action:btn.dataset.action }); renderLearners(); }));
   }
   document.getElementById('search').addEventListener('input', e => draw(e.target.value));
   document.getElementById('refresh').addEventListener('click', renderLearners);
   draw();
 }
+async function accountAction(body) {
+  return api('/api/admin/account-action', { method:'POST', body });
+}
+async function renderLearnerDetail(id) {
+  title.textContent = 'Learner Detail';
+  subtitle.textContent = 'Account support, saved progress, visits, and recent interactions.';
+  const result = await api('/api/admin/learner/' + encodeURIComponent(id));
+  if (!result.ok || !result.learner) {
+    content.innerHTML = '<div class="card"><p>Could not load learner.</p><p><button id="back-learners">Back to learners</button></p></div>';
+    document.getElementById('back-learners').addEventListener('click', renderLearners);
+    return;
+  }
+  const learner = result.learner;
+  const user = learner.user || {};
+  const progress = learner.progress || [];
+  const visits = learner.visits || [];
+  const interactions = learner.interactions || [];
+  content.innerHTML =
+    '<div class="card">' +
+      '<p><button id="back-learners" class="secondary">Back to learners</button></p>' +
+      '<h2>'+esc(user.displayName || '')+'</h2>' +
+      '<p>'+esc(user.email || '')+(user.disabled?' <span class="pill">disabled</span>':'')+'</p>' +
+      '<div class="grid">' +
+        '<div class="card stat"><strong>'+esc(learner.minutes?.totalMinutes || 0)+'</strong>Minutes</div>' +
+        '<div class="card stat"><strong>'+esc(progress.filter(row=>row.completedAt).length)+'</strong>Completed lessons</div>' +
+        '<div class="card stat"><strong>'+esc(learner.toolkit?.length || 0)+'</strong>Toolkit cards</div>' +
+        '<div class="card stat"><strong>'+esc(visits.length)+'</strong>Recent visits</div>' +
+      '</div>' +
+      '<p class="row">' +
+        '<button id="rename-user" class="secondary">Rename</button>' +
+        '<button id="reset-password" class="secondary">Reset password</button>' +
+        '<button id="toggle-disabled" class="secondary">'+(user.disabled?'Enable account':'Disable account')+'</button>' +
+        '<button id="delete-user" class="danger">Delete account</button>' +
+      '</p>' +
+    '</div>' +
+    '<div class="card"><h2>Progress</h2><table><thead><tr><th>Lesson</th><th>Step</th><th>Completed</th><th>Updated</th></tr></thead><tbody>'+progress.map(row => '<tr><td>'+esc(row.lessonId)+'</td><td>'+esc(row.currentStep)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td><td>'+esc(fmtDate(row.updatedAt))+'</td></tr>').join('')+'</tbody></table></div>' +
+    '<div class="card"><h2>Recent Visits</h2><table><thead><tr><th>Path</th><th>When</th><th>Seconds</th></tr></thead><tbody>'+visits.map(row => '<tr><td>'+esc(row.path)+'</td><td>'+esc(fmtDate(row.visited_at || row.visitedAt))+'</td><td>'+esc(row.duration_seconds || row.durationSeconds || '')+'</td></tr>').join('')+'</tbody></table></div>' +
+    '<div class="card"><h2>Recent Interactions</h2><table><thead><tr><th>Lesson</th><th>Step</th><th>Kind</th><th>Correct</th><th>When</th></tr></thead><tbody>'+interactions.map(row => '<tr><td>'+esc(row.lesson_id || row.lessonId)+'</td><td>'+esc(row.step_index || row.stepIndex)+'</td><td>'+esc(row.interaction_kind || row.interactionKind)+'</td><td>'+esc(row.correct == null ? '' : row.correct)+'</td><td>'+esc(fmtDate(row.answered_at || row.answeredAt))+'</td></tr>').join('')+'</tbody></table></div>';
+  document.getElementById('back-learners').addEventListener('click', renderLearners);
+  document.getElementById('rename-user').addEventListener('click', async () => {
+    const displayName = prompt('New display name', user.displayName || '');
+    if (!displayName) return;
+    const saved = await accountAction({ userId:id, action:'rename', displayName });
+    if (saved.ok) renderLearnerDetail(id); else alert(saved.error || 'Could not rename account.');
+  });
+  document.getElementById('reset-password').addEventListener('click', async () => {
+    const newPassword = prompt('Temporary new password, minimum 8 characters');
+    if (!newPassword) return;
+    const saved = await accountAction({ userId:id, action:'resetPassword', newPassword });
+    if (saved.ok) alert('Password reset. Give the learner the temporary password privately.'); else alert(saved.error || 'Could not reset password.');
+  });
+  document.getElementById('toggle-disabled').addEventListener('click', async () => {
+    const saved = await accountAction({ userId:id, action:user.disabled ? 'enable' : 'disable' });
+    if (saved.ok) renderLearnerDetail(id); else alert(saved.error || 'Could not update account.');
+  });
+  document.getElementById('delete-user').addEventListener('click', async () => {
+    if (!confirm('Delete this account? This disables login and removes the email from the active account.')) return;
+    const saved = await accountAction({ userId:id, action:'delete' });
+    if (saved.ok) renderLearners(); else alert(saved.error || 'Could not delete account.');
+  });
+}
 async function renderLessons() {
   title.textContent = 'Lessons'; subtitle.textContent = 'Starts, completions, and difficult steps by lesson.';
   const result = await api('/api/admin/lesson-analytics');
   const rows = result.lessons || [];
-  content.innerHTML = '<div class="card"><table><thead><tr><th>Lesson</th><th>Arc</th><th>Started</th><th>Completed</th><th>Interactions</th><th>Incorrect</th><th>Last activity</th></tr></thead><tbody>' + rows.map(r => '<tr><td>'+esc(r.num)+'. '+esc(r.title)+'</td><td>'+esc(r.arc)+'</td><td>'+esc(r.learnersStarted)+'</td><td>'+esc(r.learnersCompleted)+'</td><td>'+esc(r.interactions)+'</td><td>'+esc(r.incorrectAnswers)+'</td><td>'+esc(fmtDate(r.lastActivityAt))+'</td></tr>').join('') + '</tbody></table></div>';
+  content.innerHTML = '<div class="card"><table><thead><tr><th>Lesson</th><th>Arc</th><th>Started</th><th>Completed</th><th>Interactions</th><th>Incorrect</th><th>Difficult steps</th><th>Last activity</th></tr></thead><tbody>' + rows.map(r => {
+    const difficult = (r.difficultSteps || []).map(step => 'Step '+esc(Number(step.stepIndex) + 1)+' · '+esc(step.kind)+' · '+esc(step.incorrectRate)+'% wrong').join('<br>') || '<span class="muted">None yet</span>';
+    return '<tr><td>'+esc(r.num)+'. '+esc(r.title)+'</td><td>'+esc(r.arc)+'</td><td>'+esc(r.learnersStarted)+'</td><td>'+esc(r.learnersCompleted)+'</td><td>'+esc(r.interactions)+'</td><td>'+esc(r.incorrectAnswers)+'</td><td>'+difficult+'</td><td>'+esc(fmtDate(r.lastActivityAt))+'</td></tr>';
+  }).join('') + '</tbody></table></div>';
+}
+function stepForEditor(step) {
+  return {
+    stepId: step.stepId || '',
+    kind: step.kind || 'reveal',
+    gated: Boolean(step.gated),
+    title: step.title || '',
+    payload: step.payload || {}
+  };
+}
+async function renderContentEditor() {
+  title.textContent = 'Content';
+  subtitle.textContent = 'Edit V2 lesson records stored in PostgreSQL. Startup seed data will not overwrite saved edits.';
+  const result = await api('/api/admin/curriculum');
+  if (!result.ok) {
+    content.innerHTML = '<div class="card"><p>Could not load curriculum.</p></div>';
+    return;
+  }
+  const lessons = (result.curriculum?.lessons || []).slice().sort((a,b)=>Number(a.num||0)-Number(b.num||0));
+  if (!lessons.length) {
+    content.innerHTML = '<div class="card"><p>No lessons found.</p></div>';
+    return;
+  }
+  if (!selectedContentLessonId) selectedContentLessonId = lessons[0].id;
+  const lesson = lessons.find(row => row.id === selectedContentLessonId) || lessons[0];
+  selectedContentLessonId = lesson.id;
+  const lessonButtons = lessons.map(row => '<button data-id="'+esc(row.id)+'" class="'+(row.id===lesson.id?'active':'')+'">'+esc(row.num)+'. '+esc(row.title)+' <span class="pill">'+esc(row.status || (row.stub ? 'locked' : 'published'))+'</span></button>').join('');
+  const stepsJson = JSON.stringify((lesson.steps || []).map(stepForEditor), null, 2);
+  content.innerHTML =
+    '<div class="editor-grid">' +
+      '<section class="card lesson-list"><h2>Lessons</h2>'+lessonButtons+'</section>' +
+      '<section class="card">' +
+        '<div class="row"><h2>'+esc(lesson.num)+'. '+esc(lesson.title)+'</h2><span class="pill">'+esc(lesson.id)+'</span></div>' +
+        '<div class="form-grid">' +
+          '<label><span>Title</span><input id="edit-title" value="'+esc(lesson.title)+'"></label>' +
+          '<label><span>Arc</span><input id="edit-arc" value="'+esc(lesson.arc)+'"></label>' +
+          '<label><span>Status</span><select id="edit-status"><option value="draft">draft</option><option value="published">published</option><option value="locked">locked</option></select></label>' +
+          '<label><span>Level</span><select id="edit-level"><option value="foundation">foundation</option><option value="explorer">explorer</option><option value="builder">builder</option></select></label>' +
+          '<label><span>Minutes</span><input id="edit-minutes" type="number" min="1" max="60" value="'+esc(lesson.minutes || 8)+'"></label>' +
+          '<label class="field-wide"><span>Core question</span><input id="edit-core" value="'+esc(lesson.coreQuestion || '')+'"></label>' +
+          '<label class="field-wide"><span>Blurb</span><input id="edit-blurb" value="'+esc(lesson.blurb || '')+'"></label>' +
+          '<label class="field-wide"><span>Steps JSON</span><textarea id="edit-steps">'+esc(stepsJson)+'</textarea></label>' +
+        '</div>' +
+        '<p class="row"><button id="save-lesson">Save lesson</button><button id="save-steps" class="secondary">Save steps</button><button id="publish-lesson" class="secondary">Publish lesson</button></p>' +
+        '<p id="content-message" class="muted"></p>' +
+      '</section>' +
+    '</div>';
+  document.getElementById('edit-status').value = lesson.status || (lesson.stub ? 'locked' : 'published');
+  document.getElementById('edit-level').value = lesson.levelId || 'foundation';
+  content.querySelectorAll('.lesson-list button[data-id]').forEach(btn => btn.addEventListener('click', () => {
+    selectedContentLessonId = btn.dataset.id;
+    renderContentEditor();
+  }));
+  const msg = document.getElementById('content-message');
+  document.getElementById('save-lesson').addEventListener('click', async () => {
+    msg.textContent = 'Saving lesson...';
+    const body = {
+      title: document.getElementById('edit-title').value,
+      arc: document.getElementById('edit-arc').value,
+      status: document.getElementById('edit-status').value,
+      levelId: document.getElementById('edit-level').value,
+      minutes: Number(document.getElementById('edit-minutes').value),
+      coreQuestion: document.getElementById('edit-core').value,
+      blurb: document.getElementById('edit-blurb').value
+    };
+    const saved = await api('/api/admin/curriculum/lessons/' + encodeURIComponent(lesson.id), { method:'PUT', body });
+    msg.textContent = saved.ok ? 'Lesson saved.' : (saved.error || 'Could not save lesson.');
+    if (saved.ok) renderContentEditor();
+  });
+  document.getElementById('save-steps').addEventListener('click', async () => {
+    msg.textContent = 'Saving steps...';
+    let steps;
+    try { steps = JSON.parse(document.getElementById('edit-steps').value); }
+    catch (error) { msg.textContent = 'Steps JSON is invalid.'; return; }
+    if (!Array.isArray(steps)) { msg.textContent = 'Steps JSON must be an array.'; return; }
+    const saved = await api('/api/admin/curriculum/lessons/' + encodeURIComponent(lesson.id) + '/steps', { method:'PUT', body:{ steps } });
+    msg.textContent = saved.ok ? 'Steps saved.' : (saved.error || 'Could not save steps.');
+    if (saved.ok) renderContentEditor();
+  });
+  document.getElementById('publish-lesson').addEventListener('click', async () => {
+    msg.textContent = 'Publishing lesson...';
+    const published = await api('/api/admin/curriculum/publish', { method:'POST', body:{ lessonId: lesson.id } });
+    msg.textContent = published.ok ? 'Lesson published.' : (published.error || 'Could not publish lesson.');
+    if (published.ok) renderContentEditor();
+  });
 }
 function renderExport() {
   title.textContent = 'Export'; subtitle.textContent = 'CSV exports are admin-only and audited.';
-  content.innerHTML = '<div class="card"><p>Download learner account and progress summary. Export creates an audit event.</p><p><a class="btn" href="/api/admin/export.csv">Download CSV</a></p></div>';
+  content.innerHTML = '<div class="card"><p>Download learner account and progress summary. Export creates an audit event.</p><p><button id="download-csv">Download CSV</button></p><p id="export-message" class="muted"></p></div>';
+  document.getElementById('download-csv').addEventListener('click', async () => {
+    const msg = document.getElementById('export-message');
+    msg.textContent = 'Preparing export...';
+    const headers = {};
+    if (csrfToken) headers['x-csrf-token'] = csrfToken;
+    const res = await fetch('/api/admin/export.csv', { method:'POST', headers, credentials:'include' });
+    if (!res.ok) { msg.textContent = 'Could not export CSV.'; return; }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'learning-ai-learners.csv'; a.click();
+    URL.revokeObjectURL(url);
+    msg.textContent = 'CSV downloaded.';
+  });
 }
 boot();
 </script>
@@ -539,10 +901,17 @@ boot();
 }
 
 export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
-  const database = db || createDb();
+  let database = db;
   let dbReady = false;
   let dbInitError = null;
-  const ready = database.init().then(() => { dbReady = true; }).catch(error => { dbInitError = error; dbReady = false; });
+  const ready = (async () => {
+    if (!database) {
+      const { createDb } = await import('./db.mjs');
+      database = createDb();
+    }
+    await database.init();
+    dbReady = true;
+  })().catch(error => { dbInitError = error; dbReady = false; });
   return http.createServer(async (req, res) => {
     let url;
     try {
@@ -608,6 +977,44 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         return sendJson(res, 200, { ok: true, lessons: await database.lessonAnalytics() }, { req });
       }
+      if (req.method === 'GET' && url.pathname === '/api/admin/ai-requests') {
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, ai: await database.adminAiRequests() }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/admin/curriculum') {
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, curriculum: await database.curriculum() }, { req });
+      }
+      if (req.method === 'PUT' && url.pathname.startsWith('/api/admin/curriculum/lessons/') && !url.pathname.endsWith('/steps')) {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
+        const lessonId = decodeURIComponent(url.pathname.replace('/api/admin/curriculum/lessons/', ''));
+        if (!isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
+        const patch = validateLessonPatch(await readJsonBody(req));
+        if (!patch) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_patch' }, { req });
+        const lesson = await database.adminUpdateLesson({ adminUserId: session.admin.id, lessonId, patch });
+        return lesson ? sendJson(res, 200, { ok: true, lesson }, { req }) : sendJson(res, 404, { ok: false, error: 'lesson_not_found' }, { req });
+      }
+      if (req.method === 'PUT' && url.pathname.startsWith('/api/admin/curriculum/lessons/') && url.pathname.endsWith('/steps')) {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
+        const lessonId = decodeURIComponent(url.pathname.replace('/api/admin/curriculum/lessons/', '').replace('/steps', ''));
+        if (!isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
+        const steps = validateSteps(await readJsonBody(req));
+        if (!steps || steps.some(step => !step)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_steps' }, { req });
+        const lesson = await database.adminReplaceLessonSteps({ adminUserId: session.admin.id, lessonId, steps });
+        return lesson ? sendJson(res, 200, { ok: true, lesson }, { req }) : sendJson(res, 404, { ok: false, error: 'lesson_not_found' }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/admin/curriculum/publish') {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
+        const body = await readJsonBody(req);
+        const lessonId = body?.lessonId ? String(body.lessonId) : null;
+        if (lessonId && !isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
+        return sendJson(res, 200, { ok: true, publish: await database.adminPublishCurriculum({ adminUserId: session.admin.id, lessonId }) }, { req });
+      }
       if (req.method === 'POST' && url.pathname === '/api/admin/account-action') {
         const session = await requireAdmin(req, res, database, { csrf: true, url });
         if (!session) return;
@@ -618,12 +1025,12 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         await database.accountAction({ adminUserId: session.admin.id, ...body, displayName: normalizeName(body.displayName) });
         return sendJson(res, 200, { ok: true }, { req });
       }
-      if (req.method === 'GET' && url.pathname === '/api/admin/export.csv') {
-        const session = await requireAdmin(req, res, database, { url });
+      if (req.method === 'POST' && url.pathname === '/api/admin/export.csv') {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
         if (!session) return;
         await database.audit({ adminUserId: session.admin.id, eventName: 'export_csv' });
         const rows = await database.exportLearners();
-        const csv = ['email,displayName,totalMinutes,visitCount,currentLesson,completionPercent,lastActiveAt', ...rows.map(row => [row.email, row.displayName, row.totalMinutes, row.visitCount, row.currentLesson, row.completionPercent, row.lastActiveAt || ''].map(value => `"${String(value).replaceAll('"', '""')}"`).join(','))].join('\n');
+        const csv = learnerCsv(rows);
         res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="learning-ai-learners.csv"', 'cache-control': 'no-store' });
         return res.end(csv);
       }
@@ -634,6 +1041,24 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const csrfToken = randomToken();
         await database.rotateCsrf(session.session.token_hash, hashToken(csrfToken));
         return sendJson(res, 200, { ok: true, state: await database.stateForUser(session.user.id), csrfToken }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/v2/dashboard') {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, dashboard: await database.dashboardForUser(session.user.id) }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/v2/curriculum') {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, curriculum: await database.curriculum() }, { req });
+      }
+      if (req.method === 'GET' && url.pathname.startsWith('/api/v2/lessons/')) {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        const lessonId = decodeURIComponent(url.pathname.replace('/api/v2/lessons/', ''));
+        if (!isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
+        const lesson = await database.curriculumLesson(lessonId);
+        return lesson ? sendJson(res, 200, { ok: true, lesson }, { req }) : sendJson(res, 404, { ok: false, error: 'lesson_not_found' }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/import-local') {
         const session = await requireUser(req, res, database, { csrf: true });
@@ -666,6 +1091,64 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_interaction' }, { req });
         await database.saveInteraction(session.user.id, body);
         return sendJson(res, 201, { ok: true }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/quiz-answer') {
+        if (!rateLimit(req, 'quiz-answer', 180, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const quizAnswer = validateQuizAnswer(await readJsonBody(req));
+        if (!quizAnswer) return sendJson(res, 400, { ok: false, error: 'invalid_quiz_answer' }, { req });
+        await database.saveQuizAnswer(session.user.id, quizAnswer);
+        return sendJson(res, 201, { ok: true }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/activity-complete') {
+        if (!rateLimit(req, 'activity-complete', 180, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const activity = validateActivityCompletion(await readJsonBody(req));
+        if (!activity) return sendJson(res, 400, { ok: false, error: 'invalid_activity_completion' }, { req });
+        await database.completeActivity(session.user.id, activity);
+        return sendJson(res, 201, { ok: true }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/feedback-request') {
+        if (!rateLimit(req, 'feedback-request', 60, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const request = validateFeedbackRequest(await readJsonBody(req));
+        if (!request) return sendJson(res, 400, { ok: false, error: 'invalid_feedback_request' }, { req });
+        return sendJson(res, 201, { ok: true, request: await database.createFeedbackRequest(session.user.id, request) }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/project-review') {
+        if (!rateLimit(req, 'project-review', 30, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const review = validateProjectReview(await readJsonBody(req));
+        if (!review) return sendJson(res, 400, { ok: false, error: 'invalid_project_review' }, { req });
+        return sendJson(res, 201, { ok: true, review: await database.createProjectReview(session.user.id, review) }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/tutor-sessions') {
+        if (!rateLimit(req, 'tutor-session', 30, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const tutorSession = validateTutorSession(await readJsonBody(req));
+        if (!tutorSession) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_session' }, { req });
+        return sendJson(res, 201, { ok: true, session: await database.createTutorSession(session.user.id, tutorSession) }, { req });
+      }
+      if (req.method === 'POST' && url.pathname.startsWith('/api/v2/tutor-sessions/') && url.pathname.endsWith('/messages')) {
+        if (!rateLimit(req, 'tutor-message', 120, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const sessionId = decodeURIComponent(url.pathname.replace('/api/v2/tutor-sessions/', '').replace('/messages', ''));
+        if (!/^[0-9a-f-]{36}$/i.test(sessionId)) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_session_id' }, { req });
+        const message = validateTutorMessage(await readJsonBody(req));
+        if (!message) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_message' }, { req });
+        const saved = await database.addTutorMessage(session.user.id, { sessionId, ...message });
+        return saved ? sendJson(res, 201, { ok: true, message: saved }, { req }) : sendJson(res, 404, { ok: false, error: 'tutor_session_not_found' }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/v2/insights') {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, insights: await database.progressInsights(session.user.id) }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/toolkit') {
         const session = await requireUser(req, res, database, { csrf: true });
@@ -701,7 +1184,7 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
   });
 }
 
-export { isSafeName, nameKey, normalizeName, summarize };
+export { hashPassword, isSafeName, nameKey, normalizeName, summarize };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const server = createServer();

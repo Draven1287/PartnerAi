@@ -9,7 +9,7 @@ ENV DATA_FILE=/app/data/minutes.json
 COPY package.json ./
 RUN npm install --omit=dev
 
-COPY server.mjs db.mjs ./
+COPY server.mjs db.mjs curriculum-seed.json ./
 
 RUN mkdir -p /app/data \
   && addgroup -S learningai \

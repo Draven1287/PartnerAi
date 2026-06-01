@@ -18,10 +18,6 @@ CORS_ORIGINS=https://learningai4you.com,https://www.learningai4you.com,https://a
 BUILD_SHA=local
 BUILD_TIME=unknown
 
-# Legacy escape hatch. Keep false unless doing a private scripted recovery.
-ALLOW_ADMIN_TOKEN=false
-ADMIN_TOKEN=
-
 # Set true only if importing old /app/data/minutes.json into admin leaderboard during migration.
 INCLUDE_LEGACY_MINUTES_JSON=false
 IMPORT_LEGACY_JSON_STORE=true

@@ -20,13 +20,14 @@
    ============================================================ */
 
 (function () {
-  const LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
-  const ARCS = window.V2_ARCS ? Object.values(window.V2_ARCS) : [];
+  let LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
+  let ARCS = window.V2_ARCS ? Object.values(window.V2_ARCS) : [];
   const KEY = { progress: 'learningai-progress', settings: 'learningai-settings', toolkit: 'learningai-toolkit' };
   const api = window.LearningAIV2Api || null;
   let authChecked = !api;
   let currentUser = null;
   let serverState = null;
+  let curriculumLoadedFromBackend = false;
 
   // step kinds that REQUIRE completion before Next unlocks
   const GATED = new Set(['classify', 'exitCheck', 'toolkitSave', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
@@ -62,6 +63,53 @@
   function savePendingToolkit(c) { return set('learningai-v2-pending-toolkit', JSON.stringify(c.slice(0, 50))); }
   function readPendingProgress() { const t = readJson('learningai-v2-pending-progress', []); return Array.isArray(t) ? t : []; }
   function savePendingProgress(c) { return set('learningai-v2-pending-progress', JSON.stringify(c.slice(0, 100))); }
+
+  function normalizeCurriculumStep(step) {
+    const payload = step?.payload && typeof step.payload === 'object' && !Array.isArray(step.payload) ? step.payload : {};
+    return {
+      kind: step?.kind || payload.kind || 'reveal',
+      ...payload,
+      title: step?.title || payload.title || '',
+      gated: Boolean(step?.gated)
+    };
+  }
+
+  function normalizeCurriculumLesson(lesson) {
+    const steps = Array.isArray(lesson?.steps) ? lesson.steps.map(normalizeCurriculumStep) : [];
+    return {
+      id: lesson.id,
+      num: Number(lesson.num) || 0,
+      arc: lesson.arc || '',
+      title: lesson.title || '',
+      coreQuestion: lesson.coreQuestion || '',
+      blurb: lesson.blurb || '',
+      minutes: Number(lesson.minutes) || 8,
+      resources: Array.isArray(lesson.resources) ? lesson.resources : [],
+      stub: Boolean(lesson.stub || lesson.status !== 'published' || !steps.length),
+      steps
+    };
+  }
+
+  function applyCurriculum(curriculum) {
+    if (!curriculum || !Array.isArray(curriculum.lessons) || !curriculum.lessons.length) return false;
+    LESSONS = curriculum.lessons
+      .map(normalizeCurriculumLesson)
+      .filter(lesson => lesson.id && lesson.title)
+      .sort((a, b) => a.num - b.num);
+    const moduleTitles = Array.isArray(curriculum.modules)
+      ? curriculum.modules.map(module => module.title).filter(Boolean)
+      : [];
+    ARCS = moduleTitles.length ? moduleTitles : [...new Set(LESSONS.map(lesson => lesson.arc).filter(Boolean))];
+    curriculumLoadedFromBackend = true;
+    return true;
+  }
+
+  async function loadCurriculumFromBackend() {
+    if (!api?.curriculum || !currentUser) return false;
+    const result = await api.curriculum().catch(() => ({ ok: false }));
+    if (!result.ok) return false;
+    return applyCurriculum(result.curriculum);
+  }
 
   function applyServerState(state) {
     if (!state) return;
@@ -185,13 +233,33 @@
   function recordInteraction(step, payload) {
     if (!api || !currentLessonId) return;
     const stepIndex = currentLessonStepIndex;
+    const correct = typeof payload?.correct === 'boolean' ? payload.correct : null;
     api.saveInteraction({
       lessonId: currentLessonId,
       stepIndex,
       stepKind: step.kind,
       payload,
-      correct: typeof payload?.correct === 'boolean' ? payload.correct : null
+      correct
     }).catch(() => {});
+    if (step.kind === 'exitCheck' && api.submitQuizAnswer) {
+      api.submitQuizAnswer({
+        lessonId: currentLessonId,
+        stepIndex,
+        quizKey: step.title || step.question || 'exit-check',
+        answer: payload,
+        correct,
+        feedback: payload?.feedback || ''
+      }).catch(() => {});
+    }
+    if (GATED.has(step.kind) && step.kind !== 'exitCheck' && (correct === true || correct == null) && api.completeActivity) {
+      api.completeActivity({
+        lessonId: currentLessonId,
+        stepIndex,
+        activityKind: step.kind,
+        activityKey: step.title || step.cardType || step.kind,
+        payload
+      }).catch(() => {});
+    }
   }
 
   // ---------- mosaic: one square per lesson, revealing a painting as you complete it ----------
@@ -368,8 +436,8 @@
           const wrap = e.target.closest('.lesson-card');
           if (o.ok) {
             wrap.querySelectorAll('.quiz-opt').forEach(b => { b.disabled = true; });
-            e.target.classList.add('right'); fb.textContent = '✓ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: true }); ctx.unlock();
-          } else { e.target.classList.add('wrong'); e.target.disabled = true; fb.textContent = '✗ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: false }); }
+            e.target.classList.add('right'); fb.textContent = '✓ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: true, feedback: o.feedback }); ctx.unlock();
+          } else { e.target.classList.add('wrong'); e.target.disabled = true; fb.textContent = '✗ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: false, feedback: o.feedback }); }
         }
       }, o.text));
       return card([tag('Check'), h('h2', null, s.title), h('p', null, s.question), h('div', { class: 'quiz-opts' }, opts), fb, lockHint('Pick the right answer to continue.')]);
@@ -505,6 +573,7 @@
     const localGauge = readJson('modelwise-gauge', null);
     await syncPendingProgress();
     await syncPendingToolkit();
+    await loadCurriculumFromBackend();
     let state = await api.state();
     if (currentUser && !get('learningai-v2-imported')) {
       const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit(), assessment: localGauge || null }).catch(() => ({ ok: false }));

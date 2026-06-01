@@ -1,9 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import vm from 'node:vm';
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
-const MIGRATION_VERSION = 1;
+const MIGRATION_VERSION = 5;
+const CONTENT_VERSION = 'v2-2026-06-01';
 
 const LESSONS = [
   ['chapter-1', 1, 'Orientation', 'Why AI matters - and why you stay in charge'],
@@ -69,6 +72,64 @@ function rowAdmin(row) {
   };
 }
 
+function slug(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function levelForLessonNum(num) {
+  const n = Number(num) || 0;
+  if (n >= 25) return 'builder';
+  if (n >= 10) return 'explorer';
+  return 'foundation';
+}
+
+function loadStaticLessons() {
+  const fallback = LESSONS.map(([id, num, arc, title]) => ({
+    id,
+    num,
+    arc,
+    title,
+    coreQuestion: '',
+    blurb: '',
+    minutes: 8,
+    stub: true,
+    resources: [],
+    steps: []
+  }));
+  const seedFile = process.env.CURRICULUM_SEED_FILE
+    ? pathToFileURL(process.env.CURRICULUM_SEED_FILE)
+    : new URL('./curriculum-seed.json', import.meta.url);
+  if (existsSync(seedFile)) {
+    try {
+      const parsed = JSON.parse(readFileSync(seedFile, 'utf8'));
+      return Array.isArray(parsed.lessons) ? parsed.lessons : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  const source = new URL('../v2/lessons.js', import.meta.url);
+  if (!existsSync(source)) return fallback;
+  try {
+    const context = { window: {} };
+    vm.createContext(context);
+    vm.runInContext(readFileSync(source, 'utf8'), context, { filename: 'v2/lessons.js', timeout: 1000 });
+    return Array.isArray(context.window.LESSONS) ? context.window.LESSONS : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function publicStepPayload(step) {
+  const payload = { ...emptyJson(step) };
+  delete payload.kind;
+  return payload;
+}
+
 export function createDb(options = {}) {
   const connectionString = options.connectionString || process.env.DATABASE_URL;
   const poolConfig = connectionString ? { connectionString } : {
@@ -93,6 +154,21 @@ export function createDb(options = {}) {
     return pool.query(text, params);
   }
 
+  async function transaction(fn) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await fn((text, params = []) => client.query(text, params));
+      await client.query('COMMIT');
+      return result;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
   async function init() {
     await query('CREATE EXTENSION IF NOT EXISTS pgcrypto');
     await query(`CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -103,6 +179,10 @@ export function createDb(options = {}) {
     const current = await query('SELECT max(version)::int AS version FROM schema_migrations');
     const version = current.rows[0]?.version || 0;
     if (version < 1) await migrateV1();
+    if (version < 2) await migrateV2();
+    if (version < 3) await migrateV3();
+    if (version < 4) await migrateV4();
+    if (version < 5) await migrateV5();
     await seedLessons();
     await seedAdmin();
     await importLegacyJsonStore();
@@ -325,14 +405,239 @@ export function createDb(options = {}) {
       CREATE INDEX IF NOT EXISTS minutes_user_date_idx ON learning_minutes(user_id, date);
       CREATE INDEX IF NOT EXISTS audit_events_name_idx ON audit_events(event_name, created_at DESC);
     `);
-    await query('INSERT INTO schema_migrations(version) VALUES ($1) ON CONFLICT DO NOTHING', [MIGRATION_VERSION]);
+    await query('INSERT INTO schema_migrations(version) VALUES (1) ON CONFLICT DO NOTHING');
+  }
+
+  async function migrateV2() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS curriculum_modules (
+        id text PRIMARY KEY,
+        title text NOT NULL,
+        sort_order integer NOT NULL,
+        status text NOT NULL DEFAULT 'published',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      ALTER TABLE lessons
+        ADD COLUMN IF NOT EXISTS module_id text REFERENCES curriculum_modules(id),
+        ADD COLUMN IF NOT EXISTS core_question text NOT NULL DEFAULT '',
+        ADD COLUMN IF NOT EXISTS blurb text NOT NULL DEFAULT '',
+        ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'published',
+        ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS published_version text NOT NULL DEFAULT 'v2-2026-06-01',
+        ADD COLUMN IF NOT EXISTS resources_json jsonb NOT NULL DEFAULT '[]'::jsonb;
+
+      ALTER TABLE lesson_steps
+        ADD COLUMN IF NOT EXISTS step_id text,
+        ADD COLUMN IF NOT EXISTS title text NOT NULL DEFAULT '',
+        ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS payload_json jsonb NOT NULL DEFAULT '{}'::jsonb;
+
+      CREATE INDEX IF NOT EXISTS lessons_module_order_idx ON lessons(module_id, sort_order);
+      CREATE INDEX IF NOT EXISTS lesson_steps_order_idx ON lesson_steps(lesson_id, sort_order);
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (2) ON CONFLICT DO NOTHING');
+  }
+
+  async function migrateV3() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS quiz_submissions (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        lesson_id text NOT NULL REFERENCES lessons(id),
+        step_index integer NOT NULL,
+        quiz_key text,
+        answer_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        correct boolean,
+        feedback text,
+        submitted_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS activity_completions (
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        lesson_id text NOT NULL REFERENCES lessons(id),
+        step_index integer NOT NULL,
+        activity_kind text NOT NULL,
+        activity_key text,
+        payload_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        completed_at timestamptz NOT NULL DEFAULT now(),
+        PRIMARY KEY (user_id, lesson_id, step_index, activity_kind)
+      );
+
+      CREATE INDEX IF NOT EXISTS quiz_submissions_user_idx ON quiz_submissions(user_id, lesson_id, submitted_at DESC);
+      CREATE INDEX IF NOT EXISTS quiz_submissions_difficulty_idx ON quiz_submissions(lesson_id, step_index, correct);
+      CREATE INDEX IF NOT EXISTS activity_completions_user_idx ON activity_completions(user_id, lesson_id, completed_at DESC);
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (3) ON CONFLICT DO NOTHING');
+  }
+
+  async function migrateV4() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS ai_feedback_requests (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        lesson_id text REFERENCES lessons(id),
+        step_index integer,
+        request_type text NOT NULL,
+        prompt_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        status text NOT NULL DEFAULT 'queued',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        resolved_at timestamptz
+      );
+
+      CREATE TABLE IF NOT EXISTS project_reviews (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        title text NOT NULL,
+        project_url text,
+        artifact_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        status text NOT NULL DEFAULT 'queued',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS tutor_sessions (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        lesson_id text REFERENCES lessons(id),
+        topic text NOT NULL,
+        status text NOT NULL DEFAULT 'open',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS tutor_messages (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id uuid NOT NULL REFERENCES tutor_sessions(id) ON DELETE CASCADE,
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        role text NOT NULL CHECK (role IN ('learner', 'assistant', 'admin')),
+        content text NOT NULL,
+        metadata_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS progress_insights (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        insight_type text NOT NULL,
+        title text NOT NULL,
+        body text NOT NULL,
+        payload_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        read_at timestamptz
+      );
+
+      CREATE INDEX IF NOT EXISTS ai_feedback_user_idx ON ai_feedback_requests(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS ai_feedback_status_idx ON ai_feedback_requests(status, created_at DESC);
+      CREATE INDEX IF NOT EXISTS project_reviews_user_idx ON project_reviews(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS tutor_sessions_user_idx ON tutor_sessions(user_id, updated_at DESC);
+      CREATE INDEX IF NOT EXISTS tutor_messages_session_idx ON tutor_messages(session_id, created_at ASC);
+      CREATE INDEX IF NOT EXISTS progress_insights_user_idx ON progress_insights(user_id, created_at DESC);
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (4) ON CONFLICT DO NOTHING');
+  }
+
+  async function migrateV5() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS curriculum_tracks (
+        id text PRIMARY KEY,
+        title text NOT NULL,
+        description text NOT NULL DEFAULT '',
+        sort_order integer NOT NULL DEFAULT 0,
+        status text NOT NULL DEFAULT 'published',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS curriculum_levels (
+        id text PRIMARY KEY,
+        title text NOT NULL,
+        description text NOT NULL DEFAULT '',
+        sort_order integer NOT NULL DEFAULT 0,
+        status text NOT NULL DEFAULT 'published',
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      ALTER TABLE curriculum_modules
+        ADD COLUMN IF NOT EXISTS track_id text REFERENCES curriculum_tracks(id);
+
+      ALTER TABLE lessons
+        ADD COLUMN IF NOT EXISTS level_id text REFERENCES curriculum_levels(id);
+
+      CREATE INDEX IF NOT EXISTS curriculum_modules_track_idx ON curriculum_modules(track_id, sort_order);
+      CREATE INDEX IF NOT EXISTS lessons_level_order_idx ON lessons(level_id, sort_order);
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (5) ON CONFLICT DO NOTHING');
   }
 
   async function seedLessons() {
-    for (const lesson of LESSONS) {
-      await query(`INSERT INTO lessons(id, num, arc, title)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (id) DO UPDATE SET num = EXCLUDED.num, arc = EXCLUDED.arc, title = EXCLUDED.title`, lesson);
+    const lessons = loadStaticLessons();
+    await query(`INSERT INTO curriculum_tracks(id, title, description, sort_order, status)
+      VALUES ('core-ai-literacy', 'Core AI Literacy', 'The main Learning AI path from beginner understanding to useful AI workflows.', 1, 'published')
+      ON CONFLICT (id) DO NOTHING`);
+    const levels = [
+      ['foundation', 'Foundation', 'Understand what AI is, how to talk to it, and why the human stays in charge.', 1],
+      ['explorer', 'Explorer', 'Use AI with judgment across conversation, verification, safety, and applied work.', 2],
+      ['builder', 'Builder', 'Design workflows, tools, agents, evaluations, and a capstone project.', 3]
+    ];
+    for (const [id, title, description, sortOrder] of levels) {
+      await query(`INSERT INTO curriculum_levels(id, title, description, sort_order, status)
+        VALUES ($1, $2, $3, $4, 'published')
+        ON CONFLICT (id) DO NOTHING`, [id, title, description, sortOrder]);
+    }
+
+    const moduleTitles = [...new Set(lessons.map(lesson => lesson.arc).filter(Boolean))];
+    for (const [index, title] of moduleTitles.entries()) {
+      await query(`INSERT INTO curriculum_modules(id, title, track_id, sort_order, status, updated_at)
+        VALUES ($1, $2, 'core-ai-literacy', $3, 'published', now())
+        ON CONFLICT (id) DO NOTHING`, [
+        slug(title),
+        title,
+        index + 1
+      ]);
+    }
+
+    for (const lesson of lessons) {
+      const moduleId = slug(lesson.arc);
+      const status = lesson.stub ? 'locked' : 'published';
+      await query(`INSERT INTO lessons(id, num, arc, title, module_id, level_id, core_question, blurb, status, sort_order, minutes_estimate, published_version, resources_json)
+        VALUES ($1, $2, $3, $4, NULLIF($5, ''), $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
+        ON CONFLICT (id) DO NOTHING`, [
+        lesson.id,
+        Number(lesson.num) || 0,
+        String(lesson.arc || ''),
+        String(lesson.title || ''),
+        moduleId,
+        levelForLessonNum(lesson.num),
+        String(lesson.coreQuestion || ''),
+        String(lesson.blurb || ''),
+        status,
+        Number(lesson.num) || 0,
+        Number(lesson.minutes) || 8,
+        CONTENT_VERSION,
+        JSON.stringify(Array.isArray(lesson.resources) ? lesson.resources : [])
+      ]);
+
+      const existingSteps = await query('SELECT count(*)::int AS count FROM lesson_steps WHERE lesson_id = $1', [lesson.id]);
+      if ((existingSteps.rows[0]?.count || 0) > 0) continue;
+
+      for (const [index, step] of (Array.isArray(lesson.steps) ? lesson.steps : []).entries()) {
+        await query(`INSERT INTO lesson_steps(lesson_id, step_index, kind, gated, content_version, step_id, title, sort_order, payload_json)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+          ON CONFLICT (lesson_id, step_index) DO NOTHING`, [
+          lesson.id,
+          index,
+          String(step.kind || 'reveal'),
+          ['classify', 'exitCheck', 'toolkitSave', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain'].includes(step.kind),
+          CONTENT_VERSION,
+          `${lesson.id}-step-${index + 1}`,
+          String(step.title || ''),
+          index,
+          JSON.stringify(publicStepPayload(step))
+        ]);
+      }
     }
   }
 
@@ -447,6 +752,35 @@ export function createDb(options = {}) {
     await query(`INSERT INTO sessions(kind, user_id, admin_user_id, token_hash, csrf_token_hash, expires_at)
       VALUES ($1, $2, $3, $4, $5, $6)`, [kind, userId, adminUserId, tokenHash, csrfTokenHash, expiresAt]);
     if (kind === 'admin') await query('UPDATE admin_users SET last_login_at = now(), updated_at = now() WHERE id = $1', [adminUserId]);
+  }
+
+  async function createPasswordResetToken({ email, tokenHash, expiresAt }) {
+    const user = await findUserByEmail(email);
+    if (!user || user.disabled) return null;
+    await query('UPDATE password_reset_tokens SET used_at = now() WHERE user_id = $1 AND used_at IS NULL', [user.id]);
+    await query(`INSERT INTO password_reset_tokens(user_id, token_hash, expires_at)
+      VALUES ($1, $2, $3)`, [user.id, tokenHash, expiresAt]);
+    return { userId: user.id };
+  }
+
+  async function confirmPasswordReset({ tokenHash, passwordHash }) {
+    return transaction(async tx => {
+      const token = await tx(`SELECT prt.id, prt.user_id
+        FROM password_reset_tokens prt
+        JOIN users u ON u.id = prt.user_id
+        WHERE prt.token_hash = $1
+          AND prt.used_at IS NULL
+          AND prt.expires_at > now()
+          AND u.disabled = false
+          AND u.deleted_at IS NULL
+        FOR UPDATE`, [tokenHash]);
+      const row = token.rows[0];
+      if (!row) return false;
+      await tx('UPDATE users SET password_hash = $2, updated_at = now() WHERE id = $1', [row.user_id, passwordHash]);
+      await tx('UPDATE password_reset_tokens SET used_at = now() WHERE id = $1', [row.id]);
+      await tx('DELETE FROM sessions WHERE user_id = $1', [row.user_id]);
+      return true;
+    });
   }
 
   async function deleteSession(tokenHash) {
@@ -565,6 +899,54 @@ export function createDb(options = {}) {
     await touchUser(userId);
   }
 
+  async function saveQuizAnswer(userId, { lessonId, stepIndex = 0, quizKey = '', answer = {}, correct = null, feedback = '' }) {
+    const lesson = String(lessonId || '').trim();
+    const step = Math.max(0, Number(stepIndex) || 0);
+    await query(`INSERT INTO quiz_submissions(user_id, lesson_id, step_index, quiz_key, answer_json, correct, feedback)
+      VALUES ($1, $2, $3, NULLIF($4, ''), $5::jsonb, $6, NULLIF($7, ''))`, [
+      userId,
+      lesson,
+      step,
+      String(quizKey || '').slice(0, 120),
+      JSON.stringify(emptyJson(answer)),
+      typeof correct === 'boolean' ? correct : null,
+      String(feedback || '').slice(0, 1000)
+    ]);
+    await saveInteraction(userId, {
+      lessonId: lesson,
+      stepIndex: step,
+      stepKind: 'quiz',
+      payload: { quizKey, answer, feedback },
+      correct
+    });
+  }
+
+  async function completeActivity(userId, { lessonId, stepIndex = 0, activityKind = 'activity', activityKey = '', payload = {} }) {
+    const lesson = String(lessonId || '').trim();
+    const step = Math.max(0, Number(stepIndex) || 0);
+    const kind = String(activityKind || 'activity').slice(0, 80);
+    await query(`INSERT INTO activity_completions(user_id, lesson_id, step_index, activity_kind, activity_key, payload_json, completed_at)
+      VALUES ($1, $2, $3, $4, NULLIF($5, ''), $6::jsonb, now())
+      ON CONFLICT (user_id, lesson_id, step_index, activity_kind) DO UPDATE SET
+        activity_key = EXCLUDED.activity_key,
+        payload_json = EXCLUDED.payload_json,
+        completed_at = now()`, [
+      userId,
+      lesson,
+      step,
+      kind,
+      String(activityKey || '').slice(0, 120),
+      JSON.stringify(emptyJson(payload))
+    ]);
+    await query(`INSERT INTO lesson_step_progress(user_id, lesson_id, step_index, status, completed_at)
+      VALUES ($1, $2, $3, 'completed', now())
+      ON CONFLICT (user_id, lesson_id, step_index) DO UPDATE SET status = 'completed', completed_at = COALESCE(lesson_step_progress.completed_at, now())`, [userId, lesson, step]);
+    await query(`INSERT INTO learner_state(user_id, current_lesson_id, current_step_index, updated_at)
+      VALUES ($1, $2, $3, now())
+      ON CONFLICT (user_id) DO UPDATE SET current_lesson_id = $2, current_step_index = GREATEST(learner_state.current_step_index, $3), updated_at = now()`, [userId, lesson, step]);
+    await touchUser(userId);
+  }
+
   async function saveToolkit(userId, { id = '', cardType, lessonId = null, title = '', payload = {}, fields = null }) {
     const sourceKey = id ? String(id).slice(0, 120) : null;
     const result = await query(`INSERT INTO toolkit_cards(user_id, lesson_id, card_type, title, fields_json, source_key)
@@ -617,6 +999,198 @@ export function createDb(options = {}) {
     if (payload?.assessment) await saveAssessment(userId, payload.assessment);
   }
 
+  async function curriculum() {
+    const tracks = await query(`SELECT id, title, description, sort_order, status
+      FROM curriculum_tracks
+      ORDER BY sort_order ASC, title ASC`);
+    const levels = await query(`SELECT id, title, description, sort_order, status
+      FROM curriculum_levels
+      ORDER BY sort_order ASC, title ASC`);
+    const modules = await query(`SELECT id, title, track_id, sort_order, status
+      FROM curriculum_modules
+      ORDER BY sort_order ASC, title ASC`);
+    const lessons = await query(`SELECT id, num, arc, title, module_id, level_id, core_question, blurb, status,
+        sort_order, minutes_estimate, published_version, resources_json
+      FROM lessons
+      ORDER BY sort_order ASC, num ASC`);
+    const steps = await query(`SELECT lesson_id, step_index, step_id, kind, gated, title, payload_json,
+        sort_order, content_version
+      FROM lesson_steps
+      ORDER BY lesson_id ASC, sort_order ASC, step_index ASC`);
+
+    const stepsByLesson = new Map();
+    for (const row of steps.rows) {
+      const list = stepsByLesson.get(row.lesson_id) || [];
+      list.push({
+        stepId: row.step_id || `${row.lesson_id}-step-${row.step_index + 1}`,
+        stepIndex: row.step_index,
+        kind: row.kind,
+        gated: row.gated,
+        title: row.title,
+        sortOrder: row.sort_order,
+        contentVersion: row.content_version,
+        payload: row.payload_json || {}
+      });
+      stepsByLesson.set(row.lesson_id, list);
+    }
+
+    const lessonsByModule = new Map();
+    const lessonRows = lessons.rows.map(row => ({
+      id: row.id,
+      num: row.num,
+      arc: row.arc,
+      title: row.title,
+      moduleId: row.module_id || '',
+      levelId: row.level_id || levelForLessonNum(row.num),
+      coreQuestion: row.core_question,
+      blurb: row.blurb,
+      status: row.status,
+      stub: row.status !== 'published',
+      sortOrder: row.sort_order,
+      minutes: row.minutes_estimate,
+      publishedVersion: row.published_version,
+      resources: Array.isArray(row.resources_json) ? row.resources_json : [],
+      steps: stepsByLesson.get(row.id) || []
+    }));
+
+    for (const lesson of lessonRows) {
+      const key = lesson.moduleId || slug(lesson.arc);
+      const list = lessonsByModule.get(key) || [];
+      list.push(lesson);
+      lessonsByModule.set(key, list);
+    }
+
+    return {
+      version: CONTENT_VERSION,
+      tracks: tracks.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        sortOrder: row.sort_order,
+        status: row.status,
+        modules: modules.rows.filter(module => (module.track_id || 'core-ai-literacy') === row.id).map(module => module.id)
+      })),
+      levels: levels.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        sortOrder: row.sort_order,
+        status: row.status,
+        lessons: lessonRows.filter(lesson => lesson.levelId === row.id).map(lesson => lesson.id)
+      })),
+      modules: modules.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        trackId: row.track_id || 'core-ai-literacy',
+        sortOrder: row.sort_order,
+        status: row.status,
+        lessons: lessonsByModule.get(row.id) || []
+      })),
+      lessons: lessonRows
+    };
+  }
+
+  async function curriculumLesson(lessonId) {
+    const all = await curriculum();
+    return all.lessons.find(lesson => lesson.id === lessonId) || null;
+  }
+
+  async function adminUpdateLesson({ adminUserId, lessonId, patch }) {
+    const existing = await query('SELECT * FROM lessons WHERE id = $1', [lessonId]);
+    const current = existing.rows[0];
+    if (!current) return null;
+
+    const arc = patch.arc == null ? current.arc : String(patch.arc).slice(0, 120);
+    const moduleId = slug(arc);
+    if (moduleId) {
+      await query(`INSERT INTO curriculum_modules(id, title, track_id, sort_order, status, updated_at)
+        VALUES ($1, $2, 'core-ai-literacy', COALESCE((SELECT max(sort_order) + 1 FROM curriculum_modules), 1), 'published', now())
+        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, updated_at = now()`, [moduleId, arc]);
+    }
+
+    const resources = Array.isArray(patch.resources) ? patch.resources.slice(0, 20).map(resource => ({
+      label: String(resource.label || '').slice(0, 160),
+      url: String(resource.url || '').slice(0, 500)
+    })).filter(resource => resource.label && /^https:\/\//i.test(resource.url)) : current.resources_json;
+
+    await query(`UPDATE lessons SET
+        title = $2,
+        arc = $3,
+        module_id = NULLIF($4, ''),
+        core_question = $5,
+        blurb = $6,
+        status = $7,
+        sort_order = $8,
+        minutes_estimate = $9,
+        resources_json = $10::jsonb,
+        level_id = $11
+      WHERE id = $1`, [
+      lessonId,
+      patch.title == null ? current.title : String(patch.title).slice(0, 180),
+      arc,
+      moduleId,
+      patch.coreQuestion == null ? current.core_question : String(patch.coreQuestion).slice(0, 240),
+      patch.blurb == null ? current.blurb : String(patch.blurb).slice(0, 360),
+      patch.status == null ? current.status : String(patch.status),
+      Number.isFinite(Number(patch.sortOrder)) ? Number(patch.sortOrder) : current.sort_order,
+      Number.isFinite(Number(patch.minutes)) ? Math.max(1, Math.min(60, Math.round(Number(patch.minutes)))) : current.minutes_estimate,
+      JSON.stringify(resources || []),
+      patch.levelId == null ? current.level_id || levelForLessonNum(current.num) : String(patch.levelId)
+    ]);
+    await audit({ adminUserId, eventName: 'curriculum_lesson_update', payload: { lessonId } });
+    return curriculumLesson(lessonId);
+  }
+
+  async function adminReplaceLessonSteps({ adminUserId, lessonId, steps }) {
+    const existing = await query('SELECT id FROM lessons WHERE id = $1', [lessonId]);
+    if (!existing.rows.length) return null;
+    const rows = steps.slice(0, 80).map((step, index) => ({
+      stepIndex: Number.isFinite(Number(step.stepIndex)) ? Math.max(0, Math.round(Number(step.stepIndex))) : index,
+      kind: String(step.kind || 'reveal').slice(0, 80),
+      gated: Boolean(step.gated),
+      stepId: String(step.stepId || `${lessonId}-step-${index + 1}`).slice(0, 160),
+      title: String(step.title || step.payload?.title || '').slice(0, 180),
+      payload: emptyJson(step.payload),
+      sortOrder: Number.isFinite(Number(step.sortOrder)) ? Math.round(Number(step.sortOrder)) : index
+    })).sort((a, b) => a.sortOrder - b.sortOrder || a.stepIndex - b.stepIndex);
+
+    await transaction(async tx => {
+      await tx('DELETE FROM lesson_steps WHERE lesson_id = $1', [lessonId]);
+      for (const [index, step] of rows.entries()) {
+        await tx(`INSERT INTO lesson_steps(lesson_id, step_index, kind, gated, content_version, step_id, title, sort_order, payload_json)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)`, [
+          lessonId,
+          index,
+          step.kind,
+          step.gated,
+          CONTENT_VERSION,
+          step.stepId,
+          step.title,
+          index,
+          JSON.stringify(step.payload)
+        ]);
+      }
+    });
+    await audit({ adminUserId, eventName: 'curriculum_steps_replace', payload: { lessonId, stepCount: rows.length } });
+    return curriculumLesson(lessonId);
+  }
+
+  async function adminPublishCurriculum({ adminUserId, lessonId = null }) {
+    const version = `v2-${new Date().toISOString().slice(0, 10)}`;
+    let result;
+    if (lessonId) {
+      result = await query(`UPDATE lessons
+        SET status = 'published', published_version = $2
+        WHERE id = $1 RETURNING id`, [lessonId, version]);
+    } else {
+      result = await query(`UPDATE lessons
+        SET status = 'published', published_version = $1
+        WHERE status = 'draft' RETURNING id`, [version]);
+    }
+    await audit({ adminUserId, eventName: 'curriculum_publish', payload: { lessonId, version, lessonCount: result.rowCount } });
+    return { version, lessonCount: result.rowCount };
+  }
+
   async function stateForUser(userId) {
     const user = await findUserById(userId);
     const assessment = await query(`SELECT ar.calculated_json, ar.created_at, ar.level, ar.focus_area, ar.primary_goal, ar.learning_style, ar.main_concern
@@ -634,6 +1208,154 @@ export function createDb(options = {}) {
       progress: progress.rows.map(row => ({ lessonId: row.lesson_id, currentStep: row.last_step_index, completedAt: row.completed_at || '', updatedAt: row.updated_at })),
       toolkit: toolkit.rows.map(row => ({ id: row.id, cardType: row.card_type, lessonId: row.lesson_id, title: row.title, payload: row.fields_json, createdAt: row.created_at, updatedAt: row.updated_at })),
       minutes: { totalMinutes: minutes.rows[0].total_minutes, entries: minutes.rows[0].entries }
+    };
+  }
+
+  async function dashboardForUser(userId) {
+    const [state, course, quizTotals, activityTotals] = await Promise.all([
+      stateForUser(userId),
+      curriculum(),
+      query('SELECT count(*)::int AS count, count(CASE WHEN correct = false THEN 1 END)::int AS incorrect FROM quiz_submissions WHERE user_id = $1', [userId]),
+      query('SELECT count(*)::int AS count, max(completed_at) AS last_completed_at FROM activity_completions WHERE user_id = $1', [userId])
+    ]);
+    const completed = new Set((state.progress || []).filter(row => row.completedAt).map(row => row.lessonId));
+    const authoredLessons = course.lessons.filter(lesson => !lesson.stub);
+    const nextLesson = authoredLessons.find(lesson => !completed.has(lesson.id)) || null;
+    const completedLessons = authoredLessons.filter(lesson => completed.has(lesson.id)).length;
+    const modules = course.modules.map(module => {
+      const lessons = module.lessons.filter(lesson => !lesson.stub);
+      const completedInModule = lessons.filter(lesson => completed.has(lesson.id)).length;
+      return {
+        id: module.id,
+        title: module.title,
+        completedLessons: completedInModule,
+        totalLessons: lessons.length
+      };
+    });
+    return {
+      user: state.user,
+      assessment: state.assessment,
+      currentLesson: state.learnerState?.current_lesson_id || nextLesson?.id || '',
+      currentStep: state.learnerState?.current_step_index || 0,
+      nextLesson,
+      completedLessons,
+      totalLessons: authoredLessons.length,
+      completionPercent: authoredLessons.length ? Math.round((completedLessons / authoredLessons.length) * 100) : 0,
+      minutes: state.minutes,
+      toolkitCount: state.toolkit.length,
+      quizSubmissions: quizTotals.rows[0]?.count || 0,
+      incorrectQuizSubmissions: quizTotals.rows[0]?.incorrect || 0,
+      completedActivities: activityTotals.rows[0]?.count || 0,
+      lastActivityCompletedAt: activityTotals.rows[0]?.last_completed_at || '',
+      modules
+    };
+  }
+
+  async function createFeedbackRequest(userId, { lessonId = null, stepIndex = null, requestType = 'feedback', prompt = {} }) {
+    const result = await query(`INSERT INTO ai_feedback_requests(user_id, lesson_id, step_index, request_type, prompt_json)
+      VALUES ($1, NULLIF($2, ''), $3, $4, $5::jsonb) RETURNING id, status, created_at`, [
+      userId,
+      String(lessonId || ''),
+      Number.isInteger(stepIndex) ? stepIndex : null,
+      String(requestType || 'feedback').slice(0, 80),
+      JSON.stringify(emptyJson(prompt))
+    ]);
+    await touchUser(userId);
+    return {
+      id: result.rows[0].id,
+      status: result.rows[0].status,
+      createdAt: result.rows[0].created_at
+    };
+  }
+
+  async function createProjectReview(userId, { title, projectUrl = '', artifact = {} }) {
+    const result = await query(`INSERT INTO project_reviews(user_id, title, project_url, artifact_json)
+      VALUES ($1, $2, NULLIF($3, ''), $4::jsonb) RETURNING id, status, created_at`, [
+      userId,
+      String(title || 'Untitled project').slice(0, 180),
+      String(projectUrl || '').slice(0, 500),
+      JSON.stringify(emptyJson(artifact))
+    ]);
+    await touchUser(userId);
+    return {
+      id: result.rows[0].id,
+      status: result.rows[0].status,
+      createdAt: result.rows[0].created_at
+    };
+  }
+
+  async function createTutorSession(userId, { lessonId = null, topic }) {
+    const result = await query(`INSERT INTO tutor_sessions(user_id, lesson_id, topic)
+      VALUES ($1, NULLIF($2, ''), $3) RETURNING id, topic, status, created_at`, [
+      userId,
+      String(lessonId || ''),
+      String(topic || 'AI learning help').slice(0, 180)
+    ]);
+    await touchUser(userId);
+    return {
+      id: result.rows[0].id,
+      topic: result.rows[0].topic,
+      status: result.rows[0].status,
+      createdAt: result.rows[0].created_at
+    };
+  }
+
+  async function addTutorMessage(userId, { sessionId, role = 'learner', content, metadata = {} }) {
+    const session = await query('SELECT id FROM tutor_sessions WHERE id = $1 AND user_id = $2', [sessionId, userId]);
+    if (!session.rows.length) return null;
+    const result = await query(`INSERT INTO tutor_messages(session_id, user_id, role, content, metadata_json)
+      VALUES ($1, $2, $3, $4, $5::jsonb) RETURNING id, created_at`, [
+      sessionId,
+      userId,
+      role,
+      String(content || '').slice(0, 4000),
+      JSON.stringify(emptyJson(metadata))
+    ]);
+    await query('UPDATE tutor_sessions SET updated_at = now() WHERE id = $1', [sessionId]);
+    await touchUser(userId);
+    return {
+      id: result.rows[0].id,
+      createdAt: result.rows[0].created_at
+    };
+  }
+
+  async function progressInsights(userId) {
+    const result = await query(`SELECT id, insight_type, title, body, payload_json, created_at, read_at
+      FROM progress_insights
+      WHERE user_id = $1
+      ORDER BY created_at DESC
+      LIMIT 50`, [userId]);
+    return result.rows.map(row => ({
+      id: row.id,
+      insightType: row.insight_type,
+      title: row.title,
+      body: row.body,
+      payload: row.payload_json,
+      createdAt: row.created_at,
+      readAt: row.read_at || ''
+    }));
+  }
+
+  async function adminAiRequests() {
+    const feedback = await query(`SELECT afr.id, afr.request_type, afr.status, afr.created_at, u.email, u.display_name
+      FROM ai_feedback_requests afr
+      JOIN users u ON u.id = afr.user_id
+      ORDER BY afr.created_at DESC
+      LIMIT 100`);
+    const reviews = await query(`SELECT pr.id, pr.title, pr.status, pr.created_at, u.email, u.display_name
+      FROM project_reviews pr
+      JOIN users u ON u.id = pr.user_id
+      ORDER BY pr.created_at DESC
+      LIMIT 100`);
+    const sessions = await query(`SELECT ts.id, ts.topic, ts.status, ts.updated_at, u.email, u.display_name
+      FROM tutor_sessions ts
+      JOIN users u ON u.id = ts.user_id
+      ORDER BY ts.updated_at DESC
+      LIMIT 100`);
+    return {
+      feedbackRequests: feedback.rows.map(row => ({ id: row.id, requestType: row.request_type, status: row.status, createdAt: row.created_at, email: row.email, displayName: row.display_name })),
+      projectReviews: reviews.rows.map(row => ({ id: row.id, title: row.title, status: row.status, createdAt: row.created_at, email: row.email, displayName: row.display_name })),
+      tutorSessions: sessions.rows.map(row => ({ id: row.id, topic: row.topic, status: row.status, updatedAt: row.updated_at, email: row.email, displayName: row.display_name }))
     };
   }
 
@@ -723,6 +1445,28 @@ export function createDb(options = {}) {
       LEFT JOIN interaction_answers ia ON ia.lesson_id = l.id
       GROUP BY l.id
       ORDER BY l.num ASC`);
+    const difficult = await query(`SELECT lesson_id, step_index, interaction_kind,
+        count(*)::int AS attempts,
+        count(CASE WHEN correct = false THEN 1 END)::int AS incorrect
+      FROM interaction_answers
+      WHERE correct IS NOT NULL
+      GROUP BY lesson_id, step_index, interaction_kind
+      HAVING count(CASE WHEN correct = false THEN 1 END) > 0
+      ORDER BY incorrect DESC, attempts DESC, lesson_id ASC, step_index ASC`);
+    const difficultByLesson = new Map();
+    for (const row of difficult.rows) {
+      const list = difficultByLesson.get(row.lesson_id) || [];
+      if (list.length < 3) {
+        list.push({
+          stepIndex: row.step_index,
+          kind: row.interaction_kind,
+          attempts: row.attempts,
+          incorrect: row.incorrect,
+          incorrectRate: row.attempts ? Math.round((row.incorrect / row.attempts) * 100) : 0
+        });
+      }
+      difficultByLesson.set(row.lesson_id, list);
+    }
     return result.rows.map(row => ({
       lessonId: row.lesson_id,
       num: row.num,
@@ -732,7 +1476,8 @@ export function createDb(options = {}) {
       learnersCompleted: row.learners_completed,
       interactions: row.interactions,
       incorrectAnswers: row.incorrect_answers,
-      lastActivityAt: row.last_activity_at || ''
+      lastActivityAt: row.last_activity_at || '',
+      difficultSteps: difficultByLesson.get(row.lesson_id) || []
     }));
   }
 
@@ -773,16 +1518,32 @@ export function createDb(options = {}) {
     findAdminByEmail,
     findAdminById,
     createSession,
+    createPasswordResetToken,
+    confirmPasswordReset,
     deleteSession,
     rotateCsrf,
     sessionForToken,
     saveAssessment,
     saveProgress,
     saveInteraction,
+    saveQuizAnswer,
+    completeActivity,
     saveToolkit,
     addMinutes,
     recordVisit,
     importLocal,
+    curriculum,
+    curriculumLesson,
+    dashboardForUser,
+    createFeedbackRequest,
+    createProjectReview,
+    createTutorSession,
+    addTutorMessage,
+    progressInsights,
+    adminAiRequests,
+    adminUpdateLesson,
+    adminReplaceLessonSteps,
+    adminPublishCurriculum,
     stateForUser,
     leaderboard,
     adminLearners,

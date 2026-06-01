@@ -35,8 +35,6 @@ services:
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
       BUILD_SHA: ${BUILD_SHA:-local}
       BUILD_TIME: ${BUILD_TIME:-unknown}
-      ALLOW_ADMIN_TOKEN: ${ALLOW_ADMIN_TOKEN:-false}
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
     expose:
       - "8787"
     volumes:

@@ -49,6 +49,15 @@
     state() {
       return request('/api/v2/state');
     },
+    dashboard() {
+      return request('/api/v2/dashboard');
+    },
+    curriculum() {
+      return request('/api/v2/curriculum', { timeoutMs: 4000 });
+    },
+    lesson(lessonId) {
+      return request(`/api/v2/lessons/${encodeURIComponent(lessonId)}`, { timeoutMs: 4000 });
+    },
     importLocal(data) {
       return request('/api/v2/import-local', { method: 'POST', body: data });
     },
@@ -60,6 +69,27 @@
     },
     saveInteraction(interaction) {
       return request('/api/v2/interaction', { method: 'POST', body: interaction });
+    },
+    submitQuizAnswer(answer) {
+      return request('/api/v2/quiz-answer', { method: 'POST', body: answer });
+    },
+    completeActivity(activity) {
+      return request('/api/v2/activity-complete', { method: 'POST', body: activity });
+    },
+    requestFeedback(feedbackRequest) {
+      return request('/api/v2/feedback-request', { method: 'POST', body: feedbackRequest });
+    },
+    requestProjectReview(review) {
+      return request('/api/v2/project-review', { method: 'POST', body: review });
+    },
+    createTutorSession(session) {
+      return request('/api/v2/tutor-sessions', { method: 'POST', body: session });
+    },
+    addTutorMessage(sessionId, message) {
+      return request(`/api/v2/tutor-sessions/${encodeURIComponent(sessionId)}/messages`, { method: 'POST', body: message });
+    },
+    insights() {
+      return request('/api/v2/insights');
     },
     saveToolkit(card) {
       return request('/api/v2/toolkit', { method: 'POST', body: card });
