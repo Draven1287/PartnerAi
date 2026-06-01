@@ -1,22 +1,25 @@
 import http from 'node:http';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { randomBytes, randomUUID, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
-import { promisify } from 'node:util';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { createStore } from './store.mjs';
+import { createHash, randomBytes, randomUUID, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
+import bcrypt from 'bcryptjs';
+import { createDb } from './db.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
-const ADMIN_TOKEN = String(process.env.ADMIN_TOKEN || '').trim();
 const DATA_FILE = process.env.DATA_FILE || join(__dirname, 'data', 'minutes.json');
-const DB_FILE = process.env.DB_FILE || join(__dirname, 'data', 'learning-ai-store.json');
+const BUILD_SHA = process.env.BUILD_SHA || process.env.COOLIFY_GIT_COMMIT_SHA || 'local';
+const BUILD_TIME = process.env.BUILD_TIME || new Date().toISOString();
+const ADMIN_TOKEN = String(process.env.ADMIN_TOKEN || '').trim();
+const ALLOW_ADMIN_TOKEN = String(process.env.ALLOW_ADMIN_TOKEN || '').toLowerCase() === 'true';
 const SESSION_DAYS = 30;
-const BACKEND_BUILD = 'v2-json-store-2026-05-31';
-const scrypt = promisify(scryptCallback);
+const ADMIN_SESSION_HOURS = 8;
 const DEFAULT_ORIGINS = [
   'https://learningai4you.com',
   'https://www.learningai4you.com',
+  'https://api.learningai4you.com',
   'http://127.0.0.1:8123',
   'http://127.0.0.1:8124',
   'http://127.0.0.1:8125',
@@ -27,9 +30,14 @@ const DEFAULT_ORIGINS = [
   'http://localhost:8126'
 ];
 const ALLOWED_ORIGINS = new Set(String(process.env.CORS_ORIGINS || DEFAULT_ORIGINS.join(',')).split(',').map(origin => origin.trim()).filter(Boolean));
+const RATE_LIMITS = new Map();
+const scrypt = promisify(scryptCallback);
 
-if (process.env.NODE_ENV === 'production' && !ADMIN_TOKEN) {
-  throw new Error('ADMIN_TOKEN is required in production');
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.DATABASE_URL && !process.env.POSTGRES_PASSWORD) throw new Error('DATABASE_URL or POSTGRES_PASSWORD is required in production');
+  if (!process.env.SESSION_SECRET) throw new Error('SESSION_SECRET is required in production');
+  if (!process.env.ADMIN_EMAIL) throw new Error('ADMIN_EMAIL is required in production');
+  if (!process.env.ADMIN_PASSWORD && !process.env.ADMIN_PASSWORD_HASH) throw new Error('ADMIN_PASSWORD or ADMIN_PASSWORD_HASH is required in production');
 }
 
 function nowIso() {
@@ -44,12 +52,6 @@ function nameKey(name) {
   return normalizeName(name).toLowerCase();
 }
 
-function isSafeName(name) {
-  if (name.length < 1 || name.length > 40) return false;
-  if (/https?:\/\//i.test(name) || /www\./i.test(name)) return false;
-  return !/[\u0000-\u001f<>]/.test(name);
-}
-
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase();
 }
@@ -58,22 +60,30 @@ function isSafeEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 120;
 }
 
+function isSafeName(name) {
+  if (name.length < 1 || name.length > 40) return false;
+  if (/https?:\/\//i.test(name) || /www\./i.test(name)) return false;
+  return !/[\u0000-\u001f<>]/.test(name);
+}
+
 function isSafePassword(password) {
   return typeof password === 'string' && password.length >= 8 && password.length <= 200;
 }
 
-async function hashPassword(password) {
-  const salt = randomBytes(16).toString('base64url');
-  const hash = await scrypt(password, salt, 64);
-  return `scrypt:${salt}:${Buffer.from(hash).toString('base64url')}`;
+function hashToken(token) {
+  return createHash('sha256').update(String(process.env.SESSION_SECRET || 'dev-secret')).update(':').update(token).digest('hex');
 }
 
-async function verifyPassword(password, stored) {
-  const [scheme, salt, hash] = String(stored || '').split(':');
-  if (scheme !== 'scrypt' || !salt || !hash) return false;
-  const expected = Buffer.from(hash, 'base64url');
-  const actual = await scrypt(password, salt, expected.length);
-  return expected.length === actual.length && timingSafeEqual(expected, actual);
+function randomToken() {
+  return randomBytes(32).toString('base64url');
+}
+
+function expiresAt(days = SESSION_DAYS) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+function adminExpiresAt() {
+  return new Date(Date.now() + ADMIN_SESSION_HOURS * 60 * 60 * 1000).toISOString();
 }
 
 function parseCookies(req) {
@@ -87,18 +97,124 @@ function parseCookies(req) {
     }));
 }
 
-function sessionCookie(token) {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure; SameSite=None' : '; SameSite=Lax';
-  return `lai_session=${encodeURIComponent(token)}; Path=/; HttpOnly; Max-Age=${SESSION_DAYS * 24 * 60 * 60}${secure}`;
+function cookie(name, value, maxAgeSeconds, { httpOnly = true } = {}) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  const sameSite = '; SameSite=Lax';
+  return `${name}=${encodeURIComponent(value)}; Path=/; Max-Age=${maxAgeSeconds}${httpOnly ? '; HttpOnly' : ''}${secure}${sameSite}`;
 }
 
-function clearSessionCookie() {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure; SameSite=None' : '; SameSite=Lax';
-  return `lai_session=; Path=/; HttpOnly; Max-Age=0${secure}`;
+function clearCookie(name) {
+  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : '';
+  return `${name}=; Path=/; Max-Age=0; HttpOnly${secure}; SameSite=Lax`;
 }
 
-function expiresAt() {
-  return new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+function corsOrigin(req) {
+  const origin = req?.headers?.origin;
+  if (!origin) return '';
+  return ALLOWED_ORIGINS.has(origin) ? origin : '';
+}
+
+function sendJson(res, status, data, options = {}) {
+  const origin = corsOrigin(options.req);
+  const headers = {
+    'content-type': 'application/json; charset=utf-8',
+    'access-control-allow-methods': 'GET,POST,PUT,OPTIONS',
+    'access-control-allow-headers': 'content-type,x-csrf-token,x-admin-token',
+    'access-control-allow-credentials': 'true',
+    'vary': 'Origin',
+    'cache-control': 'no-store',
+    'x-content-type-options': 'nosniff',
+    'referrer-policy': 'same-origin'
+  };
+  if (origin) headers['access-control-allow-origin'] = origin;
+  if (options.cookie) headers['set-cookie'] = Array.isArray(options.cookie) ? options.cookie : [options.cookie];
+  res.writeHead(status, headers);
+  if (status === 204) return res.end();
+  return res.end(JSON.stringify(data));
+}
+
+function sendHtml(res, status, html) {
+  res.writeHead(status, {
+    'content-type': 'text/html; charset=utf-8',
+    'cache-control': 'no-store',
+    'x-content-type-options': 'nosniff',
+    'referrer-policy': 'same-origin',
+    'x-frame-options': 'DENY',
+    'content-security-policy': "default-src 'self'; style-src 'unsafe-inline' 'self'; script-src 'unsafe-inline' 'self'; connect-src 'self'"
+  });
+  res.end(html);
+}
+
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > 256_000) {
+        reject(new Error('request_too_large'));
+        req.destroy();
+      }
+    });
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
+async function readJsonBody(req) {
+  try {
+    return JSON.parse(await readBody(req) || '{}');
+  } catch {
+    return null;
+  }
+}
+
+async function verifyPassword(password, stored) {
+  if (!stored) return false;
+  if (String(stored).startsWith('scrypt:')) {
+    const [, salt, hash] = String(stored).split(':');
+    if (!salt || !hash) return false;
+    const expected = Buffer.from(hash, 'base64url');
+    const actual = await scrypt(password, salt, expected.length);
+    return expected.length === actual.length && timingSafeEqual(expected, actual);
+  }
+  return bcrypt.compare(password, stored);
+}
+
+function clientIp(req) {
+  return String(req.socket.remoteAddress || 'unknown');
+}
+
+function rateLimit(req, key, limit, windowMs) {
+  const bucketKey = `${key}:${clientIp(req)}`;
+  const now = Date.now();
+  const bucket = RATE_LIMITS.get(bucketKey) || { count: 0, resetAt: now + windowMs };
+  if (bucket.resetAt <= now) {
+    bucket.count = 0;
+    bucket.resetAt = now + windowMs;
+  }
+  bucket.count += 1;
+  RATE_LIMITS.set(bucketKey, bucket);
+  if (RATE_LIMITS.size > 5000) {
+    for (const [storedKey, storedBucket] of RATE_LIMITS) {
+      if (storedBucket.resetAt <= now || RATE_LIMITS.size > 4500) RATE_LIMITS.delete(storedKey);
+      if (RATE_LIMITS.size <= 4500) break;
+    }
+  }
+  return bucket.count <= limit;
+}
+
+function requireTrustedOrigin(req, res) {
+  const origin = req.headers.origin;
+  if (origin && !ALLOWED_ORIGINS.has(origin)) {
+    sendJson(res, 403, { ok: false, error: 'origin_not_allowed' }, { req });
+    return false;
+  }
+  return true;
+}
+
+function csrfOk(req, session) {
+  const token = String(req.headers['x-csrf-token'] || '');
+  return Boolean(token && session?.csrf_token_hash && hashToken(token) === session.csrf_token_hash);
 }
 
 async function readRows(dataFile = DATA_FILE) {
@@ -116,85 +232,17 @@ async function writeRows(rows, dataFile = DATA_FILE) {
   await writeFile(dataFile, JSON.stringify(rows, null, 2));
 }
 
-function corsOrigin(req) {
-  const origin = req?.headers?.origin;
-  if (!origin) return '';
-  return ALLOWED_ORIGINS.has(origin) ? origin : '';
-}
-
-function sendJson(res, status, data, options = {}) {
-  const origin = corsOrigin(options.req);
-  const headers = {
-    'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-methods': 'GET,POST,PUT,OPTIONS',
-    'access-control-allow-headers': 'content-type,x-admin-token',
-    'access-control-allow-credentials': 'true',
-    'vary': 'Origin',
-    'cache-control': 'no-store'
-  };
-  if (origin) headers['access-control-allow-origin'] = origin;
-  if (options.cookie) headers['set-cookie'] = options.cookie;
-  res.writeHead(status, {
-    ...headers
-  });
-  res.end(JSON.stringify(data));
-}
-
-function sendHtml(res, status, html) {
-  res.writeHead(status, {
-    'content-type': 'text/html; charset=utf-8',
-    'cache-control': 'no-store'
-  });
-  res.end(html);
-}
-
-function readBody(req) {
-  return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => {
-      body += chunk;
-      if (body.length > 64_000) {
-        reject(new Error('request_too_large'));
-        req.destroy();
-      }
-    });
-    req.on('end', () => resolve(body));
-    req.on('error', reject);
-  });
-}
-
-function isAdmin(req, url, adminToken = ADMIN_TOKEN) {
-  if (!adminToken) return true;
-  const token = req.headers['x-admin-token'] || url.searchParams.get('token');
-  return token === adminToken;
-}
-
 function summarize(rows) {
   const totals = new Map();
-
   for (const row of rows) {
     const key = row.nameKey || nameKey(row.name);
-    const current = totals.get(key) || {
-      name: row.name,
-      nameKey: key,
-      totalMinutes: 0,
-      entries: 0,
-      lastSubmittedAt: ''
-    };
-
+    const current = totals.get(key) || { name: row.name, nameKey: key, totalMinutes: 0, entries: 0, lastSubmittedAt: '' };
     current.totalMinutes += Number(row.minutes || 0);
     current.entries += 1;
-    current.lastSubmittedAt = !current.lastSubmittedAt || row.createdAt > current.lastSubmittedAt
-      ? row.createdAt
-      : current.lastSubmittedAt;
+    current.lastSubmittedAt = !current.lastSubmittedAt || row.createdAt > current.lastSubmittedAt ? row.createdAt : current.lastSubmittedAt;
     totals.set(key, current);
   }
-
-  return [...totals.values()]
-    .sort((a, b) => {
-      if (b.totalMinutes !== a.totalMinutes) return b.totalMinutes - a.totalMinutes;
-      return a.name.localeCompare(b.name);
-    });
+  return [...totals.values()].sort((a, b) => b.totalMinutes - a.totalMinutes || a.name.localeCompare(b.name));
 }
 
 function mergeLeaderboards(...lists) {
@@ -202,24 +250,136 @@ function mergeLeaderboards(...lists) {
   lists.flat().forEach(row => {
     if (!row) return;
     const key = row.nameKey || nameKey(row.name);
-    const current = merged.get(key) || {
-      name: row.name,
-      nameKey: key,
-      totalMinutes: 0,
-      entries: 0,
-      lastSubmittedAt: ''
-    };
+    const current = merged.get(key) || { name: row.name, nameKey: key, totalMinutes: 0, entries: 0, lastSubmittedAt: '' };
     current.totalMinutes += Number(row.totalMinutes || 0);
     current.entries += Number(row.entries || 0);
-    current.lastSubmittedAt = !current.lastSubmittedAt || row.lastSubmittedAt > current.lastSubmittedAt
-      ? row.lastSubmittedAt
-      : current.lastSubmittedAt;
+    current.lastSubmittedAt = !current.lastSubmittedAt || row.lastSubmittedAt > current.lastSubmittedAt ? row.lastSubmittedAt : current.lastSubmittedAt;
     merged.set(key, current);
   });
-  return [...merged.values()].sort((a, b) => {
-    if (b.totalMinutes !== a.totalMinutes) return b.totalMinutes - a.totalMinutes;
-    return a.name.localeCompare(b.name);
-  });
+  return [...merged.values()].sort((a, b) => b.totalMinutes - a.totalMinutes || a.name.localeCompare(b.name));
+}
+
+async function requireUser(req, res, db, { csrf = false } = {}) {
+  const token = parseCookies(req).lai_session;
+  const session = await db.sessionForToken('learner', hashToken(token || ''));
+  if (!session) {
+    sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
+    return null;
+  }
+  if (csrf && !csrfOk(req, session.session)) {
+    sendJson(res, 403, { ok: false, error: 'csrf_required' }, { req });
+    return null;
+  }
+  return session;
+}
+
+async function requireAdmin(req, res, db, { csrf = false, url = null } = {}) {
+  if (ALLOW_ADMIN_TOKEN && ADMIN_TOKEN && ((req.headers['x-admin-token'] || url?.searchParams.get('token')) === ADMIN_TOKEN)) {
+    return { admin: { id: null, email: 'legacy-token-admin' }, legacyToken: true };
+  }
+  const token = parseCookies(req).lai_admin_session;
+  const session = await db.sessionForToken('admin', hashToken(token || ''));
+  if (!session) {
+    sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
+    return null;
+  }
+  if (csrf && !csrfOk(req, session.session)) {
+    sendJson(res, 403, { ok: false, error: 'csrf_required' }, { req });
+    return null;
+  }
+  return session;
+}
+
+async function handleSignup(req, res, db) {
+  if (!rateLimit(req, 'signup', 10, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  const email = normalizeEmail(body.email);
+  const password = String(body.password || '');
+  const displayName = normalizeName(body.displayName || email.split('@')[0]);
+  if (!isSafeEmail(email)) return sendJson(res, 400, { ok: false, error: 'invalid_email' }, { req });
+  if (!isSafePassword(password)) return sendJson(res, 400, { ok: false, error: 'invalid_password' }, { req });
+  if (!isSafeName(displayName)) return sendJson(res, 400, { ok: false, error: 'invalid_display_name' }, { req });
+  if (await db.findUserByEmail(email)) return sendJson(res, 409, { ok: false, error: 'email_exists' }, { req });
+  const user = await db.createUser({ email, passwordHash: await bcrypt.hash(password, 12), displayName });
+  const sessionToken = randomToken();
+  const csrfToken = randomToken();
+  await db.createSession({ kind: 'learner', userId: user.id, tokenHash: hashToken(sessionToken), csrfTokenHash: hashToken(csrfToken), expiresAt: expiresAt() });
+  return sendJson(res, 201, { ok: true, user, csrfToken }, { req, cookie: cookie('lai_session', sessionToken, SESSION_DAYS * 24 * 60 * 60) });
+}
+
+async function handleLogin(req, res, db) {
+  if (!rateLimit(req, 'login', 15, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  const userRow = await db.findUserByEmail(normalizeEmail(body.email));
+  if (!userRow || userRow.disabled || !(await verifyPassword(String(body.password || ''), userRow.password_hash))) {
+    return sendJson(res, 401, { ok: false, error: 'invalid_login' }, { req });
+  }
+  const user = await db.findUserById(userRow.id);
+  const sessionToken = randomToken();
+  const csrfToken = randomToken();
+  await db.createSession({ kind: 'learner', userId: user.id, tokenHash: hashToken(sessionToken), csrfTokenHash: hashToken(csrfToken), expiresAt: expiresAt() });
+  return sendJson(res, 200, { ok: true, user, csrfToken }, { req, cookie: cookie('lai_session', sessionToken, SESSION_DAYS * 24 * 60 * 60) });
+}
+
+async function handleLogout(req, res, db) {
+  const token = parseCookies(req).lai_session;
+  if (token) await db.deleteSession(hashToken(token));
+  return sendJson(res, 200, { ok: true }, { req, cookie: clearCookie('lai_session') });
+}
+
+async function handleAdminLogin(req, res, db) {
+  if (!rateLimit(req, 'admin-login', 10, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  const adminRow = await db.findAdminByEmail(normalizeEmail(body.email));
+  if (!adminRow || adminRow.disabled || !(await verifyPassword(String(body.password || ''), adminRow.password_hash))) {
+    return sendJson(res, 401, { ok: false, error: 'invalid_login' }, { req });
+  }
+  const admin = await db.findAdminById(adminRow.id);
+  const sessionToken = randomToken();
+  const csrfToken = randomToken();
+  await db.createSession({ kind: 'admin', adminUserId: admin.id, tokenHash: hashToken(sessionToken), csrfTokenHash: hashToken(csrfToken), expiresAt: adminExpiresAt() });
+  await db.audit({ adminUserId: admin.id, eventName: 'admin_login' });
+  return sendJson(res, 200, { ok: true, admin, csrfToken }, { req, cookie: cookie('lai_admin_session', sessionToken, ADMIN_SESSION_HOURS * 60 * 60) });
+}
+
+async function handleAdminLogout(req, res, db) {
+  const token = parseCookies(req).lai_admin_session;
+  if (token) await db.deleteSession(hashToken(token));
+  return sendJson(res, 200, { ok: true }, { req, cookie: clearCookie('lai_admin_session') });
+}
+
+async function handlePasswordResetRequest(req, res, db) {
+  if (!rateLimit(req, 'password-reset-request', 5, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  await readJsonBody(req);
+  return sendJson(res, 200, { ok: true, message: 'If this email exists, an admin can help reset it.' }, { req });
+}
+
+async function handlePasswordResetConfirm(req, res) {
+  await readJsonBody(req);
+  return sendJson(res, 501, { ok: false, error: 'admin_assisted_reset_only' }, { req });
+}
+
+async function handleV1Minutes(req, res, db, dataFile, dbReady = true) {
+  if (!rateLimit(req, 'minutes', 120, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+  const body = await readJsonBody(req);
+  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+  if (body.consent !== true) return sendJson(res, 400, { ok: false, error: 'consent_required' }, { req });
+  const name = normalizeName(body.name);
+  const minutes = Number(body.minutes);
+  if (!isSafeName(name)) return sendJson(res, 400, { ok: false, error: 'invalid_name' }, { req });
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) return sendJson(res, 400, { ok: false, error: 'invalid_minutes' }, { req });
+  if (dbReady) {
+    const userSession = await db.sessionForToken('learner', hashToken(parseCookies(req).lai_session || ''));
+    await db.addMinutes({ userId: userSession?.user?.id || null, name, nameKey: nameKey(name), minutes, source: 'v1' });
+    return sendJson(res, 201, { ok: true }, { req });
+  }
+  const rows = await readRows(dataFile);
+  rows.push({ id: randomUUID(), name, nameKey: nameKey(name), minutes: Math.round(minutes), createdAt: nowIso(), fallback: true });
+  await writeRows(rows, dataFile);
+  return sendJson(res, 201, { ok: true, fallback: 'legacy_json' }, { req });
 }
 
 function adminHtml() {
@@ -228,674 +388,324 @@ function adminHtml() {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Learning AI Admin · Minutes</title>
+  <title>Learning AI Admin</title>
   <style>
-    :root {
-      --bg: #f7f9fc;
-      --surface: #ffffff;
-      --surface-2: #eef4f8;
-      --border: #dbe3ea;
-      --text: #121826;
-      --text-dim: #4b5870;
-      --text-faint: #7a869a;
-      --accent: #2563eb;
-      --accent-dim: #1d4ed8;
-      --accent-soft: rgba(37, 99, 235, 0.09);
-      --good: #0f8a66;
-      --on-accent: #ffffff;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
-      font-size: 17px;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-    .admin-shell { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: 100vh; }
-    .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 22px 18px;
-    }
-    .brand { font-weight: 700; margin-bottom: 22px; }
-    .nav-group { margin: 22px 0; }
-    .nav-label {
-      color: var(--text-faint);
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .nav-item {
-      display: block;
-      border-radius: 8px;
-      color: var(--text-dim);
-      padding: 8px 10px;
-      text-decoration: none;
-    }
-    .nav-item.active, .nav-item:hover { background: var(--accent-soft); color: var(--accent); }
-    main { padding: 28px; }
-    .topbar {
-      align-items: center;
-      display: flex;
-      gap: 16px;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 500; letter-spacing: -.03em; line-height: 1.2; margin: 0; }
-    .muted { color: var(--text-dim); margin: 4px 0 0; }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      box-shadow: 0 24px 70px rgba(18, 24, 38, 0.08);
-      margin-bottom: 1rem;
-      padding: clamp(1.2rem, 3vw, 1.7rem);
-    }
-    .status-strip {
-      background: var(--accent-soft);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--accent);
-      border-radius: 8px;
-      color: var(--text-dim);
-      font-size: 0.95rem;
-      margin: 0 0 1.5rem;
-      padding: 0.95rem 1.1rem;
-    }
-    .status-strip strong { color: var(--text); }
-    .controls {
-      display: grid;
-      grid-template-columns: 1fr 170px auto;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    input, select, button {
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      color: var(--text);
-      font: inherit;
-      padding: 10px 11px;
-    }
-    button { background: var(--accent); border-color: var(--accent); border-radius: 8px; color: var(--on-accent); cursor: pointer; font-weight: 500; }
-    button:hover { background: var(--accent-dim); border-color: var(--accent-dim); }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border-bottom: 1px solid var(--border); padding: 11px 10px; text-align: left; }
-    th { color: var(--text-faint); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
-    .rank { color: var(--accent); font-weight: 700; width: 58px; }
-    .minutes { font-weight: 700; }
-    .pill {
-      background: var(--surface-2);
-      border-radius: 999px;
-      color: var(--text-dim);
-      display: inline-block;
-      font-size: 12px;
-      padding: 3px 8px;
-    }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-    .metric strong { display: block; font-size: 24px; line-height: 1.1; }
-    .metric span { color: var(--text-dim); font-size: 13px; }
-    .section-title { align-items: center; display: flex; justify-content: space-between; margin-bottom: 10px; }
-    .section-title h2 { font-size: 18px; margin: 0; }
-    .login-panel {
-      margin: 12vh auto 0;
-      max-width: 520px;
-    }
-    .login-panel h1 { font-size: clamp(2rem, 5vw, 3rem); }
-    .login-form { display: grid; gap: 12px; margin-top: 18px; }
-    .remember-row { align-items: center; color: var(--text-dim); display: flex; gap: 8px; }
-    .remember-row input { height: 16px; width: 16px; }
-    .error { color: #b42318; margin-top: 10px; min-height: 1.4em; }
-    .hidden { display: none !important; }
-    .link-button {
-      background: transparent;
-      border: 0;
-      color: var(--text-dim);
-      padding: 0;
-      text-align: left;
-      text-decoration: underline;
-    }
-    .link-button:hover { background: transparent; color: var(--accent); }
-    @media (max-width: 820px) {
-      .admin-shell { grid-template-columns: 1fr; }
-      .sidebar { border-bottom: 1px solid var(--border); border-right: 0; }
-      .controls, .summary-grid { grid-template-columns: 1fr; }
-      main { padding: 18px; }
-    }
+    :root { --bg:#f7f9fc; --surface:#fff; --surface-2:#eef4f8; --border:#dbe3ea; --text:#121826; --dim:#4b5870; --faint:#7a869a; --accent:#2563eb; --good:#0f8a66; --bad:#b42318; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,"Segoe UI",sans-serif; font-size:16px; }
+    .shell { display:grid; grid-template-columns:240px minmax(0,1fr); min-height:100vh; }
+    aside { background:#fff; border-right:1px solid var(--border); padding:28px 22px; }
+    main { padding:34px; }
+    h1 { margin:0 0 4px; font-size:44px; letter-spacing:0; }
+    h2 { margin:0 0 18px; font-size:24px; }
+    p { color:var(--dim); line-height:1.5; }
+    .brand { font-weight:800; font-size:20px; margin-bottom:34px; }
+    .nav button { display:block; width:100%; border:0; background:transparent; text-align:left; padding:12px; border-radius:8px; color:var(--dim); font:inherit; cursor:pointer; }
+    .nav button.active { color:var(--accent); background:#e9efff; }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:22px; box-shadow:0 18px 60px rgba(18,24,38,.06); margin:22px 0; }
+    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+    .stat strong { display:block; font-size:32px; }
+    input, select { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font:inherit; background:#fff; }
+    button, .btn { border:0; border-radius:8px; padding:12px 16px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; font:inherit; }
+    button.secondary { background:#eef4f8; color:var(--text); }
+    button.danger { background:#b42318; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:12px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+    th { color:var(--faint); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .row > * { flex:1; }
+    .notice { border-left:4px solid var(--accent); background:#e9efff; padding:12px 14px; border-radius:8px; }
+    .hidden { display:none !important; }
+    .login { max-width:460px; margin:12vh auto; }
+    .muted { color:var(--faint); }
+    .pill { display:inline-block; background:var(--surface-2); border-radius:999px; padding:4px 10px; color:var(--dim); font-size:13px; }
+    @media (max-width:850px) { .shell { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--border); } .grid { grid-template-columns:1fr 1fr; } main { padding:22px; } h1 { font-size:34px; } }
   </style>
 </head>
 <body>
-  <section class="panel login-panel hidden" id="login-panel">
-    <h1>Learning AI Admin</h1>
-    <p class="muted">Enter the private admin token to view learner minutes.</p>
-    <form class="login-form" id="login-form">
-      <input id="token-input" type="password" autocomplete="current-password" placeholder="Admin token" required>
-      <label class="remember-row"><input id="remember-token" type="checkbox" checked> Remember this browser</label>
-      <button type="submit">Open admin</button>
+  <div id="login" class="login card">
+    <h1>Admin Login</h1>
+    <p>Use the admin account configured in Coolify. Admin tokens are no longer stored in the browser.</p>
+    <form id="login-form">
+      <p><input name="email" type="email" autocomplete="username" placeholder="Admin email" required></p>
+      <p><input name="password" type="password" autocomplete="current-password" placeholder="Password" required></p>
+      <button type="submit">Sign in</button>
+      <p id="login-message" class="muted"></p>
     </form>
-    <p class="error" id="login-error"></p>
-  </section>
-  <div class="admin-shell hidden" id="admin-shell">
-    <aside class="sidebar">
+  </div>
+  <div id="app" class="shell hidden">
+    <aside>
       <div class="brand">Learning AI Admin</div>
-      <div class="nav-group">
-        <div class="nav-label">Dashboard</div>
-        <a class="nav-item" href="#summary">Overview</a>
-        <a class="nav-item active" href="#learners">Learners</a>
-        <a class="nav-item" href="#learners">Minutes</a>
-        <a class="nav-item" href="#accounts">Accounts</a>
-        <a class="nav-item" href="#analytics">Lessons</a>
+      <div class="nav">
+        <button data-view="overview" class="active">Overview</button>
+        <button data-view="learners">Learners</button>
+        <button data-view="lessons">Lessons</button>
+        <button data-view="export">Export</button>
       </div>
-      <div class="nav-group">
-        <div class="nav-label">Admin</div>
-        <button class="link-button" id="logout" type="button">Forget token</button>
-      </div>
+      <p class="muted" id="build-marker"></p>
+      <button class="secondary" id="logout">Sign out</button>
     </aside>
     <main>
-      <div class="topbar">
-        <div>
-          <h1>Learner Time</h1>
-          <p class="muted">Names and minutes come from the V1 frontend. This backend also tracks hidden V2 accounts and progress. Build: ${BACKEND_BUILD}</p>
-        </div>
-      </div>
-      <div class="status-strip"><strong>Read-only admin view.</strong> Learners enter their name and time on the public V1 site. This page does not create learner records.</div>
-      <div class="summary-grid" id="summary">
-        <div class="panel metric"><strong id="total-learners">0</strong><span>Learners</span></div>
-        <div class="panel metric"><strong id="total-minutes">0</strong><span>Total minutes</span></div>
-        <div class="panel metric"><strong id="total-saves">0</strong><span>Minute saves</span></div>
-      </div>
-      <section class="panel" id="learners">
-        <div class="section-title"><h2>Learners</h2></div>
-        <div class="controls">
-          <input id="search" type="search" placeholder="Search by name">
-          <select id="sort">
-            <option value="minutes">Minutes high to low</option>
-            <option value="recent">Recently active</option>
-            <option value="name">Name A-Z</option>
-          </select>
-          <button id="refresh" type="button">Refresh</button>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Name</th>
-              <th>Total minutes</th>
-              <th>Minute saves</th>
-              <th>Last saved</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </section>
-      <section class="panel" id="accounts">
-        <div class="section-title"><h2>V2 accounts</h2></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Name</th>
-              <th>Minutes</th>
-              <th>Lessons</th>
-              <th>Interactions</th>
-              <th>Toolkit</th>
-              <th>Last active</th>
-            </tr>
-          </thead>
-          <tbody id="account-rows"></tbody>
-        </table>
-      </section>
-      <section class="panel" id="analytics">
-        <div class="section-title"><h2>Lesson analytics</h2></div>
-        <table>
-          <thead>
-            <tr>
-              <th>Lesson</th>
-              <th>Started</th>
-              <th>Completed</th>
-              <th>Last activity</th>
-            </tr>
-          </thead>
-          <tbody id="lesson-rows"></tbody>
-        </table>
-      </section>
+      <h1 id="title">Overview</h1>
+      <p id="subtitle">Server-backed learner progress and admin analytics.</p>
+      <section id="content"></section>
     </main>
   </div>
-  <script>
-    const tokenKey = 'learningai-admin-token';
-    const queryToken = new URLSearchParams(location.search).get('token') || '';
-    let token = queryToken || localStorage.getItem(tokenKey) || sessionStorage.getItem(tokenKey) || '';
-    let shouldRememberToken = Boolean(queryToken || localStorage.getItem(tokenKey));
-    let leaderboard = [];
-    let accounts = [];
-    let lessons = [];
-
-    if (queryToken) {
-      history.replaceState(null, '', location.pathname + location.hash);
-    }
-
-    function saveToken(value) {
-      sessionStorage.setItem(tokenKey, value);
-      if (shouldRememberToken) localStorage.setItem(tokenKey, value);
-      if (!shouldRememberToken) localStorage.removeItem(tokenKey);
-    }
-
-    function forgetToken() {
-      localStorage.removeItem(tokenKey);
-      sessionStorage.removeItem(tokenKey);
-    }
-
-    function text(value) {
-      return value == null ? '' : String(value);
-    }
-
-    function formatDate(value) {
-      if (!value) return 'Never';
-      return new Date(value).toLocaleString();
-    }
-
-    function render() {
-      const q = search.value.trim().toLowerCase();
-      let rows = leaderboard.filter(row => {
-        if (q && !row.name.toLowerCase().includes(q)) return false;
-        return true;
-      });
-      if (sort.value === 'recent') rows = rows.sort((a, b) => text(b.lastSubmittedAt).localeCompare(text(a.lastSubmittedAt)));
-      if (sort.value === 'name') rows = rows.sort((a, b) => a.name.localeCompare(b.name));
-      if (sort.value === 'minutes') rows = rows.sort((a, b) => b.totalMinutes - a.totalMinutes || a.name.localeCompare(b.name));
-
-      document.getElementById('total-learners').textContent = leaderboard.length;
-      document.getElementById('total-minutes').textContent = leaderboard.reduce((sum, row) => sum + row.totalMinutes, 0);
-      document.getElementById('total-saves').textContent = leaderboard.reduce((sum, row) => sum + row.entries, 0);
-
-      const tbody = document.getElementById('rows');
-      tbody.replaceChildren(...rows.map((row, index) => {
-        const tr = document.createElement('tr');
-        [String(index + 1), row.name, String(row.totalMinutes), String(row.entries), formatDate(row.lastSubmittedAt)].forEach((value, col) => {
-          const td = document.createElement('td');
-          td.textContent = value;
-          if (col === 0) td.className = 'rank';
-          if (col === 2) td.className = 'minutes';
-          tr.appendChild(td);
-        });
-        return tr;
-      }));
-
-      document.getElementById('account-rows').replaceChildren(...accounts.map(row => {
-        const tr = document.createElement('tr');
-        [
-          row.email,
-          row.displayName,
-          String(row.totalMinutes || 0),
-          String(row.completedLessons || 0) + ' / 30',
-          String(row.interactions || 0),
-          String(row.toolkitCards || 0),
-          formatDate(row.lastActiveAt)
-        ].forEach(value => {
-          const td = document.createElement('td');
-          td.textContent = value;
-          tr.appendChild(td);
-        });
-        return tr;
-      }));
-
-      document.getElementById('lesson-rows').replaceChildren(...lessons.map(row => {
-        const tr = document.createElement('tr');
-        [row.lessonId, String(row.learnersStarted || 0), String(row.learnersCompleted || 0), formatDate(row.lastActivityAt)].forEach(value => {
-          const td = document.createElement('td');
-          td.textContent = value;
-          tr.appendChild(td);
-        });
-        return tr;
-      }));
-    }
-
-    function showLogin(message = '') {
-      document.getElementById('admin-shell').classList.add('hidden');
-      document.getElementById('login-panel').classList.remove('hidden');
-      document.getElementById('login-error').textContent = message;
-      document.getElementById('token-input').focus();
-    }
-
-    function showAdmin() {
-      document.getElementById('login-panel').classList.add('hidden');
-      document.getElementById('admin-shell').classList.remove('hidden');
-    }
-
-    async function load() {
-      if (!token) {
-        showLogin();
-        return;
-      }
-      const headers = token ? { 'x-admin-token': token } : {};
-      const res = await fetch('/api/admin/leaderboard', { headers });
-      if (res.status === 401) {
-        forgetToken();
-        token = '';
-        showLogin('That token did not work.');
-        return;
-      }
-      if (!res.ok) throw new Error('Could not load leaderboard');
-      const data = await res.json();
-      leaderboard = data.leaderboard || [];
-      const learnersRes = await fetch('/api/admin/learners', { headers });
-      if (learnersRes.ok) accounts = (await learnersRes.json()).learners || [];
-      const analyticsRes = await fetch('/api/admin/lesson-analytics', { headers });
-      if (analyticsRes.ok) lessons = (await analyticsRes.json()).lessons || [];
-      saveToken(token);
-      showAdmin();
-      render();
-    }
-
-    const search = document.getElementById('search');
-    const sort = document.getElementById('sort');
-    document.getElementById('refresh').addEventListener('click', load);
-    document.getElementById('logout').addEventListener('click', () => {
-      forgetToken();
-      token = '';
-      showLogin();
-    });
-    document.getElementById('login-form').addEventListener('submit', event => {
-      event.preventDefault();
-      token = document.getElementById('token-input').value.trim();
-      shouldRememberToken = document.getElementById('remember-token').checked;
-      if (!token) return showLogin('Enter the admin token.');
-      load().catch(error => showLogin(error.message));
-    });
-    [search, sort].forEach(input => input.addEventListener('input', render));
-    load().catch(error => showLogin(error.message));
-  </script>
+<script>
+let csrfToken = '';
+let currentView = 'overview';
+const app = document.getElementById('app');
+const login = document.getElementById('login');
+const content = document.getElementById('content');
+const title = document.getElementById('title');
+const subtitle = document.getElementById('subtitle');
+async function api(path, options = {}) {
+  const method = options.method || 'GET';
+  const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
+  if (method !== 'GET' && csrfToken) headers['x-csrf-token'] = csrfToken;
+  const res = await fetch(path, { method, headers, credentials:'include', body: options.body ? JSON.stringify(options.body) : undefined });
+  const body = await res.json().catch(() => ({}));
+  if (body.csrfToken) csrfToken = body.csrfToken;
+  return { status: res.status, ok: res.ok && body.ok !== false, ...body };
+}
+function esc(value) { return String(value == null ? '' : value).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function fmtDate(value) { return value ? new Date(value).toLocaleString() : ''; }
+async function boot() {
+  const me = await api('/api/admin/me');
+  if (me.ok) showApp(me); else showLogin();
+}
+function showLogin() { login.classList.remove('hidden'); app.classList.add('hidden'); }
+function showApp(me) { login.classList.add('hidden'); app.classList.remove('hidden'); document.getElementById('build-marker').textContent = 'Build ' + (me.build?.buildSha || 'unknown') + ' / migration ' + (me.build?.migrationVersion || 'unknown'); render(); }
+document.getElementById('login-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const data = Object.fromEntries(new FormData(event.currentTarget));
+  const msg = document.getElementById('login-message');
+  msg.textContent = 'Signing in...';
+  const result = await api('/api/admin/login', { method:'POST', body:data });
+  if (!result.ok) { msg.textContent = result.error || 'Could not sign in.'; return; }
+  showApp(result);
+});
+document.getElementById('logout').addEventListener('click', async () => { await api('/api/admin/logout', { method:'POST' }); csrfToken=''; showLogin(); });
+document.querySelectorAll('.nav button').forEach(btn => btn.addEventListener('click', () => { currentView = btn.dataset.view; document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('active', b === btn)); render(); }));
+async function render() {
+  if (currentView === 'overview') return renderOverview();
+  if (currentView === 'learners') return renderLearners();
+  if (currentView === 'lessons') return renderLessons();
+  if (currentView === 'export') return renderExport();
+}
+async function renderOverview() {
+  title.textContent = 'Overview'; subtitle.textContent = 'Account-backed learner progress.';
+  const [learners, lessons] = await Promise.all([api('/api/admin/learners'), api('/api/admin/lesson-analytics')]);
+  const rows = learners.learners || [];
+  const totalMinutes = rows.reduce((s,r)=>s + Number(r.totalMinutes||0),0);
+  const active = rows.filter(r=>r.lastActiveAt).length;
+  content.innerHTML = '<div class="notice"><strong>Backend-first V2.</strong> Data comes from PostgreSQL. V1 remains public while V2 is hidden.</div>' +
+    '<div class="grid">' +
+    '<div class="card stat"><strong>'+rows.length+'</strong>Learners</div>' +
+    '<div class="card stat"><strong>'+totalMinutes+'</strong>Total minutes</div>' +
+    '<div class="card stat"><strong>'+active+'</strong>Active learners</div>' +
+    '<div class="card stat"><strong>'+((lessons.lessons||[]).filter(l=>l.learnersCompleted>0).length)+'</strong>Lessons completed</div>' +
+    '</div>';
+}
+async function renderLearners() {
+  title.textContent = 'Learners'; subtitle.textContent = 'Server-saved accounts, minutes, progress, and last active time.';
+  const result = await api('/api/admin/learners');
+  const rows = result.learners || [];
+  content.innerHTML = '<div class="card"><div class="row"><input id="search" placeholder="Search learners"><button id="refresh">Refresh</button></div><table><thead><tr><th>Name</th><th>Email</th><th>Minutes</th><th>Progress</th><th>Current</th><th>Visits</th><th>Last active</th><th>Actions</th></tr></thead><tbody id="learner-rows"></tbody></table></div>';
+  const tbody = document.getElementById('learner-rows');
+  function draw(filter='') {
+    tbody.innerHTML = rows.filter(r => (r.displayName + ' ' + r.email).toLowerCase().includes(filter.toLowerCase())).map(r => '<tr>'+
+      '<td>'+esc(r.displayName)+(r.disabled?' <span class="pill">disabled</span>':'')+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.totalMinutes)+'</td><td>'+esc(r.completionPercent)+'%</td><td>'+esc(r.currentLesson || '')+'</td><td>'+esc(r.visitCount)+'</td><td>'+esc(fmtDate(r.lastActiveAt))+'</td><td><button class="secondary" data-id="'+esc(r.id)+'" data-action="'+(r.disabled?'enable':'disable')+'">'+(r.disabled?'Enable':'Disable')+'</button></td></tr>').join('');
+    tbody.querySelectorAll('button[data-id]').forEach(btn => btn.addEventListener('click', async () => { await api('/api/admin/account-action', { method:'POST', body:{ userId:btn.dataset.id, action:btn.dataset.action } }); renderLearners(); }));
+  }
+  document.getElementById('search').addEventListener('input', e => draw(e.target.value));
+  document.getElementById('refresh').addEventListener('click', renderLearners);
+  draw();
+}
+async function renderLessons() {
+  title.textContent = 'Lessons'; subtitle.textContent = 'Starts, completions, and difficult steps by lesson.';
+  const result = await api('/api/admin/lesson-analytics');
+  const rows = result.lessons || [];
+  content.innerHTML = '<div class="card"><table><thead><tr><th>Lesson</th><th>Arc</th><th>Started</th><th>Completed</th><th>Interactions</th><th>Incorrect</th><th>Last activity</th></tr></thead><tbody>' + rows.map(r => '<tr><td>'+esc(r.num)+'. '+esc(r.title)+'</td><td>'+esc(r.arc)+'</td><td>'+esc(r.learnersStarted)+'</td><td>'+esc(r.learnersCompleted)+'</td><td>'+esc(r.interactions)+'</td><td>'+esc(r.incorrectAnswers)+'</td><td>'+esc(fmtDate(r.lastActivityAt))+'</td></tr>').join('') + '</tbody></table></div>';
+}
+function renderExport() {
+  title.textContent = 'Export'; subtitle.textContent = 'CSV exports are admin-only and audited.';
+  content.innerHTML = '<div class="card"><p>Download learner account and progress summary. Export creates an audit event.</p><p><a class="btn" href="/api/admin/export.csv">Download CSV</a></p></div>';
+}
+boot();
+</script>
 </body>
 </html>`;
 }
 
-async function handleMinutesPost(req, res, dataFile = DATA_FILE) {
-  const raw = await readBody(req);
-  let body;
-  try {
-    body = JSON.parse(raw || '{}');
-  } catch {
-    return sendJson(res, 400, { ok: false, error: 'invalid_json' });
-  }
-
-  if (body.consent !== true) {
-    return sendJson(res, 400, { ok: false, error: 'consent_required' });
-  }
-
-  const name = normalizeName(body.name);
-  const minutes = Number(body.minutes);
-
-  if (!isSafeName(name)) {
-    return sendJson(res, 400, { ok: false, error: 'invalid_name' });
-  }
-  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) {
-    return sendJson(res, 400, { ok: false, error: 'invalid_minutes' });
-  }
-
-  const row = {
-    id: randomUUID(),
-    name,
-    nameKey: nameKey(name),
-    minutes: Math.round(minutes),
-    createdAt: nowIso()
-  };
-
-  const rows = await readRows(dataFile);
-  rows.push(row);
-  await writeRows(rows, dataFile);
-
-  return sendJson(res, 201, { ok: true });
-}
-
-async function requireUser(req, res, store) {
-  const token = parseCookies(req).lai_session;
-  const user = store.userForSession(token);
-  if (!user) {
-    sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-    return null;
-  }
-  return user;
-}
-
-async function handleSignup(req, res, store) {
-  const body = await readJsonBody(req);
-  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-  const email = normalizeEmail(body.email);
-  const password = String(body.password || '');
-  const displayName = normalizeName(body.displayName || email.split('@')[0]);
-
-  if (!isSafeEmail(email)) return sendJson(res, 400, { ok: false, error: 'invalid_email' }, { req });
-  if (!isSafePassword(password)) return sendJson(res, 400, { ok: false, error: 'invalid_password' }, { req });
-  if (!isSafeName(displayName)) return sendJson(res, 400, { ok: false, error: 'invalid_display_name' }, { req });
-  if (store.findUserByEmail(email)) return sendJson(res, 409, { ok: false, error: 'email_exists' }, { req });
-
-  const user = store.createUser({ email, passwordHash: await hashPassword(password), displayName });
-  const token = randomBytes(32).toString('base64url');
-  store.createSession(user.id, token, expiresAt());
-  return sendJson(res, 201, { ok: true, user }, { req, cookie: sessionCookie(token) });
-}
-
-async function handleLogin(req, res, store) {
-  const body = await readJsonBody(req);
-  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-  const email = normalizeEmail(body.email);
-  const userRow = store.findUserByEmail(email);
-  if (!userRow || userRow.disabled || !(await verifyPassword(String(body.password || ''), userRow.password_hash))) {
-    return sendJson(res, 401, { ok: false, error: 'invalid_login' }, { req });
-  }
-  const user = store.findUserById(userRow.id);
-  const token = randomBytes(32).toString('base64url');
-  store.createSession(user.id, token, expiresAt());
-  return sendJson(res, 200, { ok: true, user }, { req, cookie: sessionCookie(token) });
-}
-
-async function handleLogout(req, res, store) {
-  const token = parseCookies(req).lai_session;
-  if (token) store.deleteSession(token);
-  return sendJson(res, 200, { ok: true }, { req, cookie: clearSessionCookie() });
-}
-
-async function handleV2Minutes(req, res, store, user) {
-  const body = await readJsonBody(req);
-  if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-  const name = normalizeName(body.name || user.displayName);
-  const minutes = Number(body.minutes);
-  if (!isSafeName(name)) return sendJson(res, 400, { ok: false, error: 'invalid_name' }, { req });
-  if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) return sendJson(res, 400, { ok: false, error: 'invalid_minutes' }, { req });
-  store.addMinutes({ userId: user.id, name, nameKey: nameKey(name), minutes });
-  return sendJson(res, 201, { ok: true }, { req });
-}
-
-async function readJsonBody(req) {
-  try {
-    return JSON.parse(await readBody(req) || '{}');
-  } catch {
-    return null;
-  }
-}
-
-export function createServer({ dataFile = DATA_FILE, dbFile = DB_FILE, adminToken = ADMIN_TOKEN } = {}) {
-  const store = createStore(dbFile);
-  const storeReady = store.init();
+export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
+  const database = db || createDb();
+  let dbReady = false;
+  let dbInitError = null;
+  const ready = database.init().then(() => { dbReady = true; }).catch(error => { dbInitError = error; dbReady = false; });
   return http.createServer(async (req, res) => {
+    let url;
     try {
-      await storeReady;
-      const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-
-      if (req.method === 'OPTIONS') {
-        return sendJson(res, 204, {}, { req });
+      url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+      if (req.method === 'OPTIONS') return sendJson(res, 204, {}, { req });
+      if (!requireTrustedOrigin(req, res)) return;
+      if (req.method === 'POST' && url.pathname === '/api/minutes') {
+        await ready.catch(() => {});
+        return handleV1Minutes(req, res, database, dataFile, dbReady);
       }
+      await ready;
 
-      if (req.method === 'GET' && url.pathname === '/') {
-        res.writeHead(302, { location: '/admin' });
-        return res.end();
-      }
-
+      if (req.method === 'GET' && url.pathname === '/') { res.writeHead(302, { location: '/admin' }); return res.end(); }
       if (req.method === 'GET' && url.pathname === '/health') {
-        return sendJson(res, 200, { ok: true, build: BACKEND_BUILD }, { req });
+        if (!dbReady) return sendJson(res, 503, { ok: false, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', dbStatus: 'error', error: dbInitError?.message || 'db_not_ready' }, { req });
+        const health = await database.health();
+        return sendJson(res, 200, { ok: true, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', ...health }, { req });
       }
+      if (req.method === 'GET' && url.pathname === '/admin') return sendHtml(res, 200, adminHtml());
 
-      if (req.method === 'GET' && url.pathname === '/admin') {
-        return sendHtml(res, 200, adminHtml());
+      if (req.method === 'POST' && url.pathname === '/api/auth/signup') return handleSignup(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/login') return handleLogin(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/logout') return handleLogout(req, res, database);
+      if (req.method === 'GET' && url.pathname === '/api/auth/me') {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        const csrfToken = randomToken();
+        await database.rotateCsrf(session.session.token_hash, hashToken(csrfToken));
+        return sendJson(res, 200, { ok: true, user: session.user, csrfToken }, { req });
       }
+      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/request') return handlePasswordResetRequest(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/confirm') return handlePasswordResetConfirm(req, res, database);
 
+      if (req.method === 'POST' && url.pathname === '/api/admin/login') return handleAdminLogin(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/admin/logout') return handleAdminLogout(req, res, database);
+      if (req.method === 'GET' && url.pathname === '/api/admin/me') {
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        const health = await database.health();
+        const csrfToken = randomToken();
+        await database.rotateCsrf(session.session.token_hash, hashToken(csrfToken));
+        return sendJson(res, 200, { ok: true, admin: session.admin, csrfToken, build: { buildSha: BUILD_SHA, buildTime: BUILD_TIME, ...health } }, { req });
+      }
       if (req.method === 'GET' && url.pathname === '/api/admin/leaderboard') {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-        const legacyRows = summarize(await readRows(dataFile));
-        const sqliteRows = store.leaderboard();
-        return sendJson(res, 200, { ok: true, leaderboard: mergeLeaderboards(legacyRows, sqliteRows) }, { req });
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        const legacyRows = process.env.INCLUDE_LEGACY_MINUTES_JSON === 'true' ? summarize(await readRows(dataFile)) : [];
+        return sendJson(res, 200, { ok: true, leaderboard: mergeLeaderboards(legacyRows, await database.leaderboard()) }, { req });
       }
-
       if (req.method === 'GET' && url.pathname === '/api/admin/learners') {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-        return sendJson(res, 200, { ok: true, learners: store.adminLearners() }, { req });
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, learners: await database.adminLearners() }, { req });
       }
-
       if (req.method === 'GET' && url.pathname.startsWith('/api/admin/learner/')) {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-        const learner = store.adminLearner(decodeURIComponent(url.pathname.replace('/api/admin/learner/', '')));
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        const learner = await database.adminLearner(decodeURIComponent(url.pathname.replace('/api/admin/learner/', '')));
         return learner ? sendJson(res, 200, { ok: true, learner }, { req }) : sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
       }
-
       if (req.method === 'GET' && url.pathname === '/api/admin/lesson-analytics') {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-        return sendJson(res, 200, { ok: true, lessons: store.lessonAnalytics() }, { req });
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, lessons: await database.lessonAnalytics() }, { req });
       }
-
       if (req.method === 'POST' && url.pathname === '/api/admin/account-action') {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
         const body = await readJsonBody(req);
-        if (!body?.userId || !['disable', 'enable', 'rename', 'delete'].includes(body.action)) return sendJson(res, 400, { ok: false, error: 'invalid_action' }, { req });
+        if (!body?.userId || !['disable', 'enable', 'rename', 'delete', 'resetPassword'].includes(body.action)) return sendJson(res, 400, { ok: false, error: 'invalid_action' }, { req });
         if (body.action === 'rename' && !isSafeName(normalizeName(body.displayName))) return sendJson(res, 400, { ok: false, error: 'invalid_display_name' }, { req });
-        store.accountAction({ ...body, displayName: normalizeName(body.displayName) });
+        if (body.action === 'resetPassword' && !isSafePassword(String(body.newPassword || ''))) return sendJson(res, 400, { ok: false, error: 'invalid_password' }, { req });
+        await database.accountAction({ adminUserId: session.admin.id, ...body, displayName: normalizeName(body.displayName) });
         return sendJson(res, 200, { ok: true }, { req });
       }
-
       if (req.method === 'GET' && url.pathname === '/api/admin/export.csv') {
-        if (!isAdmin(req, url, adminToken)) return sendJson(res, 401, { ok: false, error: 'unauthorized' }, { req });
-        const rows = store.adminLearners();
-        const csv = ['email,displayName,totalMinutes,completedLessons,lastActiveAt', ...rows.map(row => [
-          row.email,
-          row.displayName,
-          row.totalMinutes,
-          row.completedLessons,
-          row.lastActiveAt || ''
-        ].map(value => `"${String(value).replaceAll('"', '""')}"`).join(','))].join('\n');
-        res.writeHead(200, {
-          'content-type': 'text/csv; charset=utf-8',
-          'content-disposition': 'attachment; filename="learning-ai-learners.csv"',
-          'cache-control': 'no-store'
-        });
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        await database.audit({ adminUserId: session.admin.id, eventName: 'export_csv' });
+        const rows = await database.exportLearners();
+        const csv = ['email,displayName,totalMinutes,visitCount,currentLesson,completionPercent,lastActiveAt', ...rows.map(row => [row.email, row.displayName, row.totalMinutes, row.visitCount, row.currentLesson, row.completionPercent, row.lastActiveAt || ''].map(value => `"${String(value).replaceAll('"', '""')}"`).join(','))].join('\n');
+        res.writeHead(200, { 'content-type': 'text/csv; charset=utf-8', 'content-disposition': 'attachment; filename="learning-ai-learners.csv"', 'cache-control': 'no-store' });
         return res.end(csv);
       }
 
-      if (req.method === 'POST' && url.pathname === '/api/auth/signup') {
-        return handleSignup(req, res, store);
-      }
-
-      if (req.method === 'POST' && url.pathname === '/api/auth/login') {
-        return handleLogin(req, res, store);
-      }
-
-      if (req.method === 'POST' && url.pathname === '/api/auth/logout') {
-        return handleLogout(req, res, store);
-      }
-
-      if (req.method === 'GET' && url.pathname === '/api/auth/me') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
-        return sendJson(res, 200, { ok: true, user }, { req });
-      }
-
       if (req.method === 'GET' && url.pathname === '/api/v2/state') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
-        return sendJson(res, 200, { ok: true, state: store.stateForUser(user.id) }, { req });
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        const csrfToken = randomToken();
+        await database.rotateCsrf(session.session.token_hash, hashToken(csrfToken));
+        return sendJson(res, 200, { ok: true, state: await database.stateForUser(session.user.id), csrfToken }, { req });
       }
-
-      if (req.method === 'PUT' && url.pathname === '/api/v2/assessment') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
+      if (req.method === 'POST' && url.pathname === '/api/v2/import-local') {
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
         const body = await readJsonBody(req);
         if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-        store.saveAssessment(user.id, body.assessment || body);
+        await database.importLocal(session.user.id, body);
         return sendJson(res, 200, { ok: true }, { req });
       }
-
+      if (req.method === 'PUT' && url.pathname === '/api/v2/assessment') {
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const body = await readJsonBody(req);
+        if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+        await database.saveAssessment(session.user.id, body.assessment || body);
+        return sendJson(res, 200, { ok: true }, { req });
+      }
       if (req.method === 'POST' && url.pathname === '/api/v2/progress') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
         const body = await readJsonBody(req);
-        if (!body?.lessonId) return sendJson(res, 400, { ok: false, error: 'invalid_progress' }, { req });
-        store.saveProgress(user.id, body);
+        if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_progress' }, { req });
+        await database.saveProgress(session.user.id, body);
         return sendJson(res, 200, { ok: true }, { req });
       }
-
       if (req.method === 'POST' && url.pathname === '/api/v2/interaction') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
         const body = await readJsonBody(req);
-        if (!body?.lessonId) return sendJson(res, 400, { ok: false, error: 'invalid_interaction' }, { req });
-        store.saveInteraction(user.id, body);
+        if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_interaction' }, { req });
+        await database.saveInteraction(session.user.id, body);
         return sendJson(res, 201, { ok: true }, { req });
       }
-
       if (req.method === 'POST' && url.pathname === '/api/v2/toolkit') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
         const body = await readJsonBody(req);
         if (!body?.cardType) return sendJson(res, 400, { ok: false, error: 'invalid_toolkit_card' }, { req });
-        const id = store.saveToolkit(user.id, body);
+        const id = await database.saveToolkit(session.user.id, body);
         return sendJson(res, 201, { ok: true, id }, { req });
       }
-
       if (req.method === 'POST' && url.pathname === '/api/v2/minutes') {
-        const user = await requireUser(req, res, store);
-        if (!user) return;
-        return handleV2Minutes(req, res, store, user);
-      }
-
-      if (req.method === 'POST' && url.pathname === '/api/minutes') {
-        const token = parseCookies(req).lai_session;
-        const user = store.userForSession(token);
-        const raw = await readBody(req);
-        let body;
-        try {
-          body = JSON.parse(raw || '{}');
-        } catch {
-          return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-        }
-        if (body.consent !== true) return sendJson(res, 400, { ok: false, error: 'consent_required' }, { req });
-        const name = normalizeName(body.name);
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const body = await readJsonBody(req);
+        if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
         const minutes = Number(body.minutes);
-        if (!isSafeName(name)) return sendJson(res, 400, { ok: false, error: 'invalid_name' }, { req });
         if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) return sendJson(res, 400, { ok: false, error: 'invalid_minutes' }, { req });
-        store.addMinutes({ userId: user?.id || null, name, nameKey: nameKey(name), minutes });
+        await database.addMinutes({ userId: session.user.id, name: session.user.displayName, nameKey: nameKey(session.user.displayName), minutes, lessonId: body.lessonId || null, source: 'v2' });
         return sendJson(res, 201, { ok: true }, { req });
       }
-
+      if (req.method === 'POST' && url.pathname === '/api/v2/visit') {
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const body = await readJsonBody(req);
+        if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+        await database.recordVisit(session.user.id, body);
+        return sendJson(res, 201, { ok: true }, { req });
+      }
       return sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
     } catch (error) {
-      return sendJson(res, 500, { ok: false, error: error.message || 'server_error' }, { req });
+      const message = process.env.NODE_ENV === 'production' ? 'server_error' : (error.message || 'server_error');
+      return sendJson(res, 500, { ok: false, error: message }, { req });
     }
   });
 }
 
-export {
-  isSafeName,
-  nameKey,
-  normalizeName,
-  summarize
-};
+export { isSafeName, nameKey, normalizeName, summarize };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const server = createServer();
   server.listen(PORT, () => {
-    console.log(`Learning AI minutes backend: http://127.0.0.1:${PORT}/admin`);
-    if (ADMIN_TOKEN) console.log('Admin token protection is enabled.');
+    console.log(`Learning AI backend listening on http://127.0.0.1:${PORT}/admin`);
   });
 }

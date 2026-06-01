@@ -4,6 +4,8 @@
     return String(window.LEARNING_AI_BACKEND_URL || '').replace(/\/$/, '');
   }
 
+  let csrfToken = '';
+
   async function request(path, options = {}) {
     const base = backendUrl();
     if (!base) return { ok: false, skipped: true, error: 'backend_not_configured' };
@@ -14,6 +16,7 @@
         method: options.method || 'GET',
         headers: {
           'content-type': 'application/json',
+          ...(options.method && options.method !== 'GET' && csrfToken ? { 'x-csrf-token': csrfToken } : {}),
           ...(options.headers || {})
         },
         credentials: 'include',
@@ -21,6 +24,7 @@
         body: options.body ? JSON.stringify(options.body) : undefined
       });
       const body = await response.json().catch(() => ({}));
+      if (body.csrfToken) csrfToken = body.csrfToken;
       return { ...body, ok: response.ok && body.ok !== false, status: response.status };
     } catch (error) {
       return { ok: false, error: error.name === 'AbortError' ? 'request_timeout' : 'network_error' };
@@ -45,6 +49,9 @@
     state() {
       return request('/api/v2/state');
     },
+    importLocal(data) {
+      return request('/api/v2/import-local', { method: 'POST', body: data });
+    },
     saveAssessment(assessment) {
       return request('/api/v2/assessment', { method: 'PUT', body: { assessment } });
     },
@@ -59,6 +66,9 @@
     },
     saveMinutes(minutes) {
       return request('/api/v2/minutes', { method: 'POST', body: minutes });
+    },
+    saveVisit(visit) {
+      return request('/api/v2/visit', { method: 'POST', body: visit });
     }
   };
 })();

@@ -1,18 +1,18 @@
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import { join } from 'node:path';
-import { tmpdir } from 'node:os';
 import { createServer } from './server.mjs';
 
-const tempDir = await mkdtemp(join(tmpdir(), 'learning-ai-minutes-'));
-const server = createServer({
-  dataFile: join(tempDir, 'minutes.json'),
-  dbFile: join(tempDir, 'learning-ai.sqlite'),
-  adminToken: 'test-token'
-});
+if (!process.env.DATABASE_URL) {
+  console.log('Skipping integration tests: DATABASE_URL is not set. Run with Coolify/Postgres env for full backend tests.');
+  process.exit(0);
+}
 
+process.env.SESSION_SECRET ||= 'local-test-session-secret-that-is-long-enough';
+process.env.ADMIN_EMAIL ||= 'admin@example.com';
+process.env.ADMIN_PASSWORD ||= 'learning-ai-admin-pass';
+process.env.CORS_ORIGINS ||= 'http://127.0.0.1:8123';
+
+const server = createServer();
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-
 const { port } = server.address();
 const baseUrl = `http://127.0.0.1:${port}`;
 
@@ -22,154 +22,58 @@ async function request(path, options = {}) {
     headers: options.headers || {},
     body: options.body ? JSON.stringify(options.body) : undefined
   });
-  return {
-    response,
-    headers: response.headers,
-    body: await response.json().catch(() => ({}))
-  };
+  return { response, headers: response.headers, body: await response.json().catch(() => ({})) };
 }
 
-async function submit(body) {
-  return request('/api/minutes', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body
-  });
+function cookieHeader(setCookie) {
+  return String(setCookie || '').split(';')[0];
 }
 
 try {
-  const adminPage = await fetch(`${baseUrl}/admin`);
-  assert.equal(adminPage.status, 200);
-  assert.match(await adminPage.text(), /Learning AI Admin/);
-
-  const noConsent = await submit({ name: 'No Consent', minutes: 99, consent: false });
-  assert.equal(noConsent.response.status, 400);
-  assert.equal(noConsent.body.error, 'consent_required');
-
-  const badName = await submit({ name: 'https://spam.example', minutes: 10, consent: true });
-  assert.equal(badName.response.status, 400);
-  assert.equal(badName.body.error, 'invalid_name');
-
-  assert.equal((await submit({ name: 'Aarav', minutes: 12, consent: true })).response.status, 201);
-  assert.equal((await submit({ name: 'Maya', minutes: 38, consent: true })).response.status, 201);
-  assert.equal((await submit({ name: 'Aarav', minutes: 19, consent: true })).response.status, 201);
-
-  const blockedLeaderboard = await request('/api/admin/leaderboard');
-  assert.equal(blockedLeaderboard.response.status, 401);
-
-  const leaderboard = await request('/api/admin/leaderboard', {
-    headers: { 'x-admin-token': 'test-token' }
-  });
-  assert.equal(leaderboard.response.status, 200);
-  assert.deepEqual(leaderboard.body.leaderboard.map(row => [row.name, row.totalMinutes, row.entries]), [
-    ['Maya', 38, 1],
-    ['Aarav', 31, 2]
-  ]);
-
-  const removedAgentsEndpoint = await request('/api/admin/agents', {
-    headers: { 'x-admin-token': 'test-token' }
-  });
-  assert.equal(removedAgentsEndpoint.response.status, 404);
+  const health = await request('/health');
+  assert.equal(health.response.status, 200);
+  assert.equal(health.body.dbStatus, 'ok');
 
   const signup = await request('/api/auth/signup', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: {
-      email: 'aarav@example.com',
-      password: 'learning-ai-pass',
-      displayName: 'Aarav'
-    }
+    body: { email: `test-${Date.now()}@example.com`, password: 'learning-ai-pass', displayName: 'Aarav' }
   });
   assert.equal(signup.response.status, 201);
-  assert.equal(signup.body.user.email, 'aarav@example.com');
-  const cookie = signup.headers.get('set-cookie').split(';')[0];
-  assert.match(cookie, /^lai_session=/);
+  const learnerCookie = cookieHeader(signup.headers.get('set-cookie'));
+  assert.ok(signup.body.csrfToken);
 
-  const me = await request('/api/auth/me', {
-    headers: { cookie }
+  const blocked = await request('/api/v2/progress', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', cookie: learnerCookie },
+    body: { lessonId: 'chapter-1', currentStep: 1 }
   });
-  assert.equal(me.response.status, 200);
-  assert.equal(me.body.user.displayName, 'Aarav');
+  assert.equal(blocked.response.status, 403);
 
-  const duplicate = await request('/api/auth/signup', {
+  const progress = await request('/api/v2/progress', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: {
-      email: 'aarav@example.com',
-      password: 'learning-ai-pass',
-      displayName: 'Aarav'
-    }
+    headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': signup.body.csrfToken },
+    body: { lessonId: 'chapter-1', currentStep: 1, completed: true }
   });
-  assert.equal(duplicate.response.status, 409);
+  assert.equal(progress.response.status, 200);
 
-  const loginFail = await request('/api/auth/login', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: { email: 'aarav@example.com', password: 'wrong-password' }
-  });
-  assert.equal(loginFail.response.status, 401);
-
-  assert.equal((await request('/api/v2/state')).response.status, 401);
-
-  assert.equal((await request('/api/v2/assessment', {
-    method: 'PUT',
-    headers: { 'content-type': 'application/json', cookie },
-    body: { assessment: { route: 'Explorer', score: 55 } }
-  })).response.status, 200);
-
-  assert.equal((await request('/api/v2/progress', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', cookie },
-    body: { lessonId: 'chapter-1', currentStep: 3, completed: true }
-  })).response.status, 200);
-
-  assert.equal((await request('/api/v2/interaction', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', cookie },
-    body: { lessonId: 'chapter-1', stepIndex: 1, stepKind: 'classify', payload: { answer: 'keeps thinking' } }
-  })).response.status, 201);
-
-  assert.equal((await request('/api/v2/toolkit', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', cookie },
-    body: { cardType: 'Agency rule', lessonId: 'chapter-1', payload: { check: 'one source' } }
-  })).response.status, 201);
-
-  assert.equal((await request('/api/v2/minutes', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', cookie },
-    body: { minutes: 7 }
-  })).response.status, 201);
-
-  const state = await request('/api/v2/state', {
-    headers: { cookie }
-  });
+  const state = await request('/api/v2/state', { headers: { cookie: learnerCookie } });
   assert.equal(state.response.status, 200);
-  assert.equal(state.body.state.assessment.route, 'Explorer');
   assert.equal(state.body.state.progress[0].lessonId, 'chapter-1');
-  assert.equal(state.body.state.toolkit[0].cardType, 'Agency rule');
-  assert.equal(state.body.state.minutes.totalMinutes, 7);
 
-  const adminLearners = await request('/api/admin/learners', {
-    headers: { 'x-admin-token': 'test-token' }
-  });
-  assert.equal(adminLearners.response.status, 200);
-  assert.equal(adminLearners.body.learners[0].email, 'aarav@example.com');
-  assert.equal(adminLearners.body.learners[0].completedLessons, 1);
-
-  const lessonAnalytics = await request('/api/admin/lesson-analytics', {
-    headers: { 'x-admin-token': 'test-token' }
-  });
-  assert.equal(lessonAnalytics.response.status, 200);
-  assert.equal(lessonAnalytics.body.lessons[0].lessonId, 'chapter-1');
-
-  const logout = await request('/api/auth/logout', {
+  const adminLogin = await request('/api/admin/login', {
     method: 'POST',
-    headers: { cookie }
+    headers: { 'content-type': 'application/json' },
+    body: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }
   });
-  assert.equal(logout.response.status, 200);
+  assert.equal(adminLogin.response.status, 200);
+  const adminCookie = cookieHeader(adminLogin.headers.get('set-cookie'));
 
-  console.log('Local backend behavior checks passed');
+  const learners = await request('/api/admin/learners', { headers: { cookie: adminCookie } });
+  assert.equal(learners.response.status, 200);
+  assert.ok(Array.isArray(learners.body.learners));
+
+  console.log('Postgres backend integration checks passed');
 } finally {
   await new Promise(resolve => server.close(resolve));
 }

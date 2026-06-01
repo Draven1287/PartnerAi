@@ -5,10 +5,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=8787
 ENV DATA_FILE=/app/data/minutes.json
-ENV DB_FILE=/app/data/learning-ai.sqlite
 
 COPY package.json ./
-COPY server.mjs store.mjs ./
+RUN npm install --omit=dev
+
+COPY server.mjs db.mjs ./
 
 RUN mkdir -p /app/data \
   && addgroup -S learningai \

@@ -1,32 +1,28 @@
-# Learning AI Coolify Backend
+# Required in Coolify production runtime env.
+POSTGRES_DB=learningai
+POSTGRES_USER=learningai
+POSTGRES_PASSWORD=replace-with-a-long-random-database-password
+POSTGRES_HOST=learning-ai-postgres
+POSTGRES_PORT=5432
+DATABASE_URL=
 
-This folder is the backend app for Coolify.
+# Admin login. Prefer ADMIN_PASSWORD_HASH after first setup; ADMIN_PASSWORD can seed/update the admin password.
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=replace-with-a-long-random-admin-password
+ADMIN_PASSWORD_HASH=
+ADMIN_BOOTSTRAP_UPDATE=false
 
-Coolify settings:
+# Session/CORS/deploy metadata.
+SESSION_SECRET=replace-with-a-long-random-session-secret
+CORS_ORIGINS=https://learningai4you.com,https://www.learningai4you.com,https://api.learningai4you.com
+BUILD_SHA=local
+BUILD_TIME=unknown
 
-```text
-Source: GitHub
-Repository: Draven1287/PartnerAi
-Branch: main
-Base directory: coolify-backend
-Build type: Docker Compose
-Compose file: docker-compose.yml
-Service: learning-ai-minutes
-Port: 8787
-Health path: /health
-```
+# Legacy escape hatch. Keep false unless doing a private scripted recovery.
+ALLOW_ADMIN_TOKEN=false
+ADMIN_TOKEN=
 
-Environment variable:
-
-```text
-ADMIN_TOKEN=replace-with-a-long-random-secret
-```
-
-After deploy:
-
-```text
-https://your-backend-domain/health
-https://your-backend-domain/admin?token=YOUR_ADMIN_TOKEN
-```
-
-The public website should only use the backend URL, never the admin token.
+# Set true only if importing old /app/data/minutes.json into admin leaderboard during migration.
+INCLUDE_LEGACY_MINUTES_JSON=false
+IMPORT_LEGACY_JSON_STORE=true
+LEGACY_STORE_FILE=/app/data/learning-ai-store.json
