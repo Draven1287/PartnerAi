@@ -10,8 +10,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
 const ADMIN_TOKEN = String(process.env.ADMIN_TOKEN || '').trim();
 const DATA_FILE = process.env.DATA_FILE || join(__dirname, 'data', 'minutes.json');
-const DB_FILE = process.env.DB_FILE || join(__dirname, 'data', 'learning-ai.sqlite');
+const DB_FILE = process.env.DB_FILE || join(__dirname, 'data', 'learning-ai-store.json');
 const SESSION_DAYS = 30;
+const BACKEND_BUILD = 'v2-json-store-2026-05-31';
 const scrypt = promisify(scryptCallback);
 const DEFAULT_ORIGINS = [
   'https://learningai4you.com',
@@ -398,7 +399,7 @@ function adminHtml() {
       <div class="topbar">
         <div>
           <h1>Learner Time</h1>
-          <p class="muted">Names and minutes come from the V1 frontend. This backend only sorts and reviews learner time.</p>
+          <p class="muted">Names and minutes come from the V1 frontend. This backend also tracks hidden V2 accounts and progress. Build: ${BACKEND_BUILD}</p>
         </div>
       </div>
       <div class="status-strip"><strong>Read-only admin view.</strong> Learners enter their name and time on the public V1 site. This page does not create learner records.</div>
@@ -735,7 +736,7 @@ export function createServer({ dataFile = DATA_FILE, dbFile = DB_FILE, adminToke
       }
 
       if (req.method === 'GET' && url.pathname === '/health') {
-        return sendJson(res, 200, { ok: true }, { req });
+        return sendJson(res, 200, { ok: true, build: BACKEND_BUILD }, { req });
       }
 
       if (req.method === 'GET' && url.pathname === '/admin') {
