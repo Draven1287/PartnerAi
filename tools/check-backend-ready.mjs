@@ -34,11 +34,13 @@ function assertNotIncludes(path, text) {
 assertExists('Referenceable Content.md');
 assertExists('coolify-backend/server.mjs');
 assertExists('coolify-backend/db.mjs');
+assertExists('coolify-backend/fake-db.mjs');
 assertExists('coolify-backend/curriculum-seed.json');
 assertExists('coolify-backend/Dockerfile');
 assertExists('coolify-backend/docker-compose.yml');
 assertExists('coolify-backend/test-server.mjs');
 assertExists('tools/verify-live-backend.mjs');
+assertExists('tools/dev-v2-backend.mjs');
 assertExists('backend-config.js');
 assertExists('backend-client.js');
 assertExists('v2/v2-api.js');
@@ -149,11 +151,8 @@ assertIncludes('coolify-backend/db.mjs', 'ON CONFLICT (lesson_id, step_index) DO
 assertNotIncludes('coolify-backend/db.mjs', 'DELETE FROM lesson_steps WHERE lesson_id = $1 AND step_index');
 
 const backendConfig = read('backend-config.js');
-assert.match(
-  backendConfig,
-  /window\.LEARNING_AI_BACKEND_URL\s*=\s*'(?:|https:\/\/[^']+)';/,
-  'backend-config.js must be blank or an https backend URL'
-);
+assertIncludes('backend-config.js', 'https://api.learningai4you.com');
+assertIncludes('backend-config.js', 'http://127.0.0.1:8787');
 assertNotIncludes('backend-config.js', 'ADMIN_TOKEN');
 assertNotIncludes('backend-config.js', 'API_KEY');
 assertNotIncludes('backend-client.js', 'ADMIN_TOKEN');
@@ -190,8 +189,10 @@ for (const path of publicHtml) {
 
 run('node', ['--check', 'coolify-backend/server.mjs']);
 run('node', ['--check', 'coolify-backend/db.mjs']);
+run('node', ['--check', 'coolify-backend/fake-db.mjs']);
 run('node', ['--check', 'coolify-backend/test-server.mjs']);
 run('node', ['--check', 'tools/verify-live-backend.mjs']);
+run('node', ['--check', 'tools/dev-v2-backend.mjs']);
 run('node', ['--check', 'script.js']);
 run('node', ['--check', 'backend-client.js']);
 run('node', ['--check', 'v2/app.js']);

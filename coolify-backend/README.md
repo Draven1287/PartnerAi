@@ -116,3 +116,21 @@ node coolify-backend/test-server.mjs
 ```
 
 The route test can run with its fake database. Real Postgres integration requires backend dependencies plus `DATABASE_URL` or the Postgres env vars.
+
+## Local V2 Signup Testing
+
+While the production Coolify API is unreachable, run the local in-memory V2 backend:
+
+```bash
+node tools/dev-v2-backend.mjs
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8127/v2/index.html
+```
+
+On localhost, `backend-config.js` points V2 to `http://127.0.0.1:8787`. On the real website it still points to `https://api.learningai4you.com`.
+
+This local backend is development-only. It uses the same HTTP server, auth routes, cookies, CSRF checks, and curriculum shape, but stores data in memory so it can test signup, questionnaire save, dashboard unlock, and lesson progress without Postgres or Coolify.

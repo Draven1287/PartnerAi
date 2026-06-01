@@ -338,3 +338,12 @@ Before real users:
   - If a backend session exists, finishing the questionnaire must save through `PUT /api/v2/assessment`; if that save fails, the learner stays on the questionnaire instead of unlocking the dashboard.
   - Palette direction: keep the calm V1 paper/ink/white surface base; use blue for primary actions; reserve teal, violet, green, and amber for arcs, progress states, and feedback; avoid a one-color blue/purple gradient UI.
   - Local browser verification on the served deploy repo confirmed the onboarding nav is hidden on account check and on the auth screen, with no browser console errors. Full signup-to-questionnaire verification still depends on the live API becoming reachable.
+- 2026-06-01 next-step decision and local backend:
+  - Because `api.learningai4you.com` is still unreachable, the next unblocked task was to make V2 testable locally instead of waiting on Coolify.
+  - Added a development-only in-memory backend runner: `node tools/dev-v2-backend.mjs`.
+  - Added reusable fake DB support in `coolify-backend/fake-db.mjs`.
+  - Localhost `backend-config.js` now points to `http://127.0.0.1:8787`; production still points to `https://api.learningai4you.com`.
+  - Verified locally on `http://127.0.0.1:8127/v2/index.html`: create account -> Category 1-6 questionnaire -> assessment save -> dashboard unlock -> shell nav visible.
+  - Verified post-questionnaire nav text: Dashboard, Lessons, Settings, About, Projects, Educators.
+  - No browser console errors during the local onboarding test.
+  - Next V2 product work should start from this local backend loop: backend-driven lesson content/interaction loading, then lesson UI interaction polish, then full arc authoring.
