@@ -147,6 +147,29 @@ function createFakeDb() {
     async curriculumLesson(lessonId) {
       return lessons.find(lesson => lesson.id === lessonId) || null;
     },
+    async adminCreateLesson({ lesson }) {
+      const num = Number.isInteger(Number(lesson.num)) ? Number(lesson.num) : Math.max(...lessons.map(row => Number(row.num) || 0), 0) + 1;
+      const lessonId = lesson.id || `chapter-${num}`;
+      if (lessons.some(row => row.id === lessonId || Number(row.num) === num)) return null;
+      const created = {
+        id: lessonId,
+        num,
+        arc: lesson.arc || 'Draft',
+        title: lesson.title || 'Untitled lesson',
+        moduleId: 'draft',
+        levelId: lesson.levelId || 'foundation',
+        coreQuestion: lesson.coreQuestion || '',
+        blurb: lesson.blurb || '',
+        status: lesson.status || 'draft',
+        stub: true,
+        sortOrder: num,
+        minutes: lesson.minutes || 8,
+        resources: [],
+        steps: []
+      };
+      lessons.push(created);
+      return created;
+    },
     async adminUpdateLesson({ lessonId, patch }) {
       const lesson = lessons.find(row => row.id === lessonId);
       if (!lesson) return null;
@@ -442,6 +465,31 @@ async function runRouteChecks(db, label) {
     const adminCurriculum = await request('/api/admin/curriculum', { headers: { cookie: adminCookie } });
     assert.equal(adminCurriculum.response.status, 200);
     assert.equal(adminCurriculum.body.curriculum.levels[0].id, 'foundation');
+
+    const createBlocked = await request('/api/admin/curriculum/lessons', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: adminCookie },
+      body: { title: 'New Admin Lesson', arc: 'Admin Draft', num: 31 }
+    });
+    assert.equal(createBlocked.response.status, 403);
+
+    const createdLesson = await request('/api/admin/curriculum/lessons', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+      body: { title: 'New Admin Lesson', arc: 'Admin Draft', num: 31, status: 'draft', levelId: 'builder' }
+    });
+    assert.equal(createdLesson.response.status, 201);
+    assert.equal(createdLesson.body.lesson.id, 'chapter-31');
+    assert.equal(createdLesson.body.lesson.title, 'New Admin Lesson');
+    assert.equal(createdLesson.body.lesson.levelId, 'builder');
+
+    const duplicateLesson = await request('/api/admin/curriculum/lessons', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+      body: { title: 'Duplicate Admin Lesson', arc: 'Admin Draft', num: 31 }
+    });
+    assert.equal(duplicateLesson.response.status, 409);
+    assert.equal(duplicateLesson.body.error, 'lesson_exists');
 
     const editBlocked = await request('/api/admin/curriculum/lessons/chapter-1', {
       method: 'PUT',

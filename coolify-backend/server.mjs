@@ -75,7 +75,7 @@ function isSafePassword(password) {
 }
 
 function isSafeLessonId(lessonId) {
-  return /^chapter-([1-9]|[12]\d|30)$/.test(String(lessonId || ''));
+  return /^chapter-[1-9]\d{0,2}$/.test(String(lessonId || ''));
 }
 
 function safeText(value, max) {
@@ -120,6 +120,25 @@ function validateLessonPatch(body) {
     if (patch.resources.some(resource => resource.label && !/^https:\/\//i.test(resource.url))) return null;
   }
   return patch;
+}
+
+function validateNewLesson(body) {
+  const patch = validateLessonPatch(body);
+  if (!patch?.title || !patch?.arc) return null;
+  const num = Number(body?.num);
+  if ('num' in (body || {}) && (!Number.isInteger(num) || num < 1 || num > 999)) return null;
+  const lessonId = body?.id ? String(body.id).trim() : '';
+  if (lessonId && !isSafeLessonId(lessonId)) return null;
+  return {
+    ...patch,
+    id: lessonId || null,
+    num: Number.isInteger(num) ? num : null,
+    status: patch.status || 'draft',
+    levelId: patch.levelId || (Number.isInteger(num) ? (num >= 25 ? 'builder' : num >= 10 ? 'explorer' : 'foundation') : 'foundation'),
+    minutes: Number.isFinite(Number(patch.minutes)) ? patch.minutes : 8,
+    coreQuestion: patch.coreQuestion || '',
+    blurb: patch.blurb || ''
+  };
 }
 
 function validateSteps(body) {
@@ -926,7 +945,7 @@ async function renderContentEditor() {
   const stepsJson = JSON.stringify((lesson.steps || []).map(stepForEditor), null, 2);
   content.innerHTML =
     '<div class="editor-grid">' +
-      '<section class="card lesson-list"><h2>Lessons</h2>'+lessonButtons+'</section>' +
+      '<section class="card lesson-list"><div class="row"><h2>Lessons</h2><button id="new-lesson" class="secondary">New lesson</button></div>'+lessonButtons+'</section>' +
       '<section class="card">' +
         '<div class="row"><h2>'+esc(lesson.num)+'. '+esc(lesson.title)+'</h2><span class="pill">'+esc(lesson.id)+'</span></div>' +
         '<div class="form-grid">' +
@@ -950,6 +969,18 @@ async function renderContentEditor() {
     renderContentEditor();
   }));
   const msg = document.getElementById('content-message');
+  document.getElementById('new-lesson').addEventListener('click', async () => {
+    const title = prompt('New lesson title');
+    if (!title) return;
+    const arc = prompt('Arc/module name', 'Draft') || 'Draft';
+    const rawNum = prompt('Lesson number. Leave blank to use the next number.', '');
+    const body = { title, arc, status:'draft', levelId:'foundation', minutes:8 };
+    if (rawNum.trim()) body.num = Number(rawNum);
+    const created = await api('/api/admin/curriculum/lessons', { method:'POST', body });
+    if (!created.ok) { alert(created.error || 'Could not create lesson.'); return; }
+    selectedContentLessonId = created.lesson.id;
+    renderContentEditor();
+  });
   document.getElementById('save-lesson').addEventListener('click', async () => {
     msg.textContent = 'Saving lesson...';
     const body = {
@@ -1148,6 +1179,15 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const session = await requireAdmin(req, res, database, { url });
         if (!session) return;
         return sendJson(res, 200, { ok: true, curriculum: await database.curriculum() }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/admin/curriculum/lessons') {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
+        const lesson = validateNewLesson(await readJsonBody(req));
+        if (!lesson) return sendJson(res, 400, { ok: false, error: 'invalid_new_lesson' }, { req });
+        const created = await database.adminCreateLesson({ adminUserId: session.admin.id, lesson });
+        if (!created) return sendJson(res, 409, { ok: false, error: 'lesson_exists' }, { req });
+        return sendJson(res, 201, { ok: true, lesson: created }, { req });
       }
       if (req.method === 'PUT' && url.pathname.startsWith('/api/admin/curriculum/lessons/') && !url.pathname.endsWith('/steps')) {
         const session = await requireAdmin(req, res, database, { csrf: true, url });

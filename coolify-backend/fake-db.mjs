@@ -166,6 +166,29 @@ export function createFakeDb(options = {}) {
     async curriculumLesson(lessonId) {
       return lessons.find(lesson => lesson.id === lessonId) || null;
     },
+    async adminCreateLesson({ lesson }) {
+      const num = Number.isInteger(Number(lesson.num)) ? Number(lesson.num) : Math.max(...lessons.map(row => Number(row.num) || 0), 0) + 1;
+      const lessonId = lesson.id || `chapter-${num}`;
+      if (lessons.some(row => row.id === lessonId || Number(row.num) === num)) return null;
+      const created = {
+        id: lessonId,
+        num,
+        arc: lesson.arc || 'Draft',
+        title: lesson.title || 'Untitled lesson',
+        moduleId: slug(lesson.arc || 'Draft'),
+        levelId: lesson.levelId || 'foundation',
+        coreQuestion: lesson.coreQuestion || '',
+        blurb: lesson.blurb || '',
+        status: lesson.status || 'draft',
+        stub: true,
+        sortOrder: lesson.sortOrder || num,
+        minutes: lesson.minutes || 8,
+        resources: [],
+        steps: []
+      };
+      lessons.push(created);
+      return created;
+    },
     async adminUpdateLesson({ lessonId, patch }) {
       const lesson = lessons.find(row => row.id === lessonId);
       if (!lesson) return null;

@@ -1094,6 +1094,40 @@ export function createDb(options = {}) {
     return all.lessons.find(lesson => lesson.id === lessonId) || null;
   }
 
+  async function adminCreateLesson({ adminUserId, lesson }) {
+    const next = await query('SELECT COALESCE(max(num), 0)::int + 1 AS num FROM lessons');
+    const num = Number.isInteger(Number(lesson.num)) ? Number(lesson.num) : next.rows[0].num;
+    const lessonId = lesson.id || `chapter-${num}`;
+    const conflict = await query('SELECT id FROM lessons WHERE id = $1 OR num = $2 LIMIT 1', [lessonId, num]);
+    if (conflict.rows.length) return null;
+    const arc = String(lesson.arc || 'Draft').slice(0, 120);
+    const moduleId = slug(arc);
+    if (moduleId) {
+      await query(`INSERT INTO curriculum_modules(id, title, track_id, sort_order, status, updated_at)
+        VALUES ($1, $2, 'core-ai-literacy', COALESCE((SELECT max(sort_order) + 1 FROM curriculum_modules), 1), 'published', now())
+        ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, updated_at = now()`, [moduleId, arc]);
+    }
+    const result = await query(`INSERT INTO lessons(id, num, arc, title, module_id, level_id, core_question, blurb, status, sort_order, minutes_estimate, published_version, resources_json)
+      VALUES ($1, $2, $3, $4, NULLIF($5, ''), $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
+      RETURNING id`, [
+      lessonId,
+      num,
+      arc,
+      String(lesson.title || 'Untitled lesson').slice(0, 180),
+      moduleId,
+      lesson.levelId || levelForLessonNum(num),
+      String(lesson.coreQuestion || '').slice(0, 240),
+      String(lesson.blurb || '').slice(0, 360),
+      lesson.status || 'draft',
+      Number.isFinite(Number(lesson.sortOrder)) ? Number(lesson.sortOrder) : num,
+      Number.isFinite(Number(lesson.minutes)) ? Math.max(1, Math.min(60, Math.round(Number(lesson.minutes)))) : 8,
+      CONTENT_VERSION,
+      JSON.stringify(Array.isArray(lesson.resources) ? lesson.resources : [])
+    ]);
+    await audit({ adminUserId, eventName: 'curriculum_lesson_create', payload: { lessonId: result.rows[0].id, num } });
+    return curriculumLesson(result.rows[0].id);
+  }
+
   async function adminUpdateLesson({ adminUserId, lessonId, patch }) {
     const existing = await query('SELECT * FROM lessons WHERE id = $1', [lessonId]);
     const current = existing.rows[0];
@@ -1665,6 +1699,7 @@ export function createDb(options = {}) {
     addTutorMessage,
     progressInsights,
     adminAiRequests,
+    adminCreateLesson,
     adminUpdateLesson,
     adminReplaceLessonSteps,
     adminPublishCurriculum,
