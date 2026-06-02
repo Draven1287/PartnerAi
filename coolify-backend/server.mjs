@@ -1252,14 +1252,14 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
       if (req.method === 'GET' && url.pathname === '/api/v2/curriculum') {
         const session = await requireUser(req, res, database);
         if (!session) return;
-        return sendJson(res, 200, { ok: true, curriculum: await database.curriculum() }, { req });
+        return sendJson(res, 200, { ok: true, curriculum: await database.curriculum({ includeDrafts: false }) }, { req });
       }
       if (req.method === 'GET' && url.pathname.startsWith('/api/v2/lessons/')) {
         const session = await requireUser(req, res, database);
         if (!session) return;
         const lessonId = decodeURIComponent(url.pathname.replace('/api/v2/lessons/', ''));
         if (!isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
-        const lesson = await database.curriculumLesson(lessonId);
+        const lesson = await database.curriculumLesson(lessonId, { includeDrafts: false });
         return lesson ? sendJson(res, 200, { ok: true, lesson }, { req }) : sendJson(res, 404, { ok: false, error: 'lesson_not_found' }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/import-local') {

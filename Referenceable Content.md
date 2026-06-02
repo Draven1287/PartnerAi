@@ -396,3 +396,8 @@ Before real users:
   - The dashboard uses this result before lesson progress exists. A new learner is pointed at the recommended lesson instead of always being visually treated as starting the same generic path.
   - Learners can still choose to start from Lesson 1 instead. Recommendation should guide, not trap.
   - Current recommendation mapping uses authored/playable lessons only: AI definition -> Lesson 3, capability/systems -> Lesson 9, limits -> Lesson 8, learning/impact judgment -> Lesson 1.
+- 2026-06-02 backend curriculum visibility hardening:
+  - Learner curriculum routes now return published lessons only. Draft/locked lesson records are kept out of `GET /api/v2/curriculum` and `GET /api/v2/lessons/:id`.
+  - Admin curriculum routes still see all lesson statuses so the content editor can manage drafts before launch.
+  - Learner dashboard calculations now use published curriculum content.
+  - Backend tests now verify that an admin-created draft lesson appears in admin curriculum but not in learner curriculum or direct learner lesson fetches.

@@ -998,7 +998,7 @@ export function createDb(options = {}) {
     }
   }
 
-  async function curriculum() {
+  async function curriculum({ includeDrafts = true } = {}) {
     const tracks = await query(`SELECT id, title, description, sort_order, status
       FROM curriculum_tracks
       ORDER BY sort_order ASC, title ASC`);
@@ -1033,7 +1033,6 @@ export function createDb(options = {}) {
       stepsByLesson.set(row.lesson_id, list);
     }
 
-    const lessonsByModule = new Map();
     const lessonRows = lessons.rows.map(row => ({
       id: row.id,
       num: row.num,
@@ -1051,8 +1050,12 @@ export function createDb(options = {}) {
       resources: Array.isArray(row.resources_json) ? row.resources_json : [],
       steps: stepsByLesson.get(row.id) || []
     }));
+    const visibleLessons = includeDrafts ? lessonRows : lessonRows.filter(lesson => lesson.status === 'published');
+    const visibleModuleIds = new Set(visibleLessons.map(lesson => lesson.moduleId || slug(lesson.arc)));
+    const visibleModules = includeDrafts ? modules.rows : modules.rows.filter(row => visibleModuleIds.has(row.id));
 
-    for (const lesson of lessonRows) {
+    const lessonsByModule = new Map();
+    for (const lesson of visibleLessons) {
       const key = lesson.moduleId || slug(lesson.arc);
       const list = lessonsByModule.get(key) || [];
       list.push(lesson);
@@ -1067,7 +1070,7 @@ export function createDb(options = {}) {
         description: row.description,
         sortOrder: row.sort_order,
         status: row.status,
-        modules: modules.rows.filter(module => (module.track_id || 'core-ai-literacy') === row.id).map(module => module.id)
+        modules: visibleModules.filter(module => (module.track_id || 'core-ai-literacy') === row.id).map(module => module.id)
       })),
       levels: levels.rows.map(row => ({
         id: row.id,
@@ -1075,9 +1078,9 @@ export function createDb(options = {}) {
         description: row.description,
         sortOrder: row.sort_order,
         status: row.status,
-        lessons: lessonRows.filter(lesson => lesson.levelId === row.id).map(lesson => lesson.id)
+        lessons: visibleLessons.filter(lesson => lesson.levelId === row.id).map(lesson => lesson.id)
       })),
-      modules: modules.rows.map(row => ({
+      modules: visibleModules.map(row => ({
         id: row.id,
         title: row.title,
         trackId: row.track_id || 'core-ai-literacy',
@@ -1085,12 +1088,12 @@ export function createDb(options = {}) {
         status: row.status,
         lessons: lessonsByModule.get(row.id) || []
       })),
-      lessons: lessonRows
+      lessons: visibleLessons
     };
   }
 
-  async function curriculumLesson(lessonId) {
-    const all = await curriculum();
+  async function curriculumLesson(lessonId, options = {}) {
+    const all = await curriculum(options);
     return all.lessons.find(lesson => lesson.id === lessonId) || null;
   }
 
@@ -1247,7 +1250,7 @@ export function createDb(options = {}) {
   async function dashboardForUser(userId) {
     const [state, course, quizTotals, activityTotals] = await Promise.all([
       stateForUser(userId),
-      curriculum(),
+      curriculum({ includeDrafts: false }),
       query('SELECT count(*)::int AS count, count(CASE WHEN correct = false THEN 1 END)::int AS incorrect FROM quiz_submissions WHERE user_id = $1', [userId]),
       query('SELECT count(*)::int AS count, max(completed_at) AS last_completed_at FROM activity_completions WHERE user_id = $1', [userId])
     ]);

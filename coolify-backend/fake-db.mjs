@@ -137,9 +137,10 @@ export function createFakeDb(options = {}) {
         minutes: { totalMinutes: 0, entries: 0 }
       };
     },
-    async curriculum() {
+    async curriculum({ includeDrafts = true } = {}) {
+      const visibleLessons = includeDrafts ? lessons : lessons.filter(lesson => lesson.status === 'published');
       const moduleMap = new Map();
-      for (const lesson of lessons) {
+      for (const lesson of visibleLessons) {
         const title = lesson.arc || 'Orientation';
         const id = lesson.moduleId || slug(title, 'orientation');
         if (!moduleMap.has(id)) {
@@ -158,13 +159,13 @@ export function createFakeDb(options = {}) {
       return {
         version: 'test',
         tracks: [{ id: 'core-ai-literacy', title: 'Core AI Literacy', description: '', sortOrder: 1, status: 'published', modules: modules.map(module => module.id) }],
-        levels: [{ id: 'foundation', title: 'Foundation', description: '', sortOrder: 1, status: 'published', lessons: lessons.map(lesson => lesson.id) }],
+        levels: [{ id: 'foundation', title: 'Foundation', description: '', sortOrder: 1, status: 'published', lessons: visibleLessons.map(lesson => lesson.id) }],
         modules,
-        lessons
+        lessons: visibleLessons
       };
     },
-    async curriculumLesson(lessonId) {
-      return lessons.find(lesson => lesson.id === lessonId) || null;
+    async curriculumLesson(lessonId, { includeDrafts = true } = {}) {
+      return lessons.find(lesson => lesson.id === lessonId && (includeDrafts || lesson.status === 'published')) || null;
     },
     async adminCreateLesson({ lesson }) {
       const num = Number.isInteger(Number(lesson.num)) ? Number(lesson.num) : Math.max(...lessons.map(row => Number(row.num) || 0), 0) + 1;
@@ -279,20 +280,21 @@ export function createFakeDb(options = {}) {
     async dashboardForUser(userId) {
       const userProgress = progress.filter(row => row.userId === userId);
       const completedLessons = userProgress.filter(row => row.completedAt).length;
+      const publishedLessons = lessons.filter(lesson => lesson.status === 'published');
       return {
         user: publicUser(users.get(userId)),
         currentLesson: userProgress[0]?.lessonId || 'chapter-1',
         currentStep: userProgress[0]?.currentStep || 0,
-        nextLesson: lessons.find(lesson => !userProgress.some(row => row.lessonId === lesson.id && row.completedAt)) || null,
+        nextLesson: publishedLessons.find(lesson => !userProgress.some(row => row.lessonId === lesson.id && row.completedAt)) || null,
         completedLessons,
-        totalLessons: lessons.length,
-        completionPercent: lessons.length ? Math.round((completedLessons / lessons.length) * 100) : 0,
+        totalLessons: publishedLessons.length,
+        completionPercent: publishedLessons.length ? Math.round((completedLessons / publishedLessons.length) * 100) : 0,
         minutes: { totalMinutes: 0, entries: 0 },
         toolkitCount: toolkit.filter(row => row.userId === userId).length,
         quizSubmissions: quizSubmissions.filter(row => row.userId === userId).length,
         incorrectQuizSubmissions: quizSubmissions.filter(row => row.userId === userId && row.correct === false).length,
         completedActivities: activityCompletions.filter(row => row.userId === userId).length,
-        modules: [{ id: 'orientation', title: 'Orientation', completedLessons, totalLessons: lessons.length }]
+        modules: [{ id: 'orientation', title: 'Orientation', completedLessons, totalLessons: publishedLessons.length }]
       };
     },
     async createFeedbackRequest() { return { id: 'feedback-1', status: 'queued' }; },

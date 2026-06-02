@@ -135,17 +135,18 @@ function createFakeDb() {
         minutes: { totalMinutes: 0, entries: 0 }
       };
     },
-    async curriculum() {
+    async curriculum({ includeDrafts = true } = {}) {
+      const visibleLessons = includeDrafts ? lessons : lessons.filter(lesson => lesson.status === 'published');
       return {
         version: 'test',
         tracks: [{ id: 'core-ai-literacy', title: 'Core AI Literacy', description: '', sortOrder: 1, status: 'published', modules: ['orientation'] }],
-        levels: [{ id: 'foundation', title: 'Foundation', description: '', sortOrder: 1, status: 'published', lessons: ['chapter-1'] }],
-        modules: [{ id: 'orientation', title: 'Orientation', trackId: 'core-ai-literacy', sortOrder: 1, status: 'published', lessons }],
-        lessons
+        levels: [{ id: 'foundation', title: 'Foundation', description: '', sortOrder: 1, status: 'published', lessons: visibleLessons.map(lesson => lesson.id) }],
+        modules: [{ id: 'orientation', title: 'Orientation', trackId: 'core-ai-literacy', sortOrder: 1, status: 'published', lessons: visibleLessons }],
+        lessons: visibleLessons
       };
     },
-    async curriculumLesson(lessonId) {
-      return lessons.find(lesson => lesson.id === lessonId) || null;
+    async curriculumLesson(lessonId, { includeDrafts = true } = {}) {
+      return lessons.find(lesson => lesson.id === lessonId && (includeDrafts || lesson.status === 'published')) || null;
     },
     async adminCreateLesson({ lesson }) {
       const num = Number.isInteger(Number(lesson.num)) ? Number(lesson.num) : Math.max(...lessons.map(row => Number(row.num) || 0), 0) + 1;
@@ -238,20 +239,21 @@ function createFakeDb() {
     async dashboardForUser(userId) {
       const userProgress = progress.filter(row => row.userId === userId);
       const completedLessons = userProgress.filter(row => row.completedAt).length;
+      const publishedLessons = lessons.filter(lesson => lesson.status === 'published');
       return {
         user: publicUser(users.get(userId)),
         currentLesson: userProgress[0]?.lessonId || 'chapter-1',
         currentStep: userProgress[0]?.currentStep || 0,
-        nextLesson: lessons.find(lesson => !userProgress.some(row => row.lessonId === lesson.id && row.completedAt)) || null,
+        nextLesson: publishedLessons.find(lesson => !userProgress.some(row => row.lessonId === lesson.id && row.completedAt)) || null,
         completedLessons,
-        totalLessons: lessons.length,
-        completionPercent: lessons.length ? Math.round((completedLessons / lessons.length) * 100) : 0,
+        totalLessons: publishedLessons.length,
+        completionPercent: publishedLessons.length ? Math.round((completedLessons / publishedLessons.length) * 100) : 0,
         minutes: { totalMinutes: 0, entries: 0 },
         toolkitCount: 0,
         quizSubmissions: quizSubmissions.filter(row => row.userId === userId).length,
         incorrectQuizSubmissions: quizSubmissions.filter(row => row.userId === userId && row.correct === false).length,
         completedActivities: activityCompletions.filter(row => row.userId === userId).length,
-        modules: [{ id: 'orientation', title: 'Orientation', completedLessons, totalLessons: lessons.length }]
+        modules: [{ id: 'orientation', title: 'Orientation', completedLessons, totalLessons: publishedLessons.length }]
       };
     },
     async createFeedbackRequest() { return { id: 'feedback-1', status: 'queued' }; },
@@ -462,6 +464,14 @@ async function runRouteChecks(db, label) {
     });
     assert.equal(reset.response.status, 200);
 
+    const loginAfterAdminReset = await request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: signup.body.user.email, password: 'new-learning-pass' }
+    });
+    assert.equal(loginAfterAdminReset.response.status, 200);
+    const adminResetLearnerCookie = cookieHeader(loginAfterAdminReset.headers.get('set-cookie'));
+
     const adminCurriculum = await request('/api/admin/curriculum', { headers: { cookie: adminCookie } });
     assert.equal(adminCurriculum.response.status, 200);
     assert.equal(adminCurriculum.body.curriculum.levels[0].id, 'foundation');
@@ -490,6 +500,17 @@ async function runRouteChecks(db, label) {
     });
     assert.equal(duplicateLesson.response.status, 409);
     assert.equal(duplicateLesson.body.error, 'lesson_exists');
+
+    const adminCurriculumAfterCreate = await request('/api/admin/curriculum', { headers: { cookie: adminCookie } });
+    assert.equal(adminCurriculumAfterCreate.response.status, 200);
+    assert.ok(adminCurriculumAfterCreate.body.curriculum.lessons.some(lesson => lesson.id === 'chapter-31'));
+
+    const learnerCurriculumAfterCreate = await request('/api/v2/curriculum', { headers: { cookie: adminResetLearnerCookie } });
+    assert.equal(learnerCurriculumAfterCreate.response.status, 200);
+    assert.ok(!learnerCurriculumAfterCreate.body.curriculum.lessons.some(lesson => lesson.id === 'chapter-31'));
+
+    const hiddenDraftLesson = await request('/api/v2/lessons/chapter-31', { headers: { cookie: adminResetLearnerCookie } });
+    assert.equal(hiddenDraftLesson.response.status, 404);
 
     const editBlocked = await request('/api/admin/curriculum/lessons/chapter-1', {
       method: 'PUT',
