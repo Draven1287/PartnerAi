@@ -598,47 +598,63 @@ function adminHtml() {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Learning AI Admin</title>
   <style>
-    :root { --bg:#f7f9fc; --surface:#fff; --surface-2:#eef4f8; --border:#dbe3ea; --text:#121826; --dim:#4b5870; --faint:#7a869a; --accent:#2563eb; --good:#0f8a66; --bad:#b42318; }
+    :root { --bg:#f7f9fc; --surface:#fff; --surface-2:#eef4f8; --border:#dbe3ea; --text:#121826; --dim:#4b5870; --faint:#7a869a; --accent:#2563eb; --accent-soft:#e9efff; --good:#0f8a66; --bad:#b42318; }
     * { box-sizing:border-box; }
     body { margin:0; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Inter",system-ui,"Segoe UI",sans-serif; font-size:16px; }
-    .shell { display:grid; grid-template-columns:240px minmax(0,1fr); min-height:100vh; }
-    aside { background:#fff; border-right:1px solid var(--border); padding:28px 22px; }
-    main { padding:34px; }
-    h1 { margin:0 0 4px; font-size:44px; letter-spacing:0; }
-    h2 { margin:0 0 18px; font-size:24px; }
+    body.admin-dark { --bg:#111827; --surface:#172033; --surface-2:#22304a; --border:#334155; --text:#f8fafc; --dim:#c7d2e3; --faint:#94a3b8; --accent-soft:rgba(96,165,250,.18); }
+    body.admin-contrast { --bg:#ffffff; --surface:#ffffff; --surface-2:#f1f5f9; --border:#94a3b8; --text:#020617; --dim:#334155; --faint:#475569; --accent-soft:#dbeafe; }
+    body.admin-compact { font-size:14px; }
+    .shell { display:grid; grid-template-columns:minmax(220px,260px) minmax(0,1fr); min-height:100vh; }
+    aside { background:var(--surface); border-right:1px solid var(--border); padding:28px 22px; min-width:0; }
+    main { min-width:0; padding:clamp(20px,4vw,36px); }
+    h1 { margin:0 0 4px; font-size:clamp(36px,5vw,56px); letter-spacing:0; line-height:1; overflow-wrap:anywhere; }
+    h2 { margin:0 0 18px; font-size:24px; line-height:1.15; overflow-wrap:anywhere; }
     p { color:var(--dim); line-height:1.5; }
-    .brand { font-weight:800; font-size:20px; margin-bottom:34px; }
+    .brand { font-weight:800; font-size:20px; line-height:1.15; margin-bottom:34px; overflow-wrap:anywhere; }
     .nav button { display:block; width:100%; border:0; background:transparent; text-align:left; padding:12px; border-radius:8px; color:var(--dim); font:inherit; cursor:pointer; }
-    .nav button.active { color:var(--accent); background:#e9efff; }
-    .card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:22px; box-shadow:0 18px 60px rgba(18,24,38,.06); margin:22px 0; }
-    .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+    .nav button.active { color:var(--accent); background:var(--accent-soft); }
+    .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:22px; box-shadow:0 12px 34px rgba(18,24,38,.045); margin:22px 0; min-width:0; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; }
     .stat strong { display:block; font-size:32px; }
-    input, select, textarea { width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font:inherit; background:#fff; }
+    input, select, textarea { width:100%; min-width:0; padding:12px 14px; border:1px solid var(--border); border-radius:8px; font:inherit; background:var(--surface); color:var(--text); }
     textarea { min-height:220px; resize:vertical; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; line-height:1.45; }
     button, .btn { border:0; border-radius:8px; padding:12px 16px; background:var(--accent); color:#fff; font-weight:700; cursor:pointer; font:inherit; }
-    button.secondary { background:#eef4f8; color:var(--text); }
+    button.secondary { background:var(--surface-2); color:var(--text); }
     button.danger { background:#b42318; }
-    table { width:100%; border-collapse:collapse; }
+    .table-wrap { overflow-x:auto; max-width:100%; }
+    table { width:100%; min-width:820px; border-collapse:collapse; }
     th, td { padding:12px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
     th { color:var(--faint); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    td { overflow-wrap:anywhere; }
+    .cell-title { max-width:260px; }
     .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .row > * { flex:1; }
-    .notice { border-left:4px solid var(--accent); background:#e9efff; padding:12px 14px; border-radius:8px; }
+    .row > * { flex:1 1 180px; }
+    .row h2 { flex:999 1 280px; }
+    .row .pill { flex:0 0 auto; }
+    .toolbar { display:grid; grid-template-columns:minmax(220px,1fr) auto; gap:12px; align-items:center; margin-bottom:16px; }
+    .table-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .table-actions button { padding:8px 10px; }
+    .notice { border-left:4px solid var(--accent); background:var(--accent-soft); padding:12px 14px; border-radius:8px; }
     .dev-login { font-size:14px; }
     code { color:var(--text); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
     .hidden { display:none !important; }
     .login { max-width:460px; margin:12vh auto; }
     .muted { color:var(--faint); }
-    .pill { display:inline-block; background:var(--surface-2); border-radius:999px; padding:4px 10px; color:var(--dim); font-size:13px; }
-    .editor-grid { display:grid; grid-template-columns:minmax(220px,320px) minmax(0,1fr); gap:18px; align-items:start; }
+    .pill { display:inline-block; background:var(--surface-2); border-radius:999px; padding:4px 10px; color:var(--dim); font-size:13px; white-space:nowrap; }
+    .editor-grid { display:grid; grid-template-columns:minmax(260px,360px) minmax(560px,1fr); gap:18px; align-items:start; overflow-x:auto; }
     .lesson-list { max-height:640px; overflow:auto; }
-    .lesson-list button { display:block; width:100%; margin:0 0 8px; background:#fff; color:var(--text); border:1px solid var(--border); text-align:left; font-weight:600; }
-    .lesson-list button.active { border-color:var(--accent); background:#e9efff; color:var(--accent); }
+    .lesson-list button { display:block; width:100%; margin:0 0 8px; background:var(--surface); color:var(--text); border:1px solid var(--border); text-align:left; font-weight:600; line-height:1.25; overflow-wrap:anywhere; }
+    .lesson-list button.active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
     .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
     .field-wide { grid-column:1 / -1; }
     label span { display:block; margin:0 0 6px; color:var(--dim); font-size:14px; font-weight:700; }
-    @media (max-width:850px) { .shell { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--border); } .grid { grid-template-columns:1fr 1fr; } main { padding:22px; } h1 { font-size:34px; } }
-    @media (max-width:850px) { .editor-grid, .form-grid { grid-template-columns:1fr; } .field-wide { grid-column:auto; } }
+    .setting-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+    .swatches { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .swatch { width:38px; height:38px; border-radius:999px; border:3px solid var(--surface); box-shadow:0 0 0 1px var(--border); padding:0; }
+    .swatch.active { box-shadow:0 0 0 3px var(--accent-soft), 0 0 0 5px var(--accent); }
+    @media (max-width:1200px) { .editor-grid { grid-template-columns:1fr; overflow-x:visible; } }
+    @media (max-width:850px) { .shell { grid-template-columns:1fr; } aside { border-right:0; border-bottom:1px solid var(--border); } .toolbar { grid-template-columns:1fr; } main { padding:22px; } h1 { font-size:34px; } }
+    @media (max-width:850px) { .form-grid { grid-template-columns:1fr; } .field-wide { grid-column:auto; } }
   </style>
 </head>
 <body>
@@ -662,6 +678,7 @@ function adminHtml() {
         <button data-view="lessons">Lessons</button>
         <button data-view="content">Content</button>
         <button data-view="export">Export</button>
+        <button data-view="settings">Settings</button>
       </div>
       <p class="muted" id="build-marker"></p>
       <button class="secondary" id="logout">Sign out</button>
@@ -677,11 +694,27 @@ let csrfToken = '';
 let currentView = 'overview';
 let selectedContentLessonId = '';
 const localDevAdmin = ${localAdminScript};
+const ADMIN_SETTINGS_KEY = 'learningai-admin-settings';
+const defaultAdminSettings = { theme:'light', accent:'#2563eb', density:'comfortable' };
 const app = document.getElementById('app');
 const login = document.getElementById('login');
 const content = document.getElementById('content');
 const title = document.getElementById('title');
 const subtitle = document.getElementById('subtitle');
+function readAdminSettings() {
+  try { return { ...defaultAdminSettings, ...JSON.parse(localStorage.getItem(ADMIN_SETTINGS_KEY) || '{}') }; }
+  catch (error) { return { ...defaultAdminSettings }; }
+}
+function saveAdminSettings(settings) {
+  localStorage.setItem(ADMIN_SETTINGS_KEY, JSON.stringify(settings));
+  applyAdminSettings(settings);
+}
+function applyAdminSettings(settings = readAdminSettings()) {
+  document.documentElement.style.setProperty('--accent', settings.accent || defaultAdminSettings.accent);
+  document.body.classList.toggle('admin-dark', settings.theme === 'dark');
+  document.body.classList.toggle('admin-contrast', settings.theme === 'contrast');
+  document.body.classList.toggle('admin-compact', settings.density === 'compact');
+}
 async function api(path, options = {}) {
   const method = options.method || 'GET';
   const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
@@ -722,6 +755,7 @@ async function render() {
   if (currentView === 'lessons') return renderLessons();
   if (currentView === 'content') return renderContentEditor();
   if (currentView === 'export') return renderExport();
+  if (currentView === 'settings') return renderSettings();
 }
 async function renderOverview() {
   title.textContent = 'Overview'; subtitle.textContent = 'Account-backed learner progress.';
@@ -741,11 +775,11 @@ async function renderLearners() {
   title.textContent = 'Learners'; subtitle.textContent = 'Server-saved accounts, minutes, progress, and last active time.';
   const result = await api('/api/admin/learners');
   const rows = result.learners || [];
-  content.innerHTML = '<div class="card"><div class="row"><input id="search" placeholder="Search learners"><button id="refresh">Refresh</button></div><table><thead><tr><th>Name</th><th>Email</th><th>Minutes</th><th>Progress</th><th>Current</th><th>Visits</th><th>Last active</th><th>Actions</th></tr></thead><tbody id="learner-rows"></tbody></table></div>';
+  content.innerHTML = '<div class="card"><div class="toolbar"><input id="search" placeholder="Search learners"><button id="refresh">Refresh</button></div><div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Minutes</th><th>Progress</th><th>Current</th><th>Visits</th><th>Last active</th><th>Actions</th></tr></thead><tbody id="learner-rows"></tbody></table></div></div>';
   const tbody = document.getElementById('learner-rows');
   function draw(filter='') {
     tbody.innerHTML = rows.filter(r => (r.displayName + ' ' + r.email).toLowerCase().includes(filter.toLowerCase())).map(r => '<tr>'+
-      '<td>'+esc(r.displayName)+(r.disabled?' <span class="pill">disabled</span>':'')+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.totalMinutes)+'</td><td>'+esc(r.completionPercent)+'%</td><td>'+esc(r.currentLesson || '')+'</td><td>'+esc(r.visitCount)+'</td><td>'+esc(fmtDate(r.lastActiveAt))+'</td><td class="row"><button class="secondary" data-detail="'+esc(r.id)+'">Details</button><button class="secondary" data-id="'+esc(r.id)+'" data-action="'+(r.disabled?'enable':'disable')+'">'+(r.disabled?'Enable':'Disable')+'</button></td></tr>').join('');
+      '<td>'+esc(r.displayName)+(r.disabled?' <span class="pill">disabled</span>':'')+'</td><td>'+esc(r.email)+'</td><td>'+esc(r.totalMinutes)+'</td><td>'+esc(r.completionPercent)+'%</td><td>'+esc(r.currentLesson || '')+'</td><td>'+esc(r.visitCount)+'</td><td>'+esc(fmtDate(r.lastActiveAt))+'</td><td><div class="table-actions"><button class="secondary" data-detail="'+esc(r.id)+'">Details</button><button class="secondary" data-id="'+esc(r.id)+'" data-action="'+(r.disabled?'enable':'disable')+'">'+(r.disabled?'Enable':'Disable')+'</button></div></td></tr>').join('');
     tbody.querySelectorAll('button[data-detail]').forEach(btn => btn.addEventListener('click', () => renderLearnerDetail(btn.dataset.detail)));
     tbody.querySelectorAll('button[data-id]').forEach(btn => btn.addEventListener('click', async () => { await accountAction({ userId:btn.dataset.id, action:btn.dataset.action }); renderLearners(); }));
   }
@@ -788,9 +822,9 @@ async function renderLearnerDetail(id) {
         '<button id="delete-user" class="danger">Delete account</button>' +
       '</p>' +
     '</div>' +
-    '<div class="card"><h2>Progress</h2><table><thead><tr><th>Lesson</th><th>Step</th><th>Completed</th><th>Updated</th></tr></thead><tbody>'+progress.map(row => '<tr><td>'+esc(row.lessonId)+'</td><td>'+esc(row.currentStep)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td><td>'+esc(fmtDate(row.updatedAt))+'</td></tr>').join('')+'</tbody></table></div>' +
-    '<div class="card"><h2>Recent Visits</h2><table><thead><tr><th>Path</th><th>When</th><th>Seconds</th></tr></thead><tbody>'+visits.map(row => '<tr><td>'+esc(row.path)+'</td><td>'+esc(fmtDate(row.visited_at || row.visitedAt))+'</td><td>'+esc(row.duration_seconds || row.durationSeconds || '')+'</td></tr>').join('')+'</tbody></table></div>' +
-    '<div class="card"><h2>Recent Interactions</h2><table><thead><tr><th>Lesson</th><th>Step</th><th>Kind</th><th>Correct</th><th>When</th></tr></thead><tbody>'+interactions.map(row => '<tr><td>'+esc(row.lesson_id || row.lessonId)+'</td><td>'+esc(row.step_index || row.stepIndex)+'</td><td>'+esc(row.interaction_kind || row.interactionKind)+'</td><td>'+esc(row.correct == null ? '' : row.correct)+'</td><td>'+esc(fmtDate(row.answered_at || row.answeredAt))+'</td></tr>').join('')+'</tbody></table></div>';
+    '<div class="card"><h2>Progress</h2><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Step</th><th>Completed</th><th>Updated</th></tr></thead><tbody>'+progress.map(row => '<tr><td>'+esc(row.lessonId)+'</td><td>'+esc(row.currentStep)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td><td>'+esc(fmtDate(row.updatedAt))+'</td></tr>').join('')+'</tbody></table></div></div>' +
+    '<div class="card"><h2>Recent Visits</h2><div class="table-wrap"><table><thead><tr><th>Path</th><th>When</th><th>Seconds</th></tr></thead><tbody>'+visits.map(row => '<tr><td>'+esc(row.path)+'</td><td>'+esc(fmtDate(row.visited_at || row.visitedAt))+'</td><td>'+esc(row.duration_seconds || row.durationSeconds || '')+'</td></tr>').join('')+'</tbody></table></div></div>' +
+    '<div class="card"><h2>Recent Interactions</h2><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Step</th><th>Kind</th><th>Correct</th><th>When</th></tr></thead><tbody>'+interactions.map(row => '<tr><td>'+esc(row.lesson_id || row.lessonId)+'</td><td>'+esc(row.step_index || row.stepIndex)+'</td><td>'+esc(row.interaction_kind || row.interactionKind)+'</td><td>'+esc(row.correct == null ? '' : row.correct)+'</td><td>'+esc(fmtDate(row.answered_at || row.answeredAt))+'</td></tr>').join('')+'</tbody></table></div></div>';
   document.getElementById('back-learners').addEventListener('click', renderLearners);
   document.getElementById('rename-user').addEventListener('click', async () => {
     const displayName = prompt('New display name', user.displayName || '');
@@ -818,10 +852,10 @@ async function renderLessons() {
   title.textContent = 'Lessons'; subtitle.textContent = 'Starts, completions, and difficult steps by lesson.';
   const result = await api('/api/admin/lesson-analytics');
   const rows = result.lessons || [];
-  content.innerHTML = '<div class="card"><table><thead><tr><th>Lesson</th><th>Arc</th><th>Started</th><th>Completed</th><th>Interactions</th><th>Incorrect</th><th>Difficult steps</th><th>Last activity</th></tr></thead><tbody>' + rows.map(r => {
+  content.innerHTML = '<div class="card"><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Arc</th><th>Started</th><th>Completed</th><th>Interactions</th><th>Incorrect</th><th>Difficult steps</th><th>Last activity</th></tr></thead><tbody>' + rows.map(r => {
     const difficult = (r.difficultSteps || []).map(step => 'Step '+esc(Number(step.stepIndex) + 1)+' · '+esc(step.kind)+' · '+esc(step.incorrectRate)+'% wrong').join('<br>') || '<span class="muted">None yet</span>';
-    return '<tr><td>'+esc(r.num)+'. '+esc(r.title)+'</td><td>'+esc(r.arc)+'</td><td>'+esc(r.learnersStarted)+'</td><td>'+esc(r.learnersCompleted)+'</td><td>'+esc(r.interactions)+'</td><td>'+esc(r.incorrectAnswers)+'</td><td>'+difficult+'</td><td>'+esc(fmtDate(r.lastActivityAt))+'</td></tr>';
-  }).join('') + '</tbody></table></div>';
+    return '<tr><td class="cell-title">'+esc(r.num)+'. '+esc(r.title)+'</td><td>'+esc(r.arc)+'</td><td>'+esc(r.learnersStarted)+'</td><td>'+esc(r.learnersCompleted)+'</td><td>'+esc(r.interactions)+'</td><td>'+esc(r.incorrectAnswers)+'</td><td>'+difficult+'</td><td>'+esc(fmtDate(r.lastActivityAt))+'</td></tr>';
+  }).join('') + '</tbody></table></div></div>';
 }
 function stepForEditor(step) {
   return {
@@ -926,6 +960,46 @@ function renderExport() {
     msg.textContent = 'CSV downloaded.';
   });
 }
+function renderSettings() {
+  title.textContent = 'Settings';
+  subtitle.textContent = 'Personalize this admin view on this browser.';
+  const settings = readAdminSettings();
+  const accents = [
+    ['#2563eb', 'Blue'],
+    ['#0891b2', 'Teal'],
+    ['#7c3aed', 'Violet'],
+    ['#16a34a', 'Green'],
+    ['#d97706', 'Amber']
+  ];
+  content.innerHTML =
+    '<div class="card">' +
+      '<h2>Admin appearance</h2>' +
+      '<div class="setting-grid">' +
+        '<label><span>Theme</span><select id="admin-theme"><option value="light">Light</option><option value="dark">Dark</option><option value="contrast">High contrast</option></select></label>' +
+        '<label><span>Density</span><select id="admin-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></label>' +
+        '<div><span class="muted">Accent color</span><div class="swatches">' + accents.map(([color, label]) => '<button class="swatch'+(settings.accent === color ? ' active' : '')+'" data-accent="'+esc(color)+'" title="'+esc(label)+'" style="background:'+esc(color)+'"></button>').join('') + '</div></div>' +
+      '</div>' +
+      '<p class="muted">These settings only change your admin browser view. They do not affect learners or production data.</p>' +
+    '</div>' +
+    '<div class="card">' +
+      '<h2>Backend status</h2>' +
+      '<p id="settings-backend">Checking...</p>' +
+    '</div>';
+  document.getElementById('admin-theme').value = settings.theme;
+  document.getElementById('admin-density').value = settings.density;
+  document.getElementById('admin-theme').addEventListener('change', event => saveAdminSettings({ ...readAdminSettings(), theme:event.target.value }));
+  document.getElementById('admin-density').addEventListener('change', event => saveAdminSettings({ ...readAdminSettings(), density:event.target.value }));
+  content.querySelectorAll('.swatch').forEach(button => button.addEventListener('click', () => {
+    saveAdminSettings({ ...readAdminSettings(), accent:button.dataset.accent });
+    renderSettings();
+  }));
+  api('/health').then(result => {
+    document.getElementById('settings-backend').innerHTML = result.ok
+      ? 'Build <code>'+esc(result.buildSha || 'unknown')+'</code> · DB <code>'+esc(result.dbStatus || 'unknown')+'</code> · migration <code>'+esc(result.migrationVersion || 'unknown')+'</code>'
+      : 'Could not read backend health.';
+  });
+}
+applyAdminSettings();
 boot();
 </script>
 </body>
