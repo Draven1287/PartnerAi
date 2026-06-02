@@ -17,6 +17,8 @@ const DEFAULT_ORIGINS = [
   'https://learningai4you.com',
   'https://www.learningai4you.com',
   'https://api.learningai4you.com',
+  'http://127.0.0.1:8787',
+  'http://localhost:8787',
   'http://127.0.0.1:8123',
   'http://127.0.0.1:8124',
   'http://127.0.0.1:8125',

@@ -8,6 +8,8 @@ process.env.SESSION_SECRET ||= 'local-dev-session-secret-that-is-long-enough';
 process.env.ADMIN_EMAIL ||= 'admin@example.com';
 process.env.ADMIN_PASSWORD ||= 'learning-ai-admin-pass';
 process.env.CORS_ORIGINS ||= [
+  'http://127.0.0.1:8787',
+  'http://localhost:8787',
   'http://127.0.0.1:8123',
   'http://localhost:8123',
   'http://127.0.0.1:8127',

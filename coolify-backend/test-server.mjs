@@ -4,7 +4,7 @@ import { createServer, hashPassword } from './server.mjs';
 process.env.SESSION_SECRET ||= 'local-test-session-secret-that-is-long-enough';
 process.env.ADMIN_EMAIL ||= 'admin@example.com';
 process.env.ADMIN_PASSWORD ||= 'learning-ai-admin-pass';
-process.env.CORS_ORIGINS ||= 'http://127.0.0.1:8123';
+process.env.CORS_ORIGINS ||= 'http://127.0.0.1:8123,http://127.0.0.1:8787';
 process.env.ALLOW_DEV_RESET_TOKEN_RETURN ||= 'true';
 
 function publicUser(row) {
@@ -391,11 +391,19 @@ async function runRouteChecks(db, label) {
 
     const adminLogin = await request('/api/admin/login', {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: { 'content-type': 'application/json', origin: 'http://127.0.0.1:8787' },
       body: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }
     });
     assert.equal(adminLogin.response.status, 200);
     const adminCookie = cookieHeader(adminLogin.headers.get('set-cookie'));
+
+    const blockedAdminOrigin = await request('/api/admin/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', origin: 'https://evil.example' },
+      body: { email: process.env.ADMIN_EMAIL, password: process.env.ADMIN_PASSWORD }
+    });
+    assert.equal(blockedAdminOrigin.response.status, 403);
+    assert.equal(blockedAdminOrigin.body.error, 'origin_not_allowed');
 
     const learners = await request('/api/admin/learners', { headers: { cookie: adminCookie } });
     assert.equal(learners.response.status, 200);
