@@ -1068,9 +1068,14 @@
       h('section', { class: 'v2-card-grid' }, [
         h('article', { class: 'project-card' }, [
           h('span', { class: 'lt-badge' }, 'case study draft'),
-          h('h2', null, 'Multi-agent ethics simulations'),
-          h('p', null, 'Two AI systems were placed in separate chats and tested against each other with a trolley problem, a prisoner’s dilemma, negotiation, and war-negotiation scenarios.'),
-          h('p', { class: 'muted' }, 'Needs source notes from the “Design Multi-Agent Interactions” thread before this becomes a full public writeup.')
+          h('h2', null, 'Multi-agent ethics dialogue experiment'),
+          h('p', null, 'Made by Aarav, Felix, and AI. Two AI systems were placed in separate chats and tested against each other with trolley problems, prisoner’s dilemma cases, treaty negotiation, and war-negotiation scenarios.'),
+          h('ul', { class: 'compact-list' }, [
+            h('li', null, 'The Westmark managed-negotiation script saved JSON runs and checkpoint files.'),
+            h('li', null, 'The outputs included final treaty drafts, issue rounds, private/public agent responses, secretary interventions, pressure/deception notes, and historian analysis.'),
+            h('li', null, 'The analysis/dashboard package summarized treaty, prisoner, trolley, and negotiation outputs into CSV and presentation views.')
+          ]),
+          h('p', { class: 'muted' }, 'Next step: turn the experiment files into a readable public case study with screenshots, example JSON snippets, and reflection questions.')
         ]),
         h('article', { class: 'project-card' }, [
           h('span', { class: 'lt-badge' }, 'starter'),
@@ -1101,7 +1106,8 @@
         ]),
         h('article', { class: 'project-card' }, [
           h('h2', null, 'Multi-agent classroom activity'),
-          h('p', null, 'The multi-agent ethics project can become a teaching activity once we add the prompts, setup notes, and reflection questions.')
+          h('p', null, 'Students can compare what happens when two AI agents negotiate, compete, or reason through ethical pressure. The activity can use the Westmark treaty, prisoner’s dilemma, trolley problem, and war-negotiation runs as examples.'),
+          h('p', { class: 'muted' }, 'Teaching materials still needed: setup instructions, safe discussion framing, sample outputs, and questions about evidence, incentives, deception, and human oversight.')
         ])
       ])
     ]);

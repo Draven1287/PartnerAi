@@ -357,3 +357,8 @@ Before real users:
   - V1 Settings contrast was improved so dark option chips have readable text.
   - Added a draft Projects card for the multi-agent ethics/simulation project using only user-provided facts; full case study still needs the separate project notes/thread.
   - Fixed local dev backend curriculum grouping so `/api/v2/curriculum` returns all six modules and all 30 lessons instead of only the Orientation arc.
+- 2026-06-02 multi-agent project source update:
+  - User pasted source context from the “Design multi-agent interaction” work.
+  - Project attribution: “Made by Aarav, Felix, and AI.”
+  - Project details now include Westmark managed negotiation, trolley problems, prisoner’s dilemma cases, treaty negotiation, war-negotiation scenarios, JSON run files, checkpoint saves, secretary interventions, pressure/deception notes, historian analysis, CSV summaries, and presentation dashboards.
+  - The Projects page now treats this as a concrete V2 case-study draft. The Teaching AI page now frames it as a possible classroom/club activity.

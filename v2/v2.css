@@ -90,6 +90,13 @@ body.v2-onboarding .progress-bar { display: none; }
   position: relative;
 }
 .project-card h2 { margin: 0.2rem 0 0.45rem; }
+.compact-list {
+  color: var(--text-dim);
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+  padding-left: 1.1rem;
+}
 .seg-row { display: flex; flex-wrap: wrap; gap: 0.55rem; }
 .v2-settings-card { min-height: 180px; }
 .arc-progress-list { display: grid; gap: 0.6rem; }
