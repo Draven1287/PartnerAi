@@ -347,3 +347,13 @@ Before real users:
   - Verified post-questionnaire nav text: Dashboard, Lessons, Settings, About, Projects, Educators.
   - No browser console errors during the local onboarding test.
   - Next V2 product work should start from this local backend loop: backend-driven lesson content/interaction loading, then lesson UI interaction polish, then full arc authoring.
+- 2026-06-01 V2 navigation and taste-feedback fixes:
+  - V2 nav now stays inside V2 for Settings, About, Projects, and Teaching AI instead of sending learners to V1 pages.
+  - `Educators` was renamed to `Teaching AI`.
+  - V2 Settings, Projects, Teaching AI, and About are now internal app routes.
+  - Dashboard and Lessons were separated more clearly: Dashboard is the next-action view; Lessons gets a course-catalog header and full 30-lesson map.
+  - Questionnaire choices now show `1.` through `4.` and support keyboard shortcuts: press `1`-`4` to choose, Enter to continue.
+  - Lesson copy changed from “high-school student” to “someone like me” so the course does not sound limited to high school.
+  - V1 Settings contrast was improved so dark option chips have readable text.
+  - Added a draft Projects card for the multi-agent ethics/simulation project using only user-provided facts; full case study still needs the separate project notes/thread.
+  - Fixed local dev backend curriculum grouping so `/api/v2/curriculum` returns all six modules and all 30 lessons instead of only the Orientation arc.

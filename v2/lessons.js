@@ -82,7 +82,7 @@
         {
           kind: 'tryLive',
           title: 'Try it for real',
-          prompt: 'I am deciding when AI helps me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts for a high-school student. For each risky shortcut, add one question I should ask myself before using it.',
+          prompt: 'I am deciding when AI helps me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts for someone like me. For each risky shortcut, add one question I should ask myself before using it.',
           note: 'Run this in any free AI tool, then keep the 5 risky ones near your desk.'
         },
         {

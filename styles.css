@@ -913,7 +913,7 @@ body[data-theme].assessment-page .assessment-nav button:hover {
   background: #111b2b;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
-  color: var(--text);
+  color: #f4f7fb;
   cursor: pointer;
   display: flex;
   gap: 0.7rem;
@@ -994,6 +994,7 @@ body[data-theme] .skill-item,
 body[data-theme] .settings-choice-grid label {
   background: var(--surface-2);
   border-color: var(--border);
+  color: var(--text);
 }
 body[data-theme] .profile-form input,
 body[data-theme] .gauge-card textarea,

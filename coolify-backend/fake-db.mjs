@@ -9,6 +9,10 @@ function publicUser(row) {
   };
 }
 
+function slug(value, fallback = 'module') {
+  return String(value || fallback).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || fallback;
+}
+
 export function createFakeDb(options = {}) {
   const users = new Map();
   const usersByEmail = new Map();
@@ -134,11 +138,28 @@ export function createFakeDb(options = {}) {
       };
     },
     async curriculum() {
+      const moduleMap = new Map();
+      for (const lesson of lessons) {
+        const title = lesson.arc || 'Orientation';
+        const id = lesson.moduleId || slug(title, 'orientation');
+        if (!moduleMap.has(id)) {
+          moduleMap.set(id, {
+            id,
+            title,
+            trackId: 'core-ai-literacy',
+            sortOrder: moduleMap.size + 1,
+            status: 'published',
+            lessons: []
+          });
+        }
+        moduleMap.get(id).lessons.push(lesson);
+      }
+      const modules = [...moduleMap.values()];
       return {
         version: 'test',
-        tracks: [{ id: 'core-ai-literacy', title: 'Core AI Literacy', description: '', sortOrder: 1, status: 'published', modules: ['orientation'] }],
+        tracks: [{ id: 'core-ai-literacy', title: 'Core AI Literacy', description: '', sortOrder: 1, status: 'published', modules: modules.map(module => module.id) }],
         levels: [{ id: 'foundation', title: 'Foundation', description: '', sortOrder: 1, status: 'published', lessons: lessons.map(lesson => lesson.id) }],
-        modules: [{ id: 'orientation', title: 'Orientation', trackId: 'core-ai-literacy', sortOrder: 1, status: 'published', lessons }],
+        modules,
         lessons
       };
     },

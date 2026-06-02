@@ -684,7 +684,8 @@
     setShellVisible(Boolean(ready));
     document.querySelectorAll('.nav-links a').forEach(link => {
       const href = link.getAttribute('href') || '';
-      const active = (href === '#/' && (!routeParts || routeParts.length === 0)) || (href === '#/lessons' && routeParts?.[0] === 'lessons');
+      const route = routeParts?.[0] || '';
+      const active = (href === '#/' && (!routeParts || routeParts.length === 0)) || href === `#/${route}`;
       link.classList.toggle('active', active);
     });
   }
@@ -769,7 +770,7 @@
     }
 
     const progressFill = h('span', { style: `width:${Math.round(((index + 1) / total) * 100)}%` });
-    const options = h('div', { class: 'diagnostic-options' }, question.options.map(([value, label]) => h('label', null, [
+    const options = h('div', { class: 'diagnostic-options' }, question.options.map(([value, label], optionIndex) => h('label', { 'data-shortcut': String(optionIndex + 1) }, [
       h('input', {
         type: 'radio',
         name: question.key,
@@ -777,7 +778,7 @@
         checked: selectedAnswer()?.value === value ? 'true' : null,
         onchange: () => saveCurrentAnswer(value, label)
       }),
-      h('span', null, label)
+      h('span', null, [h('strong', { class: 'shortcut-num' }, `${optionIndex + 1}. `), label])
     ])));
     const note = h('textarea', {
       placeholder: 'Optional: add nuance in your own words.',
@@ -894,7 +895,7 @@
           ]),
           h('div', { class: 'row-gap' }, [
             next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, done ? `Continue lesson ${next.num}` : `Start lesson ${next.num}`)
-                 : h('a', { class: 'btn btn-primary', href: '../projects.html' }, 'Start a project'),
+                 : h('a', { class: 'btn btn-primary', href: '#/projects' }, 'Start a project'),
             h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, 'Retake questionnaire')
           ])
         ]),
@@ -913,6 +914,11 @@
         ]),
         h('div', { class: 'dashboard-section' }, [buildToolkitPanel()])
       ]),
+      showCatalog ? h('header', { class: 'hero compact catalog-head' }, [
+        h('div', { class: 'tagline' }, 'All V2 lessons'),
+        h('h1', null, 'Course catalog'),
+        h('p', { class: 'lead' }, 'This is the full 30-lesson map. Authored lessons are playable now; locked tiles stay visible so you can see what is coming next.')
+      ]) : null,
       ...(showCatalog ? sections : [])
     ]);
   }
@@ -1000,6 +1006,118 @@
     ]);
   }
 
+  function viewSettings() {
+    const settings = readJson(KEY.settings, {}) || {};
+    function savePatch(patch) {
+      set(KEY.settings, JSON.stringify({ ...settings, ...patch, savedAt: new Date().toISOString() }));
+      applyAppearance();
+      render();
+    }
+    return h('div', { class: 'container view v2-page' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'V2 settings'),
+        h('h1', null, 'Make the course easier to use'),
+        h('p', { class: 'lead' }, 'These settings stay in V2. They do not send you back to the older site.')
+      ]),
+      h('section', { class: 'v2-card-grid' }, [
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Theme'),
+          h('div', { class: 'seg-row' }, [
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'light' }) }, 'Light'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'dark' }) }, 'Dark'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: '' }) }, 'Default')
+          ]),
+          h('p', { class: 'muted' }, `Current: ${settings.theme || 'default'}`)
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Text size'),
+          h('div', { class: 'seg-row' }, [
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'normal' }) }, 'Normal'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'large' }) }, 'Large'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'xl' }) }, 'Extra large')
+          ]),
+          h('p', { class: 'muted' }, 'This is for reading comfort during lessons.')
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Starting point'),
+          h('p', null, 'Retake the six-category questionnaire when you want V2 to reset your learning mode.'),
+          h('div', { class: 'row-gap' }, [
+            h('a', { class: 'btn btn-primary', href: '#/questionnaire' }, 'Retake questionnaire'),
+            h('button', { class: 'btn btn-ghost', onclick: () => {
+              localStorage.removeItem('modelwise-gauge');
+              localStorage.removeItem(KEY.diagnosticDraft);
+              serverState = { ...(serverState || {}), assessment: null };
+              location.hash = '#/questionnaire';
+              render();
+            } }, 'Clear local result')
+          ])
+        ])
+      ])
+    ]);
+  }
+
+  function viewProjects() {
+    return h('div', { class: 'container view v2-page' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'Projects'),
+        h('h1', null, 'Build something useful with AI'),
+        h('p', { class: 'lead' }, 'Projects should become real build ideas and case studies, not a playground link. This page is the V2 project hub.')
+      ]),
+      h('section', { class: 'v2-card-grid' }, [
+        h('article', { class: 'project-card' }, [
+          h('span', { class: 'lt-badge' }, 'case study draft'),
+          h('h2', null, 'Multi-agent ethics simulations'),
+          h('p', null, 'Two AI systems were placed in separate chats and tested against each other with a trolley problem, a prisoner’s dilemma, negotiation, and war-negotiation scenarios.'),
+          h('p', { class: 'muted' }, 'Needs source notes from the “Design Multi-Agent Interactions” thread before this becomes a full public writeup.')
+        ]),
+        h('article', { class: 'project-card' }, [
+          h('span', { class: 'lt-badge' }, 'starter'),
+          h('h2', null, 'Prompt repair journal'),
+          h('p', null, 'Collect three weak prompts, repair each one, and explain what changed: goal, context, constraints, format, or verification.')
+        ]),
+        h('article', { class: 'project-card' }, [
+          h('span', { class: 'lt-badge' }, 'starter'),
+          h('h2', null, 'AI verification checklist'),
+          h('p', null, 'Pick a claim, ask AI for help, then show the outside sources and checks that made the answer safer.')
+        ])
+      ])
+    ]);
+  }
+
+  function viewTeaching() {
+    return h('div', { class: 'container view v2-page' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'For teaching AI'),
+        h('h1', null, 'Use Learning AI in a class, club, or workshop'),
+        h('p', { class: 'lead' }, 'This section is for teachers, mentors, and learners who want to run AI activities with people, not just read pages alone.')
+      ]),
+      h('section', { class: 'v2-card-grid' }, [
+        h('article', { class: 'project-card' }, [
+          h('h2', null, 'Discussion-first lessons'),
+          h('p', null, 'Each V2 lesson should have one moment where a group can pause, compare answers, and explain the judgment behind a choice.')
+        ]),
+        h('article', { class: 'project-card' }, [
+          h('h2', null, 'Multi-agent classroom activity'),
+          h('p', null, 'The multi-agent ethics project can become a teaching activity once we add the prompts, setup notes, and reflection questions.')
+        ])
+      ])
+    ]);
+  }
+
+  function viewAboutV2() {
+    return h('div', { class: 'container view v2-page' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'About V2'),
+        h('h1', null, 'Learning AI is for anyone starting from questions'),
+        h('p', { class: 'lead' }, 'V2 is being built as a guided course with accounts, saved progress, interactive lessons, and projects. The goal is not “AI for high school students only.” It is AI learning that works whether you are a student, teacher, parent, builder, or curious adult.')
+      ])
+    ]);
+  }
+
   function notFound() {
     return h('div', { class: 'container view' }, [
       h('header', { class: 'hero compact' }, [h('h1', null, 'Not found'), h('p', { class: 'lead' }, 'That page does not exist.')]),
@@ -1037,6 +1155,10 @@
     else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewLessons(false);
     else if (parts[0] === 'lessons') node = viewLessons(true);
+    else if (parts[0] === 'settings') node = viewSettings();
+    else if (parts[0] === 'projects') node = viewProjects();
+    else if (parts[0] === 'teaching') node = viewTeaching();
+    else if (parts[0] === 'about') node = viewAboutV2();
     else if (parts[0] === 'lesson' && parts[1]) node = viewLesson(parts[1], parseInt(parts[2] || '0', 10) || 0);
     else if (parts[0] === 'done' && parts[1]) node = viewDone(parts[1]);
     else node = viewLessons();
@@ -1053,6 +1175,26 @@
 
   window.addEventListener('hashchange', render);
   window.addEventListener('storage', (e) => { if (e.key === KEY.settings) applyAppearance(); });
+  window.addEventListener('keydown', event => {
+    const route = (location.hash.replace(/^#/, '') || '/').split('/').filter(Boolean)[0] || '';
+    if (route !== 'questionnaire' && route !== 'diagnostic') return;
+    if (event.metaKey || event.ctrlKey || event.altKey) return;
+    if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON'].includes(document.activeElement?.tagName || '')) return;
+    if (/^[1-4]$/.test(event.key)) {
+      const option = document.querySelector(`.diagnostic-options label[data-shortcut="${event.key}"] input`);
+      if (option) {
+        event.preventDefault();
+        option.click();
+      }
+    }
+    if (event.key === 'Enter') {
+      const primary = document.querySelector('.diagnostic-card .gauge-actions .btn-primary');
+      if (primary) {
+        event.preventDefault();
+        primary.click();
+      }
+    }
+  });
   async function boot() {
     if (api) {
       const me = await api.me();
