@@ -106,6 +106,25 @@ body.v2-onboarding .progress-bar { display: none; }
 .diagnostic-card h1 { margin-bottom: 0.7rem; }
 .diagnostic-card h2 { margin: 0.35rem 0 0.4rem; }
 .diagnostic-progress { margin-bottom: 1rem; }
+.diagnostic-profile {
+  display: grid;
+  gap: 0.4rem;
+  margin: 1rem 0;
+}
+.diagnostic-profile span {
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.diagnostic-profile select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  padding: 0.8rem 0.95rem;
+}
+.diagnostic-profile select:focus { outline: none; border-color: var(--accent); }
 .diagnostic-options { display: grid; gap: 0.65rem; margin: 1rem 0; }
 .diagnostic-options label { display: flex; gap: 0.65rem; align-items: flex-start; border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; background: var(--bg); cursor: pointer; }
 .diagnostic-options input { width: auto; margin-top: 0.2rem; }
@@ -229,6 +248,27 @@ body.v2-onboarding .progress-bar { display: none; }
 .lesson-tile:hover { border-color: var(--accent); transform: translateY(-1px); }
 .lesson-tile.completed { border-color: var(--good, #16a34a); }
 .lesson-tile.stub { opacity: 0.82; }
+.v2-lessons-catalog .arc { margin-top: 1.2rem; }
+.v2-lessons-catalog .lesson-grid {
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+.v2-lessons-catalog .lesson-tile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 10px;
+  box-shadow: none;
+}
+.v2-lessons-catalog .lt-title,
+.v2-lessons-catalog .lt-q {
+  min-width: 0;
+}
+.v2-lessons-catalog .lt-badge {
+  position: static;
+  justify-self: end;
+}
 .lt-num { width: 1.7rem; height: 1.7rem; display: grid; place-items: center; border-radius: 999px;
   background: var(--surface-2); font-weight: 700; font-size: 0.85rem; }
 .lesson-tile.completed .lt-num { background: var(--good, #16a34a); color: #fff; }
@@ -236,6 +276,64 @@ body.v2-onboarding .progress-bar { display: none; }
 .lt-q { font-size: 0.85rem; color: var(--text-dim); }
 .lt-badge { position: absolute; top: 0.7rem; right: 0.7rem; font-size: 0.62rem; text-transform: uppercase;
   letter-spacing: 0.05em; background: var(--surface-2); color: var(--text-faint); padding: 0.15em 0.5em; border-radius: 999px; }
+
+/* ---- Palette tester ---- */
+.palette-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+.palette-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+}
+.palette-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.palette-preview {
+  background: var(--preview-bg);
+  border: 1px solid var(--preview-border);
+  border-radius: 10px;
+  color: var(--preview-text);
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+}
+.palette-mini-card {
+  background: var(--preview-surface);
+  border: 1px solid var(--preview-border);
+  border-radius: 8px;
+  padding: 0.65rem;
+}
+.palette-mini-card strong { display: block; margin: 0.2rem 0; }
+.palette-mini-card p,
+.palette-mini-row { color: var(--preview-dim); font-size: 0.8rem; margin: 0; }
+.palette-pill {
+  background: var(--preview-accent-soft);
+  border-radius: 999px;
+  color: var(--preview-accent);
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+}
+.palette-mini-row { display: flex; gap: 0.5rem; justify-content: space-between; }
+.palette-swatches {
+  display: flex;
+  gap: 0.35rem;
+}
+.palette-swatches span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  display: block;
+  height: 1.25rem;
+  width: 1.25rem;
+}
 
 /* ---- Lesson view ---- */
 .lesson-head { margin: 1rem 0 1.25rem; }

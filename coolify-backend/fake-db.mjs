@@ -214,7 +214,7 @@ export function createFakeDb(options = {}) {
       return this.adminLearners();
     },
     async saveAssessment(userId, assessment) {
-      assessments.set(userId, assessment);
+      assessments.set(userId, { ...assessment, completedAt: assessment.completedAt || new Date().toISOString() });
     },
     async saveInteraction(userId, interaction) {
       interactions.push({ userId, ...interaction, createdAt: new Date().toISOString() });
@@ -239,7 +239,19 @@ export function createFakeDb(options = {}) {
       visits.push({ userId, ...visit, createdAt: new Date().toISOString() });
     },
     async importLocal(userId, payload) {
-      if (payload?.assessment) assessments.set(userId, payload.assessment);
+      const completed = payload?.progress?.completed || payload?.completed || {};
+      for (const [lessonId, value] of Object.entries(completed)) {
+        if (/^chapter-\d+$/.test(lessonId)) await this.saveProgress(userId, { lessonId, currentStep: 999, completed: true, completedAt: value?.completedAt });
+      }
+      const cards = Array.isArray(payload?.toolkit) ? payload.toolkit : [];
+      for (const card of cards.slice(0, 100)) {
+        await this.saveToolkit(userId, {
+          id: card.id || `${card.lessonId || 'unknown'}-${card.createdAt || JSON.stringify(card).slice(0, 40)}`,
+          lessonId: card.lessonId || '',
+          cardType: card.type || card.cardType || 'Toolkit card',
+          payload: card.fields || card.payload || card
+        });
+      }
     },
     async dashboardForUser(userId) {
       const userProgress = progress.filter(row => row.userId === userId);
@@ -266,6 +278,84 @@ export function createFakeDb(options = {}) {
     async addTutorMessage() { return { id: 'message-1' }; },
     async progressInsights() { return []; },
     async adminAiRequests() { return { feedbackRequests: [], projectReviews: [], tutorSessions: [] }; },
+    async adminAssessmentAnalytics() {
+      const attempts = [];
+      const responses = [];
+      for (const [userId, assessment] of assessments.entries()) {
+        const user = users.get(userId);
+        if (!user || user.deleted_at) continue;
+        const attemptId = `attempt-${userId}`;
+        attempts.push({
+          id: attemptId,
+          userId,
+          email: user.email,
+          displayName: user.display_name,
+          completedAt: assessment.completedAt || '',
+          scorePercent: assessment.scorePercent ?? assessment.score ?? null,
+          level: assessment.level || assessment.route || '',
+          ageRange: assessment.ageRange || 'unknown'
+        });
+        for (const response of Array.isArray(assessment.responses) ? assessment.responses : []) {
+          responses.push({
+            attemptId,
+            userId,
+            email: user.email,
+            displayName: user.display_name,
+            completedAt: assessment.completedAt || '',
+            scorePercent: assessment.scorePercent ?? assessment.score ?? null,
+            level: assessment.level || assessment.route || '',
+            ageRange: assessment.ageRange || 'unknown',
+            questionKey: response.key || response.questionKey || '',
+            category: response.category || '',
+            selectedValue: response.value || response.selectedValue || '',
+            selectedLabel: response.label || response.selectedLabel || '',
+            score: response.score ?? null,
+            freeText: response.freeText || ''
+          });
+        }
+      }
+      const totalResponses = responses.length || 1;
+      const questionMap = new Map();
+      const answerMap = new Map();
+      const ageMap = new Map();
+      for (const row of responses) {
+        const qKey = row.questionKey || row.category || 'unknown';
+        const q = questionMap.get(qKey) || { questionKey: qKey, category: row.category, responses: 0, scoreTotal: 0, scored: 0 };
+        q.responses += 1;
+        if (Number.isFinite(Number(row.score))) { q.scoreTotal += Number(row.score); q.scored += 1; }
+        questionMap.set(qKey, q);
+        const aKey = `${qKey}:${row.selectedValue}:${row.ageRange}`;
+        const a = answerMap.get(aKey) || { questionKey: qKey, category: row.category, selectedValue: row.selectedValue, selectedLabel: row.selectedLabel, ageRange: row.ageRange, responses: 0, scoreTotal: 0, scored: 0 };
+        a.responses += 1;
+        if (Number.isFinite(Number(row.score))) { a.scoreTotal += Number(row.score); a.scored += 1; }
+        answerMap.set(aKey, a);
+      }
+      for (const row of attempts) {
+        const age = row.ageRange || 'unknown';
+        const existing = ageMap.get(age) || { ageRange: age, attempts: 0, scoreTotal: 0, scored: 0 };
+        existing.attempts += 1;
+        if (Number.isFinite(Number(row.scorePercent))) { existing.scoreTotal += Number(row.scorePercent); existing.scored += 1; }
+        ageMap.set(age, existing);
+      }
+      const stat = row => ({
+        ...row,
+        averageScore: row.scored ? Math.round((row.scoreTotal / row.scored) * 10) / 10 : null,
+        percentage: Math.round((row.responses / totalResponses) * 100)
+      });
+      const totalAttempts = attempts.length || 1;
+      return {
+        attempts,
+        responses,
+        summaryByQuestion: [...questionMap.values()].map(stat),
+        summaryByAnswer: [...answerMap.values()].map(stat),
+        summaryByAge: [...ageMap.values()].map(row => ({
+          ageRange: row.ageRange,
+          attempts: row.attempts,
+          averageScorePercent: row.scored ? Math.round((row.scoreTotal / row.scored) * 10) / 10 : null,
+          percentage: Math.round((row.attempts / totalAttempts) * 100)
+        }))
+      };
+    },
     async accountAction({ userId, action, displayName, newPassword }) {
       const row = users.get(userId);
       if (!row) return;
@@ -295,7 +385,19 @@ export function createFakeDb(options = {}) {
         toolkit: toolkit.filter(row => row.userId === id),
         minutes: { totalMinutes: 0, entries: 0 },
         visits: visits.filter(row => row.userId === id),
-        interactions: interactions.filter(row => row.userId === id)
+        interactions: interactions.filter(row => row.userId === id),
+        questionnaireResponses: ((assessments.get(id)?.responses || [])).map(response => ({
+          questionKey: response.key || response.questionKey || '',
+          category: response.category || '',
+          selectedValue: response.value || response.selectedValue || '',
+          selectedLabel: response.label || response.selectedLabel || '',
+          score: response.score ?? null,
+          freeText: response.freeText || '',
+          ageRange: assessments.get(id)?.ageRange || 'unknown',
+          level: assessments.get(id)?.level || assessments.get(id)?.route || '',
+          scorePercent: assessments.get(id)?.scorePercent ?? assessments.get(id)?.score ?? null,
+          completedAt: assessments.get(id)?.completedAt || ''
+        }))
       };
     }
   };

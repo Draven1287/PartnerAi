@@ -27,7 +27,8 @@
     settings: 'learningai-settings',
     toolkit: 'learningai-toolkit',
     assessment: 'learningai-v2-assessment',
-    diagnosticDraft: 'learningai-v2-diagnostic-draft'
+    diagnosticDraft: 'learningai-v2-diagnostic-draft',
+    palette: 'learningai-v2-palette'
   };
   const api = window.LearningAIV2Api || null;
   let authChecked = !api;
@@ -39,6 +40,24 @@
   const GATED = new Set(['classify', 'exitCheck', 'toolkitSave', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
   // arc colors for the mosaic (one hue per arc)
   const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
+  const AGE_RANGES = [
+    ['', 'Choose age range'],
+    ['under-13', 'Under 13'],
+    ['13-15', '13-15'],
+    ['16-18', '16-18'],
+    ['19-24', '19-24'],
+    ['25-34', '25-34'],
+    ['35-49', '35-49'],
+    ['50-plus', '50+'],
+    ['prefer-not', 'Prefer not to say']
+  ];
+  const V2_PALETTES = [
+    { id: 'clear-blue', name: 'Clear Blue', bg: '#f7f9fc', surface: '#ffffff', surface2: '#eef4f8', border: '#dbe3ea', text: '#121826', textDim: '#4b5870', accent: '#2563eb', accentSoft: '#dbeafe' },
+    { id: 'teal-studio', name: 'Teal Studio', bg: '#f2fbfb', surface: '#ffffff', surface2: '#e2f3f2', border: '#c7dfdf', text: '#102026', textDim: '#45606a', accent: '#0f8b8d', accentSoft: '#d6f3f0' },
+    { id: 'ink-coral', name: 'Ink Coral', bg: '#fbf7f4', surface: '#ffffff', surface2: '#f5e7df', border: '#e2d3ca', text: '#171821', textDim: '#5d5965', accent: '#e0523f', accentSoft: '#ffe1dc' },
+    { id: 'green-amber', name: 'Green Amber', bg: '#f7faf4', surface: '#ffffff', surface2: '#edf4e4', border: '#d7e2ca', text: '#152015', textDim: '#4e604d', accent: '#2f7d4f', accentSoft: '#dff2e5' },
+    { id: 'violet-mint', name: 'Violet Mint', bg: '#f8f7ff', surface: '#ffffff', surface2: '#eef7f4', border: '#ddd7f4', text: '#17152b', textDim: '#57516b', accent: '#6d5bd0', accentSoft: '#e7e3ff' }
+  ];
   const DIAGNOSTIC_QUESTIONS = [
     {
       key: 'definition',
@@ -286,6 +305,26 @@
       t.setProperty('--border', '#dbe3ea'); t.setProperty('--text', s.textColor || '#121826'); t.setProperty('--text-dim', '#4b5870'); t.setProperty('--text-faint', '#778397');
     }
     if (s.accentColor) t.setProperty('--accent', s.accentColor);
+    applyV2Palette();
+  }
+
+  function activePalette() {
+    const id = get(KEY.palette) || 'clear-blue';
+    return V2_PALETTES.find(palette => palette.id === id) || V2_PALETTES[0];
+  }
+
+  function applyV2Palette() {
+    const palette = activePalette();
+    const t = document.body.style;
+    t.setProperty('--bg', palette.bg);
+    t.setProperty('--surface', palette.surface);
+    t.setProperty('--surface-2', palette.surface2);
+    t.setProperty('--border', palette.border);
+    t.setProperty('--text', palette.text);
+    t.setProperty('--text-dim', palette.textDim);
+    t.setProperty('--text-faint', palette.textDim);
+    t.setProperty('--accent', palette.accent);
+    t.setProperty('--accent-soft', palette.accentSoft);
   }
 
   // ---------- DOM helper ----------
@@ -652,8 +691,12 @@
         return;
       }
       currentUser = result.user;
-      await hydrateFromServer();
-      if (!hasAssessment()) location.hash = '#/questionnaire';
+      if (mode === 'signup') {
+        serverState = null;
+        clearV2LocalSession();
+      }
+      await hydrateFromServer({ importLocal: mode !== 'signup' });
+      if (mode === 'signup' || !hasAssessment()) location.hash = '#/questionnaire';
       render();
     });
     return h('div', { class: 'container view auth-view' }, [form]);
@@ -670,16 +713,16 @@
     ]);
   }
 
-  async function hydrateFromServer() {
+  async function hydrateFromServer(options = {}) {
     if (!api) return;
-    const localGauge = assessmentResult();
+    const shouldImportBrowserData = options.importLocal !== false;
     await syncPendingProgress();
     await syncPendingToolkit();
     await loadCurriculumFromBackend();
     let state = await api.state();
-    const shouldImportLocal = currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
+    const shouldImportLocal = shouldImportBrowserData && currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
     if (shouldImportLocal) {
-      const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit(), assessment: localGauge || null }).catch(() => ({ ok: false }));
+      const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit() }).catch(() => ({ ok: false }));
       if (imported.ok) {
         const importedAt = new Date().toISOString();
         set(importedUserKey(), importedAt);
@@ -690,7 +733,6 @@
       }
     }
     if (state.ok) applyServerState(state.state);
-    if (localGauge && !state?.state?.assessment) api.saveAssessment(localGauge).catch(() => {});
     api.saveVisit({ path: location.hash || '#/', referrer: document.referrer || '' }).catch(() => {});
   }
 
@@ -712,8 +754,8 @@
   }
 
   function assessmentResult() {
-    if (api && currentUser && serverState) {
-      return isCompleteV2Assessment(serverState.assessment) ? serverState.assessment : null;
+    if (api && currentUser) {
+      return isCompleteV2Assessment(serverState?.assessment) ? serverState.assessment : null;
     }
     const candidates = [
       serverState?.assessment,
@@ -765,6 +807,7 @@
     const draft = readJson(KEY.diagnosticDraft, { index: 0, answers: {}, notes: {} });
     draft.answers = draft.answers || {};
     draft.notes = draft.notes || {};
+    draft.profile = draft.profile || {};
     const total = DIAGNOSTIC_QUESTIONS.length;
     const index = Math.max(0, Math.min(Number(draft.index) || 0, total - 1));
     const question = DIAGNOSTIC_QUESTIONS[index];
@@ -807,6 +850,7 @@
         score: scorePercent,
         scoreRaw: totalScore,
         maxScore,
+        ageRange: draft.profile.ageRange || 'prefer-not',
         primaryGoal: 'Learn AI with judgment, practice, and useful projects.',
         learningStyle: 'Interactive V2 lessons with checks before moving on.',
         mainConcern: weakest ? `Needs the most support in ${weakest}.` : 'Build strong AI judgment.',
@@ -819,12 +863,26 @@
     }
 
     function canMove() {
+      if (index === 0 && !draft.profile.ageRange) {
+        message.textContent = 'Choose an age range first. Use “Prefer not to say” if you do not want to answer.';
+        return false;
+      }
       if (selectedAnswer()) return true;
       message.textContent = `Choose one answer for ${question.category} first.`;
       return false;
     }
 
     const progressFill = h('span', { style: `width:${Math.round(((index + 1) / total) * 100)}%` });
+    const ageSelect = index === 0 ? h('label', { class: 'diagnostic-profile' }, [
+      h('span', null, 'Age range'),
+      h('select', { onchange: event => {
+        draft.profile.ageRange = event.target.value;
+        saveDraft(draft);
+      } }, AGE_RANGES.map(([value, label]) => h('option', {
+        value,
+        selected: draft.profile.ageRange === value ? 'true' : null
+      }, label)))
+    ]) : null;
     const options = h('div', { class: 'diagnostic-options' }, question.options.map(([value, label], optionIndex) => h('label', { 'data-shortcut': String(optionIndex + 1) }, [
       h('input', {
         type: 'radio',
@@ -892,6 +950,7 @@
         h('div', { class: 'gauge-kicker' }, question.category),
         h('h2', null, question.title),
         h('p', { class: 'lead' }, question.copy),
+        ageSelect,
         options,
         note,
         h('div', { class: 'gauge-actions' }, [back, index === total - 1 ? finish : next]),
@@ -901,7 +960,31 @@
     ]);
   }
 
-  function viewLessons(showCatalog = false) {
+  function lessonCatalogSections(next, completed) {
+    return ARCS.map((arcName, ai) => {
+      const inArc = LESSONS.filter(l => l.arc === arcName);
+      if (!inArc.length) return null;
+      return h('section', { class: 'arc' }, [
+        h('h2', { class: 'arc-title' }, [h('span', { class: 'arc-num', style: `background:${ARC_COLORS[ai]}1a;color:${ARC_COLORS[ai]}` }, `Arc ${ai + 1}`), arcName]),
+        h('div', { class: 'lesson-grid' }, inArc.map(l => {
+          const locked = !!l.stub;
+          const current = next && next.id === l.id;
+          return h('a', {
+            class: 'lesson-tile' + (completed[l.id] ? ' completed' : '') + (locked ? ' locked' : '') + (current ? ' current' : ''),
+            href: locked ? '#/lessons' : `#/lesson/${l.id}/0`,
+            'aria-disabled': locked ? 'true' : null
+          }, [
+            h('span', { class: 'lt-num' }, completed[l.id] ? '✓' : String(l.num)),
+            h('span', { class: 'lt-title' }, l.title),
+            h('span', { class: 'lt-q' }, l.coreQuestion),
+            locked ? h('span', { class: 'lt-badge' }, 'locked') : current ? h('span', { class: 'lt-badge' }, 'next') : null
+          ]);
+        }))
+      ]);
+    }).filter(Boolean);
+  }
+
+  function viewDashboard() {
     const c = readProgress().completed;
     const done = doneCount();
     const pct = Math.round(done / LESSONS.length * 100);
@@ -918,28 +1001,6 @@
         h('progress', { value: String(arcDone), max: String(inArc.length || 1) })
       ]);
     });
-
-    const sections = ARCS.map((arcName, ai) => {
-      const inArc = LESSONS.filter(l => l.arc === arcName);
-      if (!inArc.length) return null;
-      return h('section', { class: 'arc' }, [
-        h('h2', { class: 'arc-title' }, [h('span', { class: 'arc-num', style: `background:${ARC_COLORS[ai]}1a;color:${ARC_COLORS[ai]}` }, `Arc ${ai + 1}`), arcName]),
-        h('div', { class: 'lesson-grid' }, inArc.map(l => {
-          const locked = !!l.stub;
-          const current = next && next.id === l.id;
-          return h('a', {
-            class: 'lesson-tile' + (c[l.id] ? ' completed' : '') + (locked ? ' locked' : '') + (current ? ' current' : ''),
-            href: locked ? '#/lessons' : `#/lesson/${l.id}/0`,
-            'aria-disabled': locked ? 'true' : null
-          }, [
-            h('span', { class: 'lt-num' }, c[l.id] ? '✓' : String(l.num)),
-            h('span', { class: 'lt-title' }, l.title),
-            h('span', { class: 'lt-q' }, l.coreQuestion),
-            locked ? h('span', { class: 'lt-badge' }, 'locked') : current ? h('span', { class: 'lt-badge' }, 'next') : null
-          ]);
-        }))
-      ]);
-    }).filter(Boolean);
 
     return h('div', { class: 'container view v2-dashboard' }, [
       accountBar(),
@@ -970,16 +1031,24 @@
           h('h2', null, 'Your learning mode'),
           h('p', null, diagnosticSummary()),
           h('div', { class: 'arc-progress-list' }, arcCards),
-          !showCatalog ? h('p', { class: 'row-gap' }, h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'View all lessons')) : null
+          h('p', { class: 'row-gap' }, h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'View all lessons'))
         ]),
         h('div', { class: 'dashboard-section' }, [buildToolkitPanel()])
-      ]),
-      showCatalog ? h('header', { class: 'hero compact catalog-head' }, [
+      ])
+    ]);
+  }
+
+  function viewLessonsCatalog() {
+    const c = readProgress().completed;
+    const next = nextIncomplete();
+    return h('div', { class: 'container view v2-page v2-lessons-catalog' }, [
+      accountBar(),
+      h('header', { class: 'hero compact lessons-catalog-head' }, [
         h('div', { class: 'tagline' }, 'All V2 lessons'),
-        h('h1', null, 'Course catalog'),
-        h('p', { class: 'lead' }, 'This is the full 30-lesson map. Authored lessons are playable now; locked tiles stay visible so you can see what is coming next.')
-      ]) : null,
-      ...(showCatalog ? sections : [])
+        h('h1', null, 'Lessons'),
+        h('p', { class: 'lead' }, 'Every lesson in order. Start with the next unlocked lesson, or review a completed one.')
+      ]),
+      ...lessonCatalogSections(next, c)
     ]);
   }
 
@@ -1118,6 +1187,52 @@
     ]);
   }
 
+  function viewPalette() {
+    const active = activePalette();
+    const cards = V2_PALETTES.map(palette => h('article', {
+      class: 'palette-card' + (palette.id === active.id ? ' active' : ''),
+      style: `--preview-bg:${palette.bg};--preview-surface:${palette.surface};--preview-surface-2:${palette.surface2};--preview-border:${palette.border};--preview-text:${palette.text};--preview-dim:${palette.textDim};--preview-accent:${palette.accent};--preview-accent-soft:${palette.accentSoft};`
+    }, [
+      h('div', { class: 'palette-preview' }, [
+        h('div', { class: 'palette-mini-card' }, [
+          h('span', { class: 'palette-pill' }, 'Next'),
+          h('strong', null, 'Lesson tile'),
+          h('p', null, 'Prompt repair and checks')
+        ]),
+        h('div', { class: 'palette-mini-row' }, [
+          h('span', null, '72%'),
+          h('span', null, 'Toolkit')
+        ])
+      ]),
+      h('h2', null, palette.name),
+      h('div', { class: 'palette-swatches' }, [
+        h('span', { style: `background:${palette.bg}` }),
+        h('span', { style: `background:${palette.surface2}` }),
+        h('span', { style: `background:${palette.accent}` }),
+        h('span', { style: `background:${palette.text}` })
+      ]),
+      h('button', { class: 'btn btn-primary', onclick: () => {
+        set(KEY.palette, palette.id);
+        applyV2Palette();
+        render();
+      } }, palette.id === active.id ? 'Using this palette' : 'Use this palette')
+    ]));
+    return h('div', { class: 'container view v2-page palette-page' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'Visual direction'),
+        h('h1', null, 'Choose a V2 color palette'),
+        h('p', { class: 'lead' }, 'Try a few options here, then we can commit to the one that feels right for the lessons, dashboard, and admin.')
+      ]),
+      h('section', { class: 'palette-grid' }, cards),
+      h('p', { class: 'row-gap' }, h('button', { class: 'btn btn-ghost', onclick: () => {
+        localStorage.removeItem(KEY.palette);
+        applyV2Palette();
+        render();
+      } }, 'Reset to default'))
+    ]);
+  }
+
   function viewProjects() {
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
@@ -1233,15 +1348,16 @@
     let node;
     if (currentUser && !hasAssessment() && parts[0] !== 'diagnostic' && parts[0] !== 'questionnaire') node = viewDiagnostic();
     else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
-    else if (parts.length === 0) node = viewLessons(false);
-    else if (parts[0] === 'lessons') node = viewLessons(true);
+    else if (parts.length === 0) node = viewDashboard();
+    else if (parts[0] === 'lessons') node = viewLessonsCatalog();
     else if (parts[0] === 'settings') node = viewSettings();
+    else if (parts[0] === 'palette') node = viewPalette();
     else if (parts[0] === 'projects') node = viewProjects();
     else if (parts[0] === 'teaching') node = viewTeaching();
     else if (parts[0] === 'about') node = viewAboutV2();
     else if (parts[0] === 'lesson' && parts[1]) node = viewLesson(parts[1], parseInt(parts[2] || '0', 10) || 0);
     else if (parts[0] === 'done' && parts[1]) node = viewDone(parts[1]);
-    else node = viewLessons();
+    else node = viewDashboard();
 
     app.innerHTML = '';
     app.appendChild(node);

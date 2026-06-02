@@ -380,3 +380,13 @@ Before real users:
   - UI/color direction remains calm V1 base with blue primary action. Reduce heavy app-card shadows; use teal, violet, green, amber, and blue as arc/progress accents instead of a one-color theme.
   - Lesson review found 30 lesson records, 20 stubs, and 10 currently authored/playable lessons. Lessons 10-24 and 26-30 still need full authoring. Lesson 4 should be revisited because it has only one gated interaction.
   - Backend review status: local dev backend on `127.0.0.1:8787` supports signup/questionnaire/dashboard/progress testing; production V2 remains blocked until `https://api.learningai4you.com` is reachable and `/health` passes.
+- 2026-06-02 admin analytics and V2 flow update:
+  - Fixed the account/onboarding skip risk: once a learner is signed in, server state is the source of truth for questionnaire completion. Old browser-local V1/V2 assessment data no longer unlocks V2 for a new account.
+  - Signup now clears stale local V2 assessment/session draft data, hydrates without importing local browser assessment data, and routes to the six-category questionnaire.
+  - `/api/v2/import-local` no longer imports assessment payloads. It can still import progress/toolkit data, but questionnaire completion must come from `PUT /api/v2/assessment`.
+  - Added age-range collection to questionnaire Category 1. Store ranges only, not exact ages or birthdays.
+  - Added admin questionnaire analytics endpoint: `GET /api/admin/assessment-analytics`.
+  - Admin Questionnaire view should show completed questionnaire count, average score, total answers, most common age range, average by question, answer choices by age range, age-range averages, and recent answers.
+  - Learner detail now includes that learner's questionnaire answers.
+  - Dashboard and Lessons are now separate V2 views: Dashboard keeps next action, progress painting, learning mode, and toolkit; Lessons is a catalog-only all-lessons list.
+  - Added V2 Palette page with selectable palettes so color direction can be tested without changing code each time.

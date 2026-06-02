@@ -817,7 +817,7 @@ export function createDb(options = {}) {
   async function saveAssessment(userId, payload) {
     const p = emptyJson(payload);
     const scoreRaw = Number.isFinite(Number(p.scoreRaw ?? p.score)) ? Number(p.scoreRaw ?? p.score) : null;
-    const scorePercent = Number.isFinite(Number(p.scorePercent)) ? Number(p.scorePercent) : null;
+    const scorePercent = Number.isFinite(Number(p.scorePercent ?? p.score)) ? Number(p.scorePercent ?? p.score) : null;
     const level = String(p.level || p.route || p.stage || '').slice(0, 120) || null;
     const route = String(p.route || p.level || '').slice(0, 120) || null;
     const attempt = await query(`INSERT INTO assessment_attempts(user_id, completed_at, score_raw, score_percent, route, level)
@@ -996,7 +996,6 @@ export function createDb(options = {}) {
         payload: card.fields || card.payload || card
       });
     }
-    if (payload?.assessment) await saveAssessment(userId, payload.assessment);
   }
 
   async function curriculum() {
@@ -1430,7 +1429,132 @@ export function createDb(options = {}) {
     const visits = await query('SELECT path, referrer, visited_at, duration_seconds FROM page_visits WHERE user_id = $1 ORDER BY visited_at DESC LIMIT 50', [id]);
     const interactions = await query(`SELECT lesson_id, step_index, interaction_kind, correct, answered_at FROM interaction_answers
       WHERE user_id = $1 ORDER BY answered_at DESC LIMIT 100`, [id]);
-    return { ...state, visits: visits.rows, interactions: interactions.rows };
+    const questionnaire = await query(`SELECT resp.question_key, resp.category, resp.selected_value, resp.selected_label, resp.score, resp.free_text,
+        aa.completed_at, aa.score_percent, ar.level, ar.calculated_json
+      FROM assessment_attempts aa
+      LEFT JOIN assessment_results ar ON ar.attempt_id = aa.id
+      LEFT JOIN assessment_responses resp ON resp.attempt_id = aa.id
+      WHERE aa.user_id = $1
+        AND aa.id = (SELECT id FROM assessment_attempts WHERE user_id = $1 ORDER BY completed_at DESC LIMIT 1)
+      ORDER BY resp.category ASC, resp.question_key ASC`, [id]);
+    return {
+      ...state,
+      visits: visits.rows,
+      interactions: interactions.rows,
+      questionnaireResponses: questionnaire.rows.map(row => ({
+        questionKey: row.question_key,
+        category: row.category,
+        selectedValue: row.selected_value,
+        selectedLabel: row.selected_label,
+        score: row.score,
+        freeText: row.free_text,
+        ageRange: row.calculated_json?.ageRange || 'unknown',
+        level: row.level,
+        scorePercent: row.score_percent,
+        completedAt: row.completed_at
+      }))
+    };
+  }
+
+  function summarizeAssessmentAnalytics(rows) {
+    const byQuestion = new Map();
+    const byAnswer = new Map();
+    const byAge = new Map();
+    const attemptIds = new Set();
+    for (const row of rows) {
+      if (row.attemptId) attemptIds.add(row.attemptId);
+      const ageRange = row.ageRange || 'unknown';
+      const score = Number(row.score);
+      const scorePercent = Number(row.scorePercent);
+      const questionKey = row.questionKey || row.category || 'unknown';
+      const answerLabel = row.selectedLabel || row.selectedValue || 'No answer';
+      const q = byQuestion.get(questionKey) || { questionKey, category: row.category || '', responses: 0, scoreTotal: 0, scored: 0 };
+      q.responses += 1;
+      if (Number.isFinite(score)) { q.scoreTotal += score; q.scored += 1; }
+      byQuestion.set(questionKey, q);
+
+      const answerKey = `${questionKey}::${row.selectedValue || answerLabel}::${ageRange}`;
+      const a = byAnswer.get(answerKey) || { questionKey, category: row.category || '', selectedValue: row.selectedValue || '', selectedLabel: answerLabel, ageRange, responses: 0, scoreTotal: 0, scored: 0 };
+      a.responses += 1;
+      if (Number.isFinite(score)) { a.scoreTotal += score; a.scored += 1; }
+      byAnswer.set(answerKey, a);
+
+      if (row.attemptId && !byAge.get(ageRange)?.attemptIds?.has(row.attemptId)) {
+        const ag = byAge.get(ageRange) || { ageRange, attempts: 0, scoreTotal: 0, scored: 0, attemptIds: new Set() };
+        ag.attemptIds.add(row.attemptId);
+        ag.attempts += 1;
+        if (Number.isFinite(scorePercent)) { ag.scoreTotal += scorePercent; ag.scored += 1; }
+        byAge.set(ageRange, ag);
+      }
+    }
+    const totalResponses = rows.length || 1;
+    const totalAttempts = attemptIds.size || 1;
+    const mapStats = item => ({
+      ...item,
+      averageScore: item.scored ? Math.round((item.scoreTotal / item.scored) * 10) / 10 : null,
+      percentage: Math.round((item.responses / totalResponses) * 100)
+    });
+    return {
+      summaryByQuestion: [...byQuestion.values()].map(mapStats).sort((a, b) => a.category.localeCompare(b.category) || a.questionKey.localeCompare(b.questionKey)),
+      summaryByAnswer: [...byAnswer.values()].map(mapStats).sort((a, b) => b.responses - a.responses || a.questionKey.localeCompare(b.questionKey)),
+      summaryByAge: [...byAge.values()].map(item => ({
+        ageRange: item.ageRange,
+        attempts: item.attempts,
+        averageScorePercent: item.scored ? Math.round((item.scoreTotal / item.scored) * 10) / 10 : null,
+        percentage: Math.round((item.attempts / totalAttempts) * 100)
+      })).sort((a, b) => b.attempts - a.attempts)
+    };
+  }
+
+  async function adminAssessmentAnalytics() {
+    const attempts = await query(`SELECT aa.id, aa.user_id, u.email, u.display_name, aa.completed_at, aa.score_percent, ar.level,
+        COALESCE(ar.calculated_json->>'ageRange', 'unknown') AS age_range
+      FROM assessment_attempts aa
+      JOIN users u ON u.id = aa.user_id
+      LEFT JOIN assessment_results ar ON ar.attempt_id = aa.id
+      WHERE u.deleted_at IS NULL
+      ORDER BY aa.completed_at DESC
+      LIMIT 500`);
+    const responses = await query(`SELECT aa.id AS attempt_id, aa.user_id, u.email, u.display_name, aa.completed_at, aa.score_percent,
+        ar.level, COALESCE(ar.calculated_json->>'ageRange', 'unknown') AS age_range,
+        resp.question_key, resp.category, resp.selected_value, resp.selected_label, resp.score, resp.free_text
+      FROM assessment_responses resp
+      JOIN assessment_attempts aa ON aa.id = resp.attempt_id
+      JOIN users u ON u.id = aa.user_id
+      LEFT JOIN assessment_results ar ON ar.attempt_id = aa.id
+      WHERE u.deleted_at IS NULL
+      ORDER BY aa.completed_at DESC, resp.category ASC, resp.question_key ASC
+      LIMIT 5000`);
+    const responseRows = responses.rows.map(row => ({
+      attemptId: row.attempt_id,
+      userId: row.user_id,
+      email: row.email,
+      displayName: row.display_name,
+      completedAt: row.completed_at,
+      scorePercent: row.score_percent,
+      level: row.level,
+      ageRange: row.age_range,
+      questionKey: row.question_key,
+      category: row.category,
+      selectedValue: row.selected_value,
+      selectedLabel: row.selected_label,
+      score: row.score,
+      freeText: row.free_text
+    }));
+    return {
+      attempts: attempts.rows.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        email: row.email,
+        displayName: row.display_name,
+        completedAt: row.completed_at,
+        scorePercent: row.score_percent,
+        level: row.level,
+        ageRange: row.age_range
+      })),
+      responses: responseRows,
+      ...summarizeAssessmentAnalytics(responseRows)
+    };
   }
 
   async function lessonAnalytics() {
@@ -1548,6 +1672,7 @@ export function createDb(options = {}) {
     leaderboard,
     adminLearners,
     adminLearner,
+    adminAssessmentAnalytics,
     lessonAnalytics,
     accountAction,
     audit,

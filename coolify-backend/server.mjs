@@ -675,6 +675,7 @@ function adminHtml() {
       <div class="nav">
         <button data-view="overview" class="active">Overview</button>
         <button data-view="learners">Learners</button>
+        <button data-view="assessment">Questionnaire</button>
         <button data-view="lessons">Lessons</button>
         <button data-view="content">Content</button>
         <button data-view="export">Export</button>
@@ -752,6 +753,7 @@ document.querySelectorAll('.nav button').forEach(btn => btn.addEventListener('cl
 async function render() {
   if (currentView === 'overview') return renderOverview();
   if (currentView === 'learners') return renderLearners();
+  if (currentView === 'assessment') return renderAssessmentAnalytics();
   if (currentView === 'lessons') return renderLessons();
   if (currentView === 'content') return renderContentEditor();
   if (currentView === 'export') return renderExport();
@@ -787,6 +789,42 @@ async function renderLearners() {
   document.getElementById('refresh').addEventListener('click', renderLearners);
   draw();
 }
+async function renderAssessmentAnalytics() {
+  title.textContent = 'Questionnaire';
+  subtitle.textContent = 'Age ranges, question answers, averages, and audience patterns.';
+  const result = await api('/api/admin/assessment-analytics');
+  if (!result.ok) {
+    content.innerHTML = '<div class="card"><p>Could not load questionnaire analytics.</p></div>';
+    return;
+  }
+  const analytics = result.analytics || {};
+  const attempts = analytics.attempts || [];
+  const responses = analytics.responses || [];
+  const byQuestion = analytics.summaryByQuestion || [];
+  const byAnswer = analytics.summaryByAnswer || [];
+  const byAge = analytics.summaryByAge || [];
+  const avgScore = attempts.length ? Math.round(attempts.reduce((sum,row)=>sum + Number(row.scorePercent || 0), 0) / attempts.length) : 0;
+  const commonAge = byAge[0]?.ageRange || 'none yet';
+  content.innerHTML =
+    '<div class="grid">' +
+      '<div class="card stat"><strong>'+esc(attempts.length)+'</strong>Completed questionnaires</div>' +
+      '<div class="card stat"><strong>'+esc(avgScore)+'%</strong>Average score</div>' +
+      '<div class="card stat"><strong>'+esc(responses.length)+'</strong>Total answers</div>' +
+      '<div class="card stat"><strong>'+esc(commonAge)+'</strong>Most common age range</div>' +
+    '</div>' +
+    '<div class="card"><h2>Average by question</h2><div class="table-wrap"><table><thead><tr><th>Category</th><th>Question</th><th>Answers</th><th>Average score</th><th>Share</th></tr></thead><tbody>' +
+      byQuestion.map(row => '<tr><td>'+esc(row.category)+'</td><td>'+esc(row.questionKey)+'</td><td>'+esc(row.responses)+'</td><td>'+esc(row.averageScore == null ? '' : row.averageScore)+'</td><td>'+esc(row.percentage)+'%</td></tr>').join('') +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h2>Answer choices by age range</h2><div class="table-wrap"><table><thead><tr><th>Age range</th><th>Question</th><th>Answer</th><th>Count</th><th>Average score</th><th>Share</th></tr></thead><tbody>' +
+      byAnswer.map(row => '<tr><td>'+esc(row.ageRange)+'</td><td>'+esc(row.questionKey)+'</td><td class="cell-title">'+esc(row.selectedLabel || row.selectedValue)+'</td><td>'+esc(row.responses)+'</td><td>'+esc(row.averageScore == null ? '' : row.averageScore)+'</td><td>'+esc(row.percentage)+'%</td></tr>').join('') +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h2>Age range averages</h2><div class="table-wrap"><table><thead><tr><th>Age range</th><th>Questionnaires</th><th>Average score</th><th>Share</th></tr></thead><tbody>' +
+      byAge.map(row => '<tr><td>'+esc(row.ageRange)+'</td><td>'+esc(row.attempts)+'</td><td>'+esc(row.averageScorePercent == null ? '' : row.averageScorePercent)+'%</td><td>'+esc(row.percentage)+'%</td></tr>').join('') +
+    '</tbody></table></div></div>' +
+    '<div class="card"><h2>Recent answers</h2><div class="table-wrap"><table><thead><tr><th>Learner</th><th>Age</th><th>Category</th><th>Question</th><th>Answer</th><th>Score</th><th>When</th></tr></thead><tbody>' +
+      responses.slice(0, 200).map(row => '<tr><td>'+esc(row.displayName || row.email)+'</td><td>'+esc(row.ageRange)+'</td><td>'+esc(row.category)+'</td><td>'+esc(row.questionKey)+'</td><td class="cell-title">'+esc(row.selectedLabel || row.selectedValue)+'</td><td>'+esc(row.score == null ? '' : row.score)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td></tr>').join('') +
+    '</tbody></table></div><p class="muted">Free-text notes are stored but not shown in this summary table by default.</p></div>';
+}
 async function accountAction(body) {
   return api('/api/admin/account-action', { method:'POST', body });
 }
@@ -804,6 +842,7 @@ async function renderLearnerDetail(id) {
   const progress = learner.progress || [];
   const visits = learner.visits || [];
   const interactions = learner.interactions || [];
+  const questionnaire = learner.questionnaireResponses || [];
   content.innerHTML =
     '<div class="card">' +
       '<p><button id="back-learners" class="secondary">Back to learners</button></p>' +
@@ -822,6 +861,7 @@ async function renderLearnerDetail(id) {
         '<button id="delete-user" class="danger">Delete account</button>' +
       '</p>' +
     '</div>' +
+    '<div class="card"><h2>Questionnaire Answers</h2><div class="table-wrap"><table><thead><tr><th>Age range</th><th>Category</th><th>Question</th><th>Answer</th><th>Score</th><th>When</th></tr></thead><tbody>'+questionnaire.map(row => '<tr><td>'+esc(row.ageRange)+'</td><td>'+esc(row.category)+'</td><td>'+esc(row.questionKey)+'</td><td class="cell-title">'+esc(row.selectedLabel || row.selectedValue)+'</td><td>'+esc(row.score == null ? '' : row.score)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td></tr>').join('')+'</tbody></table></div></div>' +
     '<div class="card"><h2>Progress</h2><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Step</th><th>Completed</th><th>Updated</th></tr></thead><tbody>'+progress.map(row => '<tr><td>'+esc(row.lessonId)+'</td><td>'+esc(row.currentStep)+'</td><td>'+esc(fmtDate(row.completedAt))+'</td><td>'+esc(fmtDate(row.updatedAt))+'</td></tr>').join('')+'</tbody></table></div></div>' +
     '<div class="card"><h2>Recent Visits</h2><div class="table-wrap"><table><thead><tr><th>Path</th><th>When</th><th>Seconds</th></tr></thead><tbody>'+visits.map(row => '<tr><td>'+esc(row.path)+'</td><td>'+esc(fmtDate(row.visited_at || row.visitedAt))+'</td><td>'+esc(row.duration_seconds || row.durationSeconds || '')+'</td></tr>').join('')+'</tbody></table></div></div>' +
     '<div class="card"><h2>Recent Interactions</h2><div class="table-wrap"><table><thead><tr><th>Lesson</th><th>Step</th><th>Kind</th><th>Correct</th><th>When</th></tr></thead><tbody>'+interactions.map(row => '<tr><td>'+esc(row.lesson_id || row.lessonId)+'</td><td>'+esc(row.step_index || row.stepIndex)+'</td><td>'+esc(row.interaction_kind || row.interactionKind)+'</td><td>'+esc(row.correct == null ? '' : row.correct)+'</td><td>'+esc(fmtDate(row.answered_at || row.answeredAt))+'</td></tr>').join('')+'</tbody></table></div></div>';
@@ -1082,6 +1122,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const session = await requireAdmin(req, res, database, { url });
         if (!session) return;
         return sendJson(res, 200, { ok: true, lessons: await database.lessonAnalytics() }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/admin/assessment-analytics') {
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, analytics: await database.adminAssessmentAnalytics() }, { req });
       }
       if (req.method === 'GET' && url.pathname === '/api/admin/ai-requests') {
         const session = await requireAdmin(req, res, database, { url });
