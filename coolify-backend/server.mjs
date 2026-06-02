@@ -580,11 +580,17 @@ function learnerCsv(rows) {
 }
 
 function adminHtml() {
+  const localAdminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+  const localAdminPassword = process.env.ADMIN_PASSWORD || 'learning-ai-admin-pass';
   const localAdminHint = process.env.NODE_ENV === 'production' ? '' : `
     <p class="notice dev-login"><strong>Local dev login:</strong><br>
-      Email: <code>${htmlEscape(process.env.ADMIN_EMAIL || 'admin@example.com')}</code><br>
-      Password: <code>${htmlEscape(process.env.ADMIN_PASSWORD || 'learning-ai-admin-pass')}</code>
+      Email: <code>${htmlEscape(localAdminEmail)}</code><br>
+      Password: <code>${htmlEscape(localAdminPassword)}</code>
     </p>`;
+  const localAdminScript = process.env.NODE_ENV === 'production' ? 'null' : JSON.stringify({
+    email: localAdminEmail,
+    password: localAdminPassword
+  });
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -670,6 +676,7 @@ function adminHtml() {
 let csrfToken = '';
 let currentView = 'overview';
 let selectedContentLessonId = '';
+const localDevAdmin = ${localAdminScript};
 const app = document.getElementById('app');
 const login = document.getElementById('login');
 const content = document.getElementById('content');
@@ -690,7 +697,13 @@ async function boot() {
   const me = await api('/api/admin/me');
   if (me.ok) showApp(me); else showLogin();
 }
-function showLogin() { login.classList.remove('hidden'); app.classList.add('hidden'); }
+function fillLocalDevLogin() {
+  if (!localDevAdmin) return;
+  const form = document.getElementById('login-form');
+  form.elements.email.value = localDevAdmin.email;
+  form.elements.password.value = localDevAdmin.password;
+}
+function showLogin() { fillLocalDevLogin(); login.classList.remove('hidden'); app.classList.add('hidden'); }
 function showApp(me) { login.classList.add('hidden'); app.classList.remove('hidden'); document.getElementById('build-marker').textContent = 'Build ' + (me.build?.buildSha || 'unknown') + ' / migration ' + (me.build?.migrationVersion || 'unknown'); render(); }
 document.getElementById('login-form').addEventListener('submit', async event => {
   event.preventDefault();

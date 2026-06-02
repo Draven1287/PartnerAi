@@ -5,7 +5,7 @@ import { createFakeDb } from '../coolify-backend/fake-db.mjs';
 process.env.NODE_ENV ||= 'development';
 process.env.PORT ||= '8787';
 process.env.SESSION_SECRET ||= 'local-dev-session-secret-that-is-long-enough';
-process.env.ADMIN_EMAIL ||= 'admin@example.com';
+process.env.ADMIN_EMAIL ||= 'aarav@shah.so';
 process.env.ADMIN_PASSWORD ||= 'learning-ai-admin-pass';
 process.env.CORS_ORIGINS ||= [
   'http://127.0.0.1:8787',
