@@ -991,12 +991,23 @@ function renderExport() {
     const headers = {};
     if (csrfToken) headers['x-csrf-token'] = csrfToken;
     const res = await fetch('/api/admin/export.csv', { method:'POST', headers, credentials:'include' });
-    if (!res.ok) { msg.textContent = 'Could not export CSV.'; return; }
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => '');
+      msg.textContent = 'Could not export CSV' + (errorText ? ': ' + errorText.slice(0, 120) : '.');
+      return;
+    }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = 'learning-ai-learners.csv'; a.click();
-    URL.revokeObjectURL(url);
+    a.href = url;
+    a.download = 'learning-ai-learners.csv';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 1000);
     msg.textContent = 'CSV downloaded.';
   });
 }
