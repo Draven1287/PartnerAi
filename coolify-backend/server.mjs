@@ -256,6 +256,15 @@ function clearCookie(name) {
   return `${name}=; Path=/; Max-Age=0; HttpOnly${secure}; SameSite=Lax`;
 }
 
+function htmlEscape(value) {
+  return String(value == null ? '' : value).replace(/[&<>"]/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  }[char]));
+}
+
 function corsOrigin(req) {
   const origin = req?.headers?.origin;
   if (!origin) return '';
@@ -571,6 +580,11 @@ function learnerCsv(rows) {
 }
 
 function adminHtml() {
+  const localAdminHint = process.env.NODE_ENV === 'production' ? '' : `
+    <p class="notice dev-login"><strong>Local dev login:</strong><br>
+      Email: <code>${htmlEscape(process.env.ADMIN_EMAIL || 'admin@example.com')}</code><br>
+      Password: <code>${htmlEscape(process.env.ADMIN_PASSWORD || 'learning-ai-admin-pass')}</code>
+    </p>`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -604,6 +618,8 @@ function adminHtml() {
     .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
     .row > * { flex:1; }
     .notice { border-left:4px solid var(--accent); background:#e9efff; padding:12px 14px; border-radius:8px; }
+    .dev-login { font-size:14px; }
+    code { color:var(--text); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
     .hidden { display:none !important; }
     .login { max-width:460px; margin:12vh auto; }
     .muted { color:var(--faint); }
@@ -623,6 +639,7 @@ function adminHtml() {
   <div id="login" class="login card">
     <h1>Admin Login</h1>
     <p>Use the admin account configured in Coolify. Admin tokens are no longer stored in the browser.</p>
+    ${localAdminHint}
     <form id="login-form">
       <p><input name="email" type="email" autocomplete="username" placeholder="Admin email" required></p>
       <p><input name="password" type="password" autocomplete="current-password" placeholder="Password" required></p>
