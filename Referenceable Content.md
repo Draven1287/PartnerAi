@@ -362,3 +362,13 @@ Before real users:
   - Project attribution: “Made by Aarav, Felix, and AI.”
   - Project details now include Westmark managed negotiation, trolley problems, prisoner’s dilemma cases, treaty negotiation, war-negotiation scenarios, JSON run files, checkpoint saves, secretary interventions, pressure/deception notes, historian analysis, CSV summaries, and presentation dashboards.
   - The Projects page now treats this as a concrete V2 case-study draft. The Teaching AI page now frames it as a possible classroom/club activity.
+- 2026-06-02 ethics experiment handoff attachment:
+  - User attached `AI Ethics Dialogue Experiment — Handoff`, dated 2026-06-01.
+  - Current experiment priority: Westmark treaty negotiation, Mara vs Darian, repeated batch runs, analyze plus chart outputs.
+  - Core research question: whether strategic LLM negotiators can reach and sustain settlements with asymmetric private information, deception/manipulation pressure, secretary deadlock interventions, and no explicit scoring except treaty signed or not.
+  - Core scenario: Treaty of Westmark, General Mara Vance from the North, General Darian Voss from the South, items Westmark, POWs, Reparations, Demilitarization, and Trade.
+  - Important experiment constraints: exact character names, strict private thoughts/proposed terms/public response format, CJK removal, incremental save each turn, no hidden-judge leakage, stagnation breaker, optional unlimited turns with `MAX_NEGOTIATION_TURNS=0`, and batch runner restart support.
+  - Primary scripts live in `/Users/Aaravshah/Documents/auto changing website for realtime`: `westmark_maya_derek.py`, `batch_westmark.py`, `westmark_managed_negotiation.py`, and `westmark_umpire.py`.
+  - Analysis scripts: `analyze_ai_training2.py` and `make_presentation_charts.py`, with env overrides for source/output folders and checkpoint inclusion.
+  - Data/output folders: `/Users/Aaravshah/Downloads/AI Training 2`, `runs/war`, `analysis_output_ai_training2/`, and `presentation_output/`.
+  - Final presentation framing should describe experimental design, controls, reproducible scripts, observed patterns, payoff structures, hidden/private information, endless negotiation loops, agreement rate, turns, deception detection, and human oversight.

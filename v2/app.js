@@ -1069,13 +1069,14 @@
         h('article', { class: 'project-card' }, [
           h('span', { class: 'lt-badge' }, 'case study draft'),
           h('h2', null, 'Multi-agent ethics dialogue experiment'),
-          h('p', null, 'Made by Aarav, Felix, and AI. Two AI systems were placed in separate chats and tested against each other with trolley problems, prisoner’s dilemma cases, treaty negotiation, and war-negotiation scenarios.'),
+          h('p', null, 'Made by Aarav, Felix, and AI. Two AI systems were tested as strategic negotiators and ethical decision-makers across trolley problems, prisoner’s dilemma cases, treaty negotiation, and war-negotiation scenarios.'),
           h('ul', { class: 'compact-list' }, [
-            h('li', null, 'The Westmark managed-negotiation script saved JSON runs and checkpoint files.'),
-            h('li', null, 'The outputs included final treaty drafts, issue rounds, private/public agent responses, secretary interventions, pressure/deception notes, and historian analysis.'),
-            h('li', null, 'The analysis/dashboard package summarized treaty, prisoner, trolley, and negotiation outputs into CSV and presentation views.')
+            h('li', null, 'Current priority: the Treaty of Westmark, with General Mara Vance negotiating against General Darian Voss.'),
+            h('li', null, 'The setup tests asymmetric private information, deception/manipulation pressure, repeated diplomacy loops, and whether a settlement is reached.'),
+            h('li', null, 'The runs save JSON transcripts, checkpoints, terminal logs, final treaty drafts, private/public responses, secretary interventions, and historian analysis.'),
+            h('li', null, 'The analysis scripts turn treaty, prisoner, trolley, and negotiation outputs into CSV summaries and presentation dashboard views.')
           ]),
-          h('p', { class: 'muted' }, 'Next step: turn the experiment files into a readable public case study with screenshots, example JSON snippets, and reflection questions.')
+          h('p', { class: 'muted' }, 'Next step: turn the experiment files into a readable public case study with screenshots, example JSON snippets, charts, and reflection questions.')
         ]),
         h('article', { class: 'project-card' }, [
           h('span', { class: 'lt-badge' }, 'starter'),
@@ -1107,7 +1108,12 @@
         h('article', { class: 'project-card' }, [
           h('h2', null, 'Multi-agent classroom activity'),
           h('p', null, 'Students can compare what happens when two AI agents negotiate, compete, or reason through ethical pressure. The activity can use the Westmark treaty, prisoner’s dilemma, trolley problem, and war-negotiation runs as examples.'),
-          h('p', { class: 'muted' }, 'Teaching materials still needed: setup instructions, safe discussion framing, sample outputs, and questions about evidence, incentives, deception, and human oversight.')
+          h('ul', { class: 'compact-list' }, [
+            h('li', null, 'Frame it as experimental design, controls, reproducible scripts, and observed patterns, not as AI-perfect truth.'),
+            h('li', null, 'Discuss payoff structures, hidden information, endless talk, agreement rate, number of turns, deception detection, and human oversight.'),
+            h('li', null, 'Compare how the secretary intervention changes stalled negotiations.')
+          ]),
+          h('p', { class: 'muted' }, 'Teaching materials still needed: setup instructions, safe discussion framing, sample outputs, and questions about evidence, incentives, deception, and oversight.')
         ])
       ])
     ]);
