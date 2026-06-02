@@ -65,13 +65,40 @@ body.v2-onboarding .progress-bar { display: none; }
 .dashboard-primary h1 { margin: 0.25rem 0 0.65rem; max-width: 13ch; }
 .dashboard-primary .lead { max-width: 62ch; }
 .dashboard-panel { display: grid; align-content: start; gap: 0.75rem; }
-.dashboard-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.dashboard-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
 .dash-stat { border: 1px solid var(--border); border-radius: 10px; background: var(--bg); padding: 0.75rem; min-width: 0; }
 .dash-stat strong { display: block; font-size: 1.55rem; line-height: 1.1; color: var(--text); }
 .dash-stat span { color: var(--text-dim); font-size: 0.82rem; }
 .dashboard-grid { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); gap: 1rem; align-items: start; }
 .dashboard-section { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
 .dashboard-section h2 { margin-top: 0; }
+.diagnostic-plan {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+.path-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-width: 0;
+  padding: 0.75rem;
+}
+.path-card span {
+  color: var(--text-faint);
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.path-card strong {
+  color: var(--text);
+  display: block;
+  margin-top: 0.25rem;
+  overflow-wrap: anywhere;
+}
 .catalog-head { margin-top: 1.8rem; }
 .v2-page .hero.compact { padding-top: 1.25rem; }
 .v2-card-grid {

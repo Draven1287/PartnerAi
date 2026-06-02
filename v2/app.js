@@ -132,6 +132,38 @@
       ]
     }
   ];
+  const QUESTION_INSIGHTS = {
+    definition: {
+      label: 'What AI actually is',
+      lessonId: 'chapter-3',
+      reason: 'Your answer suggests the next useful move is building a cleaner mental model of AI, not just using chat tools.'
+    },
+    capability: {
+      label: 'What AI can do beyond search',
+      lessonId: 'chapter-9',
+      reason: 'Your answer suggests you should see models, tools, and agents as part of one working system.'
+    },
+    limits: {
+      label: 'Checking confident AI answers',
+      lessonId: 'chapter-8',
+      reason: 'Your answer suggests the most important next habit is knowing why AI can sound right while being wrong.'
+    },
+    learning: {
+      label: 'Keeping your thinking in charge',
+      lessonId: 'chapter-1',
+      reason: 'Your answer suggests the next useful move is setting rules for when AI helps you learn instead of replacing your thinking.'
+    },
+    impact: {
+      label: 'Judgment and real-world tradeoffs',
+      lessonId: 'chapter-1',
+      reason: 'Your answer suggests you should start with human judgment before getting deeper into tools and workflows.'
+    },
+    systems: {
+      label: 'AI systems beyond chatbots',
+      lessonId: 'chapter-9',
+      reason: 'Your answer suggests you are ready to connect chatbots, tools, agents, and workflows.'
+    }
+  };
 
   const app = document.getElementById('app');
   const progressBarFill = document.querySelector('.progress-bar > div');
@@ -356,6 +388,32 @@
     saveProgressToBackend({ lessonId: id, completed: true, currentStep: 999 });
   }
   function nextIncomplete() { const c = readProgress().completed; return LESSONS.find(l => !l.stub && !c[l.id]) || null; }
+  function playableLesson(id) {
+    return LESSONS.find(lesson => lesson.id === id && !lesson.stub) || null;
+  }
+  function recommendedFromAssessment(assessment) {
+    if (!isCompleteV2Assessment(assessment)) return null;
+    const responses = Array.isArray(assessment.responses) ? assessment.responses : [];
+    const sorted = responses.slice().sort((a, b) => (Number(a.score) || 0) - (Number(b.score) || 0));
+    const weakest = sorted[0] || null;
+    const strongest = sorted[sorted.length - 1] || null;
+    const score = Number(assessment.scorePercent ?? assessment.score) || 0;
+    const level = assessment.level || (score < 45 ? 'Foundation' : score < 75 ? 'Explorer' : 'Builder');
+    const fallbackLessonId = level === 'Builder' ? 'chapter-9' : level === 'Explorer' ? 'chapter-6' : 'chapter-1';
+    const insight = QUESTION_INSIGHTS[weakest?.key] || QUESTION_INSIGHTS[assessment.weakestKey] || QUESTION_INSIGHTS.definition;
+    const lesson = playableLesson(insight.lessonId) || playableLesson(fallbackLessonId) || nextIncomplete();
+    return {
+      level,
+      score,
+      weakest,
+      strongest,
+      focusLabel: insight.label,
+      reason: insight.reason,
+      lesson,
+      lessonId: lesson?.id || insight.lessonId,
+      strongestLabel: QUESTION_INSIGHTS[strongest?.key]?.label || strongest?.category || ''
+    };
+  }
   function updateTopProgress() { if (progressBarFill) progressBarFill.style.width = `${Math.round(doneCount() / LESSONS.length * 100)}%`; }
 
   function recordInteraction(step, payload) {
@@ -788,19 +846,15 @@
   }
 
   function learningMode() {
-    const a = assessmentResult() || {};
-    const confidence = String(a.responses?.find?.(r => r.key === 'confidence')?.value || a.level || a.route || '').toLowerCase();
-    if (confidence.includes('builder')) return 'Builder mode';
-    if (confidence.includes('foundation')) return 'Foundation mode';
-    return 'Explorer mode';
+    const profile = recommendedFromAssessment(assessmentResult());
+    return profile?.level ? `${profile.level} mode` : 'Explorer mode';
   }
 
   function diagnosticSummary() {
-    const a = assessmentResult();
-    if (!a) return 'Take the diagnostic to set your starting point.';
-    const weakest = a.weakestCategory ? `Focus area: ${a.weakestCategory}.` : '';
-    const strongest = a.strongestCategory ? `Strength: ${a.strongestCategory}.` : '';
-    return [a.primaryGoal || 'Build stronger AI habits.', weakest, strongest].filter(Boolean).join(' ');
+    const profile = recommendedFromAssessment(assessmentResult());
+    if (!profile) return 'Take the diagnostic to set your starting point.';
+    const lessonCopy = profile.lesson ? `Recommended next: Lesson ${profile.lesson.num}, ${profile.lesson.title}.` : '';
+    return `${profile.reason} ${lessonCopy}`;
   }
 
   function viewDiagnostic() {
@@ -842,15 +896,24 @@
       const scorePercent = Math.round((totalScore / maxScore) * 100);
       const level = scorePercent < 45 ? 'Foundation' : scorePercent < 75 ? 'Explorer' : 'Builder';
       const sorted = responses.slice().sort((a, b) => (Number(a.score) || 0) - (Number(b.score) || 0));
-      const weakest = sorted[0]?.category || '';
-      const strongest = sorted[sorted.length - 1]?.category || '';
+      const weakestResponse = sorted[0] || {};
+      const strongestResponse = sorted[sorted.length - 1] || {};
+      const weakest = weakestResponse.category || '';
+      const strongest = strongestResponse.category || '';
+      const insight = QUESTION_INSIGHTS[weakestResponse.key] || QUESTION_INSIGHTS.definition;
       const assessment = {
         level,
         route: level,
         score: scorePercent,
+        scorePercent,
         scoreRaw: totalScore,
         maxScore,
         ageRange: draft.profile.ageRange || 'prefer-not',
+        weakestKey: weakestResponse.key || '',
+        strongestKey: strongestResponse.key || '',
+        focusLabel: insight.label,
+        recommendedLessonId: insight.lessonId,
+        recommendationReason: insight.reason,
         primaryGoal: 'Learn AI with judgment, practice, and useful projects.',
         learningStyle: 'Interactive V2 lessons with checks before moving on.',
         mainConcern: weakest ? `Needs the most support in ${weakest}.` : 'Build strong AI judgment.',
@@ -988,7 +1051,10 @@
     const c = readProgress().completed;
     const done = doneCount();
     const pct = Math.round(done / LESSONS.length * 100);
-    const next = nextIncomplete();
+    const profile = recommendedFromAssessment(assessmentResult());
+    const recommendedLesson = profile?.lesson || null;
+    const firstPathLesson = done === 0 && recommendedLesson && !c[recommendedLesson.id] ? recommendedLesson : null;
+    const next = firstPathLesson || nextIncomplete();
     const authoredTotal = LESSONS.filter(l => !l.stub).length;
     const mode = learningMode();
 
@@ -1006,17 +1072,19 @@
       accountBar(),
       h('section', { class: 'dashboard-hero' }, [
         h('div', { class: 'dashboard-primary' }, [
-          h('div', { class: 'tagline' }, next ? `${mode} · Next lesson ${next.num}` : 'Course progress'),
+          h('div', { class: 'tagline' }, next ? `${mode} · ${firstPathLesson ? 'recommended start' : 'next lesson'} ${next.num}` : 'Course progress'),
           h('h1', null, next ? next.coreQuestion : 'Every authored lesson is complete'),
-          h('p', { class: 'lead' }, next ? `${next.title}. Complete the guided interactions to reveal the next painting tile.` : 'Review your toolkit, then start a real project with the patterns you saved.'),
+          h('p', { class: 'lead' }, next ? `${next.title}. ${firstPathLesson && profile ? profile.reason : 'Complete the guided interactions to reveal the next painting tile.'}` : 'Review your toolkit, then start a real project with the patterns you saved.'),
           h('div', { class: 'dashboard-stats' }, [
             h('div', { class: 'dash-stat' }, [h('strong', null, `${done}`), h('span', null, 'tiles revealed')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${pct}%`), h('span', null, 'complete')]),
+            h('div', { class: 'dash-stat' }, [h('strong', null, `${profile?.score ?? 0}%`), h('span', null, 'diagnostic score')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${readToolkit().length}`), h('span', null, 'toolkit cards')])
           ]),
           h('div', { class: 'row-gap' }, [
-            next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, done ? `Continue lesson ${next.num}` : `Start lesson ${next.num}`)
+            next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, firstPathLesson ? `Start recommended lesson ${next.num}` : done ? `Continue lesson ${next.num}` : `Start lesson ${next.num}`)
                  : h('a', { class: 'btn btn-primary', href: '#/projects' }, 'Start a project'),
+            firstPathLesson && playableLesson('chapter-1') && firstPathLesson.id !== 'chapter-1' ? h('a', { class: 'btn btn-ghost', href: '#/lesson/chapter-1/0' }, 'Start from lesson 1 instead') : null,
             h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, 'Retake questionnaire')
           ])
         ]),
@@ -1029,6 +1097,11 @@
       h('section', { class: 'dashboard-grid' }, [
         h('div', { class: 'dashboard-section' }, [
           h('h2', null, 'Your learning mode'),
+          h('div', { class: 'diagnostic-plan' }, [
+            h('div', { class: 'path-card' }, [h('span', null, 'Mode'), h('strong', null, mode)]),
+            h('div', { class: 'path-card' }, [h('span', null, 'Focus'), h('strong', null, profile?.focusLabel || 'Build AI judgment')]),
+            h('div', { class: 'path-card' }, [h('span', null, 'Recommended'), h('strong', null, profile?.lesson ? `Lesson ${profile.lesson.num}` : 'Next lesson')])
+          ]),
           h('p', null, diagnosticSummary()),
           h('div', { class: 'arc-progress-list' }, arcCards),
           h('p', { class: 'row-gap' }, h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'View all lessons'))

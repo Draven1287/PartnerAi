@@ -390,3 +390,9 @@ Before real users:
   - Learner detail now includes that learner's questionnaire answers.
   - Dashboard and Lessons are now separate V2 views: Dashboard keeps next action, progress painting, learning mode, and toolkit; Lessons is a catalog-only all-lessons list.
   - Added V2 Palette page with selectable palettes so color direction can be tested without changing code each time.
+- 2026-06-02 questionnaire purpose update:
+  - Product decision: the questionnaire must do two jobs, not one. It gives admin audience analytics, and it gives the learner a visible course recommendation.
+  - V2 assessment now computes a learning mode, weakest key, strongest key, focus label, recommendation reason, diagnostic score, and recommended lesson id.
+  - The dashboard uses this result before lesson progress exists. A new learner is pointed at the recommended lesson instead of always being visually treated as starting the same generic path.
+  - Learners can still choose to start from Lesson 1 instead. Recommendation should guide, not trap.
+  - Current recommendation mapping uses authored/playable lessons only: AI definition -> Lesson 3, capability/systems -> Lesson 9, limits -> Lesson 8, learning/impact judgment -> Lesson 1.
