@@ -372,3 +372,11 @@ Before real users:
   - Analysis scripts: `analyze_ai_training2.py` and `make_presentation_charts.py`, with env overrides for source/output folders and checkpoint inclusion.
   - Data/output folders: `/Users/Aaravshah/Downloads/AI Training 2`, `runs/war`, `analysis_output_ai_training2/`, and `presentation_output/`.
   - Final presentation framing should describe experimental design, controls, reproducible scripts, observed patterns, payoff structures, hidden/private information, endless negotiation loops, agreement rate, turns, deception detection, and human oversight.
+- 2026-06-02 V2 review and next-workshop update:
+  - User wants the next major focus to be adding all 30 real lessons into V2, while also workshopping UI/color and keeping the backend status clear.
+  - Review lane findings: stale local `modelwise-gauge` could unlock V2 without a complete six-category V2 questionnaire, and missing API could make V2 fall open. Fix direction: require all six V2 questionnaire keys and fail closed if `LearningAIV2Api` is unavailable.
+  - Account flow decision: learners can create multiple accounts, each email should have its own backend learner record, and signed-in backend state should win over old browser-local assessment data.
+  - Added clearer account copy that each email creates its own learner account, added Dashboard and Retake questionnaire controls in the signed-in account bar, and added a questionnaire bottom link back to the saved dashboard.
+  - UI/color direction remains calm V1 base with blue primary action. Reduce heavy app-card shadows; use teal, violet, green, amber, and blue as arc/progress accents instead of a one-color theme.
+  - Lesson review found 30 lesson records, 20 stubs, and 10 currently authored/playable lessons. Lessons 10-24 and 26-30 still need full authoring. Lesson 4 should be revisited because it has only one gated interaction.
+  - Backend review status: local dev backend on `127.0.0.1:8787` supports signup/questionnaire/dashboard/progress testing; production V2 remains blocked until `https://api.learningai4you.com` is reachable and `/health` passes.

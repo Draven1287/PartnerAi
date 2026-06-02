@@ -26,6 +26,7 @@
     progress: 'learningai-progress',
     settings: 'learningai-settings',
     toolkit: 'learningai-toolkit',
+    assessment: 'learningai-v2-assessment',
     diagnosticDraft: 'learningai-v2-diagnostic-draft'
   };
   const api = window.LearningAIV2Api || null;
@@ -129,6 +130,28 @@
   function savePendingToolkit(c) { return set('learningai-v2-pending-toolkit', JSON.stringify(c.slice(0, 50))); }
   function readPendingProgress() { const t = readJson('learningai-v2-pending-progress', []); return Array.isArray(t) ? t : []; }
   function savePendingProgress(c) { return set('learningai-v2-pending-progress', JSON.stringify(c.slice(0, 100))); }
+  function currentUserKey() { return currentUser?.id || currentUser?.email || 'unknown'; }
+  function importedUserKey() { return `learningai-v2-imported:${currentUserKey()}`; }
+  function isCompleteV2Assessment(assessment) {
+    const responses = Array.isArray(assessment?.responses) ? assessment.responses : [];
+    const answered = new Set(responses.map(response => response?.key).filter(Boolean));
+    return DIAGNOSTIC_QUESTIONS.every(question => answered.has(question.key));
+  }
+  function saveAssessmentLocal(assessment) {
+    if (!isCompleteV2Assessment(assessment)) return false;
+    set(KEY.assessment, JSON.stringify(assessment));
+    set('modelwise-gauge', JSON.stringify(assessment));
+    return true;
+  }
+  function clearV2LocalSession() {
+    try {
+      localStorage.removeItem(KEY.assessment);
+      localStorage.removeItem('modelwise-gauge');
+      localStorage.removeItem(KEY.diagnosticDraft);
+      localStorage.removeItem('learningai-v2-pending-progress');
+      localStorage.removeItem('learningai-v2-pending-toolkit');
+    } catch (e) {}
+  }
 
   function normalizeCurriculumStep(step) {
     const payload = step?.payload && typeof step.payload === 'object' && !Array.isArray(step.payload) ? step.payload : {};
@@ -181,7 +204,7 @@
     if (!state) return;
     serverState = state;
     currentUser = state.user || currentUser;
-    if (state.assessment) set('modelwise-gauge', JSON.stringify(state.assessment));
+    if (isCompleteV2Assessment(state.assessment)) saveAssessmentLocal(state.assessment);
     if (Array.isArray(state.progress)) {
       const completed = {};
       state.progress.forEach(row => {
@@ -608,9 +631,10 @@
       h('div', { class: 'tagline' }, 'Hidden V2 beta'),
       h('h1', null, 'Sign in to save your progress'),
       h('p', { class: 'lead' }, 'We use your email only to sign you in and save your progress. We will not send ads. We will not ask you for money. We will not sell your information.'),
+      h('p', { class: 'muted' }, 'Each email creates its own learner account. To switch learners, sign out and use a different email.'),
       h('label', { class: 'pr-field' }, [h('span', null, 'Email'), h('input', { name: 'email', type: 'email', autocomplete: 'email', required: 'true' })]),
       h('label', { class: 'pr-field' }, [h('span', null, 'Password'), h('input', { name: 'password', type: 'password', autocomplete: 'current-password', required: 'true', minlength: '8' })]),
-      h('label', { class: 'pr-field' }, [h('span', null, 'Display name'), h('input', { name: 'displayName', type: 'text', autocomplete: 'name', maxlength: '40', placeholder: 'Only needed for signup' })]),
+      h('label', { class: 'pr-field' }, [h('span', null, 'Display name'), h('input', { name: 'displayName', type: 'text', autocomplete: 'name', maxlength: '40', placeholder: 'Only needed when creating an account' })]),
       h('div', { class: 'row-gap' }, [
         h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'signup' }, 'Create account'),
         h('button', { class: 'btn btn-ghost', type: 'submit', 'data-mode': 'login' }, 'Sign in')
@@ -635,17 +659,31 @@
     return h('div', { class: 'container view auth-view' }, [form]);
   }
 
+  function viewApiUnavailable() {
+    return h('div', { class: 'container view auth-view' }, [
+      h('section', { class: 'lesson-card diagnostic-card' }, [
+        h('div', { class: 'tagline' }, 'Hidden V2 beta'),
+        h('h1', null, 'V2 accounts are unavailable right now'),
+        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course. V1 is still the public site while V2 is being built.'),
+        h('p', { class: 'muted' }, 'For local testing, start the V2 backend and reload this page.')
+      ])
+    ]);
+  }
+
   async function hydrateFromServer() {
     if (!api) return;
-    const localGauge = readJson('modelwise-gauge', null);
+    const localGauge = assessmentResult();
     await syncPendingProgress();
     await syncPendingToolkit();
     await loadCurriculumFromBackend();
     let state = await api.state();
-    if (currentUser && !get('learningai-v2-imported')) {
+    const shouldImportLocal = currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
+    if (shouldImportLocal) {
       const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit(), assessment: localGauge || null }).catch(() => ({ ok: false }));
       if (imported.ok) {
-        set('learningai-v2-imported', new Date().toISOString());
+        const importedAt = new Date().toISOString();
+        set(importedUserKey(), importedAt);
+        set('learningai-v2-imported-ever', importedAt);
         state = await api.state();
       } else {
         return;
@@ -660,12 +698,29 @@
     if (!currentUser) return null;
     return h('div', { class: 'account-bar' }, [
       h('span', null, `Signed in as ${currentUser.displayName || currentUser.email}`),
-      h('button', { class: 'btn btn-ghost', onclick: async () => { await api.logout(); currentUser = null; serverState = null; render(); } }, 'Sign out')
+      h('a', { class: 'btn btn-ghost', href: '#/' }, 'Dashboard'),
+      h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, 'Retake questionnaire'),
+      h('button', { class: 'btn btn-ghost', onclick: async () => {
+        await api.logout();
+        currentUser = null;
+        serverState = null;
+        clearV2LocalSession();
+        location.hash = '#/';
+        render();
+      } }, 'Sign out')
     ]);
   }
 
   function assessmentResult() {
-    return serverState?.assessment || readJson('modelwise-gauge', null);
+    if (api && currentUser && serverState) {
+      return isCompleteV2Assessment(serverState.assessment) ? serverState.assessment : null;
+    }
+    const candidates = [
+      serverState?.assessment,
+      readJson(KEY.assessment, null),
+      readJson('modelwise-gauge', null)
+    ];
+    return candidates.find(isCompleteV2Assessment) || null;
   }
 
   function hasAssessment() {
@@ -816,12 +871,16 @@
           return;
         }
       }
-      set('modelwise-gauge', JSON.stringify(assessment));
+      saveAssessmentLocal(assessment);
       serverState = { ...(serverState || {}), assessment };
       localStorage.removeItem(KEY.diagnosticDraft);
       location.hash = '#/';
       render();
     } }, 'Finish and open dashboard');
+
+    const returnLink = hasAssessment()
+      ? h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' }, 'Take me back to my dashboard'))
+      : null;
 
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
@@ -836,7 +895,8 @@
         options,
         note,
         h('div', { class: 'gauge-actions' }, [back, index === total - 1 ? finish : next]),
-        message
+        message,
+        returnLink
       ])
     ]);
   }
@@ -1001,7 +1061,7 @@
         h('div', { class: 'tagline' }, 'Locked lesson'),
         h('h1', null, `${lesson.num}. ${lesson.title}`),
         h('p', { class: 'lead' }, 'This lesson is intentionally locked until it has real gated interactions, a useful toolkit artifact, and an exit check.'),
-        h('a', { class: 'btn btn-primary', href: '#/lessons' }, 'Back to dashboard')
+        h('a', { class: 'btn btn-primary', href: '#/' }, 'Back to dashboard')
       ])
     ]);
   }
@@ -1045,6 +1105,7 @@
           h('div', { class: 'row-gap' }, [
             h('a', { class: 'btn btn-primary', href: '#/questionnaire' }, 'Retake questionnaire'),
             h('button', { class: 'btn btn-ghost', onclick: () => {
+              localStorage.removeItem(KEY.assessment);
               localStorage.removeItem('modelwise-gauge');
               localStorage.removeItem(KEY.diagnosticDraft);
               serverState = { ...(serverState || {}), assessment: null };
@@ -1155,6 +1216,13 @@
       ]));
       return;
     }
+    if (!api) {
+      updateShellChrome(parts);
+      app.innerHTML = '';
+      app.appendChild(viewApiUnavailable());
+      updateTopProgress();
+      return;
+    }
     if (api && !currentUser) {
       updateShellChrome(parts);
       app.innerHTML = '';
@@ -1163,7 +1231,7 @@
       return;
     }
     let node;
-    if (api && currentUser && !hasAssessment() && parts[0] !== 'diagnostic' && parts[0] !== 'questionnaire') node = viewDiagnostic();
+    if (currentUser && !hasAssessment() && parts[0] !== 'diagnostic' && parts[0] !== 'questionnaire') node = viewDiagnostic();
     else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewLessons(false);
     else if (parts[0] === 'lessons') node = viewLessons(true);
@@ -1216,6 +1284,7 @@
       }
       authChecked = true;
     }
+    if (!api) authChecked = true;
     if (!LESSONS.length && app) app.appendChild(h('div', { class: 'container view' }, h('p', { class: 'callout callout-bad' }, 'Lessons failed to load.')));
     else render();
   }
