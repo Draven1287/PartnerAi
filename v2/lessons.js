@@ -1,0 +1,3954 @@
+/* ============================================================
+   Learning AI V2 — lesson data
+   window.LESSONS: 30 lessons across 6 arcs.
+
+   Each lesson:
+     id          string  — matches V1 chapter ids ("chapter-1".."chapter-30")
+     num         number  — 1..30
+     arc         string  — one of the 6 arc names
+     title       string
+     coreQuestion string — the one question the lesson answers
+     blurb       string  — one line, shown on cards
+     minutes     number  — rough time
+     resources   array   — { label, url } external links (optional)
+     steps       array   — ordered interaction steps (see step kinds below)
+
+   Step kinds (the interaction vocabulary). Every step has { kind, ... }.
+     coldOpen     { title, scenario, prompt }            — set the scene, ask learner to react
+     classify     { title, prompt, items:[{text, answer}], buckets:[a,b], reveal }
+     reveal       { title, body, mistake, good }         — short teaching beat
+     compare      { title, weak, strong, why }           — weak vs strong side by side
+     promptRepair { title, weak, fields:[Goal,Context,Constraints,Format], strong }
+     nextWord     { title, stem, options:[{word, p}], note } — token-probability feel
+     tryLive      { title, prompt, note }                — copyable real prompt
+     toolkitSave  { title, cardType, fields:[{key,label,placeholder}] } — save an artifact
+     exitCheck    { title, question, options:[{text, ok, feedback}] }
+     verify       { title, claim, steps:[...], note }    — lateral-reading source check
+     biasSpot     { title, passage, biased:[phrases], reveal } — click biased phrases
+     workflowChain{ title, goal, steps:[shuffled], correct:[order], note }
+     agentDesign  { title, goal, tools:[{name, useful}], note }
+     evalTest     { title, output, prompt, note }        — write a test for an AI output
+   ============================================================ */
+
+(function initLearningAiV2Lessons() {
+  window.V2_ARCS = {
+  "orientation": "Orientation",
+  "understanding": "Understanding",
+  "conversation": "Conversation & Prompting",
+  "judgment": "Judgment & Safety",
+  "applying": "Applying",
+  "building": "Building"
+};
+
+  window.LESSONS = [
+  {
+    "id": "chapter-1",
+    "num": 1,
+    "arc": "Orientation",
+    "title": "Why AI matters — and why you stay in charge",
+    "coreQuestion": "When should I use AI, and what do I keep deciding myself?",
+    "blurb": "Start from your choices, not the hype. Set one rule you can keep.",
+    "minutes": 8,
+    "resources": [
+      {
+        "label": "Elements of AI — free intro course",
+        "url": "https://www.elementsofai.com/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "You see this every week",
+        "scenario": "One friend uses AI and their grades go up. Another says AI is dangerous and refuses to touch it. A third uses it for literally everything. They are all talking at once.",
+        "prompt": "Before reading on: in one sentence, what would YOUR rule be?"
+      },
+      {
+        "kind": "classify",
+        "title": "Sort these uses",
+        "prompt": "Which of these keep you learning, and which quietly replace your thinking?",
+        "buckets": [
+          "Keeps me thinking",
+          "Replaces my thinking"
+        ],
+        "items": [
+          {
+            "text": "Ask AI to explain a concept, then re-explain it back in your own words",
+            "answer": 0
+          },
+          {
+            "text": "Paste the homework question and copy the answer",
+            "answer": 1
+          },
+          {
+            "text": "Ask for 3 angles on an essay, then pick and argue one yourself",
+            "answer": 0
+          },
+          {
+            "text": "Let AI write the whole essay and submit it",
+            "answer": 1
+          }
+        ],
+        "reveal": "The line is not \"AI or no AI.\" It is \"did I still do the thinking that matters?\""
+      },
+      {
+        "kind": "reveal",
+        "title": "Agency is the real skill",
+        "body": "AI is useful when a human keeps the goal, the method, and the verification. Speed is not the same as understanding.",
+        "mistake": "Trusting a fluent answer because it sounds confident.",
+        "good": "Use AI to improve your reasoning, and skip it when it tempts you to stop thinking."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I am deciding when AI helps me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts for someone like me. For each risky shortcut, add one question I should ask myself before using it.",
+        "note": "Run this in any free AI tool, then keep the 5 risky ones near your desk."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the stay-in-charge routine",
+        "goal": "You are stuck on a hard homework problem and want AI help without handing over your thinking.",
+        "correct": [
+          "Try the problem yourself first, even badly",
+          "Ask AI to explain only the part you are stuck on",
+          "Re-explain the idea back in your own words",
+          "Check the answer against your notes or textbook",
+          "Write the final answer yourself"
+        ],
+        "note": "Notice who starts and who finishes: you do. AI only helps in the middle, and you verify before you trust."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your agency rule",
+        "cardType": "Agency rule",
+        "fields": [
+          {
+            "key": "help",
+            "label": "I want AI to help me…",
+            "placeholder": "draft, explain, brainstorm…"
+          },
+          {
+            "key": "never",
+            "label": "I will not let AI decide…",
+            "placeholder": "what I actually believe"
+          },
+          {
+            "key": "check",
+            "label": "Before I trust it, I will check…",
+            "placeholder": "one source / my own attempt"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which is the strongest reason to keep a human in charge?",
+        "options": [
+          {
+            "text": "AI tends to handle the routine stuff fine, so a human mostly needs to step in on the genuinely hard questions",
+            "ok": false,
+            "feedback": "Sounds reasonable, but you often can't tell in advance which question is the hard one. The easy-looking ones are where unverified answers slip past you."
+          },
+          {
+            "text": "A fluent answer can still be wrong or low-value",
+            "ok": true,
+            "feedback": "Exactly. Confidence is not proof."
+          },
+          {
+            "text": "A lot of teachers and parents are still uncomfortable with AI, so it's safer to keep a person visibly involved for now",
+            "ok": false,
+            "feedback": "That's about how it looks to other people, not about quality. You stay in charge because answers need checking — and that stays true even once everyone is comfortable."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-2",
+    "num": 2,
+    "arc": "Orientation",
+    "title": "Your first useful AI conversation",
+    "coreQuestion": "How do I frame a request so the answer is useful and checkable?",
+    "blurb": "A good conversation is a loop, not one-shot magic.",
+    "minutes": 9,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "Ten minutes, something hard",
+        "scenario": "You are stuck on photosynthesis with a quiz tomorrow. You want help, but you do not want to just copy and understand nothing.",
+        "prompt": "What is the first thing you would type?"
+      },
+      {
+        "kind": "compare",
+        "title": "Two ways to ask",
+        "weak": "Help me study for biology.",
+        "strong": "You are my tutor. I am studying photosynthesis for a quiz. Ask me one question first, give one hint, then explain simply. Make me try one example before you give the full answer.",
+        "why": "The strong version sets a role, context, structure, and a required learner check — so the AI coaches instead of dumping an answer."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair a weak prompt",
+        "weak": "explain the water cycle",
+        "fields": [
+          "Goal",
+          "Context",
+          "Constraints",
+          "Format"
+        ],
+        "strong": "Goal: understand the water cycle well enough to teach it. Context: I am in 9th grade and confused about condensation vs. evaporation. Constraints: simple words, no jargon without a definition. Format: 4 short steps, then 2 quiz questions for me."
+      },
+      {
+        "kind": "reveal",
+        "title": "Make a loop, not a dump",
+        "body": "A useful request includes role, context, what help you want, and what the AI should NOT do for you.",
+        "mistake": "Accepting a full answer immediately, without your own attempt.",
+        "good": "Ask for a short output first, then a follow-up after you try."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Act like a peer tutor for [your topic]. Ask what I already understand, give one hint, then wait for my attempt. Only after I try, give your fuller explanation.",
+        "note": "Swap in a topic you actually have due this week."
+      },
+      {
+        "kind": "classify",
+        "title": "Loop or dump?",
+        "prompt": "Some requests start a back-and-forth you can check. Others just ask for a finished answer. Sort each one.",
+        "buckets": [
+          "Starts a loop",
+          "Asks for a dump"
+        ],
+        "items": [
+          {
+            "text": "Ask me one question about my topic before you explain anything",
+            "answer": 0
+          },
+          {
+            "text": "Write my lab conclusion for me, full paragraph, ready to turn in",
+            "answer": 1
+          },
+          {
+            "text": "Give me a hint, wait for my attempt, then tell me what I missed",
+            "answer": 0
+          },
+          {
+            "text": "Just explain all of photosynthesis, everything I need for the quiz",
+            "answer": 1
+          }
+        ],
+        "reveal": "A loop gives you a place to try, fail, and check yourself. A dump skips your attempt — and your attempt is the part that sticks."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a tutor prompt",
+        "cardType": "Tutor prompt",
+        "fields": [
+          {
+            "key": "subject",
+            "label": "Subject",
+            "placeholder": "Biology — photosynthesis"
+          },
+          {
+            "key": "level",
+            "label": "My current level",
+            "placeholder": "shaky on the basics"
+          },
+          {
+            "key": "check",
+            "label": "A check I will do first",
+            "placeholder": "try one example before the answer"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What made the strong prompt better?",
+        "options": [
+          {
+            "text": "It packed in more detail, and adding detail tends to make a prompt work better",
+            "ok": false,
+            "feedback": "Detail only helps when it tells the AI how to help you — a long but vague prompt still fails."
+          },
+          {
+            "text": "It gave role, context, and a required check",
+            "ok": true,
+            "feedback": "Yes — structure creates a coaching loop."
+          },
+          {
+            "text": "It sounded more serious and academic, which makes the AI take the request seriously",
+            "ok": false,
+            "feedback": "No — it actually asked for simpler words. Tone is not the lever; the structure is."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-3",
+    "num": 3,
+    "arc": "Orientation",
+    "title": "What AI actually is",
+    "coreQuestion": "What is AI really doing, under the confident tone?",
+    "blurb": "A pattern system, not a human mind. That frame keeps your options open.",
+    "minutes": 8,
+    "resources": [
+      {
+        "label": "Common Sense Media — AI basics",
+        "url": "https://www.commonsensemedia.org/ai"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "\"It understands everything\"",
+        "scenario": "A classmate insists the AI \"just knows\" the answer because it sounds so sure.",
+        "prompt": "Do you buy it? Why or why not?"
+      },
+      {
+        "kind": "classify",
+        "title": "Which frame holds up?",
+        "prompt": "Tag each statement as a useful frame or a misconception.",
+        "buckets": [
+          "Useful frame",
+          "Misconception"
+        ],
+        "items": [
+          {
+            "text": "AI is trained software that generates patterns from data",
+            "answer": 0
+          },
+          {
+            "text": "AI thinks like a human and is almost always right",
+            "answer": 1
+          },
+          {
+            "text": "AI is a perfect, live library lookup",
+            "answer": 1
+          },
+          {
+            "text": "AI is great for fast drafts I then verify",
+            "answer": 0
+          }
+        ],
+        "reveal": "Patterns are powerful but not infallible. A polished paragraph can still be invented."
+      },
+      {
+        "kind": "reveal",
+        "title": "Generate first, verify always",
+        "body": "AI is strong at generating language patterns fast. That gives you drafts and ideas quickly.",
+        "mistake": "Confusing fluency with truth.",
+        "good": "Use AI for options, then test each against your own understanding and a source."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Explain what AI is to a 14-year-old in 3 plain lines, without saying it is \"smart like a person.\" Then give me 2 trap questions I can use to check whether a definition is too naive.",
+        "note": "Use the trap questions on a friend — or on yourself."
+      },
+      {
+        "kind": "biasSpot",
+        "title": "Spot the mind-words",
+        "passage": "This chatbot truly understands you. It knows every fact, thinks like a genius, and never gets things wrong — so you can stop checking its answers.",
+        "biased": [
+          "understands",
+          "knows",
+          "thinks",
+          "genius",
+          "never"
+        ],
+        "reveal": "Every word you clicked treats software like a person. Swap them for \"generates likely text\" and suddenly the claim sounds a lot less safe to trust."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a myth-vs-reality card",
+        "cardType": "Myth vs reality",
+        "fields": [
+          {
+            "key": "myth",
+            "label": "Myth",
+            "placeholder": "AI just knows the answer"
+          },
+          {
+            "key": "reality",
+            "label": "Reality",
+            "placeholder": "AI generates likely patterns"
+          },
+          {
+            "key": "verify",
+            "label": "So I will verify…",
+            "placeholder": "any fact I would repeat out loud"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Best one-line definition?",
+        "options": [
+          {
+            "text": "Software that recognizes and generates patterns from data",
+            "ok": true,
+            "feedback": "Practical and honest."
+          },
+          {
+            "text": "A digital mind that genuinely understands you once it has seen enough about a topic",
+            "ok": false,
+            "feedback": "Fluency is not understanding — treating it like a mind makes you trust it too much."
+          },
+          {
+            "text": "A smarter kind of search engine that pulls answers from a mostly reliable index of the web",
+            "ok": false,
+            "feedback": "It generates text rather than looking things up, so it can invent things no source ever said."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-4",
+    "num": 4,
+    "arc": "Orientation",
+    "title": "What an LLM is, without the magic",
+    "coreQuestion": "Why is it so fluent, and why can it still be confidently wrong?",
+    "blurb": "Tokens, context, and likely next words become your control points.",
+    "minutes": 9,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "Fluent, and still wrong",
+        "scenario": "Your model writes a smooth paragraph but skips one requirement you clearly stated.",
+        "prompt": "What do you think happened inside?"
+      },
+      {
+        "kind": "nextWord",
+        "title": "Predict the next word",
+        "stem": "The capital of France is",
+        "options": [
+          {
+            "word": "Paris",
+            "p": 0.94
+          },
+          {
+            "word": "a",
+            "p": 0.03
+          },
+          {
+            "word": "beautiful",
+            "p": 0.02
+          },
+          {
+            "word": "banana",
+            "p": 0.01
+          }
+        ],
+        "note": "An LLM picks likely next tokens from context. Fluency comes from \"what usually follows,\" not from looking anything up."
+      },
+      {
+        "kind": "reveal",
+        "title": "Context is the steering wheel",
+        "body": "An LLM predicts likely next tokens given your context and its training. If a key constraint is missing or buried, output drifts — confidently.",
+        "mistake": "Assuming it \"remembers\" everything like a person.",
+        "good": "State constraints explicitly, set an output format, and ask for a self-check."
+      },
+      {
+        "kind": "compare",
+        "title": "Where it goes wrong",
+        "weak": "Write about the French Revolution. (then later) Also keep it under 100 words.",
+        "strong": "In under 100 words, write about the French Revolution for a 9th grader. End by listing the 2 facts I should double-check.",
+        "why": "Front-loading the constraint and asking for a verification list fights the \"drift\" you just saw."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the prompt so context stays visible",
+        "weak": "Explain photosynthesis. Make it short.",
+        "fields": [
+          "Goal",
+          "Audience",
+          "Constraints",
+          "Truth check"
+        ],
+        "strong": "Explain photosynthesis to someone like me in under 120 words. Use one concrete analogy, define glucose, and end with 2 facts I should verify in a biology source."
+      },
+      {
+        "kind": "classify",
+        "title": "How it works vs. how it feels",
+        "prompt": "Tag each claim: is this actually how an LLM works, or just how it feels when you use it?",
+        "buckets": [
+          "How it actually works",
+          "How it feels, not how it works"
+        ],
+        "items": [
+          {
+            "text": "It picks likely next tokens based on your context and its training",
+            "answer": 0
+          },
+          {
+            "text": "It looks up every fact in a live database before answering",
+            "answer": 1
+          },
+          {
+            "text": "A constraint buried late in the chat can fade, so output drifts",
+            "answer": 0
+          },
+          {
+            "text": "If the answer sounds confident, it must have checked it somewhere",
+            "answer": 1
+          }
+        ],
+        "reveal": "Likelihood is not lookup. The confident tone comes from fluent prediction, not from verification — that part stays your job."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Give me one 2-minute exercise that teaches a friend the difference between fluency and truth, using a single AI answer as the example.",
+        "note": "Bonus: run the exercise and see if they get fooled."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your LLM control rule",
+        "cardType": "LLM control rule",
+        "fields": [
+          {
+            "key": "context",
+            "label": "I will keep context visible by...",
+            "placeholder": "putting the goal and audience first"
+          },
+          {
+            "key": "constraint",
+            "label": "I will prevent drift by...",
+            "placeholder": "setting length, format, and must-include details"
+          },
+          {
+            "key": "check",
+            "label": "I will check truth by...",
+            "placeholder": "asking what to verify outside the model"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Why can an LLM be fluent but wrong?",
+        "options": [
+          {
+            "text": "It predicts likely text, which is not the same as verified fact",
+            "ok": true,
+            "feedback": "Right — likelihood ≠ truth."
+          },
+          {
+            "text": "Its training data probably contained mistakes, so those wrong facts leak into its answers",
+            "ok": false,
+            "feedback": "Training data does have errors, but that is not the core reason — even a model trained on clean text can drift, because it is generating likely words, not checking facts."
+          },
+          {
+            "text": "It mostly knows the truth, but it loses track of long prompts and fills gaps from memory",
+            "ok": false,
+            "feedback": "Context limits are real, but the deeper issue is that it never \"knows\" truth at all — it predicts what text usually comes next, which can sound right and still be wrong."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-5",
+    "num": 5,
+    "arc": "Orientation",
+    "title": "Prompt repair: goal, context, constraints, format",
+    "coreQuestion": "How do I turn a weak ask into a useful instruction?",
+    "blurb": "The difference between asking and prompting — a repeatable repair.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Stanford CRAFT — AI literacy resources",
+        "url": "https://craft.stanford.edu/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "Boring answer again",
+        "scenario": "Same question, but the answer comes back generic and useless. The question was not the problem — the prompt was.",
+        "prompt": "What is one thing you would add to fix it?"
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair it live",
+        "weak": "give me a study summary",
+        "fields": [
+          "Goal",
+          "Context",
+          "Constraints",
+          "Format"
+        ],
+        "strong": "Goal: a study summary I can revise from tonight. Context: 10th-grade biology, cell division, quiz Friday. Constraints: no homework answers given away; define any term you use. Format: 3 key ideas, 1 common mistake, and a 2-question self-quiz."
+      },
+      {
+        "kind": "reveal",
+        "title": "Prompts are instructions",
+        "body": "A prompt is executable instruction, not a wish. Better structure → more control.",
+        "mistake": "A polished sentence with an unclear goal still fails.",
+        "good": "Keep the goal concrete, constraints explicit, and ask for a quick self-check from the AI."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here is my prompt: \"[paste your weak prompt]\". Rewrite it using Goal, Context, Constraints, Format. Then show me the improved answer and tell me which change mattered most.",
+        "note": "Compare the before/after - keep the diff in your Saved Notes if it helps."
+      },
+      {
+        "kind": "classify",
+        "title": "Control or decoration?",
+        "prompt": "You are repairing a vague prompt by adding pieces to it. Sort each addition: does it actually steer the answer, or just pad the sentence?",
+        "buckets": [
+          "Adds real control",
+          "Just adds words"
+        ],
+        "items": [
+          {
+            "text": "\"For my 10th-grade biology class, quiz is Friday\"",
+            "answer": 0
+          },
+          {
+            "text": "\"Please make it really good and high quality\"",
+            "answer": 1
+          },
+          {
+            "text": "\"Do not give away answers — define every term you use\"",
+            "answer": 0
+          },
+          {
+            "text": "\"If you can, whenever you get a chance, thanks!\"",
+            "answer": 1
+          },
+          {
+            "text": "\"Format: 3 key ideas, then a 2-question self-quiz\"",
+            "answer": 0
+          }
+        ],
+        "reveal": "Goal, context, constraints, and format are things the model can act on. \"Good\" and \"please\" are not — control comes from specifics, not politeness."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save the repair template",
+        "cardType": "Prompt repair",
+        "fields": [
+          {
+            "key": "goal",
+            "label": "Goal",
+            "placeholder": "what good output looks like"
+          },
+          {
+            "key": "context",
+            "label": "Context",
+            "placeholder": "who/what/level"
+          },
+          {
+            "key": "constraints",
+            "label": "Constraints",
+            "placeholder": "do / do not"
+          },
+          {
+            "key": "format",
+            "label": "Format",
+            "placeholder": "shape of the answer"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which piece most often fixes a vague prompt first?",
+        "options": [
+          {
+            "text": "A concrete goal",
+            "ok": true,
+            "feedback": "Usually yes — without it, everything else floats."
+          },
+          {
+            "text": "More polite wording",
+            "ok": false,
+            "feedback": "Politeness does not add control."
+          },
+          {
+            "text": "Making it longer",
+            "ok": false,
+            "feedback": "Length without structure does not help."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-6",
+    "num": 6,
+    "arc": "Understanding",
+    "title": "Data, training & patterns",
+    "coreQuestion": "Where does an AI’s “knowledge” come from?",
+    "blurb": "Training turns examples into patterns. Useful, but not the same as knowing.",
+    "minutes": 9,
+    "resources": [
+      {
+        "label": "Elements of AI — machine learning basics",
+        "url": "https://www.elementsofai.com/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "It feels like it just knows",
+        "scenario": "You ask an AI for a study plan, a poem, and a history summary. It answers all three like it has seen the inside of every classroom.",
+        "prompt": "Where do you think that ability came from?"
+      },
+      {
+        "kind": "classify",
+        "title": "Training source or live fact?",
+        "prompt": "Sort what comes from training patterns versus what would need a current source or tool.",
+        "buckets": [
+          "Training pattern",
+          "Needs current source/tool"
+        ],
+        "items": [
+          {
+            "text": "Writing a sentence that sounds like a lab report",
+            "answer": 0
+          },
+          {
+            "text": "Knowing whether your school canceled practice today",
+            "answer": 1
+          },
+          {
+            "text": "Recognizing that \"photosynthesis\" belongs with plants and light",
+            "answer": 0
+          },
+          {
+            "text": "Checking the exact deadline on your teacher’s website",
+            "answer": 1
+          }
+        ],
+        "reveal": "Training gives the model patterns. Current facts need a current source, a tool, or your own check."
+      },
+      {
+        "kind": "nextWord",
+        "title": "Patterns become predictions",
+        "stem": "In a recipe, after \"preheat the oven to\" you often see",
+        "options": [
+          {
+            "word": "350°F",
+            "p": 0.62
+          },
+          {
+            "word": "medium",
+            "p": 0.17
+          },
+          {
+            "word": "tomorrow",
+            "p": 0.04
+          },
+          {
+            "word": "theory",
+            "p": 0.02
+          }
+        ],
+        "note": "The model is not opening a cookbook. It has learned which kinds of text usually follow other text."
+      },
+      {
+        "kind": "reveal",
+        "title": "Training is pattern learning",
+        "body": "AI systems are trained on lots of examples so they can predict, classify, or generate new outputs that match patterns in those examples.",
+        "mistake": "Treating training data like a perfect memory bank or a live database.",
+        "good": "Use AI for pattern-heavy work, then verify any fact, quote, date, rule, or local detail."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Explain training data to me using one school analogy and one sports or arts analogy. Then list 5 things a trained model can do well and 5 things I should verify somewhere else.",
+        "note": "Keep the verify list. It is the practical part."
+      },
+      {
+        "kind": "biasSpot",
+        "title": "Spot the overclaims",
+        "passage": "Once a model is trained, it knows the facts in its data, remembers them perfectly, and always gives accurate answers, so double-checking is unnecessary.",
+        "biased": [
+          "knows",
+          "remembers",
+          "perfectly",
+          "always",
+          "unnecessary"
+        ],
+        "reveal": "Those words treat training like a flawless memory bank. Training learns patterns from examples, so the output sounds right — but any fact, date, or rule still needs a check."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your pattern-vs-fact rule",
+        "cardType": "Pattern vs fact",
+        "fields": [
+          {
+            "key": "pattern",
+            "label": "I can use AI for patterns like...",
+            "placeholder": "examples, drafts, explanations"
+          },
+          {
+            "key": "fact",
+            "label": "I will verify facts like...",
+            "placeholder": "dates, quotes, current rules"
+          },
+          {
+            "key": "source",
+            "label": "My first source check will be...",
+            "placeholder": "teacher page / official site / textbook"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What is the safest way to describe training?",
+        "options": [
+          {
+            "text": "The model stores most of what it read during training, so if a fact appeared in the data you can usually trust it to recall that fact correctly",
+            "ok": false,
+            "feedback": "Tempting, but no. Training compresses examples into patterns, not a stored archive of facts, so even things it \"read\" can come out wrong."
+          },
+          {
+            "text": "The model learns patterns from examples, then generates from those patterns",
+            "ok": true,
+            "feedback": "Exactly. That is useful, but it still needs verification."
+          },
+          {
+            "text": "The model mostly works by looking things up as it goes, pulling from the web or a database whenever it needs a fact to answer",
+            "ok": false,
+            "feedback": "Not by default. Some AI tools bolt search on top, but the model itself generates from what it learned in training."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-7",
+    "num": 7,
+    "arc": "Understanding",
+    "title": "Context windows & memory",
+    "coreQuestion": "What does the AI actually remember, and for how long?",
+    "blurb": "The model responds to what is in the current context. Memory is not magic.",
+    "minutes": 9,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "\"But I already told it\"",
+        "scenario": "You told an AI your project rules at the start. Ten messages later, it ignores one and gives advice that breaks the assignment.",
+        "prompt": "Did it forget, miss the rule, or never really remember like a person?"
+      },
+      {
+        "kind": "classify",
+        "title": "In context or out of reach?",
+        "prompt": "Sort what the AI can use right now versus what you need to restate or provide again.",
+        "buckets": [
+          "In current context",
+          "Needs restating/checking"
+        ],
+        "items": [
+          {
+            "text": "A rubric you pasted two messages ago",
+            "answer": 0
+          },
+          {
+            "text": "A file you never uploaded or pasted",
+            "answer": 1
+          },
+          {
+            "text": "A constraint buried 40 messages back in a long chat",
+            "answer": 1
+          },
+          {
+            "text": "The format you put in the prompt it is answering now",
+            "answer": 0
+          }
+        ],
+        "reveal": "If it matters, keep it visible. Important instructions belong near the task, not buried."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Move the rule into view",
+        "weak": "Make this better but remember my teacher’s rules from before.",
+        "fields": [
+          "Goal",
+          "Context",
+          "Constraints",
+          "Format"
+        ],
+        "strong": "Goal: improve my paragraph without changing my argument. Context: 10th-grade English, persuasive paragraph. Constraints: keep my voice, do not add outside facts, and follow this rubric: [paste rubric]. Format: return a revised paragraph plus 3 notes explaining what changed."
+      },
+      {
+        "kind": "reveal",
+        "title": "Context is working memory",
+        "body": "A context window is the information the model can use for the current response. Some products add saved memory, but you should not assume it has the exact thing you meant.",
+        "mistake": "Saying \"you know what I mean\" when the instruction is not visible.",
+        "good": "Restate the goal, paste key constraints, and ask the AI to repeat the rules before it works."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Before helping me, summarize the constraints I gave you in 3 bullets. If any constraint is missing or unclear, ask me a question instead of guessing. Then complete the task.",
+        "note": "This works especially well when a rubric or teacher rule matters."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a context reset",
+        "cardType": "Context reset",
+        "fields": [
+          {
+            "key": "goal",
+            "label": "Current goal",
+            "placeholder": "what I need now"
+          },
+          {
+            "key": "mustKeep",
+            "label": "Rules to keep visible",
+            "placeholder": "rubric, length, source limits"
+          },
+          {
+            "key": "check",
+            "label": "AI should confirm...",
+            "placeholder": "the constraints before answering"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What should you do when a rule really matters?",
+        "options": [
+          {
+            "text": "Trust that it remembers, since most chats are short enough that nothing gets lost",
+            "ok": false,
+            "feedback": "It often works in short chats, but you cannot tell from the outside when earlier context gets missed or compressed. For rules that matter, do not rely on it."
+          },
+          {
+            "text": "Put the rule close to the task and ask the AI to confirm it",
+            "ok": true,
+            "feedback": "Right. Keep important context visible."
+          },
+          {
+            "text": "State the rule once near the start, since repeating it later might just clutter the conversation",
+            "ok": false,
+            "feedback": "Restating a rule near the task does not clutter anything — it helps. Instructions far from the current task are exactly the ones that get missed."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-8",
+    "num": 8,
+    "arc": "Understanding",
+    "title": "Why AI hallucinates",
+    "coreQuestion": "Why does it invent things — and how do I catch it?",
+    "blurb": "A confident answer can be a guess wearing a suit. Learn the catch routine.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Common Sense Media — AI and misinformation",
+        "url": "https://www.commonsensemedia.org/ai"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The fake quote problem",
+        "scenario": "An AI gives you a perfect-looking quote for an essay. The wording is strong, the author sounds right, and the citation looks real.",
+        "prompt": "What would you check before using it?"
+      },
+      {
+        "kind": "classify",
+        "title": "Safe to use or verify first?",
+        "prompt": "Sort each AI output by what you should do next.",
+        "buckets": [
+          "Use as draft/idea",
+          "Verify before trusting"
+        ],
+        "items": [
+          {
+            "text": "Three possible titles for your presentation",
+            "answer": 0
+          },
+          {
+            "text": "A quote supposedly from a scientist",
+            "answer": 1
+          },
+          {
+            "text": "A made-up practice problem for algebra",
+            "answer": 0
+          },
+          {
+            "text": "A statistic about teen phone use in 2026",
+            "answer": 1
+          }
+        ],
+        "reveal": "Ideas can be useful without being true. Claims need proof."
+      },
+      {
+        "kind": "verify",
+        "title": "Run a hallucination check",
+        "claim": "A famous researcher said, \"AI literacy is the new oxygen of education.\"",
+        "steps": [
+          "Copy the exact quote into a search engine with quotation marks.",
+          "Search the person’s official page or a reliable publication, not only random quote sites.",
+          "If you cannot find the quote in a trustworthy place, do not use it as real.",
+          "Ask the AI for a safer replacement: \"Give me a paraphrase I can verify, not a quote.\""
+        ],
+        "note": "The goal is not to prove the AI wrong. The goal is to avoid repeating something you cannot stand behind."
+      },
+      {
+        "kind": "reveal",
+        "title": "Hallucination is not drama",
+        "body": "A hallucination is when an AI generates something false or unsupported as if it were true. It happens because the system is generating likely text, not proving each claim.",
+        "mistake": "Thinking a citation, title, or quote is real because it is formatted correctly.",
+        "good": "Ask for uncertainty, sources you can open, and a verification plan before using claims."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here is a claim I might use: \"[paste claim]\". Treat it as unverified. Give me a 4-step plan to check it, tell me what source type would count as strong evidence, and rewrite it in safer language if I cannot verify it.",
+        "note": "Use this on one claim from homework, a video, or a post."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the catch routine",
+        "goal": "Use facts from an AI answer in your essay without repeating something false.",
+        "correct": [
+          "Pick out the checkable claims: quotes, stats, names, dates",
+          "Search each claim in a source you could show a teacher",
+          "Keep what you verified; cut or soften what you could not",
+          "Cite the real source you found, not the AI"
+        ],
+        "note": "Same order every time: find the claims, find the sources, then decide what survives. The AI is never the citation."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a hallucination catch",
+        "cardType": "Hallucination check",
+        "fields": [
+          {
+            "key": "claim",
+            "label": "Claim I will check",
+            "placeholder": "quote / stat / date / source"
+          },
+          {
+            "key": "evidence",
+            "label": "Strong evidence would be...",
+            "placeholder": "official page, original article, textbook"
+          },
+          {
+            "key": "backup",
+            "label": "If I cannot verify it, I will...",
+            "placeholder": "remove it or phrase it as uncertain"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which output is most dangerous to trust without checking?",
+        "options": [
+          {
+            "text": "A list of brainstormed club names, since one of them could already belong to another group",
+            "ok": false,
+            "feedback": "Low risk. A taken name is annoying, but you would find out fast — truth is not really the issue with brainstorms."
+          },
+          {
+            "text": "A specific quote with a polished citation",
+            "ok": true,
+            "feedback": "Yes. Formatting can look real even when the source is invented."
+          },
+          {
+            "text": "A silly analogy for photosynthesis, because a weak analogy might quietly teach the wrong idea",
+            "ok": false,
+            "feedback": "An analogy can mislead a little, but you treat it as a rough teaching aid — you are not repeating it as a fact."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-9",
+    "num": 9,
+    "arc": "Understanding",
+    "title": "Models, tools & agents",
+    "coreQuestion": "What is the difference between a model, a tool, and an agent?",
+    "blurb": "Separate the brain, the instruments, and the doer before you trust the system.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "One AI, three different jobs",
+        "scenario": "An app answers your question, searches the web, and adds a calendar reminder. People call all of it \"AI,\" but those are not the same job.",
+        "prompt": "Which part is generating, which part is using a tool, and which part is acting for you?"
+      },
+      {
+        "kind": "classify",
+        "title": "Name the part",
+        "prompt": "Sort each description into the closest bucket.",
+        "buckets": [
+          "Model",
+          "Tool or agent"
+        ],
+        "items": [
+          {
+            "text": "Generates a draft email from your instructions",
+            "answer": 0
+          },
+          {
+            "text": "Opens a calculator to solve a precise equation",
+            "answer": 1
+          },
+          {
+            "text": "Searches a website for current ticket prices",
+            "answer": 1
+          },
+          {
+            "text": "Predicts likely next words in a paragraph",
+            "answer": 0
+          }
+        ],
+        "reveal": "The model generates. Tools fetch or do specific things. Agents combine steps toward a goal."
+      },
+      {
+        "kind": "agentDesign",
+        "title": "Pick tools for a safe agent",
+        "goal": "Help plan a study session by checking a calendar, finding open time, and drafting a study checklist.",
+        "tools": [
+          {
+            "name": "Calendar read access",
+            "useful": true
+          },
+          {
+            "name": "Checklist writer",
+            "useful": true
+          },
+          {
+            "name": "Bank account access",
+            "useful": false
+          },
+          {
+            "name": "Ability to delete files",
+            "useful": false
+          },
+          {
+            "name": "Timer or reminder tool",
+            "useful": true
+          }
+        ],
+        "note": "Give an agent only the tools it needs for the job. Extra power is extra risk."
+      },
+      {
+        "kind": "reveal",
+        "title": "Capability comes in layers",
+        "body": "A model can generate text. A tool can retrieve, calculate, send, edit, or store. An agent uses a model plus tools to pursue a goal through multiple steps.",
+        "mistake": "Trusting a system more just because it can act in the world.",
+        "good": "Check the goal, permissions, tools, and stop conditions before letting anything act for you."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "For this task: \"[paste a task]\", split the AI system into model, tools, and agent behavior. Tell me what permissions are necessary, what permissions would be risky, and where a human should approve before action.",
+        "note": "Try it with a real task like planning, email, research, or reminders."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save an agent safety checklist",
+        "cardType": "Agent safety",
+        "fields": [
+          {
+            "key": "goal",
+            "label": "Agent goal",
+            "placeholder": "what it should accomplish"
+          },
+          {
+            "key": "tools",
+            "label": "Allowed tools",
+            "placeholder": "only what it needs"
+          },
+          {
+            "key": "approval",
+            "label": "Human approval required before...",
+            "placeholder": "sending, buying, deleting, posting"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What makes an agent different from a plain model response?",
+        "options": [
+          {
+            "text": "It usually runs on a bigger, more capable model than a normal chat reply",
+            "ok": false,
+            "feedback": "Not quite. An agent can run on the same model. What changes is that it can act, not how smart it is."
+          },
+          {
+            "text": "It can use tools and take steps toward a goal",
+            "ok": true,
+            "feedback": "Right. That is why permissions and approval matter."
+          },
+          {
+            "text": "Once it has been tested, it can mostly handle tasks without someone checking its work",
+            "ok": false,
+            "feedback": "Careful. The more a system acts in the world, the more its actions need review, not less."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-10",
+    "num": 10,
+    "arc": "Conversation & Prompting",
+    "title": "Better follow-ups",
+    "coreQuestion": "How do I steer a conversation instead of restarting it?",
+    "blurb": "Good AI work is usually not one perfect prompt. It is steering, checking, and narrowing.",
+    "minutes": 9,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The answer is almost useful",
+        "scenario": "You ask AI for help and the answer is not bad, but it is too broad, misses your situation, and gives advice you already knew.",
+        "prompt": "Do you start over, or do you steer it?"
+      },
+      {
+        "kind": "classify",
+        "title": "Restart or follow up?",
+        "prompt": "Sort each move by whether it throws away context or improves the current conversation.",
+        "buckets": [
+          "Weak restart",
+          "Useful follow-up"
+        ],
+        "items": [
+          {
+            "text": "“Never mind. Give me a better answer.”",
+            "answer": 0
+          },
+          {
+            "text": "“Use the same plan, but make it fit a 20-minute study session.”",
+            "answer": 1
+          },
+          {
+            "text": "“That is too generic. Ask me 3 questions before revising.”",
+            "answer": 1
+          },
+          {
+            "text": "Opening a new chat every time the first answer is imperfect",
+            "answer": 0
+          }
+        ],
+        "reveal": "A follow-up keeps useful context and adds direction. Restarting often loses what the model already learned about the task."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Turn frustration into steering",
+        "weak": "That answer is bad. Try again.",
+        "fields": [
+          "Keep",
+          "Change",
+          "Add",
+          "Check"
+        ],
+        "strong": "Keep the 3-part structure, but make it specific to someone studying after school for 25 minutes. Add one example for each part, and end by asking me what constraint you may have missed."
+      },
+      {
+        "kind": "reveal",
+        "title": "Conversation is control",
+        "body": "A good AI conversation is a loop: ask, inspect, steer, verify, then use. Follow-ups are how you turn a generic answer into something that fits.",
+        "mistake": "Treating the first answer as the final answer.",
+        "good": "Name what to keep, what to change, what to add, and what to check."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here is an AI answer I almost like: [paste answer]. Help me improve it with 4 follow-ups: one to narrow it, one to make it more concrete, one to check assumptions, and one to make the final output easier to use.",
+        "note": "This works best when the first answer is close, not useless."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a follow-up ladder",
+        "cardType": "Follow-up ladder",
+        "fields": [
+          {
+            "key": "keep",
+            "label": "Keep",
+            "placeholder": "what was useful in the first answer"
+          },
+          {
+            "key": "change",
+            "label": "Change",
+            "placeholder": "what needs to be different"
+          },
+          {
+            "key": "add",
+            "label": "Add",
+            "placeholder": "missing context, example, or constraint"
+          },
+          {
+            "key": "check",
+            "label": "Check",
+            "placeholder": "assumption or fact to verify"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which follow-up gives you the most control?",
+        "options": [
+          {
+            "text": "“This is close to what I wanted, so go ahead and improve it however you think makes the most sense for my situation.”",
+            "ok": false,
+            "feedback": "It sounds specific, but every decision is handed back to the model. Without saying what to keep or change, you can't predict what comes back."
+          },
+          {
+            "text": "“Keep the structure, make it fit my 20-minute limit, and ask one question if a constraint is missing.”",
+            "ok": true,
+            "feedback": "Right. It says what to keep, change, and check."
+          },
+          {
+            "text": "“Honestly, it might be easier to scrap this draft and try a totally different approach — a fresh start could land closer to what I'm picturing.”",
+            "ok": false,
+            "feedback": "Starting over can occasionally help, but it throws away the context you already built up, and the model still doesn't know what 'closer' means."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-11",
+    "num": 11,
+    "arc": "Conversation & Prompting",
+    "title": "Roles, formats & constraints",
+    "coreQuestion": "How do roles and formats change what I get back?",
+    "blurb": "Role, format, and constraints are control knobs. Use them deliberately.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "Same topic, different answer",
+        "scenario": "Ask for “help with my presentation” and you get generic advice. Ask for a skeptical reviewer, a slide outline, and a 5-minute limit, and the answer changes completely.",
+        "prompt": "Which part changed the answer most: role, format, or constraint?"
+      },
+      {
+        "kind": "classify",
+        "title": "Name the control knob",
+        "prompt": "Sort each prompt part by what it controls.",
+        "buckets": [
+          "Role",
+          "Format or constraint"
+        ],
+        "items": [
+          {
+            "text": "Act as a skeptical science fair judge",
+            "answer": 0
+          },
+          {
+            "text": "Return a 6-slide outline",
+            "answer": 1
+          },
+          {
+            "text": "Use no more than 120 words",
+            "answer": 1
+          },
+          {
+            "text": "Be a patient tutor who asks before explaining",
+            "answer": 0
+          }
+        ],
+        "reveal": "Role changes the lens. Format changes the shape. Constraints set boundaries."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Add the missing controls",
+        "weak": "Help me with my history project.",
+        "fields": [
+          "Role",
+          "Format",
+          "Constraints",
+          "Success check"
+        ],
+        "strong": "Act as a history project coach. Format: give me a 5-part outline with one question under each part. Constraints: do not write the final paragraphs, keep it at 9th-grade level, and flag any claim that needs a source. Success check: end with what I should do next myself."
+      },
+      {
+        "kind": "reveal",
+        "title": "Roles are not costumes",
+        "body": "A role is useful when it changes what the model pays attention to: tutor, reviewer, planner, debate opponent, editor. A format is useful when it makes the output easier to inspect.",
+        "mistake": "Adding a fancy role but no task, no constraints, and no check.",
+        "good": "Use role + task + format + constraints + success check."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Take this task: [paste task]. Give me 3 prompt versions using different roles: tutor, critic, and project manager. For each, choose a format and one constraint that would make the answer easier to use.",
+        "note": "Compare the answers. The best role depends on the job."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a role-format recipe",
+        "cardType": "Role-format recipe",
+        "fields": [
+          {
+            "key": "role",
+            "label": "Role",
+            "placeholder": "tutor / critic / planner / editor"
+          },
+          {
+            "key": "format",
+            "label": "Format",
+            "placeholder": "table, checklist, outline, questions"
+          },
+          {
+            "key": "constraint",
+            "label": "Constraint",
+            "placeholder": "time, level, sources, length"
+          },
+          {
+            "key": "success",
+            "label": "Success check",
+            "placeholder": "how I know the answer is useful"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What is the safest prompt pattern?",
+        "options": [
+          {
+            "text": "Pick a strong role first, since a good persona tends to handle format and constraints on its own",
+            "ok": false,
+            "feedback": "A role changes the lens, but it does not set the task, the shape of the output, or how you will check the answer."
+          },
+          {
+            "text": "Role + task + format + constraints + success check",
+            "ok": true,
+            "feedback": "Yes. That combination gives both direction and review."
+          },
+          {
+            "text": "Keep the prompt short and open-ended so the model has room to find the best approach itself",
+            "ok": false,
+            "feedback": "Open-ended can work for brainstorming, but for real tasks you lose the structure that makes answers easy to inspect."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-12",
+    "num": 12,
+    "arc": "Conversation & Prompting",
+    "title": "Getting AI to teach you",
+    "coreQuestion": "How do I make AI a tutor, not an answer vending machine?",
+    "blurb": "A tutor makes you think. An answer machine lets you skip the work.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The homework shortcut trap",
+        "scenario": "You ask AI for the answer, understand it for two seconds, then cannot solve the next problem alone.",
+        "prompt": "What would a good tutor do differently?"
+      },
+      {
+        "kind": "classify",
+        "title": "Tutor move or answer-machine move?",
+        "prompt": "Sort the AI behaviors by whether they protect your learning.",
+        "buckets": [
+          "Tutor move",
+          "Answer machine"
+        ],
+        "items": [
+          {
+            "text": "Ask what I already tried before explaining",
+            "answer": 0
+          },
+          {
+            "text": "Give the final answer immediately",
+            "answer": 1
+          },
+          {
+            "text": "Give one hint, then wait for my attempt",
+            "answer": 0
+          },
+          {
+            "text": "Write the whole assignment in my voice",
+            "answer": 1
+          }
+        ],
+        "reveal": "A tutor creates effort at the right moment. Too much help can feel good and still weaken learning."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the tutor prompt",
+        "weak": "Solve this and explain it.",
+        "fields": [
+          "Tutor role",
+          "No-spoiler rule",
+          "Practice loop",
+          "Check"
+        ],
+        "strong": "Act as a tutor. Do not give the final answer first. Ask me what I tried, give one hint at a time, wait for my attempt, then check my reasoning and give a similar practice problem."
+      },
+      {
+        "kind": "reveal",
+        "title": "Learning needs friction",
+        "body": "The best AI tutor does not remove all struggle. It adjusts the struggle: hints before answers, questions before lectures, practice before confidence.",
+        "mistake": "Confusing “I read the answer” with “I can do it myself.”",
+        "good": "Ask AI to question, hint, test, and correct you without taking over."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Teach me [topic]. Start by asking what I already know. Give me one hint at a time, do not reveal the full answer until I try, and end with a short quiz plus one transfer problem.",
+        "note": "Use this when the goal is learning, not just finishing."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your tutor contract",
+        "cardType": "Tutor contract",
+        "fields": [
+          {
+            "key": "topic",
+            "label": "Topic I am learning",
+            "placeholder": "algebra, photosynthesis, essay thesis"
+          },
+          {
+            "key": "dont",
+            "label": "Do not...",
+            "placeholder": "give the final answer first"
+          },
+          {
+            "key": "do",
+            "label": "Do...",
+            "placeholder": "ask, hint, check, quiz"
+          },
+          {
+            "key": "proof",
+            "label": "Proof I learned it",
+            "placeholder": "I can solve a similar problem alone"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which request turns AI into a better tutor?",
+        "options": [
+          {
+            "text": "“Walk me through the full solution step by step, since seeing a complete worked example is usually how I learn best.”",
+            "ok": false,
+            "feedback": "Worked examples can help, but if you watch the whole solution before trying, you can follow every step and still freeze on the next problem. Attempt first, then compare."
+          },
+          {
+            "text": "“Give one hint, wait for my attempt, then check my reasoning.”",
+            "ok": true,
+            "feedback": "Right. That keeps you doing the important thinking."
+          },
+          {
+            "text": "“Just give me the answer this once — I'm short on time tonight and I'll go back and study the method later.”",
+            "ok": false,
+            "feedback": "This feels reasonable in the moment, but 'later' rarely happens, and you skip the struggle that builds the skill. The task gets done; the learning does not."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-13",
+    "num": 13,
+    "arc": "Judgment & Safety",
+    "title": "Human agency",
+    "coreQuestion": "Where must a human stay in the loop?",
+    "blurb": "Use AI for help, but keep the goal, values, and final decision human.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The AI sounds sure",
+        "scenario": "An AI recommends which club you should quit, which class you should take, and how to apologize to a friend. The advice sounds calm and reasonable.",
+        "prompt": "Which part can AI help with, and which part should stay yours?"
+      },
+      {
+        "kind": "classify",
+        "title": "AI helper or human decision?",
+        "prompt": "Sort each task by whether AI can help or whether the human must own the final decision.",
+        "buckets": [
+          "AI can help",
+          "Human owns it"
+        ],
+        "items": [
+          {
+            "text": "List possible tradeoffs before choosing a class",
+            "answer": 0
+          },
+          {
+            "text": "Decide what matters most to your family or values",
+            "answer": 1
+          },
+          {
+            "text": "Draft three respectful ways to start a hard conversation",
+            "answer": 0
+          },
+          {
+            "text": "Choose whether to forgive someone",
+            "answer": 1
+          }
+        ],
+        "reveal": "AI can widen your thinking. It should not replace your responsibility for values, relationships, and consequences."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Put the human back in charge",
+        "weak": "Tell me what I should do.",
+        "fields": [
+          "Decision",
+          "Options",
+          "Values",
+          "Human role"
+        ],
+        "strong": "Help me think through this decision without deciding for me. Decision: [describe]. Options: [list]. Values I care about: [list]. Give tradeoffs, questions I should ask, and what information is missing. Do not tell me the final choice."
+      },
+      {
+        "kind": "reveal",
+        "title": "Agency is not anti-AI",
+        "body": "Human agency means you use AI as a thinking aid while keeping ownership of goals, values, consent, and final action. The safer pattern is: AI suggests, human judges.",
+        "mistake": "Treating confident advice as permission to stop deciding.",
+        "good": "Ask for options, consequences, missing information, and counterarguments before you choose."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I have a decision: [describe]. Do not decide for me. Give me 3 options, tradeoffs for each, what information is missing, and 5 questions that help me make the decision myself.",
+        "note": "Use this for low-risk decisions first, then notice how much better the conversation gets."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your human-in-loop rule",
+        "cardType": "Human-in-loop rule",
+        "fields": [
+          {
+            "key": "aiHelp",
+            "label": "AI can help me...",
+            "placeholder": "list options, questions, tradeoffs"
+          },
+          {
+            "key": "humanOwns",
+            "label": "I must own...",
+            "placeholder": "values, relationships, final action"
+          },
+          {
+            "key": "approval",
+            "label": "Before acting, I will...",
+            "placeholder": "pause, check, ask a person, decide myself"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which use keeps human agency strongest?",
+        "options": [
+          {
+            "text": "Go with the AI's recommendation when you feel stuck, since it has seen far more situations like yours than you have",
+            "ok": false,
+            "feedback": "Feeling stuck is exactly when the choice matters most. Seeing lots of patterns is not the same as knowing your values — the judgment is still yours."
+          },
+          {
+            "text": "Ask AI for options, tradeoffs, and missing information, then decide yourself",
+            "ok": true,
+            "feedback": "Right. AI supports the thinking, not the ownership."
+          },
+          {
+            "text": "Make the call yourself first, but switch to the AI's answer whenever it disagrees, because it probably caught something you missed",
+            "ok": false,
+            "feedback": "Disagreement is a reason to ask more questions, not to hand over the decision. You can take the new information and still decide yourself."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The link works. Now what?",
+        "scenario": "You ask AI for evidence and it cites a real article. You click it and it opens — a blog post from 2014 about an early version of the app you are writing about, and most of it is copied from the company's own press release. Nothing is fake. But is it actually evidence?",
+        "prompt": "What about this source would make you hesitate, even though it exists?"
+      },
+      {
+        "kind": "classify",
+        "title": "Real, but is it strong?",
+        "prompt": "Every one of these sources is real and opens fine. Sort them by whether they could carry a claim in your essay.",
+        "buckets": [
+          "Looks real, still weak",
+          "Strong enough"
+        ],
+        "items": [
+          {
+            "text": "A decade-old blog post about an older version of the product",
+            "answer": 0
+          },
+          {
+            "text": "A recent study that measured the exact thing you are claiming",
+            "answer": 1
+          },
+          {
+            "text": "A news article that mentions your topic but not your statistic",
+            "answer": 0
+          },
+          {
+            "text": "A government dataset updated this year, covering your question",
+            "answer": 1
+          },
+          {
+            "text": "A site that reworded a company press release without checking it",
+            "answer": 0
+          }
+        ],
+        "reveal": "Existing is the lowest bar a source can clear. Strong means current enough, independent, and about your exact claim."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build a lateral-reading routine",
+        "goal": "Decide whether a real source is strong enough to cite, in about three minutes.",
+        "correct": [
+          "Open the source and skim what it actually says",
+          "Check the date and who published it",
+          "Search what other sites say about that publisher",
+          "Confirm it supports your exact sentence, not just the topic",
+          "Shrink or revise the claim if the evidence is narrower"
+        ],
+        "choices": [
+          "Open the source and skim what it actually says",
+          "Check the date and who published it",
+          "Search what other sites say about that publisher",
+          "Confirm it supports your exact sentence, not just the topic",
+          "Shrink or revise the claim if the evidence is narrower"
+        ],
+        "note": "Step three is lateral reading: leaving the page to see what others say about it. Fact-checkers do this instead of judging a site by its own design and About page."
+      },
+      {
+        "kind": "reveal",
+        "title": "A real source can still fail you",
+        "body": "A source can let you down in quieter ways than being fake: it can be too old, about something slightly different, or just an echo of a press release with no independent checking. Citing it is technically honest and still misleading.",
+        "mistake": "Stopping the check the moment the link opens. \"It exists\" feels like verification, but it only rules out one failure.",
+        "good": "Grade the source on four things: date, independence, who is behind it, and whether it covers your exact sentence. If it fails one, find a better source or soften the claim."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I am thinking of citing this source for the claim \"[paste your claim]\": [paste the link or describe the source]. Do not tell me whether the claim is true. Instead, list the questions I should answer about this source's date, its author or publisher, whether it is original reporting or secondhand, and whether it covers my exact claim. Then suggest what a stronger source type would look like.",
+        "note": "Use this on a source you were already planning to cite. The interesting cases are the ones that look fine."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a source-strength card",
+        "cardType": "Source strength check",
+        "fields": [
+          {
+            "key": "source",
+            "label": "Source I am grading",
+            "placeholder": "title or link of the real source"
+          },
+          {
+            "key": "dateCheck",
+            "label": "Date and independence",
+            "placeholder": "how old is it, and is it original or an echo?"
+          },
+          {
+            "key": "fitCheck",
+            "label": "Does it cover my exact sentence?",
+            "placeholder": "same claim, or just the same topic?"
+          },
+          {
+            "key": "verdict",
+            "label": "Verdict",
+            "placeholder": "cite it, replace it, or shrink my claim"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "A citation from AI turns out to be real, and the page opens fine. What still has to be true before you cite it?",
+        "options": [
+          {
+            "text": "It should appear on the first page of search results",
+            "ok": false,
+            "feedback": "Ranking measures popularity and search habits, not reliability. Weak sources rank well all the time."
+          },
+          {
+            "text": "It actually backs the exact sentence you wrote",
+            "ok": true,
+            "feedback": "Right. Date, independence, and fit to your exact claim are what make a real source usable — existing is just the first hurdle."
+          },
+          {
+            "text": "It should come from a site with a professional design and a detailed About page",
+            "ok": false,
+            "feedback": "Design is cheap and the About page is written by the site itself. Read laterally — see what other sources say about the publisher."
+          }
+        ]
+      }
+    ],
+    "id": "chapter-14",
+    "num": 14,
+    "arc": "Judgment & Safety",
+    "title": "Verification & sources",
+    "coreQuestion": "The citation is real — but is it strong enough to use?",
+    "blurb": "Most weak sources are not fake. They are old, off-topic, or echoes. Learn to grade them.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Stanford Civic Online Reasoning — lateral reading",
+        "url": "https://cor.stanford.edu/"
+      },
+      {
+        "label": "SIFT: the four moves (Mike Caulfield)",
+        "url": "https://hapgood.us/2019/06/19/sift-the-four-moves/"
+      }
+    ]
+  },
+  {
+    "id": "chapter-15",
+    "num": 15,
+    "arc": "Judgment & Safety",
+    "title": "Bias, fairness & perspective",
+    "coreQuestion": "How do I spot bias in an AI answer?",
+    "blurb": "Bias often hides in loaded words, missing groups, and one-sided framing.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The answer sounds neutral",
+        "scenario": "AI summarizes a debate and says one side is “reasonable” while the other is “emotional.” It never explains why.",
+        "prompt": "What words or missing perspectives would you inspect first?"
+      },
+      {
+        "kind": "classify",
+        "title": "Bias signal or fair move?",
+        "prompt": "Sort each move by whether it helps fairness or signals possible bias.",
+        "buckets": [
+          "Bias signal",
+          "Fairness move"
+        ],
+        "items": [
+          {
+            "text": "Using loaded labels without evidence",
+            "answer": 0
+          },
+          {
+            "text": "Naming what evidence would change the answer",
+            "answer": 1
+          },
+          {
+            "text": "Ignoring the group most affected by the decision",
+            "answer": 0
+          },
+          {
+            "text": "Showing the strongest argument from more than one side",
+            "answer": 1
+          }
+        ],
+        "reveal": "Fairness starts with noticing framing: who is named, who is missing, and which words carry judgment."
+      },
+      {
+        "kind": "biasSpot",
+        "title": "Spot the loaded language",
+        "passage": "The responsible students wanted reasonable AI rules, but the lazy students complained because restrictions would expose their shortcuts.",
+        "biased": [
+          "responsible",
+          "reasonable",
+          "lazy",
+          "complained",
+          "shortcuts"
+        ],
+        "reveal": "You caught the framing words. They push you toward a judgment before evidence appears."
+      },
+      {
+        "kind": "reveal",
+        "title": "Bias is not only being mean",
+        "body": "Bias can be obvious, but it can also be a missing perspective, a loaded comparison, a hidden assumption, or a pattern copied from flawed data.",
+        "mistake": "Calling an answer fair just because it sounds calm.",
+        "good": "Ask who is missing, what assumptions are being made, and how the answer changes under another perspective."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Review this AI answer for bias: [paste answer]. Look for loaded words, missing perspectives, hidden assumptions, and what evidence would make the answer fairer. Then rewrite it more neutrally.",
+        "note": "This is useful for summaries, debates, policies, and recommendations."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a bias check",
+        "cardType": "Bias check",
+        "fields": [
+          {
+            "key": "loaded",
+            "label": "Loaded words to inspect",
+            "placeholder": "lazy, normal, extreme, obvious"
+          },
+          {
+            "key": "missing",
+            "label": "Missing perspective",
+            "placeholder": "who is affected but not represented"
+          },
+          {
+            "key": "rewrite",
+            "label": "Neutral rewrite move",
+            "placeholder": "separate evidence from judgment"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which is the best first bias check?",
+        "options": [
+          {
+            "text": "Check whether the answer keeps a calm, even-handed tone, since biased writing tends to sound heated or one-sided",
+            "ok": false,
+            "feedback": "Tone is easy to fake. A calm, polite answer can still carry loaded framing — check the actual words, not the mood."
+          },
+          {
+            "text": "Look for loaded words, missing perspectives, and hidden assumptions",
+            "ok": true,
+            "feedback": "Right. Those are practical things you can inspect."
+          },
+          {
+            "text": "Compare the answer against your own view, since bias mostly shows up where it disagrees with you",
+            "ok": false,
+            "feedback": "Your own view can be biased too. Disagreement is not proof of bias — inspect the framing itself: who is named, who is missing, which words judge."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-16",
+    "num": 16,
+    "arc": "Judgment & Safety",
+    "title": "Privacy & personal data",
+    "coreQuestion": "What should I never paste into an AI tool?",
+    "blurb": "Good AI habits include knowing what not to share.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The convenient paste",
+        "scenario": "You want AI to rewrite an email, so you paste the whole thread. It includes names, phone numbers, a private problem, and a school account detail.",
+        "prompt": "Which parts should have been removed first?"
+      },
+      {
+        "kind": "classify",
+        "title": "Paste or protect?",
+        "prompt": "Sort what is usually safer to share versus what should be removed or anonymized.",
+        "buckets": [
+          "Usually okay",
+          "Protect or remove"
+        ],
+        "items": [
+          {
+            "text": "A made-up example sentence",
+            "answer": 0
+          },
+          {
+            "text": "Someone’s full name plus private situation",
+            "answer": 1
+          },
+          {
+            "text": "A general task description with no identifying details",
+            "answer": 0
+          },
+          {
+            "text": "Passwords, tokens, addresses, or private account details",
+            "answer": 1
+          }
+        ],
+        "reveal": "The safest prompt often uses a fake example, initials, or a summary instead of raw private data."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Anonymize the request",
+        "weak": "Rewrite this message from Maya to Mr. Chen about her medical appointment: [private thread].",
+        "fields": [
+          "Private data to remove",
+          "Safe summary",
+          "Allowed details",
+          "Output needed"
+        ],
+        "strong": "Rewrite a short message from a student to a teacher asking to reschedule because of a private appointment. Do not include names, medical details, addresses, or account information. Tone: respectful and brief."
+      },
+      {
+        "kind": "reveal",
+        "title": "Privacy is part of skill",
+        "body": "Before using AI, decide what data the tool does not need. Names, locations, passwords, health details, private conflicts, and account information usually do not belong in prompts.",
+        "mistake": "Thinking “I am only asking for wording” means private context is safe to paste.",
+        "good": "Summarize, anonymize, or use a fake example when the exact private details are not needed."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Help me rewrite this request without using private details. First ask me what information can be anonymized. Then create a safe version of the prompt before answering.",
+        "note": "Do this before pasting messages, documents, screenshots, or personal stories."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a privacy filter",
+        "cardType": "Privacy filter",
+        "fields": [
+          {
+            "key": "never",
+            "label": "Never paste",
+            "placeholder": "passwords, addresses, private names..."
+          },
+          {
+            "key": "replace",
+            "label": "Replace with",
+            "placeholder": "initials, fake example, summary"
+          },
+          {
+            "key": "check",
+            "label": "Before sending, I will check for...",
+            "placeholder": "identifying details or secrets"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What is the safest way to ask AI for help with a private message?",
+        "options": [
+          {
+            "text": "Paste the whole thread, since the AI usually writes a better reply when it can see the full context of the conversation",
+            "ok": false,
+            "feedback": "Context helps, but the AI rarely needs the private details to fix wording. A short summary gives it enough."
+          },
+          {
+            "text": "Summarize the situation and remove names, secrets, and identifying details",
+            "ok": true,
+            "feedback": "Right. Give only what the task needs."
+          },
+          {
+            "text": "Paste it as written, but tell the AI up front not to store or remember anything from the message",
+            "ok": false,
+            "feedback": "By then the data has already left your hands. Protect it before sending, not after."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-17",
+    "num": 17,
+    "arc": "Judgment & Safety",
+    "title": "When not to use AI",
+    "coreQuestion": "When is the right move to NOT use AI?",
+    "blurb": "Sometimes the strongest AI skill is choosing a human, a source, or your own effort.",
+    "minutes": 10,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The fastest tool is not always the right tool",
+        "scenario": "You can use AI to reply to a friend, solve a practice problem, summarize a sensitive story, or make a medical guess. Fast does not mean wise.",
+        "prompt": "Which one would you avoid first, and why?"
+      },
+      {
+        "kind": "classify",
+        "title": "Use AI or pause?",
+        "prompt": "Sort the situations by whether AI can help or whether you should pause and use another route.",
+        "buckets": [
+          "AI can help carefully",
+          "Pause or avoid AI"
+        ],
+        "items": [
+          {
+            "text": "Brainstorming possible titles for a club poster",
+            "answer": 0
+          },
+          {
+            "text": "Entering someone’s private story with names and identifying details",
+            "answer": 1
+          },
+          {
+            "text": "Getting hints on a practice problem without final answers",
+            "answer": 0
+          },
+          {
+            "text": "Making a medical, legal, or safety decision from AI alone",
+            "answer": 1
+          }
+        ],
+        "reveal": "AI is strongest when the risk is low, the human stays in charge, and you can verify. Pause when privacy, safety, law, health, or relationships are at stake."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the pause routine",
+        "goal": "Decide whether to use AI on a sensitive task.",
+        "correct": [
+          "Name the risk",
+          "Remove private details if AI is still useful",
+          "Choose a trusted source or person when stakes are high",
+          "Use AI only for low-risk framing or questions",
+          "Make the final decision yourself"
+        ],
+        "note": "The pause routine keeps speed from overriding judgment."
+      },
+      {
+        "kind": "reveal",
+        "title": "Not using AI is not falling behind",
+        "body": "The goal is not to use AI everywhere. The goal is to know when it helps, when it weakens learning, and when another source or person is safer.",
+        "mistake": "Using AI because it is available, not because it fits the risk.",
+        "good": "Ask: What is the cost of being wrong, what data would I expose, and who should decide?"
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "For this task: [paste task]. Help me decide whether to use AI. Rate the privacy risk, learning risk, accuracy risk, and human-relationship risk. If I should not use AI, suggest a safer next step.",
+        "note": "This makes AI help with the decision about AI, while you still choose."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a no-AI checkpoint",
+        "cardType": "No-AI checkpoint",
+        "fields": [
+          {
+            "key": "risk",
+            "label": "Risk that makes me pause",
+            "placeholder": "privacy, safety, learning, relationship"
+          },
+          {
+            "key": "alternative",
+            "label": "Better next step",
+            "placeholder": "ask teacher, check source, try myself"
+          },
+          {
+            "key": "limitedUse",
+            "label": "If I use AI, only for...",
+            "placeholder": "questions, outline, low-risk wording"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "When should you avoid relying on AI alone?",
+        "options": [
+          {
+            "text": "When the stakes involve health, safety, law, privacy, or a relationship",
+            "ok": true,
+            "feedback": "Right. Use a trusted source, person, or your own judgment."
+          },
+          {
+            "text": "When you need ideas, since even a casual brainstorm list usually turns out better if a person writes it without AI",
+            "ok": false,
+            "feedback": "Low-risk brainstorming is actually one of the safer uses — a bad idea on a list costs you almost nothing, and you still pick the final one."
+          },
+          {
+            "text": "Mostly when the model sounds unsure of itself; if it answers confidently, it has probably checked itself and you can lean on it",
+            "ok": false,
+            "feedback": "Confidence is part of the writing style, not a sign of accuracy. You have to judge the risk yourself instead of waiting for the model to flag it."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-18",
+    "num": 18,
+    "arc": "Applying",
+    "title": "Studying & school",
+    "coreQuestion": "How do I use AI to actually be ready on test day?",
+    "blurb": "Rereading feels like studying. Testing yourself is studying. AI is good at making the second one easy — quizzes and flashcards built from your own notes, spaced out before the exam.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "The Learning Scientists: Six strategies for effective learning (free downloads)",
+        "url": "https://www.learningscientists.org/downloadable-materials"
+      },
+      {
+        "label": "Retrieval Practice: research on testing yourself to learn",
+        "url": "https://www.retrievalpractice.org/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "You knew it until the test started",
+        "scenario": "You spent the whole weekend on the history chapter. Read it twice, highlighted half of it, watched a review video. By Sunday night everything felt familiar — you would have bet money you knew it. Monday the test says: explain the three causes from memory. The page in your head is yellow and blurry, and the familiar feeling turns out to be the only thing you memorized.",
+        "prompt": "The chapter felt easy because you were looking at it. What changed when you had to produce it with the book closed?"
+      },
+      {
+        "kind": "classify",
+        "title": "Feels like studying vs. is studying",
+        "prompt": "The dividing line: does your brain have to pull the answer out of memory, or just recognize it on the page? Sort each move.",
+        "buckets": [
+          "Feels like studying",
+          "Actually studying"
+        ],
+        "items": [
+          {
+            "text": "Rereading the chapter a third time",
+            "answer": 0
+          },
+          {
+            "text": "Covering your notes and writing down what you remember",
+            "answer": 1
+          },
+          {
+            "text": "Highlighting most of the page in yellow",
+            "answer": 0
+          },
+          {
+            "text": "Having AI turn your notes into flashcards, then answering each one before flipping it",
+            "answer": 1
+          },
+          {
+            "text": "Watching the explainer video again because it made sense last time",
+            "answer": 0
+          },
+          {
+            "text": "Taking a practice test cold, then grading it to find weak spots",
+            "answer": 1
+          }
+        ],
+        "reveal": "Recognizing is not recalling. Rereading and highlighting make material feel familiar — researchers call it the illusion of fluency. The exam tests retrieval, so practice retrieval."
+      },
+      {
+        "kind": "reveal",
+        "title": "The illusion of fluency",
+        "body": "When you reread something, it gets smoother and more familiar each pass — and your brain reads that smoothness as knowing. It is not. On test day the page is gone and only what you can retrieve is left. Decades of memory research point the same way: testing yourself strengthens memory more than restudying, and spreading that testing over several days beats one long cram. This is where AI is genuinely useful — not for answers, but for turning your own notes into an endless supply of practice questions, fresh ones each round, with the answers held back until you try.",
+        "mistake": "Judging how ready you are by how familiar the material feels while you are looking at it.",
+        "good": "Judge readiness by what you can produce with the notes closed. Quiz scores from memory are the honest signal; the familiar feeling is not."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the exam-prep loop",
+        "goal": "A test in five days. Turn your notes into spaced self-testing instead of one rereading marathon.",
+        "correct": [
+          "Gather your own class notes for the unit",
+          "Have AI write quiz questions from those notes, answers hidden",
+          "Answer each question from memory, in writing",
+          "Grade it and flag every question you missed",
+          "Two days later, re-test the flagged ones plus a few new questions"
+        ],
+        "note": "Notice what AI does in this loop: it writes the questions and hides the answers. Your brain does the retrieving — that part is not outsourceable."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here are my notes for [class/unit]: [paste your notes]. Make a 10-question quiz from these notes only — mix straight recall with a few 'explain why' questions. Show one question at a time and do not reveal any answer until I have typed my attempt. At the end, list the questions I missed and tell me to re-test those in two days.",
+        "note": "Using your own notes matters twice: the quiz matches what your class actually covered, and any gaps in the notes show up now instead of on the test."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save an exam-prep plan",
+        "cardType": "Exam prep plan",
+        "fields": [
+          {
+            "key": "exam",
+            "label": "Test and date",
+            "placeholder": "bio unit 4, next Friday"
+          },
+          {
+            "key": "source",
+            "label": "What AI quizzes me from",
+            "placeholder": "my own notes, not the internet"
+          },
+          {
+            "key": "schedule",
+            "label": "Quiz days before the test",
+            "placeholder": "5 days out, 3 days out, 1 day out"
+          },
+          {
+            "key": "missed",
+            "label": "What happens to missed questions",
+            "placeholder": "flag them, re-test in two days"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "The exam is in four days and you have one hour tonight. Which move is the best use of it?",
+        "options": [
+          {
+            "text": "Reread the chapter until it feels familiar again",
+            "ok": false,
+            "feedback": "Familiar is the trap. Smooth rereading feels like knowing, but the test asks you to produce, not recognize."
+          },
+          {
+            "text": "Have AI write a clean summary of the unit and read it through a few times tonight",
+            "ok": false,
+            "feedback": "A better page to reread is still rereading. The summary is in front of you; on test day it will not be."
+          },
+          {
+            "text": "Quiz yourself from memory and flag what you miss",
+            "ok": true,
+            "feedback": "Right. Retrieval tonight strengthens the memory, and the flagged misses tell you exactly what to re-test before Friday."
+          },
+          {
+            "text": "Recopy your notes so they are neater for tomorrow",
+            "ok": false,
+            "feedback": "Copying is mostly hand work, not memory work. Your eyes never leave the original, so nothing gets retrieved."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-19",
+    "num": 19,
+    "arc": "Applying",
+    "title": "Writing & research",
+    "coreQuestion": "How do I keep my voice while using AI to write?",
+    "blurb": "Keep the thinking and the sentences yours. Use AI as an editor and a research scout, not a ghostwriter.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "MLA Style Center: How to cite generative AI",
+        "url": "https://style.mla.org/citing-generative-ai/"
+      },
+      {
+        "label": "Purdue OWL: Research and citation resources",
+        "url": "https://owl.purdue.edu/owl/research_and_citation/resources.html"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The essay you can’t remember writing",
+        "scenario": "You are cleaning out your school drive and you open an essay from last semester — one that got a decent grade. You read the first paragraph and feel nothing. You do not remember writing it, because mostly you did not: AI drafted it and you swapped a few words. Your name is at the top of a page you could not quote a single line from.",
+        "prompt": "The grade was fine. So what exactly went missing?"
+      },
+      {
+        "kind": "classify",
+        "title": "Whose voice is it?",
+        "prompt": "Sort each move by whether the writing and thinking stay yours.",
+        "buckets": [
+          "Keeps your voice",
+          "Hands over your voice"
+        ],
+        "items": [
+          {
+            "text": "“Write my personal statement about my grandmother’s restaurant.”",
+            "answer": 1
+          },
+          {
+            "text": "“Here is my messy draft. Mark where my argument is unclear — do not rewrite my sentences.”",
+            "answer": 0
+          },
+          {
+            "text": "Asking AI to interview you with questions before you write a word",
+            "answer": 0
+          },
+          {
+            "text": "Pasting AI’s conclusion into your essay and changing three words",
+            "answer": 1
+          }
+        ],
+        "reveal": "The line is not “did AI touch it.” The line is who did the thinking and who chose the words. Feedback, questions, and gap-spotting keep you the writer. Generated sentences make you the editor of someone else’s essay."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the ghostwriter prompt",
+        "weak": "Write me a five-paragraph essay about social media for my English class.",
+        "fields": [
+          "My own claim or angle",
+          "What I already wrote or believe",
+          "The job AI should do instead of writing",
+          "What AI must leave alone"
+        ],
+        "strong": "My claim: social media rewards outrage more than accuracy. Here is my rough draft: [paste draft]. Do not rewrite my sentences. Point out the two weakest spots in my argument, ask me three questions that would sharpen my claim, and list any statements I would need a real source for. Leave my wording and examples exactly as they are."
+      },
+      {
+        "kind": "reveal",
+        "title": "Draft first, then borrow the editor",
+        "body": "The order matters. If you draft first — even a rough, awkward draft — AI can react to your ideas, and the voice stays yours. If AI drafts first, every revision happens inside its structure and phrasing, and your job quietly shrinks to approving someone else’s essay. For research it is the same rule: AI is a map, not a source. It can suggest what to look up, what the sides of a debate are, and what terms to search — but the sources you cite have to be ones you actually opened, because AI can describe papers and quotes that do not exist.",
+        "mistake": "Asking AI to write the first draft “just to get started,” then spending the night lightly editing its voice instead of writing in yours.",
+        "good": "Write the ugly first draft yourself, then ask AI for questions, weak spots, and claims to verify — and check every source it mentions before it goes near your bibliography."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here is a paragraph I wrote: [paste your paragraph]. Do not rewrite it or suggest replacement sentences. Instead: 1) Tell me where my argument is weakest and why. 2) Ask me two questions that would make my point sharper. 3) List any claim in my paragraph that needs a real source, and tell me what kind of source would be strong. My wording stays mine.",
+        "note": "Run this on real homework or work writing. If the answers make you want to revise, you are using AI as an editor — the best kind of help."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your writer-stays-in-charge card",
+        "cardType": "Writing rules",
+        "fields": [
+          {
+            "key": "myJob",
+            "label": "What I do before AI sees anything",
+            "placeholder": "my claim, my rough draft, my examples"
+          },
+          {
+            "key": "aiJob",
+            "label": "What AI is allowed to do",
+            "placeholder": "questions, weak spots, claims to verify"
+          },
+          {
+            "key": "offLimits",
+            "label": "What AI never writes for me",
+            "placeholder": "my sentences, personal stories, conclusions"
+          },
+          {
+            "key": "sourceRule",
+            "label": "My source rule",
+            "placeholder": "only cite what I opened and read myself"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "The essay is due tomorrow and you are behind. Which use of AI keeps your voice?",
+        "options": [
+          {
+            "text": "Write a rough draft yourself, then ask AI for weak spots, questions, and claims to verify",
+            "ok": true,
+            "feedback": "Right. AI reacts to your ideas instead of replacing them, and the words stay yours."
+          },
+          {
+            "text": "Let AI write the first draft, then spend your time rewording it until the sentences feel more like yours",
+            "ok": false,
+            "feedback": "Rewording is still editing AI’s thinking. The structure, argument, and most of the phrasing stay borrowed."
+          },
+          {
+            "text": "Ask AI for finished paragraphs and list it as a source in your bibliography so everything stays honest",
+            "ok": false,
+            "feedback": "Citing it is honest, but the essay still is not your writing — and AI is not a reliable source of facts. MLA citation covers AI text you quote, not AI as evidence."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-20",
+    "num": 20,
+    "arc": "Applying",
+    "title": "Coding & debugging",
+    "coreQuestion": "How do I use AI as a coding coach, not a crutch?",
+    "blurb": "Use AI to write and fix code without losing the one skill that makes you a programmer: knowing why your code works.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "How to debug small programs (Eric Lippert)",
+        "url": "https://ericlippert.com/2014/03/05/how-to-debug-small-programs/"
+      },
+      {
+        "label": "How to ask a good programming question (Stack Overflow)",
+        "url": "https://stackoverflow.com/help/how-to-ask"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The code that works until it doesn’t",
+        "scenario": "You ask AI for a function, paste in the 60 lines it gives you, and your project runs. A week later it crashes on one input — and you realize you cannot explain a single line of what you pasted.",
+        "prompt": "Whose code is it now? And who is going to fix it?"
+      },
+      {
+        "kind": "classify",
+        "title": "Who is still the programmer?",
+        "prompt": "Sort each move by whether it keeps you in charge of your program or quietly hands your understanding to the AI.",
+        "buckets": [
+          "Keeps you in charge",
+          "Hands over understanding"
+        ],
+        "items": [
+          {
+            "text": "Pasting the exact error message and asking what it means before asking for a fix",
+            "answer": 0
+          },
+          {
+            "text": "Pasting in 60 lines you cannot read and shipping them because they run",
+            "answer": 1
+          },
+          {
+            "text": "Asking why the suggested fix works before you apply it",
+            "answer": 0
+          },
+          {
+            "text": "Letting AI rewrite the whole file when one function failed",
+            "answer": 1
+          }
+        ],
+        "reveal": "Running is not the same as understood. Every line you cannot explain is a line you cannot debug next week."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the bug report",
+        "weak": "my code doesn't work, fix it",
+        "fields": [
+          "Language and setup",
+          "Exact error message or wrong output",
+          "Expected vs. actual behavior",
+          "What you already tried"
+        ],
+        "strong": "I'm writing Python 3 for a class project. This function should return the average of a list, but on an empty list it crashes with: ZeroDivisionError: division by zero (line 4). Expected: return 0 for an empty list. Actual: crash. I tried wrapping it in try/except but that hid a different bug. Explain what is going wrong before suggesting any fix."
+      },
+      {
+        "kind": "reveal",
+        "title": "Explain-first debugging",
+        "body": "AI is genuinely good at reading error messages, spotting typos, and drafting code. The danger is not that its code is bad — it is that accepting fixes you do not understand slowly turns your own project into a stranger’s codebase. The rule that protects you: explanation before fix. Make the AI teach you the bug, then make the change yourself.",
+        "mistake": "Pasting in a fix because the error went away, without knowing why it went away.",
+        "good": "Ask “what does this error mean, and which line causes it?” first. Apply the fix by typing it yourself, and only keep code you could explain to a classmate."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "Here is my code: [paste code]. Here is the error or wrong output: [paste it]. Do NOT rewrite my code yet. First, explain in plain language what the error means. Second, point to the most likely line and explain why. Third, give me a hint so I can try the fix myself. Only show a full corrected version if I ask for it.",
+        "note": "This turns AI into a debugging tutor instead of a vending machine for code you cannot maintain."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a debug routine card",
+        "cardType": "Debug routine",
+        "fields": [
+          {
+            "key": "reproduce",
+            "label": "Reproduce it",
+            "placeholder": "smallest input that still breaks it"
+          },
+          {
+            "key": "report",
+            "label": "What I tell the AI",
+            "placeholder": "language, exact error, expected vs. actual, what I tried"
+          },
+          {
+            "key": "explainFirst",
+            "label": "Explain-first rule",
+            "placeholder": "AI explains the bug before I see any fix"
+          },
+          {
+            "key": "ownership",
+            "label": "Ownership check",
+            "placeholder": "I type the fix and can explain every changed line"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "AI hands you a working fix for your broken function. What keeps you the programmer?",
+        "options": [
+          {
+            "text": "Apply the fix for now and keep moving — if something in that code breaks again later, that's a better moment to dig into what actually went wrong",
+            "ok": false,
+            "feedback": "Tempting, but the next bug probably won't look like this one — and by then the fix is weeks old and you can't explain the line that broke. Understanding is cheapest right now, while the error is fresh."
+          },
+          {
+            "text": "Ask the AI to explain the bug and the fix until you could explain it yourself, then apply it",
+            "ok": true,
+            "feedback": "Right. Explanation before fix keeps the program yours, even when AI helped write it."
+          },
+          {
+            "text": "Ask the AI to review the surrounding code too and clean it up while it's at it, since related bugs tend to hide near each other",
+            "ok": false,
+            "feedback": "Related bugs do cluster, but letting AI rework code you haven't understood yet just grows the pile of lines you can't explain. Understand this one fix first — expand the cleanup later if you choose to."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-21",
+    "num": 21,
+    "arc": "Applying",
+    "title": "Creative work",
+    "coreQuestion": "How do I keep originality and ownership with AI?",
+    "blurb": "Use AI as a reaction partner for your stories, songs, and designs — without letting it sand off the weird parts that make the work yours.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Ethan Mollick — Automating creativity (One Useful Thing)",
+        "url": "https://www.oneusefulthing.org/p/automating-creativity"
+      },
+      {
+        "label": "Study: generative AI boosts individual creativity but reduces collective diversity (arXiv)",
+        "url": "https://arxiv.org/abs/2312.00506"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The rewrite that erased you",
+        "scenario": "You paste a verse you wrote for a song — a little awkward, but it sounds like you — and ask AI to 'make it better.' It comes back smoother, cleaner, and somehow exactly like every other song lyric on the internet. Your weird line about the broken vending machine is gone.",
+        "prompt": "Smoother is not the same as better. What did you actually trade away?"
+      },
+      {
+        "kind": "classify",
+        "title": "Keep the voice or lose it?",
+        "prompt": "You are working on a story, a song, a comic, a design — anything creative. Sort each move by what it does to your style.",
+        "buckets": [
+          "Flattens your style",
+          "Keeps you the author"
+        ],
+        "items": [
+          {
+            "text": "Paste your draft and ask AI to rewrite the whole thing to sound better",
+            "answer": 0
+          },
+          {
+            "text": "Ask AI to list 15 directions the next scene could go, then write the one you pick yourself",
+            "answer": 1
+          },
+          {
+            "text": "Ask AI to point at the lines that feel flat or confusing — without rewriting them",
+            "answer": 1
+          },
+          {
+            "text": "Accept the AI version because it sounds more professional than yours",
+            "answer": 0
+          },
+          {
+            "text": "Show AI two of your old pieces first, so its feedback is about your voice, not a generic one",
+            "answer": 1
+          }
+        ],
+        "reveal": "The pattern: AI is safest as a reaction partner — generating options, spotting weak points, asking questions. The moment it writes the final words, the average voice starts replacing yours."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the flattening prompt",
+        "weak": "Make my story better.",
+        "fields": [
+          "What stays mine (the part AI must not rewrite)",
+          "The job AI does instead (critique, options, questions)",
+          "Style sample or reference (so feedback fits MY voice)",
+          "What 'better' means here (pacing? clarity? ending?)"
+        ],
+        "strong": "Here are two paragraphs I wrote before, so you know my voice: [paste samples]. Now here is my new story draft: [paste draft]. Do NOT rewrite it. Instead: (1) mark the three places where the pacing drags, (2) ask me two questions about what the main character wants, and (3) list five possible endings as one-line ideas only. I will do the writing."
+      },
+      {
+        "kind": "reveal",
+        "title": "Why AI flattens, and what to do about it",
+        "body": "AI is trained to predict the most likely next words, so its default output drifts toward the most common version of everything — the average song, the average plot, the average poster. Research backs this up: AI help can make individual drafts score better while making everyone's work more alike. Your style lives in the un-average choices. So flip the roles: you make the choices, AI reacts to them — critiquing, questioning, and generating options you can reject.",
+        "mistake": "Treating the AI rewrite as the finish line because it reads smoother than your draft.",
+        "good": "Treat AI output as raw material and reactions. The final pass — word choice, weird details, what gets cut — is always yours."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I am working on a creative piece and I want feedback that protects my style, not a rewrite. First, here is a sample of my past work so you can hear my voice: [paste a short sample]. Now here is the current draft: [paste draft]. Do not rewrite any of it. Instead: 1) describe my voice in two sentences, 2) point at the three weakest spots and say WHY they are weak, 3) ask me three questions that would push the piece further, and 4) give me 8 one-line directions I could take next — including at least 2 strange ones.",
+        "note": "Works for stories, lyrics, scripts, art descriptions, even design briefs. Notice how different the session feels when AI is reacting to you instead of replacing you."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a style guard card",
+        "cardType": "Style guard",
+        "fields": [
+          {
+            "key": "voiceMarkers",
+            "label": "My voice markers",
+            "placeholder": "short sentences, dark jokes, concrete details..."
+          },
+          {
+            "key": "aiJobs",
+            "label": "Jobs AI is allowed to do",
+            "placeholder": "critique, options, questions, research"
+          },
+          {
+            "key": "offLimits",
+            "label": "Off limits for AI",
+            "placeholder": "final wording, the ending, my hooks"
+          },
+          {
+            "key": "flattenCheck",
+            "label": "My flattening check",
+            "placeholder": "could anyone have made this exact thing?"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "You wrote a song verse you mostly like. What is the best way to use AI on it?",
+        "options": [
+          {
+            "text": "Ask AI for a polished rewrite, then put it next to your draft and keep whichever version honestly reads better to you",
+            "ok": false,
+            "feedback": "The comparison feels fair, but smoother usually wins it — and smoother is the average voice. Polish is where flattening happens, even when you are the judge."
+          },
+          {
+            "text": "Ask AI to react: name the weakest line, ask questions, and list directions — then revise it yourself",
+            "ok": true,
+            "feedback": "Right. AI generates reactions and options; you make the creative choices that carry your style."
+          },
+          {
+            "text": "Have AI generate several alternate verses in roughly your style, and pick the one that feels closest to what you meant",
+            "ok": false,
+            "feedback": "Even 'in your style' drifts toward the average, and picking between AI verses is not the same as writing one. Choosing is not where your voice develops."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-22",
+    "num": 22,
+    "arc": "Applying",
+    "title": "Personal productivity",
+    "coreQuestion": "How do I use AI to plan without outsourcing my judgment?",
+    "blurb": "Find the tasks where AI genuinely buys your time back — and spot the ones where it just gives you a shinier way to stall.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Nielsen Norman Group: AI tools and productivity gains",
+        "url": "https://www.nngroup.com/articles/ai-tools-productivity-gains/"
+      },
+      {
+        "label": "Centaurs and cyborgs on the jagged frontier (Ethan Mollick on the Harvard/BCG study)",
+        "url": "https://www.oneusefulthing.org/p/centaurs-and-cyborgs-on-the-jagged"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The 40-minute to-do list",
+        "scenario": "It is Sunday night. You ask AI to plan your week. Twenty minutes later you are still regenerating the plan, tweaking its wording, and asking for a “better” version. Your homework has not moved. You feel productive. You are not.",
+        "prompt": "Did the AI save you time tonight, or did it just make stalling feel like work?"
+      },
+      {
+        "kind": "classify",
+        "title": "Time saved or time laundered?",
+        "prompt": "Sort each real-life move by whether it genuinely buys time back or quietly burns it.",
+        "buckets": [
+          "Actually saves time",
+          "Quietly wastes time"
+        ],
+        "items": [
+          {
+            "text": "Paste your syllabus and ask for every deadline as a dated checklist",
+            "answer": 0
+          },
+          {
+            "text": "Ask “plan my week” without telling it your classes, shifts, or deadlines",
+            "answer": 1
+          },
+          {
+            "text": "Draft a routine email (a reschedule request, a club reminder) that you edit and send",
+            "answer": 0
+          },
+          {
+            "text": "Regenerate the same answer five times hoping it magically gets better",
+            "answer": 1
+          },
+          {
+            "text": "Polish the wording of a to-do list instead of doing the first item on it",
+            "answer": 1
+          }
+        ],
+        "reveal": "AI saves time when it transforms input you already have — notes, a syllabus, a messy draft. It wastes time when you ask it to invent your life from nothing, or when fiddling with the output replaces doing the task."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair the productivity prompt",
+        "weak": "Help me be more productive this week.",
+        "fields": [
+          "What I actually have to get done",
+          "The real time slots I have free",
+          "What I will paste in (notes, syllabus, deadlines)",
+          "What a useful answer looks like"
+        ],
+        "strong": "I have a biology test Friday, a 5-page history draft due Thursday, and work shifts Tuesday and Wednesday 4–8pm. I'm free Monday after 5, Thursday after 3, and Sunday afternoon. Here are my class notes and the essay prompt: [paste]. Make me a day-by-day plan that fits those slots, puts the hardest work earliest, and flags anything that won't fit so I can cut or ask for an extension."
+      },
+      {
+        "kind": "reveal",
+        "title": "The honest math of saved time",
+        "body": "AI saves time on tasks with three properties: you can hand it the real input, you can judge the output fast, and the output is a draft you finish — not a decision it makes for you. Summarizing your own notes, turning a syllabus into deadlines, and first drafts of routine messages all pass. Vague life-planning, endless regeneration, and outsourcing the thinking you needed to practice all fail — they cost time now or cost you more later when the “learning” didn't happen.",
+        "mistake": "Counting the time AI spends typing as time you saved, while ignoring the 25 minutes you spent prompting, re-prompting, and reformatting.",
+        "good": "Before using AI on a task, estimate doing it yourself. If prompting plus checking is not clearly faster — or if the struggle was the point, like studying — just do the task."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Run a time audit on your real week",
+        "prompt": "Here are three tasks eating my time this week: [task 1], [task 2], [task 3]. For each one, tell me honestly: (1) could AI realistically save time, or would it just add a step? (2) what exact input would I have to give you for the output to be useful? (3) which part should I still do myself — because of accuracy, privacy, or because it's the part I need to learn? Be blunt. If AI is the slower option for one of these, say so.",
+        "note": "Run this in any chatbot with your actual tasks. The most useful answer is often the one telling you not to use AI."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a time-audit card",
+        "cardType": "Time audit",
+        "fields": [
+          {
+            "key": "task",
+            "label": "Recurring task AI genuinely speeds up",
+            "placeholder": "syllabus to deadline list, first-draft emails"
+          },
+          {
+            "key": "input",
+            "label": "Input I must paste in first",
+            "placeholder": "my notes, the syllabus, my real schedule"
+          },
+          {
+            "key": "timebox",
+            "label": "My time box",
+            "placeholder": "if prompting passes 10 minutes, do it myself"
+          },
+          {
+            "key": "noAiZone",
+            "label": "Task I keep AI out of",
+            "placeholder": "studying for tests, messages to friends"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "Which daily task is AI most likely to genuinely save you time on?",
+        "options": [
+          {
+            "text": "Turning a syllabus you paste in into a dated deadline checklist you double-check",
+            "ok": true,
+            "feedback": "Right. Real input, fast-to-verify output, and you stay the editor — that is the sweet spot."
+          },
+          {
+            "text": "Asking it to plan your week before giving it your classes, shifts, or deadlines, figuring you can correct the details once you see a draft",
+            "ok": false,
+            "feedback": "Without your real constraints, it can only produce a generic plan — you spend the saved time fixing it."
+          },
+          {
+            "text": "Having it condense your notes before a test so you can study from the shorter version instead of working back through everything",
+            "ok": false,
+            "feedback": "That feels fast but offloads the exact struggle that makes the material stick. The cost shows up on test day."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-23",
+    "num": 23,
+    "arc": "Applying",
+    "title": "Business & workflows",
+    "coreQuestion": "How do I turn a messy task into an AI-assisted workflow?",
+    "blurb": "Use AI at work for real tasks — emails, notes, summaries — without leaking private data or sending unchecked output.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "NIST AI Risk Management Framework",
+        "url": "https://www.nist.gov/itl/ai-risk-management-framework"
+      },
+      {
+        "label": "OECD AI Principles",
+        "url": "https://oecd.ai/en/ai-principles"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The intern with no judgment",
+        "scenario": "A teammate pastes a customer’s complaint — name, account number, full history — into a free chatbot and asks for a reply. The draft sounds professional, so they hit send. Two risks just happened, and neither one was the writing.",
+        "prompt": "Can you name both risks before this lesson does?"
+      },
+      {
+        "kind": "classify",
+        "title": "Safe task or new risk?",
+        "prompt": "Real workplace moves. Sort each one by whether it is a careful use of AI or whether it just created a new risk.",
+        "buckets": [
+          "Careful use",
+          "New risk"
+        ],
+        "items": [
+          {
+            "text": "Drafting a routine status-update email, then reading and editing it before sending",
+            "answer": 0
+          },
+          {
+            "text": "Pasting a customer’s name, account number, and complaint into a public chatbot",
+            "answer": 1
+          },
+          {
+            "text": "Turning your own messy meeting notes into action items you double-check",
+            "answer": 0
+          },
+          {
+            "text": "Letting AI auto-send replies to clients with no one reading them first",
+            "answer": 1
+          },
+          {
+            "text": "Uploading a confidential contract to a free tool to summarize the terms",
+            "answer": 1
+          },
+          {
+            "text": "Asking AI to explain a spreadsheet formula a coworker built",
+            "answer": 0
+          }
+        ],
+        "reveal": "Every risky one breaks the same two rules: private data went in, or unchecked output went out. The careful ones keep both doors guarded."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the safe email workflow",
+        "goal": "Your team gets the same kinds of customer-question emails every week. Use AI to answer them faster — without leaking data or sending a mistake.",
+        "correct": [
+          "Strip names, account numbers, and private details from the email",
+          "Ask AI to draft a reply in the team’s tone",
+          "Check the draft for wrong promises or made-up policy",
+          "Add the real customer details back yourself",
+          "A human approves before anything is sent"
+        ],
+        "note": "Notice the shape: redact before AI sees it, verify before anyone else sees it. That shape works for almost any team task."
+      },
+      {
+        "kind": "reveal",
+        "title": "Two doors, two guards",
+        "body": "Team AI risk is not really about the AI. It is about two doors: what goes IN (customer data, contracts, anything confidential) and what goes OUT (replies, summaries, decisions that reach real people). A safe workflow guards both — redact the input, and put a named human between the output and the world. Speed is fine; skipping the check is what causes the incident.",
+        "mistake": "Treating a polished draft as a finished one. Confident-sounding output is exactly when teams stop reading carefully.",
+        "good": "Decide before you start: what gets redacted, who checks the output, and whose name is on the send button."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I want to use AI for this work task: [describe the task]. Before I start, help me risk-check it. 1) List what information I would be sharing and flag anything private, confidential, or owned by a customer. 2) Tell me who would see the output and what happens if it is wrong. 3) Tell me where the human review step should go. Then show me a redacted version of my input that is still useful.",
+        "note": "Run this on a real task — a school club email, a part-time job message, a group project doc. The two-door check works at any scale."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a workflow risk card",
+        "cardType": "Workflow risk card",
+        "fields": [
+          {
+            "key": "task",
+            "label": "Repeated work task",
+            "placeholder": "answer customer emails, summarize meetings"
+          },
+          {
+            "key": "redact",
+            "label": "What never goes in",
+            "placeholder": "names, account numbers, confidential files"
+          },
+          {
+            "key": "check",
+            "label": "Output check",
+            "placeholder": "wrong promises, made-up policy, off tone"
+          },
+          {
+            "key": "approver",
+            "label": "Who approves before send",
+            "placeholder": "me, my manager, the account owner"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "A teammate wants AI to draft replies to customer complaints. What makes the plan safe?",
+        "options": [
+          {
+            "text": "Switch to a paid business tool with a data agreement, since the company has presumably vetted how it handles customer information",
+            "ok": false,
+            "feedback": "A vetted tool helps with the input side, maybe — but it does nothing about unreviewed replies going out. The tool choice cannot replace guarding both doors."
+          },
+          {
+            "text": "Redact private details going in, and have a person review every reply going out",
+            "ok": true,
+            "feedback": "Right. Guard both doors: what the AI sees, and what reaches the customer."
+          },
+          {
+            "text": "Start with low-stakes complaints, and once the drafts have looked solid for a few weeks, let it handle most replies on its own",
+            "ok": false,
+            "feedback": "A trial period feels careful, but past drafts being good does not make the next one safe. The review step is what catches the bad one — removing it removes the safety."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-24",
+    "num": 24,
+    "arc": "Applying",
+    "title": "Teachers & classrooms",
+    "coreQuestion": "How can a teacher use AI without replacing thinking?",
+    "blurb": "AI can save a teacher hours — and quietly wreck an assignment. Learn where it helps, why detectors fail, and how to design work where the learning stays visible.",
+    "minutes": 10,
+    "status": "published",
+    "resources": [
+      {
+        "label": "UNESCO: Guidance for generative AI in education and research",
+        "url": "https://www.unesco.org/en/articles/guidance-generative-ai-education-and-research"
+      },
+      {
+        "label": "Common Sense Media: AI product reviews for schools and families",
+        "url": "https://www.commonsensemedia.org/ai-ratings"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "Two teachers, same tool",
+        "scenario": "One teacher uses AI to write three versions of the same worked example — one for students who missed last week, one on grade level, one for students who are ahead. Another teacher runs every essay through an AI detector and fails anyone who scores above 60%. Same technology, very different judgment.",
+        "prompt": "Which classroom would you rather be in — and what exactly is the second teacher getting wrong?"
+      },
+      {
+        "kind": "classify",
+        "title": "Good use or redesign needed?",
+        "prompt": "Sort each classroom move: is the teacher using AI well, or is this a move that needs a redesign or a stop?",
+        "buckets": [
+          "Good use, teacher in charge",
+          "Risky — redesign or stop"
+        ],
+        "items": [
+          {
+            "text": "Drafting the same worked example at three reading levels, then checking each for errors",
+            "answer": 0
+          },
+          {
+            "text": "Failing a student because an AI detector flagged their essay",
+            "answer": 1
+          },
+          {
+            "text": "Generating practice quiz questions, then verifying every answer against the textbook",
+            "answer": 0
+          },
+          {
+            "text": "Pasting a student's grades and learning-plan details into a public chatbot",
+            "answer": 1
+          },
+          {
+            "text": "Asking AI for five ways students might misunderstand tomorrow's topic",
+            "answer": 0
+          },
+          {
+            "text": "Letting AI write report-card comments and sending them without reading",
+            "answer": 1
+          }
+        ],
+        "reveal": "The pattern: AI is great for drafts, variations, and anticipating confusion — things the teacher checks before students see them. It fails when it becomes the judge of a student or a leak of their private data. Detectors are unreliable and flag innocent work, especially from students writing in a second language."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Redesign the assignment, not the surveillance",
+        "goal": "An essay assignment is easy to complete with AI and learn nothing. Redesign it so the learning stays visible — without relying on detectors.",
+        "correct": [
+          "Name the skill the assignment actually measures",
+          "Set a clear AI-use rule students can actually follow",
+          "Require process evidence: outline, draft, and what changed",
+          "Add an in-class or oral component tied to their own draft",
+          "Grade the thinking and revisions, not just the polished page"
+        ],
+        "note": "Each step builds on the last: you cannot write a fair AI rule until you know what skill you are measuring, and process evidence only means something if the grade actually looks at it. Detectors guess; this design makes the learning observable."
+      },
+      {
+        "kind": "reveal",
+        "title": "Design beats detection",
+        "body": "Teachers who use AI well treat it like a tireless assistant for visible work — differentiated examples, quiz drafts, anticipated misconceptions — and keep two things firmly human: judging students and protecting their data. And the answer to misuse is not a detector arms race. It is assignments where the thinking has to show up — drafts, revisions, in-class explanations — so using AI as a shortcut stops paying off.",
+        "mistake": "Treating an AI detector score as proof. Detectors misfire often enough that they have falsely accused real students, and they disproportionately flag non-native English writers.",
+        "good": "If work seems off, talk to the student about their own draft. Someone who wrote it can explain it; that conversation is fairer and more accurate than any score."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I teach [subject] to [grade level]. Here is an assignment: [paste assignment]. First, show me the three easiest ways a student could complete it with AI while learning nothing. Then suggest a redesign that keeps the learning visible — process evidence, in-class components, or oral checks — and a one-sentence AI-use rule I could give students.",
+        "note": "This works for teachers, tutors, club leaders — anyone who assigns work. You are using AI to red-team the assignment before students do."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save an assignment design card",
+        "cardType": "AI-aware assignment",
+        "fields": [
+          {
+            "key": "skill",
+            "label": "Skill it really measures",
+            "placeholder": "argument building, problem solving, source analysis"
+          },
+          {
+            "key": "aiRule",
+            "label": "AI-use rule in one sentence",
+            "placeholder": "AI for brainstorming only; every draft is yours"
+          },
+          {
+            "key": "processEvidence",
+            "label": "Process evidence required",
+            "placeholder": "outline, messy draft, note on what changed"
+          },
+          {
+            "key": "humanCheck",
+            "label": "In-person check",
+            "placeholder": "2-minute explanation of your own argument"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "A teacher suspects an essay was AI-written. What is the strongest move?",
+        "options": [
+          {
+            "text": "Compare the essay with the student's earlier work, and if the style seems different, use an AI detector score to back up that impression",
+            "ok": false,
+            "feedback": "It sounds careful, but it stacks two guesses. Style shifts for honest reasons — a new topic, more revision, growth — and detectors misfire often, especially on students writing in a second language. A hunch plus a shaky score is still not evidence."
+          },
+          {
+            "text": "Ask the student to walk through their draft and explain their own argument",
+            "ok": true,
+            "feedback": "Right. A student who did the thinking can show the thinking. That conversation is fairer and more accurate than any detector — and better assignment design makes it routine, not an accusation."
+          },
+          {
+            "text": "Give this essay the benefit of the doubt, since nothing can be proven, and tighten the assignment's AI rules going forward",
+            "ok": false,
+            "feedback": "Better rules for next time are genuinely useful — but \"nothing can be proven\" gives up too early. You can learn a lot right now by having the student talk through their own draft. Skipping that skips the fairest evidence available."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-25",
+    "num": 25,
+    "arc": "Building",
+    "title": "From prompt to workflow",
+    "coreQuestion": "How do I chain prompts into a repeatable workflow?",
+    "blurb": "Turn a repeated AI task into a small system with inputs, checks, saved output, and a human approval point.",
+    "minutes": 12,
+    "resources": [],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The repeated-task problem",
+        "scenario": "You keep asking AI to help with the same kind of task: summarize notes, make a study plan, check a draft, or turn ideas into a project outline. Each time, you rewrite the prompt from scratch.",
+        "prompt": "A workflow is how you stop starting over. It turns one useful prompt into a repeatable path."
+      },
+      {
+        "kind": "classify",
+        "title": "Sort the pieces",
+        "prompt": "Decide whether each piece is a one-off prompt, a workflow step, or unsafe automation.",
+        "buckets": [
+          "One-off prompt",
+          "Workflow step",
+          "Unsafe automation"
+        ],
+        "items": [
+          {
+            "text": "“Explain this paragraph.”",
+            "answer": 0
+          },
+          {
+            "text": "Collect the input before asking AI to transform it.",
+            "answer": 1
+          },
+          {
+            "text": "Send the AI answer automatically without anyone checking it.",
+            "answer": 2
+          },
+          {
+            "text": "Compare the output against a rubric before saving it.",
+            "answer": 1
+          }
+        ],
+        "reveal": "A workflow is not more magic. It is a safer sequence of small steps."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the safe order",
+        "goal": "Create a repeatable workflow for turning messy class notes into a useful study guide.",
+        "correct": [
+          "Collect the notes and goal",
+          "Ask AI for a first draft",
+          "Check facts and missing parts",
+          "Revise the prompt or output",
+          "Save the final study guide",
+          "Decide what still needs human review"
+        ],
+        "note": "The order matters because AI output should be inspected before it becomes something you rely on."
+      },
+      {
+        "kind": "reveal",
+        "title": "What changed?",
+        "body": "A prompt asks for one answer. A workflow defines the input, the AI job, the check, the saved artifact, and the human approval point. That is how you begin building with AI instead of only chatting with it.",
+        "mistake": "Skipping the check step because the AI answer sounds polished.",
+        "good": "Make the check part of the workflow so quality is not optional."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your first workflow card",
+        "cardType": "Workflow card",
+        "fields": [
+          {
+            "key": "task",
+            "label": "Repeated task",
+            "placeholder": "Example: turn notes into a study guide"
+          },
+          {
+            "key": "input",
+            "label": "Input needed",
+            "placeholder": "What you give the AI first"
+          },
+          {
+            "key": "instruction",
+            "label": "AI instruction",
+            "placeholder": "What the AI should do"
+          },
+          {
+            "key": "check",
+            "label": "Verification check",
+            "placeholder": "How you catch weak or wrong output"
+          },
+          {
+            "key": "approval",
+            "label": "Human approval point",
+            "placeholder": "What you decide before using it"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Exit check",
+        "question": "Which version is a real workflow?",
+        "options": [
+          {
+            "text": "Ask AI to “make it better” until it sounds good",
+            "ok": false,
+            "feedback": "That is still a loose conversation, not a repeatable path."
+          },
+          {
+            "text": "Input → AI draft → check → revise → save → human approval",
+            "ok": true,
+            "feedback": "Right. The workflow includes checks and a decision point."
+          },
+          {
+            "text": "Let AI receive, rewrite, and send everything automatically",
+            "ok": false,
+            "feedback": "That removes the safety and judgment steps."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-26",
+    "num": 26,
+    "arc": "Building",
+    "title": "Designing AI tools",
+    "coreQuestion": "How do I design a small AI-powered tool?",
+    "blurb": "Your best prompt works because of context in your head. A tool packs that context into the instructions, so it works for someone who was never in your chat.",
+    "minutes": 11,
+    "resources": [
+      {
+        "label": "Anthropic: Prompt engineering overview",
+        "url": "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview"
+      },
+      {
+        "label": "Google People + AI Guidebook — designing AI tools people can use",
+        "url": "https://pair.withgoogle.com/guidebook/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The prompt that only works for you",
+        "scenario": "You built a prompt that turns your club's event details into a clean announcement post. It works every time. A friend asks for it, pastes it into a fresh chat, and gets junk: wrong tone, missing details, made-up dates.",
+        "prompt": "Nothing broke. The prompt was leaning on context that lived in your head and your chat history. A tool cannot lean on that."
+      },
+      {
+        "kind": "classify",
+        "title": "Shareable or stuck in your head?",
+        "prompt": "You are packaging your announcement prompt for the rest of the club. Sort each line: would it survive in a stranger's fresh chat, or does it secretly depend on you?",
+        "buckets": [
+          "Works for a stranger",
+          "Depends on hidden context"
+        ],
+        "items": [
+          {
+            "text": "“Write it like we did last time.”",
+            "answer": 1
+          },
+          {
+            "text": "“Using only the event details pasted below, write a 3-sentence announcement.”",
+            "answer": 0
+          },
+          {
+            "text": "“Use the usual tone.”",
+            "answer": 1
+          },
+          {
+            "text": "“If the date, time, or location is missing, ask for it instead of guessing.”",
+            "answer": 0
+          },
+          {
+            "text": "“You know what our advisor wants.”",
+            "answer": 1
+          }
+        ],
+        "reveal": "“Last time,” “the usual,” and “you know” are pointers to context only you have. A tool spells that context out so a fresh chat — and a new user — gets the same result you do."
+      },
+      {
+        "kind": "promptRepair",
+        "title": "Repair it into a tool",
+        "weak": "Make an announcement for the club thing. You know the vibe.",
+        "fields": [
+          "The tool's one job (one sentence)",
+          "Input slots the user fills in, like [EVENT NAME] and [DATE]",
+          "Exact output format (length, tone, structure)",
+          "Rule for missing or bad input"
+        ],
+        "strong": "You write event announcements for a high-school robotics club. Job: turn raw event details into one post. Inputs the user will paste: [EVENT NAME], [DATE & TIME], [LOCATION], [ONE THING THAT MAKES IT FUN]. Output: exactly 3 sentences, friendly but not slangy, ending with where to sign up. If any input slot is empty or contradictory, list what is missing and stop — do not invent details."
+      },
+      {
+        "kind": "reveal",
+        "title": "A tool is a prompt with the context packed in",
+        "body": "A personal prompt borrows from your memory and your chat history. A tool carries everything with it: a one-line job, labeled input slots, a fixed output format, and a rule for bad input. That last one matters most — other people will paste in messy, incomplete stuff you never would, and a tool that quietly invents a date is worse than no tool.",
+        "mistake": "Shipping the prompt exactly as you use it, then blaming the user when it fails.",
+        "good": "Test it cold: open a blank chat, or hand it to one person who was not there, and watch where it breaks before you share it widely."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I have a prompt that works well for me, and I want to turn it into a tool other people can use: [paste your prompt]. First, interview me — ask about any context I am assuming that a stranger would not have. Then rewrite it as a reusable tool with: a one-line job description, labeled input slots in [BRACKETS], a fixed output format, and a rule for what to do when an input is missing or contradictory.",
+        "note": "Run this on a prompt you actually reuse. The interview step usually surfaces two or three assumptions you did not know you were making."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a tool spec card",
+        "cardType": "Tool spec",
+        "fields": [
+          {
+            "key": "job",
+            "label": "One job",
+            "placeholder": "what this tool does, in one sentence"
+          },
+          {
+            "key": "inputs",
+            "label": "Input slots",
+            "placeholder": "[NOTES], [AUDIENCE], [DEADLINE]"
+          },
+          {
+            "key": "format",
+            "label": "Output format",
+            "placeholder": "length, tone, structure"
+          },
+          {
+            "key": "failRule",
+            "label": "Bad-input rule",
+            "placeholder": "ask, don't guess; list what's missing"
+          },
+          {
+            "key": "coldTest",
+            "label": "Cold test",
+            "placeholder": "who tried it in a fresh chat, and what broke"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Exit check",
+        "question": "Your prompt works great for you. What actually turns it into a tool someone else can use?",
+        "options": [
+          {
+            "text": "Add more detail and examples until the prompt feels thorough enough that it should mostly work for other people, even if you cannot predict exactly what they will paste in",
+            "ok": false,
+            "feedback": "Length alone is not the fix. A very detailed prompt can still say “the usual tone” and lean on context only you have — what matters is what the detail covers, not how much there is."
+          },
+          {
+            "text": "Send along your whole chat transcript with the prompt, since seeing how the conversation actually went gives them most of the context they would otherwise be missing",
+            "ok": false,
+            "feedback": "Tempting, but their inputs will differ from yours, and your transcript may carry private details. Pack the context into the instructions instead, so it travels with the tool."
+          },
+          {
+            "text": "Move the hidden context into the prompt itself: one job, labeled input slots, a fixed format, and a rule for missing input — then test it in a fresh chat",
+            "ok": true,
+            "feedback": "Right. A tool carries its context with it, and the cold test proves it."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-27",
+    "num": 27,
+    "arc": "Building",
+    "title": "Intro to agents",
+    "coreQuestion": "What is an agent, and what does it need to act safely?",
+    "blurb": "A chatbot answers you. An agent takes steps and uses tools on your behalf. Learn to tell them apart, and to decide when handing over actions is worth it.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Anthropic: Building effective agents",
+        "url": "https://www.anthropic.com/engineering/building-effective-agents"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "It answered. Then it acted.",
+        "scenario": "You ask a chatbot how to compare three laptops, and it explains how. A friend shows you something different: they type a budget, and the AI searches stores, reads reviews, builds a comparison table, and drafts an email asking a seller about warranty — all on its own.",
+        "prompt": "Same kind of model underneath. So what actually changed?"
+      },
+      {
+        "kind": "classify",
+        "title": "Chatbot or agent?",
+        "prompt": "Sort each behavior. A chatbot responds inside the conversation. An agent works toward a goal by taking steps and using tools.",
+        "buckets": [
+          "Chatbot behavior",
+          "Agent behavior"
+        ],
+        "items": [
+          {
+            "text": "Explains the difference between two history essay thesis statements you pasted in",
+            "answer": 0
+          },
+          {
+            "text": "Searches three sites, compares ticket prices, and reports back with the cheapest option",
+            "answer": 1
+          },
+          {
+            "text": "Rewrites your club announcement when you ask for a friendlier tone",
+            "answer": 0
+          },
+          {
+            "text": "Checks your calendar, finds a free slot for the study group, and drafts the invite",
+            "answer": 1
+          }
+        ],
+        "reveal": "The dividing line is not how smart the answer sounds. It is whether the AI only replies, or whether it takes actions — searching, reading files, drafting, scheduling — across multiple steps toward your goal."
+      },
+      {
+        "kind": "agentDesign",
+        "title": "Give it only the tools it needs",
+        "goal": "An agent that checks your school email each morning, drafts replies to routine club-scheduling questions, and flags anything important for you to handle yourself.",
+        "tools": [
+          {
+            "name": "Read your inbox",
+            "useful": true
+          },
+          {
+            "name": "Read your club calendar",
+            "useful": true
+          },
+          {
+            "name": "Save replies as drafts for your review",
+            "useful": true
+          },
+          {
+            "name": "Send emails without showing you first",
+            "useful": false
+          },
+          {
+            "name": "Access your payment apps",
+            "useful": false
+          },
+          {
+            "name": "Post to your social media",
+            "useful": false
+          }
+        ]
+      },
+      {
+        "kind": "reveal",
+        "title": "An agent is a chatbot with hands",
+        "body": "An agent is a model plus three things: a goal it keeps working toward, tools it can use (search, files, email, calendar), and a loop where it checks its own progress and tries the next step. That is powerful — and it means mistakes are no longer just wrong sentences. They can be wrong actions. So the question shifts from “is this answer right?” to “what is this allowed to do, and where do I approve before anything real happens?”",
+        "mistake": "Wanting an agent because it sounds advanced, then giving it broad access “to be safe.”",
+        "good": "Want an agent for repetitive multi-step tasks you can describe clearly. Give it the minimum tools, keep actions reversible (drafts, not sends), and keep an approval point where you decide."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I am learning what AI agents are. Here is a task I do repeatedly: [describe your task]. Pretend you are an agent assigned this task. List: (1) the steps you would take in order, (2) the tools or access you would need for each step, (3) the step where a mistake would be hardest to undo, and (4) where a human approval checkpoint should go. Then tell me honestly whether this task even needs an agent, or whether a regular chat prompt would do.",
+        "note": "You are not building an agent yet — you are learning to read one like a plan, which is exactly the skill you need before you trust one."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save an agent fit check",
+        "cardType": "Agent fit check",
+        "fields": [
+          {
+            "key": "task",
+            "label": "Task that might fit an agent",
+            "placeholder": "repetitive, multi-step, clearly describable"
+          },
+          {
+            "key": "tools",
+            "label": "Minimum tools it needs",
+            "placeholder": "read calendar, search web, save drafts"
+          },
+          {
+            "key": "risk",
+            "label": "Hardest action to undo",
+            "placeholder": "sending, deleting, paying, posting"
+          },
+          {
+            "key": "approval",
+            "label": "Where I approve",
+            "placeholder": "before anything is sent or changed"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What is the core difference between an agent and a chatbot?",
+        "options": [
+          {
+            "text": "An agent usually runs on a bigger, more capable model, which is what lets it handle harder tasks than an ordinary chatbot could",
+            "ok": false,
+            "feedback": "Often the model is the same one. The difference is what it is allowed and set up to do, not raw intelligence."
+          },
+          {
+            "text": "An agent takes multi-step actions with tools toward a goal, while a chatbot only responds in the conversation",
+            "ok": true,
+            "feedback": "Right. Goal, tools, and a step-by-step loop — which is also why approval points matter more."
+          },
+          {
+            "text": "Agents tend to end up more accurate, since checking their own work at each step lets them catch mistakes a one-shot chatbot would miss",
+            "ok": false,
+            "feedback": "Agents can compound errors across steps. More autonomy means more places to go wrong, not fewer."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-28",
+    "num": 28,
+    "arc": "Building",
+    "title": "Voice agents & interfaces",
+    "coreQuestion": "What changes when the interface is voice?",
+    "blurb": "Voice makes AI feel more human and hides more errors. Learn when speaking beats typing, what gets misheard, and why a talking agent needs a confirm step before it acts.",
+    "minutes": 10,
+    "resources": [
+      {
+        "label": "Mozilla Common Voice — why voice AI needs diverse accents and languages",
+        "url": "https://commonvoice.mozilla.org/en/about"
+      },
+      {
+        "label": "FTC alert: scammers use AI voice cloning in family-emergency schemes",
+        "url": "https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "The agent that heard you wrong",
+        "scenario": "You tell a voice assistant, “Text Sam I can’t make it.” It cheerfully replies, “Okay, texting Pam: I can make it.” With typing, you would have seen the mistake before hitting send. With voice, the error happened in the air, and the agent was already acting on it.",
+        "prompt": "What did you lose when the keyboard and screen went away — and what did you gain?"
+      },
+      {
+        "kind": "classify",
+        "title": "Voice or screen?",
+        "prompt": "Sort each task by whether voice plays to its strengths or whether you are better off typing and reading.",
+        "buckets": [
+          "Voice fits",
+          "Type and read instead"
+        ],
+        "items": [
+          {
+            "text": "Practicing interview answers or a language conversation out loud",
+            "answer": 0
+          },
+          {
+            "text": "Comparing five options with prices, dates, and trade-offs",
+            "answer": 1
+          },
+          {
+            "text": "Asking quick questions while your hands are busy cooking or walking",
+            "answer": 0
+          },
+          {
+            "text": "Giving an exact ID number, address, or unusual name that must be letter-perfect",
+            "answer": 1
+          }
+        ],
+        "reveal": "Voice is great for hands-free, back-and-forth, and practice. Screens win when you need to skim, compare, or be exact — spoken words vanish, and you cannot reread them."
+      },
+      {
+        "kind": "agentDesign",
+        "title": "Design a phone-line voice agent",
+        "goal": "Build a voice agent that answers your club’s phone line, tells callers the next meeting time, and takes a message for a human to read later.",
+        "tools": [
+          {
+            "name": "Speech-to-text (hear the caller)",
+            "useful": true
+          },
+          {
+            "name": "Text-to-speech (talk back)",
+            "useful": true
+          },
+          {
+            "name": "Read-only access to the club calendar",
+            "useful": true
+          },
+          {
+            "name": "A message log a human reviews",
+            "useful": true
+          },
+          {
+            "name": "Permission to edit or cancel calendar events",
+            "useful": false
+          },
+          {
+            "name": "Access to every member’s private contact list",
+            "useful": false
+          },
+          {
+            "name": "Ability to take payments over the phone",
+            "useful": false
+          }
+        ]
+      },
+      {
+        "kind": "reveal",
+        "title": "What actually changes with voice",
+        "body": "The model behind a voice agent is mostly the same — what changes is the interface. Speech-to-text can mishear you, and you may never see the wrong transcript. Spoken answers are linear, so you cannot skim or double-check mid-sentence. And because a voice sounds human, people trust it faster — which is exactly why voice scams using cloned voices work. So a voice agent that acts on what it hears needs one extra habit: say back what it understood before it does anything.",
+        "mistake": "Letting a voice agent send, book, or buy straight from what it heard, because the conversation felt natural.",
+        "good": "Give voice agents read-only powers by default, and require a spoken confirmation — “You want me to text Sam, correct?” — before any action."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I want to use a voice interface with AI for this task: [describe your task]. Tell me: 1) whether voice or typing fits this task better and why, 2) what is likely to be misheard or lost when it is spoken instead of written (names, numbers, homophones, accents), and 3) one confirmation step I should require before the AI acts on anything I say out loud.",
+        "note": "If your chatbot has a voice mode, try the same question twice — once typed, once spoken — and compare what got lost."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a voice-check card",
+        "cardType": "Voice check",
+        "fields": [
+          {
+            "key": "task",
+            "label": "Task I might do by voice",
+            "placeholder": "dictate notes, practice a talk, ask while driving"
+          },
+          {
+            "key": "fit",
+            "label": "Why voice fits (or doesn’t)",
+            "placeholder": "hands-free and conversational, or needs skimming and exactness"
+          },
+          {
+            "key": "mishearRisk",
+            "label": "What could be misheard",
+            "placeholder": "names, numbers, homophones, my accent on certain words"
+          },
+          {
+            "key": "confirm",
+            "label": "Confirmation before action",
+            "placeholder": "agent repeats it back before sending or booking"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Quick check",
+        "question": "What is the biggest new risk when an AI agent listens and acts instead of showing you text?",
+        "options": [
+          {
+            "text": "Voice systems tend to run on smaller, faster models so they can respond in real time, which means the reasoning behind the answers is probably weaker than what you would get by typing",
+            "ok": false,
+            "feedback": "Reasonable guess, but the model behind a voice agent is usually the same one you would type to. The risk lives in the interface — hearing you and speaking back — not in the intelligence behind it."
+          },
+          {
+            "text": "A mishearing can silently become a wrong action, so the agent should confirm before it acts",
+            "ok": true,
+            "feedback": "Right. Without a screen, you may never see the wrong transcript. A say-it-back confirmation step catches the error before it becomes an action."
+          },
+          {
+            "text": "Spoken conversations tend to be shorter and less detailed than typed ones, so the agent is working from less context and gives you a shallower answer than it could",
+            "ok": false,
+            "feedback": "People do often say less than they would type, but that mostly costs you detail, not safety. The new risk is that you never see what the agent thought you said before it acts on it."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-29",
+    "num": 29,
+    "arc": "Building",
+    "title": "Evaluation & testing",
+    "coreQuestion": "How do I know my AI thing actually works before I share it?",
+    "blurb": "One great demo is not proof. Build a tiny test set, decide what “good” means before you look, and earn the right to hit share.",
+    "minutes": 11,
+    "resources": [
+      {
+        "label": "Anthropic: Create strong empirical evaluations",
+        "url": "https://docs.anthropic.com/en/docs/test-and-evaluate/develop-tests"
+      },
+      {
+        "label": "Hamel Husain: Your AI product needs evals",
+        "url": "https://hamel.dev/blog/posts/evals/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "It worked once. Now what?",
+        "scenario": "You built a study-guide prompt for your bio class. You ran it on your own notes, the output looked amazing, and you are about to send it to the group chat. But you tested it on one input — the exact notes you built it around.",
+        "prompt": "What happens when someone pastes in messy notes, a different subject, or half a chapter?"
+      },
+      {
+        "kind": "classify",
+        "title": "Real test or false confidence?",
+        "prompt": "You want evidence your AI thing works, not just a good feeling. Sort each move.",
+        "buckets": [
+          "False confidence",
+          "Real test"
+        ],
+        "items": [
+          {
+            "text": "It produced one great output on the example I built it with",
+            "answer": 0
+          },
+          {
+            "text": "Run it on five real inputs from classmates, including one messy one",
+            "answer": 1
+          },
+          {
+            "text": "Write down what a good output must include before reading any output",
+            "answer": 1
+          },
+          {
+            "text": "Ask the AI to rate its own answer out of 10",
+            "answer": 0
+          },
+          {
+            "text": "Try an input where the right behavior is to say “I can’t do this”",
+            "answer": 1
+          },
+          {
+            "text": "The output sounds confident and is nicely formatted",
+            "answer": 0
+          }
+        ],
+        "reveal": "A real test uses inputs you did not design around, a definition of “good” you wrote in advance, and at least one case built to break it. Polish, confidence, and self-grading prove nothing."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the test routine",
+        "goal": "Test your study-guide prompt before sharing it with the group chat.",
+        "correct": [
+          "Write down what a good output must include",
+          "Collect five real inputs, including a messy one and a breaker",
+          "Run the prompt on every input",
+          "Score each output against your checklist",
+          "Fix the worst failure and re-run the tests",
+          "Decide if it is good enough to share"
+        ],
+        "note": "The checklist comes first on purpose. If you read outputs before defining “good,” a fluent answer will talk you into lowering the bar."
+      },
+      {
+        "kind": "reveal",
+        "title": "A demo is not evidence",
+        "body": "One great output is a demo: it shows your thing CAN work. Evaluation shows it RELIABLY works — across inputs you did not handpick, judged against criteria you set before looking. Even five honest test cases beat fifty lucky demos, because they tell you where it breaks and whether the failures are ones you can live with.",
+        "mistake": "Testing only on friendly inputs, then being surprised when a real user’s messy, weird, or off-topic input embarrasses you.",
+        "good": "Include at least one hard case and one case where the right answer is “refuse or admit uncertainty.” How it fails matters as much as how it succeeds."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Try it for real",
+        "prompt": "I built this AI prompt/tool: [paste your prompt and what it is supposed to do]. Help me test it before I share it. 1) Generate five realistic test inputs: two normal, two messy or hard, and one designed to make it fail gracefully. 2) Give me a four-point checklist for judging each output, written so a stranger could apply it. Do NOT run the prompt or grade the outputs for me — I will run the tests and judge them myself.",
+        "note": "AI is great at inventing test cases and checklists. The judging stays with you — that is the part that keeps the test honest."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save a test plan card",
+        "cardType": "Test plan",
+        "fields": [
+          {
+            "key": "thing",
+            "label": "What I am testing",
+            "placeholder": "Example: my study-guide prompt"
+          },
+          {
+            "key": "checklist",
+            "label": "A good output must…",
+            "placeholder": "cover key terms, cite the notes, no invented facts"
+          },
+          {
+            "key": "inputs",
+            "label": "Test inputs",
+            "placeholder": "2 normal, 2 messy, 1 designed to break it"
+          },
+          {
+            "key": "worstFailure",
+            "label": "Worst failure I found",
+            "placeholder": "what broke, and how badly"
+          },
+          {
+            "key": "shareBar",
+            "label": "My bar for sharing",
+            "placeholder": "Example: passes 4 of 5, fails politely on the breaker"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Exit check",
+        "question": "You ran your AI tool once and the output looked great. What does that actually tell you?",
+        "options": [
+          {
+            "text": "It is probably fine to share — the input was realistic, and if a classmate hits a problem they can tell you and you can patch it then",
+            "ok": false,
+            "feedback": "One polished output on a friendly input is a demo, not evidence. Fix-it-later means the first messy real input embarrasses you in the group chat instead of in private testing."
+          },
+          {
+            "text": "It CAN work — now test it on inputs you did not design it around, including ones meant to break it",
+            "ok": true,
+            "feedback": "Right. Define “good” first, test on varied real inputs, and check how it fails before you share."
+          },
+          {
+            "text": "Honestly not much either way — outputs vary so much between runs that even a small test set mostly measures luck, so more testing will not settle it",
+            "ok": false,
+            "feedback": "Single outputs do vary, but patterns across even five honest test cases are real evidence — that is exactly why you run more than one case instead of giving up on testing."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "chapter-30",
+    "num": 30,
+    "arc": "Building",
+    "title": "Build a capstone",
+    "coreQuestion": "Can I combine everything into one real project?",
+    "blurb": "Take one real project from idea to finished — with AI as your partner and your judgment running the whole thing.",
+    "minutes": 12,
+    "resources": [
+      {
+        "label": "What is project-based learning? (PBLWorks / Buck Institute)",
+        "url": "https://www.pblworks.org/what-is-pbl"
+      },
+      {
+        "label": "MIT RAISE — free AI literacy resources",
+        "url": "https://raise.mit.edu/"
+      }
+    ],
+    "steps": [
+      {
+        "kind": "coldOpen",
+        "title": "One project, every skill",
+        "scenario": "You have practiced prompting, verifying, spotting bias, building workflows, and knowing when to skip AI. A capstone is where it all meets: one real thing — a study guide for your AP Bio class, a fundraiser plan for your club, a FAQ page for the place you volunteer — built with AI helping and you in charge.",
+        "prompt": "What is one real thing you could finish in a week or two that someone besides you would actually use?"
+      },
+      {
+        "kind": "classify",
+        "title": "Is this capstone ready to build?",
+        "prompt": "A good capstone is specific, finishable, and stays yours. Sort each project plan.",
+        "buckets": [
+          "Ready to build",
+          "Fix the plan first"
+        ],
+        "items": [
+          {
+            "text": "A one-page study guide for next month's chemistry final, checked against the textbook",
+            "answer": 0
+          },
+          {
+            "text": "\"An app that helps everyone learn everything better\"",
+            "answer": 1
+          },
+          {
+            "text": "Paste the assignment into AI, submit whatever comes out, done in ten minutes",
+            "answer": 1
+          },
+          {
+            "text": "A volunteer-shift FAQ for the food bank, with answers verified by the coordinator",
+            "answer": 0
+          },
+          {
+            "text": "A project where you cannot say which parts AI did and which parts you did",
+            "answer": 1
+          }
+        ],
+        "reveal": "Ready means: a real audience, a scope you can finish, facts you can verify, and a clear line between AI's work and yours."
+      },
+      {
+        "kind": "workflowChain",
+        "title": "Build the capstone path",
+        "goal": "Take a real project — say, a study guide your whole class will use — from idea to something you can stand behind.",
+        "correct": [
+          "Define the project, the audience, and what 'done' looks like",
+          "Split it into pieces and decide where AI helps and where it should not",
+          "Draft with AI one piece at a time, with your own input first",
+          "Verify every fact and claim against a source you can open",
+          "Test it on a real person and fix what confuses them",
+          "Ship it, and be ready to explain what you did versus what AI did"
+        ],
+        "note": "Notice where verification sits: before anyone else relies on your work, not after. This is every earlier lesson stacked into one path."
+      },
+      {
+        "kind": "reveal",
+        "title": "A capstone proves judgment, not just output",
+        "body": "Anyone can generate pages of AI text. A capstone shows you can scope a real problem, direct AI where it helps, catch where it is wrong, and ship something a real person can use. The finished project matters, but the part you keep is the proof that you can run the whole loop yourself.",
+        "mistake": "Treating the capstone as one giant prompt: paste the goal, take the output, call it done. You end up with something polished that you cannot defend, because you never checked it and none of the decisions were yours.",
+        "good": "Stay the project lead. AI drafts pieces, you set the scope, verify the facts, test with a real user, and make every call about what ships."
+      },
+      {
+        "kind": "tryLive",
+        "title": "Plan your capstone for real",
+        "prompt": "I want to build a capstone project: [describe your project and who it is for]. Help me plan it, but do not do it for me. 1) Suggest a scope I can finish in two weeks. 2) Break it into 4-6 pieces, and for each piece say whether AI drafting helps or whether I should do it myself, and why. 3) List the claims or facts I will need to verify and where I could check them. 4) Tell me what 'done' should look like and one way to test it with a real person.",
+        "note": "Run this in any chatbot. If the plan it gives you has no verification step or no human test, that is your cue to add them — the model will not insist on them, but you should."
+      },
+      {
+        "kind": "toolkitSave",
+        "title": "Save your capstone plan",
+        "cardType": "Capstone plan",
+        "fields": [
+          {
+            "key": "project",
+            "label": "Project and audience",
+            "placeholder": "study guide for my AP Bio class"
+          },
+          {
+            "key": "aiJob",
+            "label": "AI's job",
+            "placeholder": "draft sections, suggest structure, quiz me"
+          },
+          {
+            "key": "myJob",
+            "label": "My job",
+            "placeholder": "scope, facts, final decisions, the parts I must learn"
+          },
+          {
+            "key": "verification",
+            "label": "How I verify",
+            "placeholder": "textbook, official site, expert who can check it"
+          },
+          {
+            "key": "doneWhen",
+            "label": "Done when",
+            "placeholder": "a classmate uses it and it holds up"
+          }
+        ]
+      },
+      {
+        "kind": "exitCheck",
+        "title": "Exit check",
+        "question": "What makes a capstone genuinely yours, even with AI helping?",
+        "options": [
+          {
+            "text": "You did most of the writing yourself and only leaned on AI for smaller things, like tightening wording or cleaning up structure",
+            "ok": false,
+            "feedback": "How much AI you used is not the test. You could write most of it yourself and still not own it, or let AI draft a lot and own all of it. What matters is who made the calls — and whether you can defend them."
+          },
+          {
+            "text": "You set the scope, verified the facts, made the decisions, and can explain what AI did versus what you did",
+            "ok": true,
+            "feedback": "Right. Ownership is about judgment and accountability — you ran the project, AI drafted pieces, and you can defend every part."
+          },
+          {
+            "text": "You edited the final version enough that it reads in your own voice and reflects how you would naturally explain things",
+            "ok": false,
+            "feedback": "Sounding like you is not the same as being yours. A smooth edit can sit on top of facts you never checked and decisions you never made. If you cannot explain why each part is there, the voice does not save it."
+          }
+        ]
+      }
+    ]
+  }
+];
+})();

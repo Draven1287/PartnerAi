@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lessons · Learning AI</title>
+  <meta name="description" content="30 interactive lessons on working with AI: what it is, how to talk to it, when to trust it, and how to build with it. Free, with an account to save your progress.">
+  <meta name="robots" content="noindex, nofollow">
+  <!-- Google Analytics 4 — same property as the rest of the site (see ../script.js) -->
+  <script>
+    (function loadAnalytics() {
+      const measurementId = 'G-6NYT3LV8V1';
+      if (!measurementId || window.gtag) return;
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function gtag(){ window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', measurementId);
+      const tag = document.createElement('script');
+      tag.async = true;
+      tag.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+      document.head.appendChild(tag);
+    })();
+  </script>
+  <!-- Inherit the live site's design system, then layer V2 components on top -->
+  <link rel="stylesheet" href="../styles.css?v=20260611v2launch">
+  <link rel="stylesheet" href="v2.css?v=20260612mobilebar">
+</head>
+<body class="v2-onboarding">
+
+<div class="progress-bar"><div></div></div>
+
+<nav class="nav v2-shell-nav" id="v2-shell-nav" hidden>
+  <div class="nav-inner">
+    <a href="#/" class="nav-logo">Learning AI</a>
+    <div class="nav-links">
+      <a href="#/">Dashboard</a>
+      <a href="#/lessons">Lessons</a>
+      <a href="#/settings">Settings</a>
+      <a href="#/about">About</a>
+      <a href="#/projects">Projects</a>
+      <a href="#/teaching">Teaching AI</a>
+    </div>
+  </div>
+</nav>
+
+<div class="layout">
+  <main id="app" aria-live="polite"><!-- views render here --></main>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="muted">Learning AI · your email is only used to sign you in and save your progress · <a href="../privacy.html">Privacy</a></p>
+  </div>
+</footer>
+
+  <script src="../backend-config.js?v=20260611v2launch"></script>
+<script src="v2-api.js?v=20260611v2launch"></script>
+<script src="lessons.js?v=20260611v2launch"></script>
+<script src="app.js?v=20260611v2launch"></script>
+</body>
+</html>
