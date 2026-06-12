@@ -217,6 +217,7 @@
       localStorage.removeItem(KEY.diagnosticDraft);
       localStorage.removeItem('learningai-v2-pending-progress');
       localStorage.removeItem('learningai-v2-pending-toolkit');
+      localStorage.removeItem('learningai-v2-pending-assessment');
       // Per-learner state must not leak to the next account on a shared
       // computer (school machines): step unlocks, notes, last-complete.
       localStorage.removeItem('learningai-v2-step-progress');
@@ -862,6 +863,12 @@
     const shouldImportBrowserData = options.importLocal !== false;
     await syncPendingProgress();
     await syncPendingToolkit();
+    // Retry a questionnaire that couldn't be uploaded when it was finished.
+    const pendingAssessment = currentUser ? readJson('learningai-v2-pending-assessment', null) : null;
+    if (pendingAssessment) {
+      const saved = await api.saveAssessment(pendingAssessment).catch(() => ({ ok: false }));
+      if (saved.ok) { try { localStorage.removeItem('learningai-v2-pending-assessment'); } catch (e) {} }
+    }
     await loadCurriculumFromBackend();
     let state = await api.state();
     const shouldImportLocal = shouldImportBrowserData && currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
@@ -1074,10 +1081,9 @@
       message.textContent = 'Saving your starting point...';
       if (api && currentUser) {
         const saved = await api.saveAssessment(assessment).catch(() => ({ ok: false }));
-        if (!saved.ok) {
-          message.textContent = saved.error || 'Could not save yet. Try again when the backend is reachable.';
-          return;
-        }
+        // Never trap the learner at the gate: on failure keep the answers
+        // locally and retry the upload on the next session sync.
+        if (!saved.ok) set('learningai-v2-pending-assessment', JSON.stringify(assessment));
       }
       saveAssessmentLocal(assessment);
       serverState = { ...(serverState || {}), assessment };
@@ -1086,7 +1092,9 @@
       render();
     } }, 'Finish and open dashboard');
 
-    const returnLink = h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' }, 'Take me back to my dashboard'));
+    // Only offer a way out when a starting point already exists — otherwise
+    // the dashboard route just gates straight back here.
+    const returnLink = hasAssessment() ? h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' }, 'Take me back to my dashboard')) : null;
 
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
@@ -1169,7 +1177,7 @@
           h('div', { class: 'dashboard-stats' }, [
             h('div', { class: 'dash-stat' }, [h('strong', null, `${done}`), h('span', null, 'tiles revealed')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${pct}%`), h('span', null, 'complete')]),
-            h('div', { class: 'dash-stat' }, [h('strong', null, profile ? `${profile.score ?? 0}%` : 'Optional'), h('span', null, 'questionnaire')]),
+            h('div', { class: 'dash-stat' }, [h('strong', null, profile ? `${profile.score ?? 0}%` : 'Needed'), h('span', null, 'questionnaire')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${readToolkit().length}`), h('span', null, 'saved notes')])
           ]),
           h('div', { class: 'row-gap' }, [
@@ -1416,7 +1424,7 @@
         ]),
         h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Starting point'),
-          h('p', null, 'The questionnaire is optional. Use it when you want V2 to recommend a starting point, or skip it and open any available lesson.'),
+          h('p', null, 'Every learner sets a starting point with the questionnaire before the lessons open — it personalizes your path and shows us where people begin.'),
           h('div', { class: 'row-gap' }, [
             h('a', { class: 'btn btn-primary', href: '#/questionnaire' }, hasAssessment() ? 'Retake questionnaire' : 'Take questionnaire'),
             h('button', { class: 'btn btn-ghost', onclick: () => {
@@ -1604,7 +1612,13 @@
     }
     if (parts[0] !== 'lesson' && parts[0] !== 'done') currentLessonId = null;
     let node;
-    if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
+    // The questionnaire is required before lessons: it gives every learner a
+    // recommended start AND gives the course data on where people begin.
+    // Settings/about stay reachable so appearance and info aren't locked away.
+    const needsQuestionnaire = currentUser && !hasAssessment()
+      && !['diagnostic', 'questionnaire', 'settings', 'about'].includes(parts[0] || '');
+    if (needsQuestionnaire) node = viewDiagnostic();
+    else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewDashboard();
     else if (parts[0] === 'lessons') node = viewLessonsCatalog();
     else if (parts[0] === 'settings') node = viewSettings();
