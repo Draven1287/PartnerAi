@@ -645,10 +645,8 @@ function initGauge() {
     })();
     if (savedGauge) {
       const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => !fact.startsWith('Private display name:'));
-      const gaugeWithoutPrompt = { ...savedGauge };
-      delete gaugeWithoutPrompt['guide' + 'Prompt'];
       localStorage.setItem('modelwise-gauge', JSON.stringify({
-        ...gaugeWithoutPrompt,
+        ...savedGauge,
         knownFacts: ['No private display name saved yet.', ...cleanedFacts]
       }));
     }
@@ -783,6 +781,8 @@ function initLearningSettings() {
   const stylePreview = document.getElementById('settings-style-preview');
   const summary = document.getElementById('settings-summary');
   const reset = document.getElementById('settings-reset');
+  const livePreview = document.getElementById('settings-live-preview');
+  const saveStatus = document.getElementById('settings-save-status');
 
   function applyToForm(settings) {
     ['theme', 'focusArea', 'format', 'mode', 'detail'].forEach(name => {
@@ -825,6 +825,26 @@ function initLearningSettings() {
     }[settings.format] || 'Custom';
     stylePreview.textContent = formatLabel;
     summary.textContent = settings.format ? settingsSummary(settings) : 'Saved only in this browser.';
+    if (livePreview) {
+      const previewSettings = {
+        format: settings.format || 'short',
+        mode: settings.mode || 'plain',
+        detail: settings.detail || 'normal',
+        focusArea: settings.focusArea || 'student',
+        theme: settings.theme || ''
+      };
+      if (previewSettings.format === 'bullets') {
+        livePreview.innerHTML = '<div class="settings-format-active">Bullet points mode is active</div><ul><li>AI can help, but it can also make mistakes.</li><li>Your job is to keep judgment in charge.</li><li>Use Settings any time to switch the lesson style.</li></ul>';
+      } else if (previewSettings.format === 'steps') {
+        livePreview.innerHTML = '<div class="settings-format-active">Step-by-step mode is active</div><ol><li>Learn when AI helps.</li><li>Notice where it makes mistakes.</li><li>Check the answer before trusting it.</li></ol>';
+      } else {
+        livePreview.textContent = adaptLessonCopy(
+          'You are learning when AI helps, when it makes mistakes, and how to keep your own judgment in charge.',
+          'AI judgment',
+          previewSettings
+        );
+      }
+    }
   }
 
   const existing = readLearningSettings();
@@ -837,12 +857,14 @@ function initLearningSettings() {
     localStorage.setItem('learningai-settings', JSON.stringify(settings));
     applyAppearance(settings);
     render(settings);
+    if (saveStatus) saveStatus.textContent = 'Saved. Open Lessons or My Path to see this style used there too.';
   });
 
   form.addEventListener('input', () => {
     const settings = readForm();
     applyAppearance(settings);
     render(settings);
+    if (saveStatus) saveStatus.textContent = 'Preview updated. Save when you want to keep it.';
   });
 
   reset?.addEventListener('click', () => {
@@ -855,6 +877,7 @@ function initLearningSettings() {
       document.body.style.removeProperty(name);
     });
     render({});
+    if (saveStatus) saveStatus.textContent = 'Settings reset.';
   });
 }
 document.addEventListener('DOMContentLoaded', initLearningSettings);
@@ -873,14 +896,52 @@ function initMyPath() {
     }
   }
 
-  const user = readJSON('modelwise-user');
+  let user = readJSON('modelwise-user');
   const gauge = readJSON('modelwise-gauge');
   const settings = readLearningSettings();
   const focus = focusProfile(settings.focusArea || gauge?.focusArea || '');
 
+  function updateGaugeNameFact(name) {
+    const savedGauge = readJSON('modelwise-gauge');
+    if (!savedGauge) return;
+    const cleanedFacts = (savedGauge.knownFacts || []).filter(fact => !fact.startsWith('Private display name:') && fact !== 'No private display name saved yet.');
+    const nameFact = name ? `Private display name: ${name}.` : 'No private display name saved yet.';
+    localStorage.setItem('modelwise-gauge', JSON.stringify({ ...savedGauge, knownFacts: [nameFact, ...cleanedFacts] }));
+  }
+
+  function syncNameFields() {
+    const profileName = document.getElementById('path-profile-name');
+    if (profileName) profileName.value = user?.name || '';
+    const progressName = document.getElementById('progress-name');
+    if (progressName && user?.name) progressName.value = user.name;
+  }
+
+  const profileForm = document.getElementById('path-profile-form');
+  const profileName = document.getElementById('path-profile-name');
+  const profileStatus = document.getElementById('path-profile-status');
+  syncNameFields();
+  profileForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = profileName.value.trim();
+    if (!name) {
+      profileName.focus();
+      if (profileStatus) profileStatus.textContent = 'Type a name first.';
+      return;
+    }
+    user = { ...(user || {}), name, updatedAt: new Date().toISOString() };
+    localStorage.setItem('modelwise-user', JSON.stringify(user));
+    updateGaugeNameFact(name);
+    syncNameFields();
+    const title = document.getElementById('path-title');
+    if (title && !gauge?.route) title.textContent = `Hey ${name}, build your AI path.`;
+    if (profileStatus) profileStatus.textContent = `Saved as ${name}.`;
+  });
+
   if (!gauge || !gauge.route) {
     root.hidden = true;
     empty.hidden = false;
+    const title = document.getElementById('path-title');
+    if (title && user?.name) title.textContent = `Hey ${user.name}, build your AI path.`;
     return;
   }
 
@@ -930,7 +991,12 @@ function initMyPath() {
   root.hidden = false;
   empty.hidden = true;
 
-  document.getElementById('path-title').textContent = user?.name ? `Hey ${user.name}, here is your path.` : routeData.title;
+  function renderPathName() {
+    document.getElementById('path-title').textContent = user?.name ? `Hey ${user.name}, here is your path.` : routeData.title;
+    syncNameFields();
+  }
+
+  renderPathName();
   document.getElementById('path-copy').textContent = routeData.copy;
   document.getElementById('path-score').textContent = `${gauge.score}%`;
   document.getElementById('path-saved').textContent = gauge.savedAt ? `Saved ${new Date(gauge.savedAt).toLocaleDateString()}` : 'Saved on this device.';
@@ -940,6 +1006,16 @@ function initMyPath() {
     settingsCopy.textContent = settings.format
       ? `Learning AI is set to teach with ${settingsSummary({ ...settings, focusArea: settings.focusArea || gauge.focusArea })}.`
       : `Learning AI will connect examples to ${focus.label.toLowerCase()}. You can customize the format, color, and style in Settings.`;
+  }
+  const formatPreview = document.getElementById('path-format-preview');
+  if (formatPreview) {
+    if (settings.format === 'bullets') {
+      formatPreview.innerHTML = '<strong>Bullet points mode is active.</strong><ul><li>Lesson cards use short bullet lines.</li><li>My Path and Lessons both use this style.</li><li>You can switch formats any time in Settings.</li></ul>';
+    } else if (settings.format === 'steps') {
+      formatPreview.innerHTML = '<strong>Step-by-step mode is active.</strong><ol><li>Start with the goal.</li><li>Try the action.</li><li>Check the result.</li></ol>';
+    } else {
+      formatPreview.innerHTML = '<strong>Current format:</strong> ' + settingsSummary({ ...settings, focusArea: settings.focusArea || gauge.focusArea }) + '.';
+    }
   }
   const primary = document.getElementById('path-primary');
   primary.href = routeData.next[0];
@@ -995,12 +1071,18 @@ function initMyPath() {
   });
 
   const known = document.getElementById('path-known');
-  known.innerHTML = '';
-  (gauge.knownFacts || []).forEach(fact => {
-    const li = document.createElement('li');
-    li.textContent = fact;
-    known.appendChild(li);
-  });
+  function renderKnownFacts() {
+    const latestGauge = readJSON('modelwise-gauge') || gauge;
+    known.innerHTML = '';
+    (latestGauge.knownFacts || []).forEach(fact => {
+      const li = document.createElement('li');
+      li.textContent = fact;
+      known.appendChild(li);
+    });
+  }
+  renderKnownFacts();
+
+  profileForm?.addEventListener('submit', () => renderKnownFacts());
 
   initPrivateProgressSync(user);
 

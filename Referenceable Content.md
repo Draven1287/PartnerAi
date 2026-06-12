@@ -401,3 +401,62 @@ Before real users:
   - Admin curriculum routes still see all lesson statuses so the content editor can manage drafts before launch.
   - Learner dashboard calculations now use published curriculum content.
   - Backend tests now verify that an admin-created draft lesson appears in admin curriculum but not in learner curriculum or direct learner lesson fetches.
+- 2026-06-02 backend launch audit update:
+  - Added `node tools/check-v2-launch-ready.mjs` as a stricter pre-launch audit separate from backend syntax/readiness checks.
+  - It verifies core backend route/table surface, frontend CSRF bridge, hidden/noindex V2 shell, 30-lesson count, no stubs, at least 5 steps per authored lesson, an `exitCheck`, at least 2 pre-exit gated learner actions, and toolkit coverage warnings.
+  - This audit is expected to fail until the remaining V2 stubs are authored and Lesson 4 is fixed.
+  - Continue using `node tools/check-backend-ready.mjs` for backend structure/syntax and `node tools/verify-live-backend.mjs` for production API reachability.
+- 2026-06-02 Lesson 4 interaction fix:
+  - Lesson 4 now includes a gated `promptRepair` and `toolkitSave` before the `exitCheck`, so it produces backend-trackable activity and toolkit data like the other authored lessons.
+  - Added `node tools/sync-curriculum-seed.mjs` to regenerate `coolify-backend/curriculum-seed.json` from `v2/lessons.js`.
+  - Ran the seed sync after editing Lesson 4.
+- 2026-06-02 Arc 3 authoring:
+  - Authored lessons 10-12: Better follow-ups, Roles/formats/constraints, and Getting AI to teach you.
+  - Each new Arc 3 lesson uses existing backend-supported step kinds only: `coldOpen`, `classify`, `promptRepair`, `reveal`, `tryLive`, `toolkitSave`, and `exitCheck`.
+  - Each lesson has at least 2 gated learner actions before the exit check and creates one toolkit artifact.
+  - Ran `node tools/sync-curriculum-seed.mjs` so the backend bootstrap curriculum seed includes the new Arc 3 lesson data.
+- 2026-06-02 V2 palette separation:
+  - Product decision: the palette tester is a design tool, not a learner-facing V2 route.
+  - Removed the `#/palette` route from the V2 learner app.
+  - Added a separate noindex local design board at `v2/palette.html`.
+  - Current V2 palette direction remains the greenish `Green Amber` option unless changed from the separate board.
+- 2026-06-02 backend Postgres test safety:
+  - Backend route tests now keep fake DB checks as the default.
+  - Real Postgres route tests are opt-in through `LEARNING_AI_TEST_DATABASE_URL` and `ALLOW_POSTGRES_TEST_WRITES=true`.
+  - `DATABASE_URL` is intentionally ignored by `coolify-backend/test-server.mjs` for integration tests so production is not mutated accidentally.
+  - The dedicated test database name must include `test`.
+  - Added `npm run test:postgres` in `coolify-backend/package.json`.
+- 2026-06-02 future AI hook route coverage:
+  - The backend already has MVP storage routes for future AI features: feedback requests, project reviews, tutor sessions/messages, learner insights, and admin AI-request review.
+  - Added route-test coverage so these hooks must accept authenticated learner requests, enforce CSRF on writes, and appear in the admin AI-request endpoint.
+  - No real AI provider/API calls are wired yet; this keeps the MVP maintainable while preserving the database/API shape for later personalized feedback and tutoring.
+- 2026-06-02 launch audit AI hook coverage:
+  - `tools/check-v2-launch-ready.mjs` now checks the future AI hook routes and tables too.
+  - Required route surface now includes learner feedback requests, project reviews, tutor sessions, insights, and admin AI-request review.
+  - Required database surface now includes `ai_feedback_requests`, `project_reviews`, `tutor_sessions`, `tutor_messages`, and `progress_insights`.
+- 2026-06-02 production API verification:
+  - Ran `node tools/verify-live-backend.mjs` with real network access.
+  - DNS passes: `api.learningai4you.com -> 157.245.240.153`.
+  - TCP 443 and all HTTPS endpoint checks still time out.
+  - Current diagnosis remains deployment/network-side, not frontend-side: fix Coolify proxy/domain routing, server firewall, Cloudflare proxy/SSL mode, or server reachability before live V2 signup can work.
+  - Updated the verifier to print this diagnosis when DNS resolves but TCP 443 is unreachable.
+- 2026-06-02 admin account/export route coverage:
+  - Backend route tests now verify admin CSV export requires CSRF and returns learner data as CSV.
+  - Backend route tests now verify disabled learner accounts cannot log in and existing learner sessions stop working while disabled.
+  - Fake DB route-test behavior was aligned with real Postgres session behavior for disabled accounts.
+- 2026-06-03 admin UI and export follow-up:
+  - Admin UI direction moved toward the green Learning AI palette and more contained dashboard tables/cards.
+  - Admin settings now include theme, density, preset accent colors, and a custom accent color for the admin browser only.
+  - Local backend tasting should use `PORT=8788 node tools/dev-v2-backend.mjs` when local Postgres dependencies are not installed; raw `node coolify-backend/server.mjs` expects the real database package and configuration.
+  - Next admin backend improvement: add an audited questionnaire CSV export so admins can download individual question answers, age ranges, answer labels, scores, and timestamps, not only the learner summary CSV.
+- 2026-06-03 questionnaire CSV export:
+  - Added `POST /api/admin/assessment-export.csv`.
+  - It requires admin session plus CSRF, creates an `export_assessment_csv` audit event, and exports email, display name, age range, level, score percent, category, question key, selected value/label, score, free text, and completed timestamp.
+  - Admin Export view now has two downloads: learner summary CSV and questionnaire answers CSV.
+  - Fake DB route tests verify the questionnaire CSV blocks without CSRF and includes a saved assessment answer when CSRF is present.
+- 2026-06-04 V1 tester feedback fix:
+  - Feedback: tester liked Settings, but could not clearly change their name and could not see what "Bullet points" changed.
+  - Added a clear "Your display name" editor on `my-path.html`.
+  - Added a live preview panel on `settings.html` so answer-format choices visibly change before saving.
+  - Fixed Settings choice text color so options remain readable in the default light theme.
+  - Bumped shared `styles.css` and `script.js` cache-bust query strings across V1 HTML pages and the V2 shell.

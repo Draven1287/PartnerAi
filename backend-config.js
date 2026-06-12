@@ -3,7 +3,24 @@
 // while the production Coolify API is unreachable.
 (function configureLearningAiBackend() {
   const localHosts = new Set(['127.0.0.1', 'localhost']);
-  window.LEARNING_AI_BACKEND_URL = localHosts.has(window.location.hostname)
-    ? 'http://127.0.0.1:8787'
-    : 'https://api.learningai4you.com';
+  const isLocal = localHosts.has(window.location.hostname);
+  // The ?api= override is a dev tool. Never honor it on the live domain:
+  // a crafted link could otherwise silently redirect visitors' backend
+  // traffic (and stored override) to an attacker-controlled server.
+  if (isLocal) {
+    const defaultLocalBackend = 'http://127.0.0.1:8787';
+    const params = new URLSearchParams(window.location.search);
+    const explicitUrl = params.get('api');
+    if (explicitUrl) localStorage.setItem('learningai-backend-url', explicitUrl);
+    const savedUrl = localStorage.getItem('learningai-backend-url');
+    if (savedUrl) {
+      window.LEARNING_AI_BACKEND_URL = savedUrl;
+      return;
+    }
+    window.LEARNING_AI_BACKEND_URL = window.location.port === '8788'
+      ? 'http://127.0.0.1:8788'
+      : defaultLocalBackend;
+    return;
+  }
+  window.LEARNING_AI_BACKEND_URL = 'https://api.learningai4you.com';
 })();
