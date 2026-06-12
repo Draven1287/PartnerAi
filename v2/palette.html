@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning AI V2 Palette Board</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="../styles.css?v=20260604feedback">
+  <link rel="stylesheet" href="v2.css?v=20260602paletteboard">
+</head>
+<body class="v2-palette-board">
+  <main class="container view v2-page palette-page">
+    <header class="hero compact">
+      <div class="tagline">Local design board</div>
+      <h1>V2 color palette board</h1>
+      <p class="lead">This is separate from the learner site. Pick a direction here, then open V2 to see that palette applied.</p>
+      <p class="row-gap">
+        <a class="btn btn-ghost" href="index.html#/">Open V2 dashboard</a>
+      </p>
+    </header>
+    <section class="palette-grid" id="palette-grid"></section>
+  </main>
+
+  <script>
+    const KEY = 'learningai-v2-palette';
+    const PALETTES = [
+      { id: 'clear-blue', name: 'Clear Blue', bg: '#f7f9fc', surface: '#ffffff', surface2: '#eef4f8', border: '#dbe3ea', text: '#121826', textDim: '#4b5870', accent: '#2563eb', accentSoft: '#dbeafe' },
+      { id: 'teal-studio', name: 'Teal Studio', bg: '#f2fbfb', surface: '#ffffff', surface2: '#e2f3f2', border: '#c7dfdf', text: '#102026', textDim: '#45606a', accent: '#0f8b8d', accentSoft: '#d6f3f0' },
+      { id: 'ink-coral', name: 'Ink Coral', bg: '#fbf7f4', surface: '#ffffff', surface2: '#f5e7df', border: '#e2d3ca', text: '#171821', textDim: '#5d5965', accent: '#e0523f', accentSoft: '#ffe1dc' },
+      { id: 'green-amber', name: 'Green Amber', bg: '#f7faf4', surface: '#ffffff', surface2: '#edf4e4', border: '#d7e2ca', text: '#152015', textDim: '#4e604d', accent: '#2f7d4f', accentSoft: '#dff2e5' },
+      { id: 'violet-mint', name: 'Violet Mint', bg: '#f8f7ff', surface: '#ffffff', surface2: '#eef7f4', border: '#ddd7f4', text: '#17152b', textDim: '#57516b', accent: '#6d5bd0', accentSoft: '#e7e3ff' }
+    ];
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+
+    function activeId() {
+      return localStorage.getItem(KEY) || 'green-amber';
+    }
+
+    function applyPalette(palette) {
+      const t = document.body.style;
+      t.setProperty('--bg', palette.bg);
+      t.setProperty('--surface', palette.surface);
+      t.setProperty('--surface-2', palette.surface2);
+      t.setProperty('--border', palette.border);
+      t.setProperty('--text', palette.text);
+      t.setProperty('--text-dim', palette.textDim);
+      t.setProperty('--text-faint', palette.textDim);
+      t.setProperty('--accent', palette.accent);
+      t.setProperty('--accent-soft', palette.accentSoft);
+    }
+
+    function render() {
+      const active = activeId();
+      const chosen = PALETTES.find(palette => palette.id === active) || PALETTES[3];
+      applyPalette(chosen);
+      document.getElementById('palette-grid').innerHTML = PALETTES.map(palette => `
+        <article class="palette-card${palette.id === active ? ' active' : ''}" style="--preview-bg:${esc(palette.bg)};--preview-surface:${esc(palette.surface)};--preview-surface-2:${esc(palette.surface2)};--preview-border:${esc(palette.border)};--preview-text:${esc(palette.text)};--preview-dim:${esc(palette.textDim)};--preview-accent:${esc(palette.accent)};--preview-accent-soft:${esc(palette.accentSoft)};">
+          <div class="palette-preview">
+            <div class="palette-mini-card">
+              <span class="palette-pill">Next</span>
+              <strong>Lesson tile</strong>
+              <p>Prompt repair and checks</p>
+            </div>
+            <div class="palette-mini-row">
+              <span>72%</span>
+              <span>Toolkit</span>
+            </div>
+          </div>
+          <h2>${esc(palette.name)}</h2>
+          <div class="palette-swatches">
+            <span style="background:${esc(palette.bg)}"></span>
+            <span style="background:${esc(palette.surface2)}"></span>
+            <span style="background:${esc(palette.accent)}"></span>
+            <span style="background:${esc(palette.text)}"></span>
+          </div>
+          <button class="btn btn-primary" data-palette="${esc(palette.id)}">${palette.id === active ? 'Using this palette' : 'Use this palette'}</button>
+        </article>
+      `).join('');
+      document.querySelectorAll('[data-palette]').forEach(button => {
+        button.addEventListener('click', () => {
+          localStorage.setItem(KEY, button.dataset.palette);
+          render();
+        });
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

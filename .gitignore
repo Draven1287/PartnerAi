@@ -2,9 +2,5 @@ backend/cloudflare/wrangler.toml
 backend/cloudflare/.dev.vars
 backend-config.local.js
 
-# Not part of the public V1 site — V2 beta, backend source, and dev tools
-# stay local until V2 launches. GitHub Pages serves every tracked file.
-v2/
-coolify-backend/
-tools/
+# reviews/ holds internal notes only
 reviews/
