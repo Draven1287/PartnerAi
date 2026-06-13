@@ -208,12 +208,18 @@
     if (!isCompleteV2Assessment(assessment)) return false;
     set(KEY.assessment, JSON.stringify(assessment));
     set('modelwise-gauge', JSON.stringify(assessment));
+    // Stamp the owner so the cached assessment is only ever trusted as a
+    // fallback for the learner it belongs to (see assessmentResult). Signed-out
+    // use is ownerless.
+    if (currentUser) set('learningai-v2-assessment-owner', currentUserKey());
+    else localStorage.removeItem('learningai-v2-assessment-owner');
     return true;
   }
   function clearV2LocalSession() {
     try {
       localStorage.removeItem(KEY.assessment);
       localStorage.removeItem('modelwise-gauge');
+      localStorage.removeItem('learningai-v2-assessment-owner');
       localStorage.removeItem(KEY.diagnosticDraft);
       localStorage.removeItem('learningai-v2-pending-progress');
       localStorage.removeItem('learningai-v2-pending-toolkit');
@@ -222,6 +228,12 @@
       // computer (school machines): step unlocks, notes, last-complete.
       localStorage.removeItem('learningai-v2-step-progress');
       localStorage.removeItem('learningai-v2-last-complete');
+      // Completed-lessons map and saved notes are the most personal data and
+      // were previously left behind. They are shared with V1, so a signed-in
+      // V2 learner gets them back from the server on next login via
+      // hydrateFromServer; clearing here keeps a shared machine private.
+      localStorage.removeItem(KEY.progress);
+      localStorage.removeItem(KEY.toolkit);
       Object.keys(localStorage)
         .filter(k => k.startsWith('learningai-v2-lesson-notes:'))
         .forEach(k => localStorage.removeItem(k));
@@ -231,8 +243,8 @@
   function normalizeCurriculumStep(step) {
     const payload = step?.payload && typeof step.payload === 'object' && !Array.isArray(step.payload) ? step.payload : {};
     return {
-      kind: step?.kind || payload.kind || 'reveal',
       ...payload,
+      kind: step?.kind || payload.kind || 'reveal',
       title: step?.title || payload.title || '',
       gated: Boolean(step?.gated)
     };
@@ -391,12 +403,20 @@
     t.setProperty('--accent-soft', palette.accentSoft);
   }
 
+  // Only allow link schemes that can't execute script. Anything else
+  // (javascript:, data:, vbscript:) becomes an inert anchor. Lesson
+  // resources can come from admin-authored backend curriculum, so this
+  // guards every rendered href, not just the bundled lessons.
+  function safeUrl(url) {
+    const value = String(url == null ? '' : url).trim();
+    return /^(https?:|mailto:|#|\/|\.)/i.test(value) ? value : '#';
+  }
+
   // ---------- DOM helper ----------
   function h(tag, attrs, kids) {
     const el = document.createElement(tag);
     if (attrs) for (const k in attrs) {
       if (k === 'class') el.className = attrs[k];
-      else if (k === 'html') el.innerHTML = attrs[k];
       else if (k.startsWith('on') && typeof attrs[k] === 'function') el.addEventListener(k.slice(2), attrs[k]);
       else if (attrs[k] != null) el.setAttribute(k, attrs[k]);
     }
@@ -538,6 +558,9 @@
     const noteId = `lesson-note-${lesson.id}`;
     const initial = get(noteKey) || '';
     const status = h('p', { class: 'lesson-notebook-status muted', 'aria-live': 'polite' }, initial ? 'Saved in Saved Notes.' : 'Type here if you want notes. This is optional.');
+    // Debounce the server sync so notes reach the backend during the session
+    // (not only on the next page load) without a request per keystroke.
+    let syncTimer;
     const textarea = h('textarea', {
       id: noteId,
       rows: '9',
@@ -546,6 +569,7 @@
         const text = event.target.value.trim();
         set(noteKey, event.target.value);
         if (!text) {
+          clearTimeout(syncTimer);
           const remaining = readToolkit().filter(card => card.id !== noteId);
           saveToolkit(remaining);
           savePendingToolkit(readPendingToolkit().filter(card => card.id !== noteId));
@@ -562,6 +586,8 @@
         };
         saveToolkitCard(card);
         status.textContent = 'Autosaved to Saved Notes.';
+        clearTimeout(syncTimer);
+        syncTimer = setTimeout(() => { syncPendingToolkit(); }, 1200);
       }
     }, initial);
     return h('aside', { class: 'lesson-notebook', 'aria-label': 'Lesson notebook' }, [
@@ -731,7 +757,9 @@
       const fb = h('p', { class: 'step-feedback' }, '');
       const saveBtn = h('button', {
         class: 'btn btn-primary', onclick: async (e) => {
-          const wrap = e.target.closest('.lesson-card');
+          const btn = e.target;
+          if (btn.disabled) return;
+          const wrap = btn.closest('.lesson-card');
           const fields = {}, labels = {}; let any = false;
           wrap.querySelectorAll('input[data-key]').forEach(inp => {
             fields[inp.dataset.key] = inp.value.trim();
@@ -739,13 +767,20 @@
             if (inp.value.trim()) any = true;
           });
           if (!any) { fb.textContent = 'Fill in at least one field first.'; return; }
-          const cardId = 'card-' + Date.now();
-          saveToolkitCard({ id: cardId, type: s.cardType, lessonId: currentLessonId, fields, fieldLabels: labels, createdAt: new Date().toISOString() }, { queue: false });
-          fb.textContent = 'Saved locally. Syncing...';
-          const synced = api ? await api.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => ({ ok: false })) : { ok: false, skipped: true };
-          if (!synced.ok) savePendingToolkit([readToolkit().find(card => card.id === cardId), ...readPendingToolkit().filter(card => card.id !== cardId)].filter(Boolean));
-          recordInteraction(s, { fields, synced: !!synced.ok });
-          fb.textContent = synced.ok ? 'Saved to Saved Notes.' : 'Saved locally. It is queued to sync after the backend is available.';
+          // Block a second click from creating a duplicate card while the
+          // first save (and its network round-trip) is still in flight.
+          btn.disabled = true;
+          try {
+            const cardId = 'card-' + Date.now();
+            saveToolkitCard({ id: cardId, type: s.cardType, lessonId: currentLessonId, fields, fieldLabels: labels, createdAt: new Date().toISOString() }, { queue: false });
+            fb.textContent = 'Saved locally. Syncing...';
+            const synced = api ? await api.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => ({ ok: false })) : { ok: false, skipped: true };
+            if (!synced.ok) savePendingToolkit([readToolkit().find(card => card.id === cardId), ...readPendingToolkit().filter(card => card.id !== cardId)].filter(Boolean));
+            recordInteraction(s, { fields, synced: !!synced.ok });
+            fb.textContent = synced.ok ? 'Saved to Saved Notes.' : 'Saved locally. It is queued to sync after the backend is available.';
+          } finally {
+            btn.disabled = false;
+          }
         }
       }, 'Save to Saved Notes');
       return card([tag('Optional save'), h('h2', null, s.title),
@@ -851,9 +886,17 @@
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
         h('div', { class: 'tagline' }, 'Learning AI'),
-        h('h1', null, 'V2 accounts are unavailable right now'),
-        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course. V1 is still the public site while V2 is being built.'),
-        h('p', { class: 'muted' }, 'For local testing, start the V2 backend and reload this page.')
+        h('h1', null, "We can't reach your account right now"),
+        h('p', { class: 'lead' }, "Your lessons are safe — we just couldn't connect to save and load your progress. This is usually a short network hiccup."),
+        h('p', { class: 'muted' }, 'Check your internet connection, then try again.'),
+        h('div', { class: 'row-gap' }, [
+          h('button', { class: 'btn btn-primary', onclick: () => {
+            backendUnavailable = false;
+            authChecked = false;
+            render();
+            boot().catch(() => { authChecked = true; render(); });
+          } }, 'Try again')
+        ])
       ])
     ]);
   }
@@ -895,7 +938,11 @@
       h('a', { class: 'btn btn-ghost', href: '#/' }, 'Dashboard'),
       h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, questionnaireLabel),
       h('button', { class: 'btn btn-ghost', onclick: async () => {
-        await api.logout();
+        const out = await api.logout();
+        // If logout never reached the server (offline / timeout) the session
+        // cookie survives, so the next person on a shared machine would be
+        // silently signed back in at boot. Record the intent and retry there.
+        if (!out || !out.ok) { try { localStorage.setItem('learningai-v2-pending-logout', '1'); } catch (e) {} }
         currentUser = null;
         serverState = null;
         clearV2LocalSession();
@@ -906,15 +953,20 @@
   }
 
   function assessmentResult() {
-    if (api && currentUser) {
-      return isCompleteV2Assessment(serverState?.assessment) ? serverState.assessment : null;
+    // Prefer the server copy.
+    if (isCompleteV2Assessment(serverState?.assessment)) return serverState.assessment;
+    // Otherwise fall back to the local cache, but only when it belongs to the
+    // current context. For a signed-in learner it must be stamped with their
+    // id: that lets a transient api.state() failure keep them out of the
+    // questionnaire (the original bug), while a *previous* learner's cache on a
+    // shared machine is never honored (which would leak their starting point
+    // and let the next person skip the gate). Signed-out use is ownerless.
+    const ownedByCurrent = !currentUser || get('learningai-v2-assessment-owner') === currentUserKey();
+    if (ownedByCurrent) {
+      const local = readJson(KEY.assessment, null) || readJson('modelwise-gauge', null);
+      if (isCompleteV2Assessment(local)) return local;
     }
-    const candidates = [
-      serverState?.assessment,
-      readJson(KEY.assessment, null),
-      readJson('modelwise-gauge', null)
-    ];
-    return candidates.find(isCompleteV2Assessment) || null;
+    return null;
   }
 
   function hasAssessment() {
@@ -1326,12 +1378,11 @@
       ]),
       h('div', { class: 'mosaic-wrap' }, buildMosaic({ activeId: id })),
       lesson.resources?.length ? h('div', { class: 'callout' }, [h('strong', null, 'Go deeper: '),
-        ...lesson.resources.map(r => h('a', { href: r.url, target: '_blank', rel: 'noopener', class: 'res-link' }, r.label))]) : null,
+        ...lesson.resources.map(r => h('a', { href: safeUrl(r.url), target: '_blank', rel: 'noopener', class: 'res-link' }, r.label))]) : null,
       h('div', { class: 'row-gap' }, [
         next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, `Next: ${next.num}. ${next.title}`)
              : h('a', { class: 'btn btn-primary', href: '../my-path.html' }, 'See My Path'),
-        h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'All lessons'),
-        h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'Lesson list')
+        h('a', { class: 'btn btn-ghost', href: '#/lessons' }, 'All lessons')
       ])
     ]);
   }
@@ -1430,6 +1481,7 @@
             h('button', { class: 'btn btn-ghost', onclick: () => {
               localStorage.removeItem(KEY.assessment);
               localStorage.removeItem('modelwise-gauge');
+              localStorage.removeItem('learningai-v2-assessment-owner');
               localStorage.removeItem(KEY.diagnosticDraft);
               serverState = { ...(serverState || {}), assessment: null };
               location.hash = '#/questionnaire';
@@ -1685,6 +1737,12 @@
   });
   async function boot() {
     if (api) {
+      // Finish a sign-out that couldn't reach the server last time before we
+      // trust any surviving session cookie.
+      if (get('learningai-v2-pending-logout')) {
+        const out = await api.logout();
+        if (out && out.ok) { try { localStorage.removeItem('learningai-v2-pending-logout'); } catch (e) {} }
+      }
       const me = await api.me();
       if (!me.ok && ['network_error', 'request_timeout'].includes(me.error)) {
         backendUnavailable = true;
