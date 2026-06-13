@@ -208,12 +208,18 @@
     if (!isCompleteV2Assessment(assessment)) return false;
     set(KEY.assessment, JSON.stringify(assessment));
     set('modelwise-gauge', JSON.stringify(assessment));
+    // Stamp the owner so the cached assessment is only ever trusted as a
+    // fallback for the learner it belongs to (see assessmentResult). Signed-out
+    // use is ownerless.
+    if (currentUser) set('learningai-v2-assessment-owner', currentUserKey());
+    else localStorage.removeItem('learningai-v2-assessment-owner');
     return true;
   }
   function clearV2LocalSession() {
     try {
       localStorage.removeItem(KEY.assessment);
       localStorage.removeItem('modelwise-gauge');
+      localStorage.removeItem('learningai-v2-assessment-owner');
       localStorage.removeItem(KEY.diagnosticDraft);
       localStorage.removeItem('learningai-v2-pending-progress');
       localStorage.removeItem('learningai-v2-pending-toolkit');
@@ -947,16 +953,20 @@
   }
 
   function assessmentResult() {
-    // For signed-in users prefer the server copy, but fall back to the
-    // last-known-good local cache (applyServerState keeps it in sync) so a
-    // single transient api.state() failure can't re-gate a learner who has
-    // already finished the questionnaire and overwrite their starting point.
-    const candidates = [
-      serverState?.assessment,
-      readJson(KEY.assessment, null),
-      readJson('modelwise-gauge', null)
-    ];
-    return candidates.find(isCompleteV2Assessment) || null;
+    // Prefer the server copy.
+    if (isCompleteV2Assessment(serverState?.assessment)) return serverState.assessment;
+    // Otherwise fall back to the local cache, but only when it belongs to the
+    // current context. For a signed-in learner it must be stamped with their
+    // id: that lets a transient api.state() failure keep them out of the
+    // questionnaire (the original bug), while a *previous* learner's cache on a
+    // shared machine is never honored (which would leak their starting point
+    // and let the next person skip the gate). Signed-out use is ownerless.
+    const ownedByCurrent = !currentUser || get('learningai-v2-assessment-owner') === currentUserKey();
+    if (ownedByCurrent) {
+      const local = readJson(KEY.assessment, null) || readJson('modelwise-gauge', null);
+      if (isCompleteV2Assessment(local)) return local;
+    }
+    return null;
   }
 
   function hasAssessment() {
@@ -1471,6 +1481,7 @@
             h('button', { class: 'btn btn-ghost', onclick: () => {
               localStorage.removeItem(KEY.assessment);
               localStorage.removeItem('modelwise-gauge');
+              localStorage.removeItem('learningai-v2-assessment-owner');
               localStorage.removeItem(KEY.diagnosticDraft);
               serverState = { ...(serverState || {}), assessment: null };
               location.hash = '#/questionnaire';
