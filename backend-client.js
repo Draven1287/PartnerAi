@@ -15,14 +15,23 @@
       consent
     };
 
-    const response = await fetch(`${base}/api/minutes`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify(payload)
-    });
-
-    return response.json();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    try {
+      const response = await fetch(`${base}/api/minutes`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        signal: controller.signal,
+        body: JSON.stringify(payload)
+      });
+      const body = await response.json().catch(() => ({}));
+      return { ...body, ok: response.ok && body.ok !== false };
+    } catch (error) {
+      return { ok: false, error: error.name === 'AbortError' ? 'request_timeout' : 'network_error' };
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   window.LearningAIBackend = { submitMinutes };
