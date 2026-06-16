@@ -83,6 +83,7 @@ assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/admin/overv
 assertIncludes('coolify-backend/server.mjs', 'ADMIN_ALLOWED_ORIGINS');
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/auth/password-reset/request'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/auth/password-reset/confirm'");
+assertIncludes('coolify-backend/server.mjs', "'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS'");
 assertIncludes('coolify-backend/server.mjs', 'createPasswordResetToken');
 assertIncludes('coolify-backend/server.mjs', 'confirmPasswordReset');
 assertNotIncludes('coolify-backend/server.mjs', 'admin_assisted_reset_only');
@@ -108,6 +109,7 @@ assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/project-
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/tutor-sessions'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/insights'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/visit'");
+assertIncludes('coolify-backend/server.mjs', "url.pathname.startsWith('/api/v2/toolkit/')");
 assertIncludes('coolify-backend/server.mjs', 'csrf_required');
 assertIncludes('coolify-backend/server.mjs', 'validateLessonPatch');
 assertIncludes('coolify-backend/server.mjs', 'validateSteps');
@@ -164,6 +166,7 @@ assertIncludes('coolify-backend/db.mjs', 'async function createFeedbackRequest')
 assertIncludes('coolify-backend/db.mjs', 'async function createProjectReview');
 assertIncludes('coolify-backend/db.mjs', 'async function createTutorSession');
 assertIncludes('coolify-backend/db.mjs', 'async function progressInsights');
+assertIncludes('coolify-backend/db.mjs', 'async function archiveToolkit');
 assertIncludes('coolify-backend/db.mjs', 'async function adminAiRequests');
 assertIncludes('coolify-backend/db.mjs', 'async function adminVisitAnalytics');
 assertIncludes('coolify-backend/db.mjs', 'page_visits_visited_at_idx');
@@ -203,6 +206,7 @@ assertIncludes('v2/v2-api.js', "requestFeedback(feedbackRequest)");
 assertIncludes('v2/v2-api.js', "requestProjectReview(review)");
 assertIncludes('v2/v2-api.js', "createTutorSession(session)");
 assertIncludes('v2/v2-api.js', "insights()");
+assertIncludes('v2/v2-api.js', "deleteToolkit(id)");
 assertIncludes('v2/app.js', 'applyCurriculum');
 assertIncludes('v2/app.js', 'loadCurriculumFromBackend');
 assertIncludes('v2/app.js', 'normalizeCurriculumLesson');
@@ -246,6 +250,8 @@ assertIncludes('coolify-backend/test-server.mjs', '/api/auth/password-reset/conf
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/quiz-answer');
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/activity-complete');
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/dashboard');
+assertIncludes('coolify-backend/test-server.mjs', '/api/v2/toolkit');
+assertIncludes('coolify-backend/test-server.mjs', 'archiveToolkit');
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/feedback-request');
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/project-review');
 assertIncludes('coolify-backend/test-server.mjs', '/api/v2/tutor-sessions');
