@@ -29,7 +29,6 @@ function createFakeDb() {
   const projectReviews = [];
   const tutorSessions = [];
   const tutorMessages = [];
-  const toolkit = [];
   const assessments = new Map();
   const audits = [];
   const lessons = [{
@@ -156,14 +155,7 @@ function createFakeDb() {
         assessment: null,
         learnerState: null,
         progress: progress.filter(row => row.userId === userId).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: new Date().toISOString() })),
-        toolkit: toolkit.filter(row => row.userId === userId).map(row => ({
-          id: row.id,
-          lessonId: row.lessonId,
-          cardType: row.cardType,
-          payload: row.payload,
-          createdAt: row.createdAt,
-          updatedAt: row.updatedAt || row.createdAt
-        })),
+        toolkit: [],
         minutes: { totalMinutes: 0, entries: 0 }
       };
     },
@@ -355,32 +347,7 @@ function createFakeDb() {
       }
       activityCompletions.push({ userId, lessonId, stepIndex, activityKind, activityKey, payload });
     },
-    async saveToolkit(userId, { id = '', lessonId = '', cardType = 'Toolkit card', payload = {} }) {
-      const cardId = id || randomUUID();
-      const existing = toolkit.find(row => row.userId === userId && row.id === cardId);
-      if (existing) {
-        existing.lessonId = lessonId;
-        existing.cardType = cardType;
-        existing.payload = payload;
-        existing.updatedAt = new Date().toISOString();
-        return existing.id;
-      }
-      toolkit.unshift({
-        userId,
-        id: cardId,
-        lessonId,
-        cardType,
-        payload,
-        createdAt: new Date().toISOString()
-      });
-      return cardId;
-    },
-    async archiveToolkit(userId, id) {
-      const index = toolkit.findIndex(row => row.userId === userId && row.id === id);
-      if (index < 0) return false;
-      toolkit.splice(index, 1);
-      return true;
-    },
+    async saveToolkit() {},
     async addMinutes() {},
     async recordVisit() {},
     async importLocal() {},
@@ -397,7 +364,7 @@ function createFakeDb() {
         totalLessons: publishedLessons.length,
         completionPercent: publishedLessons.length ? Math.round((completedLessons / publishedLessons.length) * 100) : 0,
         minutes: { totalMinutes: 0, entries: 0 },
-        toolkitCount: toolkit.filter(row => row.userId === userId).length,
+        toolkitCount: 0,
         quizSubmissions: quizSubmissions.filter(row => row.userId === userId).length,
         incorrectQuizSubmissions: quizSubmissions.filter(row => row.userId === userId && row.correct === false).length,
         completedActivities: activityCompletions.filter(row => row.userId === userId).length,
@@ -662,43 +629,6 @@ async function runRouteChecks(db, label) {
       }
     });
     assert.equal(assessment.response.status, 200);
-
-    const toolkitCardId = `qa-card-${Date.now()}`;
-    const toolkitSave = await request('/api/v2/toolkit', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': learnerCsrf },
-      body: {
-        id: toolkitCardId,
-        lessonId: 'chapter-1',
-        cardType: 'Agency rule',
-        payload: { fields: { rule: 'Verify before trusting fluent answers.' } }
-      }
-    });
-    assert.equal(toolkitSave.response.status, 201);
-    assert.equal(toolkitSave.body.id, toolkitCardId);
-
-    const stateWithToolkit = await request('/api/v2/state', { headers: { cookie: learnerCookie } });
-    assert.equal(stateWithToolkit.response.status, 200);
-    assert.equal(stateWithToolkit.body.state.toolkit.some(card => card.id === toolkitCardId), true);
-    learnerCsrf = stateWithToolkit.body.csrfToken;
-
-    const toolkitDeleteBlocked = await request(`/api/v2/toolkit/${encodeURIComponent(toolkitCardId)}`, {
-      method: 'DELETE',
-      headers: { cookie: learnerCookie }
-    });
-    assert.equal(toolkitDeleteBlocked.response.status, 403);
-
-    const toolkitDelete = await request(`/api/v2/toolkit/${encodeURIComponent(toolkitCardId)}`, {
-      method: 'DELETE',
-      headers: { cookie: learnerCookie, 'x-csrf-token': learnerCsrf }
-    });
-    assert.equal(toolkitDelete.response.status, 200);
-
-    const toolkitDeleteMissing = await request(`/api/v2/toolkit/${encodeURIComponent(toolkitCardId)}`, {
-      method: 'DELETE',
-      headers: { cookie: learnerCookie, 'x-csrf-token': learnerCsrf }
-    });
-    assert.equal(toolkitDeleteMissing.response.status, 404);
 
     const quizBlocked = await request('/api/v2/quiz-answer', {
       method: 'POST',

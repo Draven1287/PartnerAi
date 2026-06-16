@@ -318,7 +318,7 @@ function sendJson(res, status, data, options = {}) {
   const origin = corsOrigin(options.req);
   const headers = {
     'content-type': 'application/json; charset=utf-8',
-    'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS',
+    'access-control-allow-methods': 'GET,POST,PUT,OPTIONS',
     'access-control-allow-headers': 'content-type,x-csrf-token',
     'access-control-allow-credentials': 'true',
     'vary': 'Origin',
@@ -1569,14 +1569,6 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!body?.cardType) return sendJson(res, 400, { ok: false, error: 'invalid_toolkit_card' }, { req });
         const id = await database.saveToolkit(session.user.id, body);
         return sendJson(res, 201, { ok: true, id }, { req });
-      }
-      if (req.method === 'DELETE' && url.pathname.startsWith('/api/v2/toolkit/')) {
-        const session = await requireUser(req, res, database, { csrf: true });
-        if (!session) return;
-        const cardId = decodeURIComponent(url.pathname.replace('/api/v2/toolkit/', ''));
-        if (!cardId || cardId.length > 120) return sendJson(res, 400, { ok: false, error: 'invalid_toolkit_card' }, { req });
-        const deleted = await database.archiveToolkit(session.user.id, cardId);
-        return deleted ? sendJson(res, 200, { ok: true }, { req }) : sendJson(res, 404, { ok: false, error: 'toolkit_card_not_found' }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/minutes') {
         const session = await requireUser(req, res, database, { csrf: true });
