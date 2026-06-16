@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Backend Console · Learning AI</title>
+<!--
+  Admin Backend Console for Learning AI.
+  Recreated from the Claude Design file "Backend Console.dc.html".
+  Plain HTML/CSS/JS to match the rest of this static site (no React/build step).
+  Requires real admin sign-in through POST /api/admin/login.
+  Reads live Postgres-backed data from GET /api/admin/overview via backend-client.js.
+  If the API is unavailable, the console shows a real error instead of placeholder learner rows.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .bc { --bw:1px; min-height: 100vh; font-family:"Plus Jakarta Sans",system-ui,sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .bc[data-theme="light"] { --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9; --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573; --accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.10); --good:#1f8a5b; --good-soft:rgba(31,138,91,.12); --bad:#c2414b; --bad-soft:rgba(194,65,75,.12); --warn:#b6802a; --warn-soft:rgba(182,128,42,.14); --on-accent:#fff; --shadow:rgba(40,33,20,.08); }
+  .bc[data-theme="dark"] { --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b; --text:#f3efe6; --text-dim:#b3ab9a; --text-faint:#857e6e; --accent:#a6a4f2; --accent-dim:#bcbaf6; --accent-soft:rgba(166,164,242,.16); --good:#4cc38a; --good-soft:rgba(76,195,138,.16); --bad:#f0808a; --bad-soft:rgba(240,128,138,.16); --warn:#e0a64d; --warn-soft:rgba(224,166,77,.16); --on-accent:#16140f; --shadow:rgba(0,0,0,.45); }
+
+  .bc-canvas { max-width: 1180px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* top bar */
+  .bar { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(10px); background: color-mix(in srgb, var(--bg) 84%, transparent); border-bottom: var(--bw) solid var(--border); }
+  .bar-in { max-width: 1180px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; }
+  .brand .mk { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); }
+  .brand .sub { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); padding: 3px 8px; border: var(--bw) solid var(--border); border-radius: 999px; }
+  .spacer { flex: 1; }
+  .conn { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 999px; border: var(--bw) solid var(--border); cursor: pointer; background: var(--surface); color: var(--text-dim); }
+  .conn .dot { width: 9px; height: 9px; border-radius: 50%; }
+  .conn.ok { color: var(--good); border-color: color-mix(in srgb,var(--good) 40%,var(--border)); background: var(--good-soft); } .conn.ok .dot { background: var(--good); animation: pulse 2s infinite; }
+  .conn.warn { color: var(--warn); border-color: color-mix(in srgb,var(--warn) 40%,var(--border)); background: var(--warn-soft); } .conn.warn .dot { background: var(--warn); }
+  .conn.bad { color: var(--bad); border-color: color-mix(in srgb,var(--bad) 40%,var(--border)); background: var(--bad-soft); } .conn.bad .dot { background: var(--bad); }
+  @keyframes pulse { 0%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 60%,transparent);} 70%{ box-shadow:0 0 0 7px transparent;} 100%{ box-shadow:0 0 0 0 transparent;} }
+  .seg { display: inline-flex; background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px var(--shadow); }
+
+  /* head */
+  .head { padding: 26px 0 4px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+  .head .kick { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
+  .head h1 { font-family:"Newsreader",serif; font-weight: 500; font-size: clamp(26px,3.6vw,38px); letter-spacing:-.015em; margin: 8px 0 0; }
+  .head .env { font-size: 12.5px; color: var(--text-dim); margin-top: 8px; font-family:"JetBrains Mono",monospace; }
+  .head .env b { color: var(--accent); }
+  .pending-flag { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--warn); background: var(--warn-soft); border: var(--bw) solid color-mix(in srgb,var(--warn) 35%,var(--border)); padding: 7px 13px; border-radius: 999px; }
+  .live-flag { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--good); background: var(--good-soft); border: var(--bw) solid color-mix(in srgb,var(--good) 35%,var(--border)); padding: 7px 13px; border-radius: 999px; }
+  .live-flag .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--good); animation: pulse 2s infinite; }
+
+  /* tab nav */
+  .tabnav { display: flex; gap: 4px; margin: 22px 0 4px; border-bottom: var(--bw) solid var(--border); flex-wrap: wrap; }
+  .tabnav button { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 14px; font-weight: 600; padding: 11px 15px; border-radius: 10px 10px 0 0; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .12s, background .12s; }
+  .tabnav button:hover { color: var(--text); background: var(--surface-2); }
+  .tabnav button.on { color: var(--accent); border-bottom-color: var(--accent); }
+  .tabnav button .badge { font-size: 11px; font-weight: 700; background: var(--surface-2); color: var(--text-faint); padding: 1px 7px; border-radius: 999px; }
+  .tabnav button.on .badge { background: var(--accent-soft); color: var(--accent); }
+
+  /* kpi */
+  .kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin: 22px 0; }
+  @media (max-width:780px){ .kpis { grid-template-columns: repeat(2,1fr); } }
+  .kpi { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 18px 20px; box-shadow: 0 8px 26px var(--shadow); }
+  .kpi .l { font-size: 12.5px; color: var(--text-dim); font-weight: 600; display: flex; align-items: center; gap: 7px; }
+  .kpi .v { font-family:"Newsreader",serif; font-weight: 500; font-size: 36px; line-height: 1; letter-spacing:-.01em; margin: 12px 0 6px; }
+  .kpi .d { font-size: 12px; font-weight: 600; }
+  .kpi .d.up { color: var(--good); } .kpi .d.flat { color: var(--text-faint); }
+
+  .panel { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 18px; box-shadow: 0 8px 26px var(--shadow); overflow: hidden; }
+  .panel-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 22px 14px; flex-wrap: wrap; }
+  .panel-h h2 { font-family:"Newsreader",serif; font-weight: 500; font-size: 20px; margin: 0; }
+  .panel-h .meta { font-size: 12.5px; color: var(--text-faint); font-weight: 600; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width:820px){ .grid2 { grid-template-columns: 1fr; } }
+
+  /* search */
+  .search { display: flex; align-items: center; gap: 9px; background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 11px; padding: 9px 13px; width: 280px; max-width: 100%; }
+  .search input { border: 0; background: transparent; color: var(--text); font: inherit; font-size: 14px; width: 100%; outline: none; }
+  .search input::placeholder { color: var(--text-faint); }
+  .search .ic { color: var(--text-faint); flex: none; }
+
+  /* table */
+  .tbl-scroll { max-height: 620px; overflow-y: auto; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .tbl thead th { position: sticky; top: 0; z-index: 1; text-align: left; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; padding: 10px 22px; border-bottom: var(--bw) solid var(--border); background: var(--surface-2); }
+  .tbl thead th.num, .tbl tbody td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .tbl tbody td { padding: 12px 22px; border-bottom: var(--bw) solid var(--border); vertical-align: middle; }
+  .tbl tbody tr { cursor: pointer; transition: background .12s; }
+  .tbl tbody tr:hover { background: var(--surface-2); }
+  .tbl tbody tr.sel { background: var(--accent-soft); }
+  .who { display: flex; align-items: center; gap: 11px; }
+  .ava { width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px; }
+  .who .nm { font-weight: 600; color: var(--text); }
+  .who .em { font-size: 12px; color: var(--text-faint); font-family:"JetBrains Mono",monospace; }
+  .lvl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+  .lvl.Foundation { color: var(--warn); background: var(--warn-soft); }
+  .lvl.Explorer { color: var(--accent); background: var(--accent-soft); }
+  .lvl.Builder { color: var(--good); background: var(--good-soft); }
+  .lprog { display: flex; align-items: center; gap: 9px; }
+  .lprog .track { width: 70px; height: 7px; border-radius: 999px; background: var(--surface-2); border: var(--bw) solid var(--border); overflow: hidden; }
+  .lprog .fill { height: 100%; background: var(--accent); }
+  .lprog .n { font-size: 12px; color: var(--text-dim); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .seen { color: var(--text-dim); }
+  .seen.cold { color: var(--bad); }
+  .empty { padding: 40px 22px; text-align: center; color: var(--text-faint); font-size: 14px; }
+
+  /* learner detail */
+  .detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; padding: 4px 22px 20px; }
+  @media (max-width:600px){ .detail-grid { grid-template-columns: 1fr 1fr; } }
+  .dcell { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 12px; padding: 13px 15px; }
+  .dcell .l { font-size: 11px; letter-spacing:.05em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
+  .dcell .v { font-size: 15px; font-weight: 600; margin-top: 5px; }
+  .dcell .v.mono { font-family:"JetBrains Mono",monospace; font-size: 13px; }
+  .learners-2col { display: grid; grid-template-columns: minmax(0,1fr) 358px; gap: 18px; align-items: start; }
+  @media (max-width:900px){ .learners-2col { grid-template-columns: 1fr; } }
+  .detail-panel { position: sticky; top: 78px; }
+  .detail-grid.side { grid-template-columns: 1fr 1fr; padding: 4px 18px 20px; }
+
+  /* distribution */
+  .dist { padding: 8px 22px 22px; display: grid; gap: 16px; }
+  .dist-row .top { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 7px; }
+  .dist-row .top .c { color: var(--text-faint); }
+  .dist-row .track { height: 14px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: var(--bw) solid var(--border); }
+  .dist-row .fill { height: 100%; border-radius: 999px; }
+  .age-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; padding: 0 22px 22px; }
+  @media (max-width:600px){ .age-grid { grid-template-columns: 1fr 1fr; } }
+  .agecell { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 12px; padding: 13px 15px; }
+  .agecell .n { font-family:"Newsreader",serif; font-size: 22px; font-weight: 500; }
+  .agecell .l { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+  /* questions */
+  .subtabs { display: flex; gap: 7px; padding: 4px 22px 16px; flex-wrap: wrap; }
+  .subtabs button { border: var(--bw) solid var(--border); background: var(--surface); color: var(--text-dim); font: inherit; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 999px; cursor: pointer; }
+  .subtabs button:hover { border-color: var(--accent); color: var(--accent); }
+  .subtabs button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .qbody { padding: 0 22px 24px; }
+  .qbody .qt { font-family:"Newsreader",serif; font-weight: 500; font-size: 22px; line-height: 1.2; margin: 4px 0 18px; max-width: 60ch; }
+  .qopt-dist { display: grid; gap: 11px; }
+  .qopt-row { display: grid; grid-template-columns: 26px 1fr; gap: 13px; align-items: start; }
+  .qopt-row .letter { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--text-dim); border: var(--bw) solid var(--border); }
+  .qopt-row.best .letter { background: var(--good); color: #fff; border-color: var(--good); }
+  .qopt-row .body .txt { font-size: 14px; line-height: 1.45; margin-bottom: 7px; }
+  .qopt-row .body .meter { display: flex; align-items: center; gap: 10px; }
+  .qopt-row .body .track { flex: 1; height: 12px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: var(--bw) solid var(--border); }
+  .qopt-row .body .fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .qopt-row.best .body .fill { background: var(--good); }
+  .qopt-row .body .pct { font-size: 12.5px; font-weight: 700; color: var(--text-dim); min-width: 56px; text-align: right; font-variant-numeric: tabular-nums; }
+  .qsummary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+  @media (max-width:560px){ .qsummary { grid-template-columns: 1fr; } }
+  .qs-cell { border: var(--bw) solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .qs-cell.best { background: var(--good-soft); border-color: color-mix(in srgb,var(--good) 35%,var(--border)); }
+  .qs-cell.weak { background: var(--surface-2); }
+  .qs-l { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing:.03em; text-transform: uppercase; }
+  .qs-cell.best .qs-l { color: var(--good); }
+  .qs-cell.weak .qs-l { color: var(--text-faint); }
+  .qs-v { font-family:"Newsreader",serif; font-weight: 500; font-size: 34px; line-height: 1; margin: 8px 0 5px; letter-spacing:-.01em; }
+  .qs-cell.best .qs-v { color: var(--good); }
+  .qs-s { font-size: 12.5px; color: var(--text-dim); line-height: 1.4; }
+  .qnote { font-size: 12.5px; color: var(--text-faint); margin: 18px 0 0; line-height: 1.5; }
+
+  /* visits */
+  .spark { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding: 20px 24px 8px; }
+  .spark .col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: flex-end; }
+  .spark .col .bar { width: 100%; max-width: 48px; background: var(--accent); border-radius: 6px 6px 0 0; transition: background .12s; }
+  .spark .col .bv { font-size: 12px; font-weight: 700; color: var(--text-dim); }
+  .spark .col .bx { font-size: 12px; color: var(--text-faint); font-weight: 600; }
+  .vstats { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 8px 24px 24px; }
+  @media (max-width:680px){ .vstats { grid-template-columns: repeat(2,1fr); } }
+  .vstat { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .vstat .n { font-family:"Newsreader",serif; font-size: 24px; font-weight: 500; }
+  .vstat .l { font-size: 12px; color: var(--text-dim); margin-top: 3px; line-height: 1.35; }
+
+  /* connection diagnostics */
+  .diag { padding: 6px 24px 24px; }
+  .diag .url { font-family:"JetBrains Mono",monospace; font-size: 12.5px; color: var(--text-dim); background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 9px; padding: 10px 13px; margin-bottom: 16px; word-break: break-all; }
+  .check { display: flex; align-items: center; gap: 13px; padding: 13px 0; border-bottom: var(--bw) solid var(--border); }
+  .check:last-child { border-bottom: 0; }
+  .check .ic { width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 700; }
+  .check .ic.ok { background: var(--good); } .check .ic.bad { background: var(--bad); } .check .ic.warn { background: var(--warn); } .check .ic.pend { background: var(--surface-2); color: var(--text-faint); border: var(--bw) solid var(--border); }
+  .check .tx { flex: 1; }
+  .check .tx .t { font-size: 14px; font-weight: 600; }
+  .check .tx .s { font-size: 12.5px; color: var(--text-faint); margin-top: 2px; line-height: 1.4; }
+  .check .ms { font-size: 12px; color: var(--text-faint); font-family:"JetBrains Mono",monospace; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 11px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; border: var(--bw) solid transparent; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+  .diag-note { font-size: 12.5px; color: var(--text-faint); margin-top: 16px; line-height: 1.55; }
+
+  .preview-foot { padding: 14px 22px; border-top: var(--bw) solid var(--border); text-align: right; }
+  .linkbtn { border: 0; background: transparent; color: var(--accent); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .foot { margin-top: 22px; font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
+
+  /* admin login gate */
+  .login-wrap { min-height: calc(100vh - 130px); display: grid; place-items: center; padding: 40px 0; }
+  .login-card { width: 100%; max-width: 420px; background: var(--surface); border: var(--bw) solid var(--border); border-radius: 20px; box-shadow: 0 18px 50px var(--shadow); padding: 34px 34px 30px; }
+  .login-mk { width: 48px; height: 48px; border-radius: 14px; background: var(--accent); display: grid; place-items: center; margin-bottom: 18px; }
+  .login-kick { font-size: 11px; letter-spacing:.14em; text-transform:uppercase; color: var(--text-faint); font-weight: 700; }
+  .login-h { font-family:"Newsreader",serif; font-weight: 500; font-size: 30px; letter-spacing:-.015em; margin: 6px 0 8px; }
+  .login-sub { font-size: 14px; color: var(--text-dim); line-height: 1.55; margin: 0 0 20px; }
+  .login-err { font-size: 13px; font-weight: 600; color: var(--bad); background: var(--bad-soft); border: var(--bw) solid color-mix(in srgb,var(--bad) 35%,var(--border)); border-radius: 10px; padding: 10px 13px; margin-bottom: 14px; }
+  .login-fields { display: grid; gap: 11px; margin-bottom: 18px; }
+  .login-inp { width: 100%; padding: 13px 15px; border: var(--bw) solid var(--border); border-radius: 11px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 15px; outline: none; }
+  .login-inp:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .login-inp::placeholder { color: var(--text-faint); }
+  .login-btn { width: 100%; justify-content: center; font-size: 15px; padding: 13px; }
+  .login-actions { display: grid; gap: 9px; margin-bottom: 16px; }
+  .login-actions .btn { justify-content: center; text-decoration: none; }
+  .login-foot { font-size: 12px; color: var(--text-faint); line-height: 1.5; margin: 16px 0 0; }
+  .state-card { max-width: 680px; margin: 34px auto 0; background: var(--surface); border: var(--bw) solid var(--border); border-radius: 18px; box-shadow: 0 8px 26px var(--shadow); padding: 24px; }
+  .state-card h2 { font-family:"Newsreader",serif; font-weight: 500; font-size: 24px; margin: 0 0 8px; }
+  .state-card p { margin: 0 0 16px; color: var(--text-dim); line-height: 1.55; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- backend bridge: config sets the URL, v2 client exposes adminOverview() -->
+<script src="./backend-config.js"></script>
+<script src="./backend-client.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  // ---------- tiny DOM builder: h(tag, props, ...children) ----------
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var SVG_TAGS = { svg: 1, path: 1, g: 1, circle: 1, rect: 1, line: 1 };
+  var ATTR_MAP = { strokeWidth: "stroke-width", strokeLinecap: "stroke-linecap", strokeLinejoin: "stroke-linejoin", strokeDasharray: "stroke-dasharray" };
+  var EVT_MAP = { onClick: "click", onChange: "input", onInput: "input", onFocus: "focus", onBlur: "blur", onKeyDown: "keydown" };
+
+  function appendChild(el, c) {
+    if (c === null || c === undefined || c === false || c === true) return;
+    if (Array.isArray(c)) { for (var i = 0; i < c.length; i++) appendChild(el, c[i]); return; }
+    if (typeof c === "string" || typeof c === "number") { el.appendChild(document.createTextNode(String(c))); return; }
+    el.appendChild(c);
+  }
+
+  function h(tag, props) {
+    var isSvg = !!SVG_TAGS[tag];
+    var el = isSvg ? document.createElementNS(SVG_NS, tag) : document.createElement(tag);
+    if (props) {
+      for (var k in props) {
+        if (!Object.prototype.hasOwnProperty.call(props, k)) continue;
+        var v = props[k];
+        if (v === null || v === undefined) continue;
+        if (k === "key") continue;
+        if (k === "className") { el.setAttribute("class", v); continue; }
+        if (k === "style") {
+          if (typeof v === "string") { el.style.cssText = v; }
+          else { for (var sp in v) { if (v[sp] === null || v[sp] === undefined) continue; el.style[sp] = (typeof v[sp] === "number") ? (v[sp] + "px") : v[sp]; } }
+          continue;
+        }
+        if (EVT_MAP[k]) { el.addEventListener(EVT_MAP[k], v); continue; }
+        if (k === "value") { el.value = v; continue; }
+        if (k === "disabled") { if (v) el.setAttribute("disabled", ""); continue; }
+        el.setAttribute(ATTR_MAP[k] || k, v);
+      }
+    }
+    for (var a = 2; a < arguments.length; a++) appendChild(el, arguments[a]);
+    return el;
+  }
+
+  // ---------- the component ----------
+  var App = {
+    state: {
+      theme: "light",
+      tab: "overview",
+      selected: 0,
+      qIndex: 0,
+      search: "",
+      ran: false,
+      running: false,
+      checks: [],
+      authed: false,
+      checkingSession: true,
+      loadingOverview: false,
+      overviewError: "",
+      adminEmail: "",
+      adminPw: "",
+      authError: ""
+    },
+
+    live: false,
+    LVL: { Foundation: "#b6802a", Explorer: "#3a3aa3", Builder: "#2f9c6a" },
+    TOTAL: 0,
+    KPI_ACTIVE: "0", KPI_ACTIVE_SUB: "0% of all learners", KPI_ACTIVE_DC: "flat",
+    KPI_AVG: "—", KPI_AVG_SUB: "of 30",
+    KPI_MEDIAN: "0", KPI_MEDIAN_SUB: "across learners",
+    KPI_TOTAL_SUB: "+0 this week", KPI_TOTAL_DC: "flat",
+    WEEKDAYS: [["Mon", 0], ["Tue", 0], ["Wed", 0], ["Thu", 0], ["Fri", 0], ["Sat", 0], ["Sun", 0]],
+    WEEKS8: [["8w", 0], ["7w", 0], ["6w", 0], ["5w", 0], ["4w", 0], ["3w", 0], ["2w", 0], ["Now", 0]],
+    RETURN: [["Almost daily", 0, "#2f9c6a"], ["A few times a week", 0, "#3a3aa3"], ["About weekly", 0, "#b6802a"], ["Once so far", 0, "#cf5340"]],
+    LEVELS: { Foundation: 0, Explorer: 0, Builder: 0 },
+    AGES: [],
+    VSTATS: [["0", "sessions this week"], ["0", "avg days between visits"], ["0%", "returned within 7 days"], ["—", "busiest day"]],
+    QTOTAL: 0,              // learners who answered the diagnostic (drives the Questions panel meta + counts)
+    liveVisits: false,     // set true once applyLive maps real visit series + return buckets
+    liveQuestions: false,  // set true once applyLive maps real diagnostic answer distributions
+
+    TABS: [["overview", "Overview", "server"], ["learners", "Learners", "users"], ["visits", "Visits", "pulse"], ["levels", "Where kids land", "target"], ["questions", "Questions", "list"], ["connection", "Connection", "refresh"]],
+
+    QUESTIONS: [
+      { cat: "Q1", title: 'When someone says "AI," what do they mean?',
+        options: ["A website that gives answers when you type questions.", "A computer program that can copy human writing and conversation.", "A trained model that finds patterns in data to make predictions or decisions.", "A family of systems: language models, image models, agents, and tools that act across software."],
+        dist: [0, 0, 0, 0], order: [2, 0, 3, 1] },
+      { cat: "Q2", title: "What can modern AI systems actually do?",
+        options: ["Mostly find information faster, like a smarter search engine.", "Answer questions, write drafts, and summarize text.", "Explain, code, plan, translate, analyze images, and simulate conversation.", "Use tools, call APIs, check files, run code, and coordinate multi-step work."],
+        dist: [0, 0, 0, 0], order: [3, 1, 0, 2] },
+      { cat: "Q3", title: "When should you slow down and check?",
+        options: ["Trust it if the answer sounds detailed.", "Ask it again and see if it says the same thing.", "Ask for sources, then check reliable sources yourself.", "Verify outside the model and ask what evidence would change the answer."],
+        dist: [0, 0, 0, 0], order: [1, 3, 2, 0] },
+      { cat: "Q4", title: "How should you use AI without losing control?",
+        options: ["Let it do the main thinking so you move faster.", "Ask it to explain the answer in easier words.", "Ask for hints and a check so you still do the important thinking.", "Use it as a tutor and critic while protecting the skill you are building."],
+        dist: [0, 0, 0, 0], order: [0, 2, 1, 3] },
+      { cat: "Q5", title: "How do you think about AI's real-world costs?",
+        options: ["New technology always wins, so costs do not matter.", "The costs mean AI should probably be avoided.", "Costs are real, but weigh them against benefits and better infrastructure.", "Ask which model, what task, how much energy, what alternative, who pays."],
+        dist: [0, 0, 0, 0], order: [2, 3, 0, 1] },
+      { cat: "Q6", title: "What do you know beyond chatbots?",
+        options: ["Mostly better chatbots.", "Tools that write, summarize, and search faster.", "Tutors, coding helpers, research assistants, and agents that use software.", "AI connected to data, tools, robots, labs, simulations, and workflows."],
+        dist: [0, 0, 0, 0], order: [1, 0, 3, 2] }
+    ],
+
+    LEARNERS: [],
+
+    el: h,
+    initials: function (n) { return n.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase(); },
+    go: function (tab) { this.setState({ tab: tab }); window.scrollTo(0, 0); },
+
+    setState: function (patch) {
+      var next = typeof patch === "function" ? patch(this.state) : patch;
+      for (var k in next) { if (Object.prototype.hasOwnProperty.call(next, k)) this.state[k] = next[k]; }
+      render();
+    },
+
+    icon: function (name) {
+      var P = {
+        users: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
+        pulse: "M22 12h-4l-3 9L9 3l-3 9H2",
+        check: "M20 6 9 17l-5-5", x: "M18 6 6 18M6 6l12 12", alert: "M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z",
+        book: "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z",
+        target: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
+        list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
+        clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2", refresh: "M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15",
+        server: "M5 3h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 14h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM6 7h.01M6 18h.01",
+        search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"
+      };
+      return this.el("svg", { viewBox: "0 0 24 24", width: 16, height: 16, fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", style: { display: "block" } }, this.el("path", { d: P[name] || "" }));
+    },
+    ico: function (name, sz) { return this.el("span", { style: { width: sz || 16, height: sz || 16, display: "inline-flex" } }, this.icon(name)); },
+
+    connState: function () {
+      if (this.live && !this.state.ran) return { cls: "ok", label: "Connection: healthy" };
+      if (!this.state.ran) return { cls: "warn", label: "Connection: not tested" };
+      if (this.state.running) return { cls: "warn", label: "Testing connection…" };
+      var bad = this.state.checks.some(function (c) { return c.status === "bad"; });
+      return bad ? { cls: "bad", label: "Connection: failing" } : { cls: "ok", label: "Connection: healthy" };
+    },
+    runDiagnostics: function () {
+      var self = this;
+      var steps = [
+        { t: "DNS + TLS reachable", s: "Manual check: verify api.learningai4you.com resolves through Cloudflare", status: "warn", ms: "—" },
+        { t: "CORS preflight (OPTIONS)", s: "Manual check: OPTIONS should echo the site origin", status: "warn", ms: "—" },
+        { t: "Credentials allowed", s: "Manual check: Access-Control-Allow-Credentials must be true", status: "warn", ms: "—" },
+        { t: "Session cookie set", s: "HTTP-only admin cookie; Secure in production; SameSite=Lax", status: "warn", ms: "—" },
+        { t: "GET /api/health", s: "Waiting for live health response", status: "pend", ms: "—" },
+        { t: "Cloudflare not caching /api/*", s: "Manual check: /api/* should be dynamic, not cached", status: "warn", ms: "—" }
+      ];
+      var base = String(window.LEARNING_AI_BACKEND_URL || "").replace(/\/$/, "");
+      this.setState({ ran: true, running: true, tab: "connection", checks: steps.map(function (s) { return Object.assign({}, s, { status: "pend" }); }) });
+      // Reveal manual edge checks, while /api/health is driven only by the live fetch.
+      steps.forEach(function (s, i) {
+        setTimeout(function () {
+          self.setState(function (st) {
+            var c = st.checks.slice();
+            c[i] = (base && i === 4) ? Object.assign({}, s, { status: "pend", s: "Contacting api.learningai4you.com…", ms: "…" }) : s;
+            return { checks: c, running: i < steps.length - 1 };
+          });
+        }, 320 * (i + 1));
+      });
+      // when a backend is configured, fill the /api/health row from the real fetch
+      this.probeHealth();
+    },
+    probeHealth: function () {
+      var self = this;
+      var base = String(window.LEARNING_AI_BACKEND_URL || "").replace(/\/$/, "");
+      if (!base) return;
+      var t0 = Date.now();
+      fetch(base + "/api/health", { credentials: "include", cache: "no-store" })
+        .then(function (res) { return res.json().catch(function () { return {}; }).then(function (body) { return { res: res, body: body }; }); })
+        .then(function (r) {
+          var ms = (Date.now() - t0) + "ms";
+          var ok = r.res.ok && (r.body.status === "ok" || r.body.db === "connected" || r.res.status === 200);
+          var row = ok
+            ? { t: "GET /api/health", s: "200 OK · status " + (r.body.status || "ok") + (r.body.db ? ", db " + r.body.db : ""), status: "ok", ms: ms }
+            : { t: "GET /api/health", s: "HTTP " + r.res.status + " — see §9 in BACKEND.md", status: "bad", ms: ms };
+          self.setState(function (st) { if (!st.checks.length) return {}; var c = st.checks.slice(); c[4] = row; return { checks: c }; });
+        })
+        .catch(function () {
+          self.setState(function (st) { if (!st.checks.length) return {}; var c = st.checks.slice(); c[4] = { t: "GET /api/health", s: "No response — DNS/TLS or CORS failing (see §4–§5)", status: "bad", ms: "—" }; return { checks: c }; });
+        });
+    },
+
+    checkAdminSession: function () {
+      var self = this;
+      if (!window.LearningAIBackend || !window.LearningAIBackend.adminMe) {
+        this.setState({ authed: false, checkingSession: false });
+        return;
+      }
+      window.LearningAIBackend.adminMe().then(function (result) {
+        if (result && result.ok) {
+          self.setState({ authed: true, checkingSession: false, authError: "" });
+          self.hydrate();
+        } else {
+          self.setState({ authed: false, checkingSession: false });
+        }
+      }).catch(function () {
+        self.setState({ authed: false, checkingSession: false });
+      });
+    },
+
+    doAdminLogin: function () {
+      var self = this;
+      var email = (this.state.adminEmail || "").trim();
+      var password = this.state.adminPw || "";
+      if (!email || !password) {
+        this.setState({ authError: "Enter the admin email and password." });
+        return;
+      }
+      if (window.location.protocol === "file:") {
+        this.setState({ authError: "Open this console from the deployed site or a local web server. file:// pages cannot use the admin session cookie." });
+        return;
+      }
+      if (!window.LearningAIBackend || !window.LearningAIBackend.adminLogin) {
+        this.setState({ authError: "The backend client is not available on this page." });
+        return;
+      }
+      this.setState({ authError: "", checkingSession: true });
+      window.LearningAIBackend.adminLogin({ email: email, password: password }).then(function (result) {
+        if (!result || !result.ok) {
+          var message = "Check the admin email and password.";
+          if (!result || result.skipped) message = "The backend URL is not configured on this page.";
+          else if (result.error === "network_error") message = "Could not reach the backend. Open this console from an allowed web origin and check CORS.";
+          else if (result.status === 403 || result.error === "origin_not_allowed") message = "This page origin is not allowed to access the admin API.";
+          else if (result.status === 429) message = "Too many attempts. Try again in a few minutes.";
+          self.setState({ checkingSession: false, authError: message });
+          return;
+        }
+        self.setState({ authed: true, checkingSession: false, adminPw: "", authError: "" });
+        self.hydrate();
+      }).catch(function () {
+        self.setState({ checkingSession: false, authError: "Could not reach the backend. Check the API domain and CORS settings." });
+      });
+    },
+
+    signOut: function () {
+      var self = this;
+      var done = function () {
+        self.live = false;
+        self.setState({ authed: false, tab: "overview", overviewError: "", loadingOverview: false });
+      };
+      if (window.LearningAIBackend && window.LearningAIBackend.adminLogout) {
+        window.LearningAIBackend.adminLogout().then(done).catch(done);
+      } else {
+        done();
+      }
+    },
+
+    loginView: function () {
+      var self = this;
+      function input(placeholder, type, value, key) {
+        return self.el("input", {
+          id: "bc-" + key,
+          className: "login-inp",
+          type: type,
+          placeholder: placeholder,
+          value: value,
+          onInput: function (event) {
+            var patch = {};
+            patch[key] = event.target.value;
+            self.setState(patch);
+          },
+          onKeyDown: function (event) {
+            if (event.key === "Enter") self.doAdminLogin();
+          }
+        });
+      }
+      var buttonText = this.state.checkingSession ? "Checking..." : "Sign in";
+      var fileMode = window.location.protocol === "file:";
+      var fileHelp = fileMode ? this.el("div", { className: "login-actions" },
+        this.el("a", { className: "btn btn-primary", href: "http://127.0.0.1:8787/admin" }, "Open local admin"),
+        this.el("a", { className: "btn btn-ghost", href: "https://learningai4you.com/backend-console.html" }, "Open deployed console")) : null;
+      return this.el("div", { className: "login-wrap" }, this.el("div", { className: "login-card" },
+        this.el("div", { className: "login-mk" }, this.el("span", { style: { color: "#fff", width: 20, height: 20 } }, this.icon("server"))),
+        this.el("div", { className: "login-kick" }, "Learning AI · Backend"),
+        this.el("h1", { className: "login-h" }, "Admin sign-in"),
+        this.el("p", { className: "login-sub" }, "Sign in with the admin account. Sessions are handled server-side, and the console only loads real database records after authentication."),
+        this.state.authError ? this.el("div", { className: "login-err" }, this.state.authError) : null,
+        fileHelp,
+        this.el("div", { className: "login-fields" },
+          input("Admin email", "email", this.state.adminEmail, "adminEmail"),
+          input("Password", "password", this.state.adminPw, "adminPw")),
+        this.el("button", { className: "btn btn-primary login-btn", disabled: this.state.checkingSession, onClick: function () { self.doAdminLogin(); } }, buttonText),
+        this.el("p", { className: "login-foot" }, "No admin token is stored in localStorage. The API sets an HTTP-only admin session cookie.")));
+    },
+
+    liveStateView: function () {
+      if (this.state.loadingOverview) {
+        return this.el("div", { className: "state-card" },
+          this.el("h2", null, "Loading database records"),
+          this.el("p", null, "The console is signed in and reading /api/admin/overview from the backend."));
+      }
+      if (this.state.overviewError) {
+        return this.el("div", { className: "state-card" },
+          this.el("h2", null, "Could not load the database"),
+          this.el("p", null, this.state.overviewError),
+          this.el("button", { className: "btn btn-primary", onClick: this.hydrate.bind(this) }, this.ico("refresh", 15), "Try again"));
+      }
+      return this.el("div", { className: "state-card" },
+        this.el("h2", null, "No learner records yet"),
+        this.el("p", null, "The database is reachable, but there are no learner rows to show yet."));
+    },
+
+    // ---------- chrome ----------
+    bar: function () {
+      var self = this;
+      var cs = this.connState();
+      var connBtn = this.el("button", { className: "conn " + cs.cls, onClick: function () { self.runDiagnostics(); } }, this.el("span", { className: "dot" }), cs.label);
+      var signOutBtn = this.el("button", { className: "conn", onClick: function () { self.signOut(); } }, "Sign out");
+      var theme = this.el("div", { className: "seg" }, [["light", "Light"], ["dark", "Dark"]].map(function (pair) {
+        return self.el("button", { key: pair[0], className: self.state.theme === pair[0] ? "on" : "", onClick: function () { self.setState({ theme: pair[0] }); try { localStorage.setItem("learningai-console-theme", pair[0]); } catch (e) {} } }, pair[1]);
+      }));
+      var brand = this.el("div", { className: "brand" }, this.el("span", { className: "mk" }, this.el("span", { style: { color: "#fff", width: 16, height: 16 } }, this.icon("server"))), this.el("span", null, "Learning AI"), this.el("span", { className: "sub" }, "Backend Console"));
+      if (!this.state.authed) return this.el("div", { className: "bar" }, this.el("div", { className: "bar-in" }, brand, this.el("div", { className: "spacer" }), theme));
+      return this.el("div", { className: "bar" }, this.el("div", { className: "bar-in" }, brand, this.el("div", { className: "spacer" }), connBtn, signOutBtn, theme));
+    },
+    head: function () {
+      if (!this.state.authed) return null;
+      var flag = this.live
+        ? this.el("div", { className: "live-flag" }, this.el("span", { className: "dot" }), "Live data — from the API")
+        : this.el("div", { className: "pending-flag" }, this.ico("alert", 14), "Waiting for database");
+      return this.el("div", { className: "head" },
+        this.el("div", null, this.el("div", { className: "kick" }, "Admin · learning analytics"), this.el("h1", null, "Backend Console"),
+          this.el("div", { className: "env" }, "env: ", this.el("b", null, "production"), "  ·  api.learningai4you.com  ·  Coolify + Cloudflare")),
+        flag);
+    },
+    tabnav: function () {
+      if (!this.state.authed || !this.live) return null;
+      var self = this;
+      return this.el("div", { className: "tabnav" }, this.TABS.map(function (t) {
+        return self.el("button", { key: t[0], className: self.state.tab === t[0] ? "on" : "", onClick: function () { self.go(t[0]); } },
+          self.ico(t[2], 15), t[1], t[0] === "learners" ? self.el("span", { className: "badge" }, self.TOTAL) : null);
+      }));
+    },
+    foot: function () {
+      if (!this.state.authed) return null;
+      var txt;
+      if (this.live) {
+        txt = "This console reads live from the Postgres-backed /api/admin/overview endpoint. Empty panels mean the database has no matching records yet.";
+      } else {
+        txt = "This console requires a live database response from /api/admin/overview before analytics are shown.";
+      }
+      return this.el("p", { className: "foot" }, txt);
+    },
+
+    // ---------- KPIs ----------
+    kpis: function () {
+      var self = this;
+      var data = [
+        { l: "Total learners", ic: "users", v: String(this.TOTAL), d: this.KPI_TOTAL_SUB, dc: this.KPI_TOTAL_DC },
+        { l: "Active this week", ic: "pulse", v: this.KPI_ACTIVE, d: this.KPI_ACTIVE_SUB, dc: this.KPI_ACTIVE_DC },
+        { l: "Avg. lesson reached", ic: "book", v: this.KPI_AVG, d: this.KPI_AVG_SUB, dc: "flat" },
+        { l: "Median visits / learner", ic: "clock", v: this.KPI_MEDIAN, d: this.KPI_MEDIAN_SUB, dc: "flat" }
+      ];
+      return this.el("div", { className: "kpis" }, data.map(function (k, i) {
+        return self.el("div", { key: i, className: "kpi" },
+          self.el("div", { className: "l" }, self.el("span", { style: { width: 15, height: 15, color: "var(--accent)" } }, self.icon(k.ic)), k.l),
+          self.el("div", { className: "v" }, k.v),
+          self.el("div", { className: "d " + k.dc }, k.d));
+      }));
+    },
+
+    // ---------- learners ----------
+    filtered: function () {
+      var q = this.state.search.trim().toLowerCase();
+      if (!q) return this.LEARNERS;
+      return this.LEARNERS.filter(function (u) { return u.name.toLowerCase().indexOf(q) >= 0 || u.email.toLowerCase().indexOf(q) >= 0 || u.level.toLowerCase().indexOf(q) >= 0; });
+    },
+    learnerRow: function (u) {
+      var self = this;
+      var sel = this.state.selected === u.id;
+      return this.el("tr", { key: u.id, className: sel ? "sel" : "", onClick: function () { self.setState({ selected: u.id }); } },
+        this.el("td", null, this.el("div", { className: "who" }, this.el("span", { className: "ava", style: { background: this.LVL[u.level] } }, this.initials(u.name)),
+          this.el("div", null, this.el("div", { className: "nm" }, u.name), this.el("div", { className: "em" }, u.email)))),
+        this.el("td", null, this.el("span", { className: "lvl " + u.level }, u.level)),
+        this.el("td", null, this.el("div", { className: "lprog" }, this.el("div", { className: "track" }, this.el("div", { className: "fill", style: { width: (u.lesson / 30 * 100) + "%" } })), this.el("span", { className: "n" }, u.lesson + "/30"))),
+        this.el("td", { className: "num" }, u.visits),
+        this.el("td", { className: "num seen" + (u.cold ? " cold" : "") }, u.last));
+    },
+    learnerTable: function (list) {
+      var self = this;
+      var head = this.el("thead", null, this.el("tr", null, this.el("th", null, "Learner"), this.el("th", null, "Diagnostic"), this.el("th", null, "Progress"), this.el("th", { className: "num" }, "Visits"), this.el("th", { className: "num" }, "Last seen")));
+      var bodyRows = list.length ? this.el("tbody", null, list.map(function (u) { return self.learnerRow(u); })) : null;
+      var table = this.el("div", { className: "tbl-scroll" }, this.el("table", { className: "tbl" }, head, bodyRows));
+      return list.length ? table : this.el("div", { className: "empty" }, "No learners match that search.");
+    },
+    detail: function () {
+      var self = this;
+      var u = this.LEARNERS.filter(function (x) { return x.id === self.state.selected; })[0] || this.LEARNERS[0];
+      if (!u) return this.el("div", { className: "empty" }, "No learners yet.");
+      var cells = [["Email", u.email, true], ["Display name", u.name, false], ["Age range", u.age, false], ["Diagnostic level", u.level, false], ["Score", u.score + " / 100", false], ["Current lesson", u.lesson + " of 30", false], ["Total visits", String(u.visits), false], ["Active days", String(u.days), false], ["Last seen", u.last, false]];
+      var hh = this.el("div", { className: "panel-h" }, this.el("h2", null, u.name), this.el("span", { className: "meta" }, "full learner record"));
+      var grid = this.el("div", { className: "detail-grid side" }, cells.map(function (c, i) { return self.el("div", { key: i, className: "dcell" }, self.el("div", { className: "l" }, c[0]), self.el("div", { className: "v" + (c[2] ? " mono" : "") }, c[1])); }));
+      return this.el("div", null, hh, grid);
+    },
+    learnersTab: function () {
+      var self = this;
+      var search = this.el("div", { className: "search" }, this.el("span", { className: "ic" }, this.ico("search", 16)),
+        this.el("input", { id: "bc-search", type: "text", placeholder: "Search name, email, or level…", value: this.state.search, onChange: function (e) { self.setState({ search: e.target.value }); } }));
+      var all = this.filtered();
+      var searching = this.state.search.trim().length > 0;
+      var hh = this.el("div", { className: "panel-h" }, this.el("h2", null, "Learners"), search);
+      var info = this.el("div", { style: { padding: "0 22px 10px", fontSize: "12.5px", color: "var(--text-faint)", fontWeight: 600 } },
+        "Showing " + (searching ? all.length + " matching" : "all " + all.length) + " learners · scroll the list · click a row for the full record");
+      var wipe = null;
+      return this.el("div", { className: "learners-2col" },
+        this.el("div", { className: "panel" }, hh, info, this.learnerTable(all),
+          this.el("div", { style: { padding: "14px 22px 6px" } }, wipe)),
+        this.el("div", { className: "panel detail-panel" }, this.detail()));
+    },
+
+    // ---------- visits ----------
+    visitsTab: function () {
+      var self = this;
+      var max = Math.max.apply(null, this.WEEKDAYS.map(function (d) { return d[1]; })) || 1;
+      var cols = this.WEEKDAYS.map(function (d, i) {
+        return self.el("div", { key: i, className: "col" },
+          self.el("div", { className: "bv" }, d[1]), self.el("div", { className: "bar", style: { height: (d[1] / max * 150 + 8) + "px" } }), self.el("div", { className: "bx" }, d[0]));
+      });
+      var stats = this.VSTATS;
+      var weekly = this.el("div", { className: "panel" },
+        this.el("div", { className: "panel-h" }, this.el("h2", null, "Visits this week"), this.el("span", { className: "meta" }, "sessions per day")),
+        this.el("div", { className: "spark" }, cols),
+        this.el("div", { className: "vstats" }, stats.map(function (s, i) { return self.el("div", { key: i, className: "vstat" }, self.el("div", { className: "n" }, s[0]), self.el("div", { className: "l" }, s[1])); })));
+      var tmax = Math.max.apply(null, this.WEEKS8.map(function (d) { return d[1]; })) || 1;
+      var tcols = this.WEEKS8.map(function (d, i) {
+        return self.el("div", { key: i, className: "col" },
+          self.el("div", { className: "bv" }, d[1]), self.el("div", { className: "bar", style: { height: (d[1] / tmax * 130 + 8) + "px", background: "color-mix(in srgb,var(--accent) " + (55 + i * 5) + "%, var(--surface-2))" } }), self.el("div", { className: "bx" }, d[0]));
+      });
+      var trend = this.el("div", { className: "panel" },
+        this.el("div", { className: "panel-h" }, this.el("h2", null, "Growth"), this.el("span", { className: "meta" }, "weekly sessions, last 8 weeks")),
+        this.el("div", { className: "spark", style: { height: "170px", padding: "18px 20px 8px" } }, tcols));
+      var rtot = this.RETURN.reduce(function (a, b) { return a + b[1]; }, 0) || 1;
+      var rrows = this.RETURN.map(function (r, i) {
+        var pct = Math.round(r[1] / rtot * 100);
+        return self.el("div", { key: i, className: "dist-row" },
+          self.el("div", { className: "top" }, self.el("span", null, r[0]), self.el("span", { className: "c" }, r[1] + " · " + pct + "%")),
+          self.el("div", { className: "track" }, self.el("div", { className: "fill", style: { width: pct + "%", background: r[2] } })));
+      });
+      var freq = this.el("div", { className: "panel" },
+        this.el("div", { className: "panel-h" }, this.el("h2", null, "How often they come back"), this.el("span", { className: "meta" }, "all learners")),
+        this.el("div", { className: "dist" }, rrows));
+      return this.el("div", null, weekly,
+        this.el("div", { className: "grid2", style: { marginTop: "18px" } }, trend, freq));
+    },
+
+    // ---------- where kids land (levels) ----------
+    levelsTab: function () {
+      var self = this;
+      var total = this.LEVELS.Foundation + this.LEVELS.Explorer + this.LEVELS.Builder;
+      var rows = Object.keys(this.LEVELS).map(function (k) {
+        var c = self.LEVELS[k];
+        var pct = total ? Math.round(c / total * 100) : 0;
+        return self.el("div", { key: k, className: "dist-row" },
+          self.el("div", { className: "top" }, self.el("span", null, k), self.el("span", { className: "c" }, c + " learners · " + pct + "%")),
+          self.el("div", { className: "track" }, self.el("div", { className: "fill", style: { width: pct + "%", background: self.LVL[k] } })));
+      });
+      var ageCells = this.AGES.map(function (a, i) { return self.el("div", { key: i, className: "agecell" }, self.el("div", { className: "n" }, a[1]), self.el("div", { className: "l" }, a[0])); });
+      return this.el("div", { className: "grid2" },
+        this.el("div", { className: "panel" }, this.el("div", { className: "panel-h" }, this.el("h2", null, "Where kids land"), this.el("span", { className: "meta" }, "diagnostic level")), this.el("div", { className: "dist" }, rows)),
+        this.el("div", { className: "panel" }, this.el("div", { className: "panel-h" }, this.el("h2", null, "Who is taking it"), this.el("span", { className: "meta" }, "age range")), this.el("div", { className: "age-grid" }, ageCells)));
+    },
+
+    // ---------- questions ----------
+    questionsTab: function () {
+      var self = this;
+      var q = this.QUESTIONS[this.state.qIndex];
+      var subtabs = this.el("div", { className: "subtabs" }, this.QUESTIONS.map(function (qq, i) { return self.el("button", { key: i, className: self.state.qIndex === i ? "on" : "", onClick: function () { self.setState({ qIndex: i }); } }, qq.cat); }));
+      var order = q.order || [0, 1, 2, 3];
+      var rows = order.map(function (ai, p) {
+        var txt = q.options[ai]; var pct = q.dist[ai]; var best = ai === 3;
+        return self.el("div", { key: p, className: "qopt-row" + (best ? " best" : "") },
+          self.el("div", { className: "letter" }, String.fromCharCode(65 + p)),
+          self.el("div", { className: "body" },
+            self.el("div", { className: "txt" }, txt, best ? self.el("span", { style: { color: "var(--good)", fontWeight: 700 } }, "   · strongest answer") : null),
+            self.el("div", { className: "meter" }, self.el("div", { className: "track" }, self.el("div", { className: "fill", style: { width: pct + "%" } })), self.el("span", { className: "pct" }, pct + "%"))));
+      });
+      var bestLetter = String.fromCharCode(65 + order.indexOf(3));
+      var weakLetter = String.fromCharCode(65 + order.indexOf(0));
+      var bestPct = q.dist[3];
+      var weakPct = q.dist[0];
+      var bestOf = Math.round(bestPct / 100 * this.QTOTAL);
+      var summary = this.el("div", { className: "qsummary" },
+        this.el("div", { className: "qs-cell best" },
+          this.el("div", { className: "qs-l" }, this.ico("check", 13), "Best answer · " + bestLetter),
+          this.el("div", { className: "qs-v" }, bestPct + "%"),
+          this.el("div", { className: "qs-s" }, "~" + bestOf + " of " + this.TOTAL + " chose the strongest answer")),
+        this.el("div", { className: "qs-cell weak" },
+          this.el("div", { className: "qs-l" }, this.ico("alert", 13), "Weakest answer · " + weakLetter),
+          this.el("div", { className: "qs-v" }, weakPct + "%"),
+          this.el("div", { className: "qs-s" }, "still hold the most basic view")));
+      return this.el("div", { className: "panel" },
+        this.el("div", { className: "panel-h" }, this.el("h2", null, "Diagnostic questions"), this.el("span", { className: "meta" }, "how " + this.QTOTAL + " learners answered")),
+        subtabs,
+        this.el("div", { className: "qbody" }, this.el("div", { className: "qt" }, q.cat + " — " + q.title), this.el("div", { className: "qopt-dist" }, rows),
+          summary,
+          this.el("p", { className: "qnote" }, "There is no \"right\" answer — each option is what a learner thinks. The highlighted option is the most sophisticated view (the one the course builds toward); the flagged one is the most basic. Positions are shuffled per question, so the strongest answer is not always in the same slot — it can't be gamed.")));
+    },
+
+    // ---------- connection ----------
+    connectionTab: function () {
+      var self = this;
+      var checks = this.state.checks;
+      var runBtn = this.el("button", { className: "btn " + (this.state.running ? "btn-ghost" : "btn-primary"), onClick: function () { self.runDiagnostics(); }, disabled: this.state.running }, this.ico("refresh", 15), this.state.running ? "Testing…" : (this.state.ran ? "Re-run tests" : "Run tests"));
+      var rows = checks.length ? checks.map(function (c, i) { return self.checkRow(c, i); }) : this.el("div", { className: "diag-note" }, "Run the tests to check the Cloudflare → Coolify path: DNS/TLS, CORS preflight, credentialed cookies, and /api/health. Each check maps to a section of BACKEND.md.");
+      var note = checks.length ? this.el("div", { className: "diag-note" }, "These run in your browser against the live API. A red row points to the exact fix in BACKEND.md; the amber caching row is a Cloudflare page-rule to add for /api/*.") : null;
+      return this.el("div", { className: "panel" },
+        this.el("div", { className: "panel-h" }, this.el("h2", null, "Connection diagnostics"), runBtn),
+        this.el("div", { className: "diag" }, this.el("div", { className: "url" }, "base → https://api.learningai4you.com"), rows, note));
+    },
+    checkRow: function (c, i) {
+      var mark = "";
+      if (c.status === "ok") mark = this.ico("check", 13);
+      else if (c.status === "bad") mark = this.ico("x", 13);
+      else if (c.status === "warn") mark = "!";
+      return this.el("div", { key: i, className: "check" },
+        this.el("span", { className: "ic " + (c.status === "pend" ? "pend" : c.status) }, mark),
+        this.el("div", { className: "tx" }, this.el("div", { className: "t" }, c.t), this.el("div", { className: "s" }, c.s)),
+        this.el("span", { className: "ms" }, c.ms));
+    },
+
+    // ---------- overview ----------
+    previewPanel: function (title, count, child, tab) {
+      var self = this;
+      var foot = this.el("div", { className: "preview-foot" }, this.el("button", { className: "linkbtn", onClick: function () { self.go(tab); } }, "View all →"));
+      return this.el("div", { className: "panel" }, this.el("div", { className: "panel-h" }, this.el("h2", null, title), count ? this.el("span", { className: "meta" }, count) : null), child, foot);
+    },
+    overviewTab: function () {
+      var self = this;
+      var miniLearners = this.el("div", { className: "tbl-scroll", style: { maxHeight: "none" } }, this.el("table", { className: "tbl" },
+        this.el("thead", null, this.el("tr", null, this.el("th", null, "Learner"), this.el("th", null, "Diagnostic"), this.el("th", { className: "num" }, "Lesson"))),
+        this.el("tbody", null, this.LEARNERS.slice(0, 5).map(function (u) {
+          return self.el("tr", { key: u.id, onClick: function () { self.setState({ selected: u.id }); self.go("learners"); } },
+            self.el("td", null, self.el("div", { className: "who" }, self.el("span", { className: "ava", style: { background: self.LVL[u.level] } }, self.initials(u.name)), self.el("div", null, self.el("div", { className: "nm" }, u.name), self.el("div", { className: "em" }, u.email)))),
+            self.el("td", null, self.el("span", { className: "lvl " + u.level }, u.level)),
+            self.el("td", { className: "num" }, u.lesson + "/30"));
+        }))));
+      var total = this.LEVELS.Foundation + this.LEVELS.Explorer + this.LEVELS.Builder;
+      var miniLevels = this.el("div", { className: "dist" }, Object.keys(this.LEVELS).map(function (k) {
+        var c = self.LEVELS[k];
+        var pct = total ? Math.round(c / total * 100) : 0;
+        return self.el("div", { key: k, className: "dist-row" }, self.el("div", { className: "top" }, self.el("span", null, k), self.el("span", { className: "c" }, pct + "%")), self.el("div", { className: "track" }, self.el("div", { className: "fill", style: { width: pct + "%", background: self.LVL[k] } })));
+      }));
+      return this.el("div", null, this.kpis(),
+        this.el("div", { className: "grid2" },
+          this.previewPanel("Recent learners", this.TOTAL + " total", miniLearners, "learners"),
+          this.previewPanel("Where kids land", "diagnostic level", miniLevels, "levels")));
+    },
+
+    content: function () {
+      if (!this.state.authed) return this.loginView();
+      if (!this.live) return this.liveStateView();
+      switch (this.state.tab) {
+        case "learners": return this.learnersTab();
+        case "visits": return this.visitsTab();
+        case "levels": return this.levelsTab();
+        case "questions": return this.questionsTab();
+        case "connection": return this.connectionTab();
+        default: return this.overviewTab();
+      }
+    },
+
+    // ---------- live data hydration ----------
+    median: function (nums) { if (!nums.length) return 0; var s = nums.slice().sort(function (a, b) { return a - b; }); var m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; },
+    relTime: function (iso) {
+      if (!iso) return "—";
+      var d = new Date(iso); var t = d.getTime();
+      if (isNaN(t)) return "—";
+      var sec = (Date.now() - t) / 1000;
+      if (sec < 90) return "just now";
+      if (sec < 3600) return Math.max(1, Math.round(sec / 60)) + "m ago";
+      if (sec < 86400) return Math.round(sec / 3600) + "h ago";
+      return Math.round(sec / 86400) + "d ago";
+    },
+    ageLabel: function (a) {
+      var m = { "under-13": "Under 13", "under 13": "Under 13", "13-15": "13–15", "16-18": "16–18", "19-24": "19–24", "25-34": "25–34", "35-49": "35–49", "50-plus": "50+", "prefer-not": "Prefer not" };
+      return m[String(a || "").toLowerCase()] || (a ? String(a) : "Unknown");
+    },
+    applyLive: function (r) {
+      var self = this;
+      var rows = (r.learners || []).map(function (u, i) {
+        var level = u.level || "Foundation";
+        var lesson = u.current_lesson || 1;
+        var last = self.relTime(u.last_seen);
+        var cold = false;
+        if (u.last_seen) { var age = (Date.now() - new Date(u.last_seen).getTime()) / 86400000; cold = age >= 6; }
+        return { id: i, name: u.display_name || "(no name)", email: u.email || "", age: self.ageLabel(u.age_range), level: level, score: (u.score == null ? 0 : u.score), lesson: lesson, visits: (u.visits || 0), days: (u.active_days || 0), last: last, cold: cold };
+      });
+      this.LEARNERS = rows;
+
+      var levels = { Foundation: 0, Explorer: 0, Builder: 0 };
+      (r.levels || []).forEach(function (l) { if (l && l.level && levels.hasOwnProperty(l.level)) levels[l.level] = l.n || 0; });
+      // if /levels was empty but learners carry a level, derive it
+      if (!levels.Foundation && !levels.Explorer && !levels.Builder) { rows.forEach(function (u) { if (levels.hasOwnProperty(u.level)) levels[u.level]++; }); }
+      this.LEVELS = levels;
+
+      var ageOrder = ["13–15", "16–18", "19–24", "25–34", "35–49", "Under 13"];
+      var ageCounts = {};
+      rows.forEach(function (u) { ageCounts[u.age] = (ageCounts[u.age] || 0) + 1; });
+      var ages = ageOrder.filter(function (l) { return ageCounts[l]; }).map(function (l) { return [l, ageCounts[l]]; });
+      Object.keys(ageCounts).forEach(function (l) { if (ageOrder.indexOf(l) < 0) ages.push([l, ageCounts[l]]); });
+      if (ages.length) this.AGES = ages;
+
+      var total = (r.total != null) ? r.total : rows.length;
+      this.TOTAL = total;
+      var active = (r.activeWeek != null) ? r.activeWeek : 0;
+      this.KPI_ACTIVE = String(active);
+      this.KPI_ACTIVE_SUB = total ? (Math.round(active / total * 100) + "% of all learners") : "—";
+      this.KPI_ACTIVE_DC = "up";
+      if (r.newThisWeek != null) { this.KPI_TOTAL_SUB = "+" + r.newThisWeek + " this week"; this.KPI_TOTAL_DC = r.newThisWeek ? "up" : "flat"; }
+      else { this.KPI_TOTAL_SUB = rows.length + " loaded"; this.KPI_TOTAL_DC = "flat"; }
+      var lessons = rows.map(function (u) { return u.lesson; });
+      var avg = (r.avgLesson != null) ? Number(r.avgLesson)
+        : (lessons.length ? (lessons.reduce(function (a, b) { return a + b; }, 0) / lessons.length) : 0);
+      this.KPI_AVG = avg ? avg.toFixed(1) : "—";
+      this.KPI_AVG_SUB = "of 30";
+      var medVisits = (r.medianVisits != null) ? r.medianVisits : this.median(rows.map(function (u) { return u.visits; }));
+      this.KPI_MEDIAN = String(medVisits);
+      var medDays = (r.medianActiveDays != null) ? r.medianActiveDays : this.median(rows.map(function (u) { return u.days; }));
+      this.KPI_MEDIAN_SUB = medDays ? ("over ~" + Math.round(medDays) + " days") : "across learners";
+
+      // ---- Visits: real per-day + 8-week series + return-frequency buckets ----
+      var weekSessions = null;
+      if (Array.isArray(r.visitsByDay) && r.visitsByDay.length) {
+        this.WEEKDAYS = r.visitsByDay.map(function (d) { return [d.label || d.dow, d.count || 0]; });
+        weekSessions = this.WEEKDAYS.reduce(function (a, b) { return a + b[1]; }, 0);
+      } else {
+        this.WEEKDAYS = [["Mon", 0], ["Tue", 0], ["Wed", 0], ["Thu", 0], ["Fri", 0], ["Sat", 0], ["Sun", 0]];
+        weekSessions = 0;
+      }
+      if (Array.isArray(r.visitsByWeek) && r.visitsByWeek.length) {
+        this.WEEKS8 = r.visitsByWeek.map(function (d) { return [d.label, d.count || 0]; });
+      } else {
+        this.WEEKS8 = [["8w", 0], ["7w", 0], ["6w", 0], ["5w", 0], ["4w", 0], ["3w", 0], ["2w", 0], ["Now", 0]];
+      }
+      if (r.returnBuckets) {
+        var rb = r.returnBuckets;
+        this.RETURN = [["Almost daily", rb.daily || 0, "#2f9c6a"], ["A few times a week", rb.weekly2 || 0, "#3a3aa3"], ["About weekly", rb.weekly || 0, "#b6802a"], ["Once so far", rb.once || 0, "#cf5340"]];
+      } else {
+        this.RETURN = [["Almost daily", 0, "#2f9c6a"], ["A few times a week", 0, "#3a3aa3"], ["About weekly", 0, "#b6802a"], ["Once so far", 0, "#cf5340"]];
+      }
+      this.liveVisits = true;
+      var busiest = (this.WEEKDAYS || []).reduce(function (a, b) { return b[1] > a[1] ? b : a; }, ["—", -1])[0];
+      this.VSTATS = [
+        [String(weekSessions || 0), "sessions this week"],
+        [r.avgGapDays != null ? String(r.avgGapDays) : "0", "avg days between visits"],
+        [r.returnedWithin7 != null ? r.returnedWithin7 + "%" : "0%", "returned within 7 days"],
+        [busiest, "busiest day"]
+      ];
+
+      // ---- Questions: overlay real answer-rank counts onto the shipped question text ----
+      if (r.questions && typeof r.questions === "object") {
+        var order = (Array.isArray(r.questionOrder) && r.questionOrder.length === this.QUESTIONS.length)
+          ? r.questionOrder
+          : ["definition", "capability", "limits", "learning", "impact", "systems"];
+        var answeredMax = 0;
+        this.QUESTIONS = this.QUESTIONS.map(function (q, idx) {
+          var counts = r.questions[order[idx]] || r.questions[q.cat];
+          if (counts && counts.length === 4) {
+            var sum = counts.reduce(function (a, b) { return a + b; }, 0) || 1;
+            answeredMax = Math.max(answeredMax, sum);
+            return Object.assign({}, q, { dist: counts.map(function (c) { return Math.round(c / sum * 100); }) });
+          }
+          return q;
+        });
+        this.QTOTAL = answeredMax || total;
+        this.liveQuestions = true;
+      }
+      if (!this.liveQuestions) {
+        this.QUESTIONS = this.QUESTIONS.map(function (q) { return Object.assign({}, q, { dist: [0, 0, 0, 0] }); });
+        this.QTOTAL = total;
+        this.liveQuestions = true;
+      }
+
+      this.live = true;
+      if (this.state.selected >= rows.length) this.state.selected = 0;
+      render();
+    },
+    hydrate: function () {
+      var self = this;
+      try {
+        if (!window.LEARNING_AI_BACKEND_URL || !window.LearningAIBackend || !window.LearningAIBackend.adminOverview) {
+          this.setState({ loadingOverview: false, overviewError: "The backend URL or admin overview client is not configured." });
+          return;
+        }
+        this.setState({ loadingOverview: true, overviewError: "" });
+        window.LearningAIBackend.adminOverview().then(function (r) {
+          if (!r || r.skipped || r.ok === false) {
+            self.setState({ loadingOverview: false, overviewError: r && r.status === 401 ? "Your admin session expired. Sign in again." : "The backend did not return /api/admin/overview. Check the API server, database, and CORS settings." });
+            if (r && r.status === 401) self.setState({ authed: false });
+            return;
+          }
+          if (!Array.isArray(r.learners)) {
+            self.setState({ loadingOverview: false, overviewError: "The overview response was missing the learners array." });
+            return;
+          }
+          self.setState({ loadingOverview: false, overviewError: "" });
+          self.applyLive(r);
+        }).catch(function () {
+          self.setState({ loadingOverview: false, overviewError: "Could not reach the backend. Check the API domain and database service." });
+        });
+      } catch (e) {
+        this.setState({ loadingOverview: false, overviewError: "Could not start the overview request." });
+      }
+    }
+  };
+
+  // ---------- mount / render ----------
+  var mount = document.getElementById("app");
+
+  function render() {
+    // preserve focus + caret across the full re-render (e.g. the search box)
+    var active = document.activeElement;
+    var focusId = active && active.id ? active.id : null;
+    var selStart = (active && typeof active.selectionStart === "number") ? active.selectionStart : null;
+    var selEnd = (active && typeof active.selectionEnd === "number") ? active.selectionEnd : null;
+
+    var root = h("div", { className: "bc" });
+    root.setAttribute("data-theme", App.state.theme);
+    root.appendChild(App.bar());
+    var canvas = h("div", { className: "bc-canvas" });
+    appendChild(canvas, App.head());
+    appendChild(canvas, App.tabnav());
+    canvas.appendChild(App.content());
+    appendChild(canvas, App.foot());
+    root.appendChild(canvas);
+
+    mount.innerHTML = "";
+    mount.appendChild(root);
+
+    if (focusId) {
+      var again = document.getElementById(focusId);
+      if (again) {
+        again.focus();
+        if (selStart !== null) { try { again.setSelectionRange(selStart, selEnd); } catch (e) {} }
+      }
+    }
+  }
+
+  // restore preferred theme, first paint, then check the real admin session.
+  try { var saved = localStorage.getItem("learningai-console-theme"); if (saved === "light" || saved === "dark") App.state.theme = saved; } catch (e) {}
+  render();
+  App.checkAdminSession();
+
+  // expose a handle for devtools (inspect state, force a re-hydrate): window.LearningAIConsole
+  window.LearningAIConsole = App;
+})();
+</script>
+</body>
+</html>

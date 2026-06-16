@@ -2,10 +2,8 @@ backend/cloudflare/wrangler.toml
 backend/cloudflare/.dev.vars
 backend-config.local.js
 
-# Backend source, dev tools, and internal notes stay out of the public
-# Pages deploy. (v2/ ships as of the 2026-06-11 launch.)
-coolify-backend/
-tools/
+# Internal notes stay out of the public Pages deploy.
+# Backend source and launch tooling are part of the deploy/review surface.
 reviews/
 
 # Internal planning notes — never deploy
