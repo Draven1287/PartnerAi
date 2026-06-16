@@ -302,6 +302,12 @@ export function createFakeDb(options = {}) {
       toolkit.unshift({ userId, id, lessonId, cardType, payload, createdAt: new Date().toISOString() });
       return id;
     },
+    async archiveToolkit(userId, id) {
+      const index = toolkit.findIndex(row => row.userId === userId && row.id === id);
+      if (index < 0) return false;
+      toolkit.splice(index, 1);
+      return true;
+    },
     async addMinutes() {},
     async recordVisit(userId, visit) {
       visits.push({ userId, ...visit, createdAt: new Date().toISOString() });

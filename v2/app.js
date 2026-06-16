@@ -27,9 +27,13 @@
     progress: 'learningai-progress',
     settings: 'learningai-settings',
     toolkit: 'learningai-toolkit',
+    pendingToolkit: 'learningai-v2-pending-toolkit',
+    pendingToolkitDeletes: 'learningai-v2-pending-toolkit-deletes',
+    pendingProgress: 'learningai-v2-pending-progress',
     assessment: 'learningai-v2-assessment',
     diagnosticDraft: 'learningai-v2-diagnostic-draft',
-    palette: 'learningai-v2-palette'
+    palette: 'learningai-v2-palette',
+    guestSession: 'learningai-v2-guest-session'
   };
   const api = window.LearningAIV2Api || null;
   let authChecked = !api;
@@ -39,7 +43,7 @@
   let curriculumLoadedFromBackend = false;
 
   // step kinds that REQUIRE completion before Next unlocks. Toolkit saving is intentionally optional.
-  const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
+  const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'watch']);
   // arc colors for the mosaic (one hue per arc)
   const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
   const AGE_RANGES = [
@@ -179,10 +183,12 @@
   function saveProgress(p) { return set(KEY.progress, JSON.stringify({ completed: p.completed || {}, savedAt: new Date().toISOString() })); }
   function readToolkit() { const t = readJson(KEY.toolkit, []); return Array.isArray(t) ? t : []; }
   function saveToolkit(c) { return set(KEY.toolkit, JSON.stringify(c.slice(0, 50))); }
-  function readPendingToolkit() { const t = readJson('learningai-v2-pending-toolkit', []); return Array.isArray(t) ? t : []; }
-  function savePendingToolkit(c) { return set('learningai-v2-pending-toolkit', JSON.stringify(c.slice(0, 50))); }
-  function readPendingProgress() { const t = readJson('learningai-v2-pending-progress', []); return Array.isArray(t) ? t : []; }
-  function savePendingProgress(c) { return set('learningai-v2-pending-progress', JSON.stringify(c.slice(0, 100))); }
+  function readPendingToolkit() { const t = readJson(KEY.pendingToolkit, []); return Array.isArray(t) ? t : []; }
+  function savePendingToolkit(c) { return set(KEY.pendingToolkit, JSON.stringify(c.slice(0, 50))); }
+  function readPendingToolkitDeletes() { const t = readJson(KEY.pendingToolkitDeletes, []); return Array.isArray(t) ? t : []; }
+  function savePendingToolkitDeletes(ids) { return set(KEY.pendingToolkitDeletes, JSON.stringify([...new Set(ids.filter(Boolean).map(String))].slice(0, 100))); }
+  function readPendingProgress() { const t = readJson(KEY.pendingProgress, []); return Array.isArray(t) ? t : []; }
+  function savePendingProgress(c) { return set(KEY.pendingProgress, JSON.stringify(c.slice(0, 100))); }
   function readStepProgress() { const s = readJson('learningai-v2-step-progress', {}); return s && typeof s === 'object' ? s : {}; }
   function maxStepReached(id) { const v = readStepProgress()[id]; return Number.isInteger(v) && v > 0 ? v : 0; }
   function recordStepReached(id, idx) {
@@ -197,7 +203,20 @@
   function saveToolkitCard(card, { queue = true } = {}) {
     const cards = readToolkit().filter(existing => existing.id !== card.id);
     saveToolkit([{ ...card, updatedAt: new Date().toISOString() }, ...cards]);
+    savePendingToolkitDeletes(readPendingToolkitDeletes().filter(id => String(id) !== String(card.id)));
     if (queue) savePendingToolkit([card, ...readPendingToolkit().filter(existing => existing.id !== card.id)]);
+  }
+  async function deleteToolkitCard(id) {
+    saveToolkit(readToolkit().filter(card => card.id !== id));
+    savePendingToolkit(readPendingToolkit().filter(card => card.id !== id));
+    if (!api?.deleteToolkit || !currentUser) return true;
+    const result = await api.deleteToolkit(id).catch(() => ({ ok: false }));
+    if (result.ok || result.status === 404) {
+      savePendingToolkitDeletes(readPendingToolkitDeletes().filter(existing => existing !== id));
+      return true;
+    }
+    savePendingToolkitDeletes([id, ...readPendingToolkitDeletes()]);
+    return false;
   }
   function isCompleteV2Assessment(assessment) {
     const responses = Array.isArray(assessment?.responses) ? assessment.responses : [];
@@ -210,18 +229,30 @@
     set('modelwise-gauge', JSON.stringify(assessment));
     return true;
   }
+  function hasGuestSession() {
+    return get(KEY.guestSession) === '1';
+  }
+  function startGuestSession() {
+    set(KEY.guestSession, '1');
+  }
+  function clearGuestSession() {
+    try { localStorage.removeItem(KEY.guestSession); } catch (e) {}
+  }
   function clearV2LocalSession() {
     try {
       localStorage.removeItem(KEY.assessment);
       localStorage.removeItem('modelwise-gauge');
       localStorage.removeItem(KEY.diagnosticDraft);
-      localStorage.removeItem('learningai-v2-pending-progress');
-      localStorage.removeItem('learningai-v2-pending-toolkit');
+      localStorage.removeItem(KEY.pendingProgress);
+      localStorage.removeItem(KEY.toolkit);
+      localStorage.removeItem(KEY.pendingToolkit);
+      localStorage.removeItem(KEY.pendingToolkitDeletes);
       localStorage.removeItem('learningai-v2-pending-assessment');
       // Per-learner state must not leak to the next account on a shared
       // computer (school machines): step unlocks, notes, last-complete.
       localStorage.removeItem('learningai-v2-step-progress');
       localStorage.removeItem('learningai-v2-last-complete');
+      clearGuestSession();
       Object.keys(localStorage)
         .filter(k => k.startsWith('learningai-v2-lesson-notes:'))
         .forEach(k => localStorage.removeItem(k));
@@ -289,6 +320,7 @@
     }
     if (Array.isArray(state.toolkit)) {
       const pending = readPendingToolkit();
+      const pendingDeletes = new Set(readPendingToolkitDeletes());
       const syncedCards = state.toolkit.map(card => ({
         id: card.id,
         type: card.cardType,
@@ -296,7 +328,7 @@
         fields: card.payload?.fields || card.payload || {},
         fieldLabels: card.payload?.fieldLabels || {},
         createdAt: card.createdAt
-      }));
+      })).filter(card => !pendingDeletes.has(String(card.id)));
       const syncedIds = new Set(syncedCards.map(card => card.id));
       saveToolkit([...pending.filter(card => !syncedIds.has(card.id)), ...syncedCards]);
     }
@@ -346,6 +378,18 @@
     savePendingToolkit(stillPending);
   }
 
+  async function syncPendingToolkitDeletes() {
+    if (!api?.deleteToolkit || !currentUser) return;
+    const pending = readPendingToolkitDeletes();
+    if (!pending.length) return;
+    const stillPending = [];
+    for (const id of pending) {
+      const result = await api.deleteToolkit(id).catch(() => ({ ok: false }));
+      if (!result.ok && result.status !== 404) stillPending.push(id);
+    }
+    savePendingToolkitDeletes(stillPending);
+  }
+
   // ---------- theming (mirrors V1 applyAppearance for common themes) ----------
   function applyAppearance() {
     const s = readJson(KEY.settings, {}) || {};
@@ -354,12 +398,24 @@
     if (s.theme) b.dataset.theme = s.theme; else b.removeAttribute('data-theme');
     b.dataset.fontScale = s.fontScale || 'normal';
     b.dataset.fontFamily = s.fontFamily || 'system';
+    b.dataset.mosaicStyle = s.mosaicStyle || 'arc';
+    b.dataset.reduceMotion = s.reduceMotion ? 'true' : 'false';
     if (s.theme === 'dark') {
       t.setProperty('--bg', '#0f1726'); t.setProperty('--surface', '#1b2637'); t.setProperty('--surface-2', '#243247');
       t.setProperty('--border', '#33445c'); t.setProperty('--text', s.textColor || '#f4f7fb'); t.setProperty('--text-dim', '#a7b1c2'); t.setProperty('--text-faint', '#778397');
+      t.setProperty('--accent-dim', '#93c5fd'); t.setProperty('--on-accent', '#0f1726');
     } else if (s.theme === 'light') {
       t.setProperty('--bg', '#f7f9fc'); t.setProperty('--surface', '#ffffff'); t.setProperty('--surface-2', '#eef4f8');
       t.setProperty('--border', '#dbe3ea'); t.setProperty('--text', s.textColor || '#121826'); t.setProperty('--text-dim', '#4b5870'); t.setProperty('--text-faint', '#778397');
+      t.setProperty('--accent-dim', '#1d4ed8'); t.setProperty('--on-accent', '#ffffff');
+    } else if (s.theme === 'sepia') {
+      t.setProperty('--bg', '#f8f1e6'); t.setProperty('--surface', '#fffaf2'); t.setProperty('--surface-2', '#efe2cf');
+      t.setProperty('--border', '#ddcab0'); t.setProperty('--text', s.textColor || '#241a12'); t.setProperty('--text-dim', '#675747'); t.setProperty('--text-faint', '#8c7a66');
+      t.setProperty('--accent', '#9f5d1a'); t.setProperty('--accent-dim', '#7c4212'); t.setProperty('--accent-soft', '#f3dfbd'); t.setProperty('--on-accent', '#ffffff');
+    } else if (s.theme === 'contrast') {
+      t.setProperty('--bg', '#050505'); t.setProperty('--surface', '#111111'); t.setProperty('--surface-2', '#1d1d1d');
+      t.setProperty('--border', '#f5f5f5'); t.setProperty('--text', s.textColor || '#ffffff'); t.setProperty('--text-dim', '#f0f0f0'); t.setProperty('--text-faint', '#d6d6d6');
+      t.setProperty('--accent', '#ffd400'); t.setProperty('--accent-dim', '#ffe766'); t.setProperty('--accent-soft', '#3f3500'); t.setProperty('--on-accent', '#050505');
     }
     if (s.accentColor) t.setProperty('--accent', s.accentColor);
   }
@@ -388,7 +444,9 @@
     t.setProperty('--text-dim', palette.textDim);
     t.setProperty('--text-faint', palette.textDim);
     t.setProperty('--accent', palette.accent);
+    t.setProperty('--accent-dim', palette.accentDim || palette.accent);
     t.setProperty('--accent-soft', palette.accentSoft);
+    t.setProperty('--on-accent', palette.onAccent || '#ffffff');
   }
 
   // ---------- DOM helper ----------
@@ -450,7 +508,7 @@
   function updateTopProgress() { if (progressBarFill) progressBarFill.style.width = `${Math.round(doneCount() / LESSONS.length * 100)}%`; }
 
   function recordInteraction(step, payload) {
-    if (!api || !currentLessonId) return;
+    if (!api || !currentUser || !currentLessonId) return;
     const stepIndex = currentLessonStepIndex;
     const correct = typeof payload?.correct === 'boolean' ? payload.correct : null;
     api.saveInteraction({
@@ -486,11 +544,17 @@
   // ---------- mosaic: one square per lesson, revealing a painting as you complete it ----------
   function buildMosaic(opts) {
     opts = opts || {};
+    const settings = readJson(KEY.settings, {}) || {};
+    const style = ['arc', 'reveal', 'hybrid'].includes(settings.mosaicStyle) ? settings.mosaicStyle : 'arc';
     const done = readProgress().completed;
-    const grid = h('div', { class: 'mosaic painting-mosaic' + (opts.small ? ' mosaic-small' : ''), 'aria-label': 'Course progress painting' });
+    const grid = h('div', {
+      class: `mosaic mosaic-${style} painting-mosaic${opts.small ? ' mosaic-small' : ''}`,
+      'aria-label': `Course progress mosaic, ${style} style`
+    });
     LESSONS.forEach((l, i) => {
       const col = i % 6;
       const row = Math.floor(i / 6);
+      const arcIndex = Math.max(0, ARCS.indexOf(l.arc));
       const filled = !!done[l.id];
       const locked = !!l.stub;
       const current = l.id === opts.currentId;
@@ -499,7 +563,7 @@
         class: 'mz' + (filled ? ' filled' : '') + (locked ? ' locked' : '') + (current ? ' current' : '') + (l.id === opts.activeId ? ' active' : '') + (justUnlocked ? ' just-unlocked' : ''),
         href: locked ? null : `#/lesson/${l.id}/0`,
         title: `${l.num}. ${l.title}${filled ? ' ✓' : locked ? ' (coming soon)' : ''}`,
-        style: `--tile-col:${col};--tile-row:${row};`
+        style: `--tile-col:${col};--tile-row:${row};--arc-color:${ARC_COLORS[arcIndex % ARC_COLORS.length]};--lesson-progress:${i / Math.max(1, LESSONS.length - 1)};`
       });
       cell.appendChild(h('span', { class: 'mz-num' }, String(l.num)));
       grid.appendChild(cell);
@@ -517,12 +581,7 @@
     }
     if (cards.length) {
       cards.slice(0, 8).forEach(card => {
-        const lesson = LESSONS.find(l => l.id === card.lessonId);
-        const fields = Object.keys(card.fields || {}).map(k => h('p', null, [h('strong', null, `${card.fieldLabels?.[k] || k}: `), card.fields[k] || '—']));
-        body.appendChild(h('article', { class: 'tk-card' }, [
-          h('span', { class: 'tk-type' }, `${card.type}${lesson ? ' · ' + lesson.title : ''}`),
-          ...fields,
-        ]));
+        body.appendChild(toolkitCard(card));
       });
     }
     return h('section', { class: 'lesson-toolkit', id: 'lesson-toolkit' }, [
@@ -530,6 +589,86 @@
       h('h2', null, cards.length ? 'Notes and reusable cards from the lessons' : 'Save thoughts as you go'),
       h('p', { class: 'muted' }, 'Saved Notes is your notebook for optional lesson notes, useful prompts, checks, and workflow cards. It is for you, not a requirement for finishing a step.'),
       body
+    ]);
+  }
+
+  function toolkitCard(card, { allowDelete = false } = {}) {
+    const lesson = LESSONS.find(l => l.id === card.lessonId);
+    const fieldEntries = Object.entries(card.fields || {});
+    return h('article', { class: 'tk-card note-card' }, [
+      h('div', { class: 'note-card-head' }, [
+        h('span', { class: 'tk-type' }, card.type || 'Saved note'),
+        card.createdAt ? h('span', { class: 'note-date' }, new Date(card.createdAt).toLocaleDateString()) : null,
+        allowDelete ? h('button', { class: 'tk-del', type: 'button', onclick: async () => { await deleteToolkitCard(card.id); render(); } }, 'Delete') : null
+      ]),
+      lesson ? h('p', { class: 'muted note-lesson' }, `Lesson ${lesson.num}: ${lesson.title}`) : null,
+      ...fieldEntries.map(([key, value]) => h('p', null, [
+        h('strong', null, `${card.fieldLabels?.[key] || key}: `),
+        String(value || '—')
+      ]))
+    ]);
+  }
+
+  function viewNotes() {
+    const cards = readToolkit();
+    const draft = h('textarea', {
+      class: 'trylive-textarea note-composer-text',
+      rows: '4',
+      placeholder: 'Write a question, rule, prompt idea, or something you want to remember...'
+    });
+    const status = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
+    const composer = h('section', { class: 'note-composer dashboard-section' }, [
+      h('h2', null, 'Write your own note'),
+      h('p', { class: 'muted' }, 'Saved Notes is private to you. Lesson saves, margin notes, and your own notes all collect here.'),
+      draft,
+      h('div', { class: 'row-gap' }, [
+        h('button', { class: 'btn btn-primary', type: 'button', onclick: async () => {
+          const text = draft.value.trim();
+          if (!text) {
+            status.textContent = 'Write something first.';
+            return;
+          }
+          const card = {
+            id: `personal-note-${Date.now()}`,
+            type: 'My note',
+            lessonId: '',
+            fields: { note: text },
+            fieldLabels: { note: 'Note' },
+            createdAt: new Date().toISOString()
+          };
+          saveToolkitCard(card);
+          draft.value = '';
+          if (api && currentUser) {
+            const synced = await api.saveToolkit({ id: card.id, cardType: card.type, lessonId: card.lessonId, payload: { fields: card.fields, fieldLabels: card.fieldLabels } }).catch(() => ({ ok: false }));
+            if (synced.ok) {
+              savePendingToolkit(readPendingToolkit().filter(item => item.id !== card.id));
+              status.textContent = 'Saved to My Notes.';
+            } else {
+              status.textContent = 'Saved on this device. It will sync when the backend is available.';
+            }
+          } else {
+            status.textContent = 'Saved on this device.';
+          }
+          render();
+        } }, 'Add to My Notes')
+      ]),
+      status
+    ]);
+    const notes = cards.length
+      ? h('div', { class: 'notes-grid' }, cards.map(card => toolkitCard(card, { allowDelete: true })))
+      : h('div', { class: 'notes-empty dashboard-section' }, [
+        h('h2', null, 'Nothing saved yet'),
+        h('p', { class: 'muted' }, 'Write a note above or use a lesson’s optional “Save it” step. Nothing here is required to finish lessons.')
+      ]);
+    return h('div', { class: 'container view v2-page notes-view' }, [
+      accountBar(),
+      h('header', { class: 'hero compact' }, [
+        h('div', { class: 'tagline' }, 'Your private toolkit'),
+        h('h1', null, 'My Notes'),
+        h('p', { class: 'lead' }, cards.length ? `${cards.length} saved notes and reusable cards.` : 'A place for the useful prompts, checks, rules, and questions you want to keep.')
+      ]),
+      composer,
+      notes
     ]);
   }
 
@@ -542,14 +681,14 @@
       id: noteId,
       rows: '9',
       placeholder: 'Write anything you want to remember from this lesson...',
-      oninput: event => {
+      oninput: async event => {
         const text = event.target.value.trim();
         set(noteKey, event.target.value);
         if (!text) {
-          const remaining = readToolkit().filter(card => card.id !== noteId);
-          saveToolkit(remaining);
-          savePendingToolkit(readPendingToolkit().filter(card => card.id !== noteId));
-          status.textContent = 'Notebook cleared. Nothing was saved.';
+          const deleted = await deleteToolkitCard(noteId);
+          status.textContent = deleted
+            ? 'Notebook cleared. Nothing was saved.'
+            : 'Notebook cleared on this device. The delete will sync when the backend is available.';
           return;
         }
         const card = {
@@ -601,6 +740,80 @@
         s.mistake ? h('div', { class: 'callout callout-bad' }, [h('strong', null, 'Common mistake: '), s.mistake]) : null,
         s.good ? h('div', { class: 'callout callout-good' }, [h('strong', null, 'Better: '), s.good]) : null]);
     },
+    watch(s, ctx) {
+      const rawStations = Array.isArray(s.stations) && s.stations.length
+        ? s.stations
+        : [
+            ['Goal', 'Set the goal', 'You decide what you actually want.'],
+            ['Help', 'Use AI in the middle', 'AI does useful heavy lifting, fast.'],
+            ['Check', 'Verify and finish', 'You check it, fix it, and make it yours.']
+          ];
+      const stations = rawStations.map(station => Array.isArray(station)
+        ? { eyebrow: station[0] || '', label: station[1] || '', copy: station[2] || station[3] || '' }
+        : { eyebrow: station.eyebrow || station.icon || '', label: station.label || station.title || '', copy: station.copy || station.sub || station.body || '' });
+      const state = { index: 0 };
+      const stepText = h('span', { class: 'walkthrough-step' }, '');
+      const caption = h('p', { class: 'walkthrough-caption' }, '');
+      const fill = h('div', { class: 'walkthrough-fill' });
+      const nodes = [];
+      const prev = h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => {
+        state.index = Math.max(0, state.index - 1);
+        update();
+      } }, 'Back');
+      const next = h('button', { class: 'btn btn-primary', type: 'button', onclick: () => {
+        if (state.index >= stations.length - 1) {
+          recordInteraction(s, { completed: true, correct: true, steps: stations.length });
+          ctx.unlock();
+          update(true);
+          return;
+        }
+        state.index += 1;
+        update();
+      } }, '');
+
+      function update(done = false) {
+        const current = stations[state.index] || stations[0];
+        stepText.textContent = `Step ${state.index + 1} of ${stations.length}`;
+        caption.textContent = current.copy || current.label;
+        fill.style.width = `${Math.round(((state.index + 1) / stations.length) * 100)}%`;
+        nodes.forEach((node, index) => {
+          node.classList.toggle('active', index === state.index);
+          node.classList.toggle('done', index < state.index || done);
+        });
+        prev.disabled = state.index === 0 ? true : false;
+        next.textContent = done ? 'Walk-through complete' : state.index >= stations.length - 1 ? 'Complete walk-through' : `Next: ${stations[state.index + 1].label}`;
+        next.disabled = done ? true : false;
+      }
+
+      const rail = h('div', { class: 'walkthrough-rail' }, [
+        h('div', { class: 'walkthrough-track' }, fill),
+        ...stations.map((station, index) => {
+          const node = h('button', { class: 'walkthrough-node', type: 'button', onclick: () => {
+            if (index > state.index + 1) return;
+            state.index = index;
+            update();
+          } }, [
+            h('span', { class: 'walkthrough-dot' }, String(index + 1)),
+            h('strong', null, station.label),
+            station.eyebrow ? h('small', null, station.eyebrow) : null
+          ]);
+          nodes.push(node);
+          return node;
+        })
+      ]);
+      const shell = card([
+        tag('Walk-through'),
+        h('h2', null, s.title),
+        h('p', { class: 'muted' }, s.source || 'Tap through each part yourself. This is an explanation you operate, not a passive video.'),
+        rail,
+        h('div', { class: 'walkthrough-panel' }, [stepText, caption]),
+        h('div', { class: 'lesson-nav row-gap' }, [prev, next]),
+        h('div', { class: 'callout callout-good' }, [h('strong', null, 'Takeaway: '), s.takeaway || 'Use AI in the middle, but keep the goal and the final judgment with you.']),
+        lockHint('Complete the walk-through to continue.')
+      ]);
+      update();
+      return shell;
+    },
     compare(s) {
       return card([tag('Compare'), h('h2', null, s.title),
         h('div', { class: 'compare-grid' }, [
@@ -620,7 +833,57 @@
     },
     tryLive(s) {
       const btn = h('button', { class: 'btn btn-primary', onclick: () => copyText(s.prompt, btn) }, 'Copy prompt');
-      return card([tag('Try it for real'), h('h2', null, s.title), h('pre', { class: 'prompt-box' }, s.prompt), btn, s.note ? h('p', { class: 'why' }, s.note) : null]);
+      const pasted = h('textarea', {
+        class: 'trylive-textarea',
+        rows: '5',
+        placeholder: 'Paste the AI answer here if you want to inspect it.'
+      });
+      const reaction = h('textarea', {
+        class: 'trylive-textarea',
+        rows: '3',
+        placeholder: 'What would you double-check, improve, or ignore?'
+      });
+      const fb = h('p', { class: 'step-feedback' }, '');
+      function update() {
+        if (pasted.value.trim() && reaction.value.trim()) {
+          fb.textContent = '✓ That is the loop: AI drafted, you decided what to trust.';
+          recordInteraction(s, { completed: true, correct: true, pasted: true, reflected: true });
+        } else if (pasted.value.trim()) {
+          fb.textContent = 'Now react to it. Pick one line you would double-check before trusting.';
+        } else {
+          fb.textContent = '';
+        }
+      }
+      pasted.addEventListener('input', update);
+      reaction.addEventListener('input', update);
+      return card([
+        tag('Try it for real'),
+        h('h2', null, s.title),
+        h('div', { class: 'trylive-step' }, [
+          h('span', { class: 'trylive-num' }, '1'),
+          h('div', null, [
+            h('h3', null, 'Copy this prompt and run it in any AI tool'),
+            h('pre', { class: 'prompt-box' }, s.prompt),
+            btn
+          ])
+        ]),
+        h('div', { class: 'trylive-step' }, [
+          h('span', { class: 'trylive-num' }, '2'),
+          h('div', null, [
+            h('h3', null, 'Paste the answer back here'),
+            pasted
+          ])
+        ]),
+        h('div', { class: 'trylive-step' }, [
+          h('span', { class: 'trylive-num' }, '3'),
+          h('div', null, [
+            h('h3', null, s.react || 'Now you are in charge. What would you verify before trusting it?'),
+            reaction,
+            fb
+          ])
+        ]),
+        s.note ? h('p', { class: 'why' }, s.note) : null
+      ]);
     },
     verify(s) {
       return card([tag('Verify'), h('h2', null, s.title), h('div', { class: 'callout' }, [h('strong', null, 'Claim: '), s.claim]),
@@ -801,12 +1064,66 @@
   let currentLessonId = null;
   let currentLessonStepIndex = 0;
 
+  function viewWelcome({ checking = false } = {}) {
+    const first = playableLesson('chapter-1') || LESSONS.find(lesson => lesson.num === 1 && !lesson.stub);
+    const completedFirst = first && isDone(first.id);
+    const startHref = first ? `#/lesson/${first.id}/0` : '#/';
+    const start = h('a', {
+      class: 'btn btn-primary',
+      href: startHref,
+      onclick: () => startGuestSession()
+    }, first ? 'Start lesson 1 free' : 'Lessons are loading...');
+    const save = completedFirst
+      ? h('a', { class: 'btn btn-primary', href: '#/gate' }, 'Save my first square')
+      : start;
+    return h('div', { class: 'container view guest-welcome' }, [
+      h('section', { class: 'welcome-panel' }, [
+        h('div', { class: 'welcome-mark' }, 'AI'),
+        h('div', { class: 'tagline' }, checking ? 'Checking for a saved account' : 'A free, interactive AI course'),
+        h('h1', null, 'Learn to use AI without letting it think for you.'),
+        h('p', { class: 'lead' }, 'No signup to try it. Start the first lesson now. Create a free account only when you want to save progress and unlock the rest of the course.'),
+        h('div', { class: 'welcome-mosaic' }, buildMosaic({ small: true, currentId: first?.id })),
+        h('p', { class: 'muted welcome-caption' }, 'Each completed lesson paints one square of a 30-tile sunrise.'),
+        h('div', { class: 'row-gap welcome-actions' }, [
+          save,
+          h('a', { class: 'btn btn-ghost', href: '#/account/signin' }, 'I have an account')
+        ]),
+        backendUnavailable ? h('p', { class: 'auth-error' }, 'Account sign-in is temporarily unavailable, but the first lesson still works on this device.') : null
+      ])
+    ]);
+  }
+
+  function viewGuestGate() {
+    const first = playableLesson('chapter-1') || LESSONS.find(lesson => lesson.num === 1 && !lesson.stub);
+    if (!first || !isDone(first.id)) {
+      history.replaceState(null, '', first ? `#/lesson/${first.id}/0` : '#/welcome');
+      return viewWelcome();
+    }
+    startGuestSession();
+    return h('div', { class: 'container view guest-welcome' }, [
+      h('section', { class: 'welcome-panel save-wall' }, [
+        h('div', { class: 'tagline success' }, 'You painted your first square'),
+        h('h1', null, 'Nice. That is 1 of 30.'),
+        h('p', { class: 'lead' }, 'Create a free account to save this square, unlock the rest of the course, and keep your progress on any device. The diagnostic comes next so the course can recommend where to go after Lesson 1.'),
+        h('div', { class: 'welcome-mosaic' }, buildMosaic({ small: true, activeId: first?.id })),
+        h('div', { class: 'row-gap welcome-actions' }, [
+          h('a', { class: 'btn btn-primary', href: '#/account/signup' }, 'Create a free account and continue'),
+          h('a', { class: 'btn btn-ghost', href: '#/account/signin' }, 'I already have one')
+        ]),
+        h('p', { class: 'muted' }, 'Your first lesson is saved on this device until you attach it to an account.')
+      ])
+    ]);
+  }
+
   function viewAuthGate() {
     const message = h('p', { class: 'step-feedback', id: 'auth-message', 'aria-live': 'polite' }, '');
+    const hasGuestProgress = hasGuestSession() || isDone('chapter-1');
     const form = h('form', { class: 'auth-card' }, [
       h('div', { class: 'tagline' }, 'Learning AI'),
-      h('h1', null, 'Sign in to save your progress'),
-      h('p', { class: 'lead' }, 'We use your email only to sign you in and save your progress. We will not send ads. We will not ask you for money. We will not sell your information.'),
+      h('h1', null, hasGuestProgress ? 'Save your first square' : 'Sign in to save your progress'),
+      h('p', { class: 'lead' }, hasGuestProgress
+        ? 'Create a free account to keep your Lesson 1 progress, then take the diagnostic and continue through the full course.'
+        : 'We use your email only to sign you in and save your progress. We will not send ads. We will not ask you for money. We will not sell your information.'),
       h('p', { class: 'muted' }, 'Each email creates its own learner account. To switch learners, sign out and use a different email.'),
       h('label', { class: 'pr-field' }, [h('span', null, 'Email'), h('input', { name: 'email', type: 'email', autocomplete: 'email', required: 'true' })]),
       h('label', { class: 'pr-field' }, [h('span', null, 'Password'), h('input', { name: 'password', type: 'password', autocomplete: 'current-password', required: 'true', minlength: '8' })]),
@@ -836,11 +1153,13 @@
         return;
       }
       currentUser = result.user;
+      const shouldImportGuest = hasGuestSession() || isDone('chapter-1');
       if (mode === 'signup') {
         serverState = null;
-        clearV2LocalSession();
+        if (!shouldImportGuest) clearV2LocalSession();
       }
-      await hydrateFromServer({ importLocal: mode !== 'signup' });
+      await hydrateFromServer({ importLocal: mode !== 'signup' || shouldImportGuest, forceImportLocal: shouldImportGuest });
+      if (shouldImportGuest) clearGuestSession();
       location.hash = '#/';
       render();
     });
@@ -851,8 +1170,12 @@
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
         h('div', { class: 'tagline' }, 'Learning AI'),
-        h('h1', null, 'V2 accounts are unavailable right now'),
-        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course. V1 is still the public site while V2 is being built.'),
+        h('h1', null, 'Accounts are unavailable right now'),
+        h('p', { class: 'lead' }, 'You can still try Lesson 1 for free on this device. Account creation, saved cross-device progress, and admin analytics need the Learning AI backend.'),
+        h('div', { class: 'row-gap' }, [
+          h('a', { class: 'btn btn-primary', href: '#/lesson/chapter-1/0', onclick: () => startGuestSession() }, 'Start Lesson 1'),
+          h('a', { class: 'btn btn-ghost', href: '#/welcome' }, 'Back to welcome')
+        ]),
         h('p', { class: 'muted' }, 'For local testing, start the V2 backend and reload this page.')
       ])
     ]);
@@ -861,7 +1184,9 @@
   async function hydrateFromServer(options = {}) {
     if (!api) return;
     const shouldImportBrowserData = options.importLocal !== false;
+    const forceImportLocal = options.forceImportLocal === true;
     await syncPendingProgress();
+    await syncPendingToolkitDeletes();
     await syncPendingToolkit();
     // Retry a questionnaire that couldn't be uploaded when it was finished.
     const pendingAssessment = currentUser ? readJson('learningai-v2-pending-assessment', null) : null;
@@ -871,13 +1196,14 @@
     }
     await loadCurriculumFromBackend();
     let state = await api.state();
-    const shouldImportLocal = shouldImportBrowserData && currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
+    const shouldImportLocal = shouldImportBrowserData && currentUser && (forceImportLocal || (!get('learningai-v2-imported-ever') && !get(importedUserKey())));
     if (shouldImportLocal) {
       const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit() }).catch(() => ({ ok: false }));
       if (imported.ok) {
         const importedAt = new Date().toISOString();
         set(importedUserKey(), importedAt);
         set('learningai-v2-imported-ever', importedAt);
+        clearGuestSession();
         state = await api.state();
       }
       // On import failure, still apply the state we already fetched; the
@@ -893,6 +1219,7 @@
     return h('div', { class: 'account-bar' }, [
       h('span', null, `Signed in as ${currentUser.displayName || currentUser.email}`),
       h('a', { class: 'btn btn-ghost', href: '#/' }, 'Dashboard'),
+      h('a', { class: 'btn btn-ghost', href: '#/notes' }, 'My Notes'),
       h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, questionnaireLabel),
       h('button', { class: 'btn btn-ghost', onclick: async () => {
         await api.logout();
@@ -956,6 +1283,7 @@
     draft.answers = draft.answers || {};
     draft.notes = draft.notes || {};
     draft.profile = draft.profile || {};
+    draft.optionOrder = draft.optionOrder || {};
     const total = DIAGNOSTIC_QUESTIONS.length;
     const index = Math.max(0, Math.min(Number(draft.index) || 0, total - 1));
     const question = DIAGNOSTIC_QUESTIONS[index];
@@ -963,6 +1291,26 @@
 
     function saveDraft(nextDraft) {
       set(KEY.diagnosticDraft, JSON.stringify(nextDraft));
+    }
+
+    function shuffledOptions(q) {
+      const values = q.options.map(([value]) => value);
+      const current = Array.isArray(draft.optionOrder[q.key]) ? draft.optionOrder[q.key] : [];
+      const stillValid = current.length === values.length && values.every(value => current.includes(value));
+      if (!stillValid) {
+        const nextOrder = values.slice();
+        for (let i = nextOrder.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          const temp = nextOrder[i];
+          nextOrder[i] = nextOrder[j];
+          nextOrder[j] = temp;
+        }
+        draft.optionOrder[q.key] = nextOrder;
+        saveDraft(draft);
+      }
+      return draft.optionOrder[q.key]
+        .map(value => q.options.find(([optionValue]) => optionValue === value))
+        .filter(Boolean);
     }
 
     function selectedAnswer() {
@@ -1040,7 +1388,7 @@
         selected: draft.profile.ageRange === value ? 'true' : null
       }, label)))
     ]) : null;
-    const options = h('div', { class: 'diagnostic-options' }, question.options.map(([value, label], optionIndex) => h('label', { 'data-shortcut': String(optionIndex + 1) }, [
+    const options = h('div', { class: 'diagnostic-options' }, shuffledOptions(question).map(([value, label], optionIndex) => h('label', { 'data-shortcut': String(optionIndex + 1) }, [
       h('input', {
         type: 'radio',
         name: question.key,
@@ -1259,7 +1607,16 @@
 
     // Next/Finish button — locked for gated steps until unlock() is called
     const advance = () => {
-      if (last) { markComplete(id); updateTopProgress(); location.hash = `#/done/${id}`; }
+      if (last) {
+        markComplete(id);
+        updateTopProgress();
+        if (!currentUser && id === 'chapter-1') {
+          startGuestSession();
+          location.hash = '#/gate';
+          return;
+        }
+        location.hash = `#/done/${id}`;
+      }
       else { recordStepReached(id, idx + 1); location.hash = `#/lesson/${id}/${idx + 1}`; }
     };
     const nextLabel = last ? 'Finish lesson ✓' : 'Next →';
@@ -1285,13 +1642,13 @@
 
     const back = idx > 0
       ? h('a', { class: 'btn btn-ghost', href: `#/lesson/${id}/${idx - 1}` }, '← Back')
-      : h('a', { class: 'btn btn-ghost', href: '#/lessons' }, '← All lessons');
+      : h('a', { class: 'btn btn-ghost', href: currentUser ? '#/lessons' : '#/welcome' }, currentUser ? '← All lessons' : '← Welcome');
 
     const renderer = steps[step.kind] || steps.reveal;
     const body = renderer(step, ctx);
     const notebook = buildLessonNotebook(lesson);
 
-    saveProgressToBackend({ lessonId: id, currentStep: idx, completed: false });
+    if (currentUser) saveProgressToBackend({ lessonId: id, currentStep: idx, completed: false });
 
     return h('div', { class: 'container view lesson-view' }, [
       accountBar(),
@@ -1409,6 +1766,8 @@
           h('div', { class: 'seg-row' }, [
             h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'light' }) }, 'Light'),
             h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'dark' }) }, 'Dark'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'sepia' }) }, 'Sepia'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'contrast' }) }, 'Contrast'),
             h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: '' }) }, 'Default')
           ]),
           h('p', { class: 'muted' }, `Current: ${settings.theme || 'default'}`)
@@ -1421,6 +1780,25 @@
             h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'xl' }) }, 'Extra large')
           ]),
           h('p', { class: 'muted' }, 'This is for reading comfort during lessons.')
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Progress mosaic'),
+          h('p', null, 'Choose how completed lessons fill the 30-tile course picture.'),
+          h('div', { class: 'seg-row' }, [
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ mosaicStyle: 'arc' }) }, 'Arc'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ mosaicStyle: 'reveal' }) }, 'Reveal'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ mosaicStyle: 'hybrid' }) }, 'Hybrid')
+          ]),
+          h('p', { class: 'muted' }, `Current: ${settings.mosaicStyle || 'arc'}`)
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Motion'),
+          h('p', null, 'Reduce tile animations and transition effects.'),
+          h('div', { class: 'seg-row' }, [
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ reduceMotion: true }) }, 'Reduce'),
+            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ reduceMotion: false }) }, 'Use motion')
+          ]),
+          h('p', { class: 'muted' }, `Current: ${settings.reduceMotion ? 'reduced' : 'standard'}`)
         ]),
         h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Starting point'),
@@ -1530,14 +1908,42 @@
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
       h('header', { class: 'hero compact' }, [
-        h('div', { class: 'tagline' }, 'For teaching AI'),
-        h('h1', null, 'Use Learning AI in a class, club, or workshop'),
-        h('p', { class: 'lead' }, 'This section is for teachers, mentors, and learners who want to run AI activities with people, not just read pages alone.')
+        h('div', { class: 'tagline' }, 'For educators, parents, and adult learners'),
+        h('h1', null, 'Teach AI as a practice, not a subject.'),
+        h('p', { class: 'lead' }, 'AI literacy lands when people try it, break it, repair it, and talk about what changed. The point is judgment, not tool training.')
+      ]),
+      h('section', { class: 'project-feature' }, [
+        h('span', { class: 'lt-badge' }, 'workshop shape'),
+        h('h2', null, '20 minutes teaching. 40 minutes practicing. 20 minutes sharing.'),
+        h('p', null, 'For classrooms, faculty workshops, and parent nights, keep the rhythm practical. The learning happens in iteration, not in long explanations.'),
+        h('div', { class: 'rhythm-grid' }, [
+          h('div', null, [h('strong', null, '20'), h('span', null, 'teach')]),
+          h('div', { class: 'primary' }, [h('strong', null, '40'), h('span', null, 'practice')]),
+          h('div', null, [h('strong', null, '20'), h('span', null, 'share')])
+        ]),
+        h('h3', null, 'Start with a failure'),
+        h('p', null, 'Give AI a vague prompt and let everyone watch it produce something generic. Then add context, role, examples, and constraints. The room sees the same tool become useful because the human got more specific.'),
+        h('div', { class: 'project-columns' }, [
+          h('div', { class: 'compare-col weak' }, [
+            h('span', { class: 'lbl' }, 'Too abstract'),
+            h('pre', { class: 'prompt-box' }, 'Tell me about AI.'),
+            h('p', null, 'Big topic, vague output, no clear use.')
+          ]),
+          h('div', { class: 'compare-col strong' }, [
+            h('span', { class: 'lbl' }, 'Teachable'),
+            h('pre', { class: 'prompt-box' }, 'Act as a patient tutor for a 9th grader.\nExplain why AI can be confidently wrong.\nUse one analogy and end with a question.'),
+            h('p', null, 'Clear audience, job, style, and output shape.')
+          ])
+        ])
       ]),
       h('section', { class: 'v2-card-grid' }, [
         h('article', { class: 'project-card' }, [
-          h('h2', null, 'Discussion-first lessons'),
-          h('p', null, 'Each V2 lesson should have one moment where a group can pause, compare answers, and explain the judgment behind a choice.')
+          h('h2', null, 'Adults and students need different doors'),
+          h('p', null, 'Adults usually start with an existing workflow: email, meeting prep, research, lesson planning. Students usually start with curiosity and identity: stress-test AI, find mistakes, compare answers, and build small things.')
+        ]),
+        h('article', { class: 'project-card' }, [
+          h('h2', null, 'The ethical core'),
+          h('p', null, 'The strongest rule is not "AI is allowed" or "AI is banned." The better question is: what part of this work is supposed to grow my mind? If AI helps with that, use it. If AI removes that part, pause.')
         ]),
         h('article', { class: 'project-card' }, [
           h('h2', null, 'Multi-agent classroom activity'),
@@ -1548,6 +1954,10 @@
             h('li', null, 'Compare how the secretary intervention changes stalled negotiations.')
           ]),
           h('p', { class: 'muted' }, 'Teaching materials still needed: setup instructions, safe discussion framing, sample outputs, and questions about evidence, incentives, deception, and oversight.')
+        ]),
+        h('article', { class: 'project-card' }, [
+          h('h2', null, 'Sustainable AI learning tools'),
+          h('p', null, 'Use tools that match the learning goal instead of defaulting to the biggest model every time. For practice, smaller, local, or no-signup tools often teach more because learners can see the tradeoffs clearly.')
         ])
       ])
     ]);
@@ -1557,9 +1967,35 @@
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
       h('header', { class: 'hero compact' }, [
-        h('div', { class: 'tagline' }, 'About V2'),
-        h('h1', null, 'Learning AI is for anyone starting from questions'),
-        h('p', { class: 'lead' }, 'V2 is being built as a guided course with accounts, saved progress, interactive lessons, and projects. The goal is not “AI for high school students only.” It is AI learning that works whether you are a student, teacher, parent, builder, or curious adult.')
+        h('div', { class: 'tagline' }, 'About'),
+        h('h1', null, 'Why this site exists.'),
+        h('p', { class: 'lead' }, 'Built by a high school student for anyone in high school and up who wants to learn AI the right way.')
+      ]),
+      h('section', { class: 'project-feature about-story' }, [
+        h('div', { class: 'status-strip' }, [
+          h('strong', null, 'Status: '),
+          'The interactive course is live with all 30 lessons. The original chapter pages remain as a free, no-account way to read the core ideas.'
+        ]),
+        h('h2', null, 'The question that started it'),
+        h('p', null, 'I am Aarav. A few months ago I asked my dad a question that is still with me: "If AI can write my essays, explain things better than my textbooks, and solve my problems, why am I in school?"'),
+        h('p', null, 'He did not have a clean answer. He has been thinking about it ever since, and it sparked talks he gave to my school teachers and students. I wanted to do something with the question too: something I could share with people my age and beyond.'),
+        h('h2', null, 'Why a website'),
+        h('p', null, 'The big AI learning sites are mostly written by adults for adults, then simplified. Most focus on what AI is. Very few focus on what to do with it: how to be a great partner with it, how to push back when it is wrong, and how to actually build things.'),
+        h('p', null, 'There is also a missing voice. I could not find a serious AI course written by a high schooler. So I built one.'),
+        h('h2', null, 'Who this is for'),
+        h('ul', { class: 'compact-list' }, [
+          h('li', null, 'Students who use AI every week but feel like they are not really learning from it.'),
+          h('li', null, 'Adults, parents, teachers, professionals, and curious learners who want a clear overview without hype.'),
+          h('li', null, 'Older learners who have not gotten into AI yet and want a friendly on-ramp.')
+        ]),
+        h('h2', null, 'The thesis'),
+        h('p', { class: 'pull-quote' }, 'AI takes some skills away and gives others in return. The new skills are not smaller. They are different.'),
+        h('ul', { class: 'compact-list' }, [
+          h('li', null, 'AI is a partner skill, not a replacement skill.'),
+          h('li', null, 'Honesty over hype: AI is incredible, and it is wrong sometimes.'),
+          h('li', null, 'Productive struggle still matters. Do not outsource the thinking you should be learning.'),
+          h('li', null, 'Peer voice matters. The best people to teach high schoolers about AI include high schoolers.')
+        ])
       ])
     ]);
   }
@@ -1577,36 +2013,38 @@
   function render() {
     if (!app) return;
     const parts = (location.hash.replace(/^#/, '') || '/').split('/').filter(Boolean);
+    const route = parts[0] || '';
+    const isGuestLesson = route === 'lesson' && parts[1] === 'chapter-1';
+    const wantsAccount = route === 'account';
+    const showGuestGate = (route === 'gate' || (route === 'done' && parts[1] === 'chapter-1' && !currentUser)) && isDone('chapter-1');
     if (!authChecked) {
       updateShellChrome(parts);
       app.innerHTML = '';
-      app.appendChild(h('div', { class: 'container view' }, [
-        h('section', { class: 'lesson-card' }, [
-          h('div', { class: 'tagline' }, 'Learning AI'),
-          h('h1', null, 'Checking your account...'),
-          h('p', { class: 'muted' }, 'V2 saves progress to the Learning AI backend.')
-        ])
-      ]));
+      if (!route || route === 'welcome') app.appendChild(viewWelcome({ checking: true }));
+      else if (isGuestLesson) app.appendChild(viewLesson('chapter-1', parseInt(parts[2] || '0', 10) || 0));
+      else app.appendChild(h('div', { class: 'container view' }, [
+          h('section', { class: 'lesson-card' }, [
+            h('div', { class: 'tagline' }, 'Learning AI'),
+            h('h1', null, 'Checking your account...'),
+            h('p', { class: 'muted' }, 'V2 saves progress to the Learning AI backend.')
+          ])
+        ]));
       return;
     }
-    if (!api) {
+    if ((!api || backendUnavailable) && wantsAccount) {
       updateShellChrome(parts);
       app.innerHTML = '';
       app.appendChild(viewApiUnavailable());
       updateTopProgress();
       return;
     }
-    if (backendUnavailable) {
+    if (!currentUser) {
       updateShellChrome(parts);
       app.innerHTML = '';
-      app.appendChild(viewApiUnavailable());
-      updateTopProgress();
-      return;
-    }
-    if (api && !currentUser) {
-      updateShellChrome(parts);
-      app.innerHTML = '';
-      app.appendChild(viewAuthGate());
+      if (wantsAccount && api && !backendUnavailable) app.appendChild(viewAuthGate());
+      else if (showGuestGate) app.appendChild(viewGuestGate());
+      else if (isGuestLesson) app.appendChild(viewLesson('chapter-1', parseInt(parts[2] || '0', 10) || 0));
+      else app.appendChild(viewWelcome());
       updateTopProgress();
       return;
     }
@@ -1621,6 +2059,9 @@
     else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewDashboard();
     else if (parts[0] === 'lessons') node = viewLessonsCatalog();
+    else if (parts[0] === 'notes') node = viewNotes();
+    else if (parts[0] === 'account') node = viewDashboard();
+    else if (parts[0] === 'welcome' || parts[0] === 'gate') node = viewDashboard();
     else if (parts[0] === 'settings') node = viewSettings();
     else if (parts[0] === 'projects') node = viewProjects();
     else if (parts[0] === 'teaching') node = viewTeaching();

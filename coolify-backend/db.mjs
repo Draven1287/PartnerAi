@@ -1032,6 +1032,15 @@ export function createDb(options = {}) {
     return result.rows[0].id;
   }
 
+  async function archiveToolkit(userId, id) {
+    const result = await query(`UPDATE toolkit_cards
+      SET archived_at = now(), updated_at = now()
+      WHERE user_id = $1 AND archived_at IS NULL AND (id::text = $2 OR source_key = $2)
+      RETURNING id`, [userId, String(id || '').slice(0, 120)]);
+    if (result.rowCount) await touchUser(userId);
+    return result.rowCount > 0;
+  }
+
   async function addMinutes({ userId = null, name, nameKey, minutes, lessonId = null, source = 'frontend' }) {
     await query(`INSERT INTO learning_minutes(user_id, lesson_id, display_name, name_key, minutes, source)
       VALUES ($1, NULLIF($2, ''), $3, $4, $5, $6)`, [userId, String(lessonId || ''), name, nameKey, Math.round(Number(minutes)), source]);
@@ -1892,6 +1901,7 @@ export function createDb(options = {}) {
     saveQuizAnswer,
     completeActivity,
     saveToolkit,
+    archiveToolkit,
     addMinutes,
     recordVisit,
     importLocal,

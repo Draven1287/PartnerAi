@@ -97,6 +97,9 @@
     saveToolkit(card) {
       return request('/api/v2/toolkit', { method: 'POST', body: card });
     },
+    deleteToolkit(id) {
+      return request(`/api/v2/toolkit/${encodeURIComponent(id)}`, { method: 'DELETE' });
+    },
     saveMinutes(minutes) {
       return request('/api/v2/minutes', { method: 'POST', body: minutes });
     },

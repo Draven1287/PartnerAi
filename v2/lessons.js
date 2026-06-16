@@ -58,9 +58,9 @@
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "You see this every week",
-        "scenario": "One friend uses AI and their grades go up. Another says AI is dangerous and refuses to touch it. A third uses it for literally everything. They are all talking at once.",
-        "prompt": "Before reading on: in one sentence, what would YOUR rule be?"
+        "title": "You already know all three of these people",
+        "scenario": "Look at your group chat. One person runs everything through AI — their work is faster and they're getting way more done. Another swears it off: AI is dangerous, so they do every assignment themselves, by hand. A third uses it for literally everything, no exceptions. They're all talking over each other, and every one of them is sure they're right.",
+        "prompt": "Before you read on — in one sentence, where do you actually land?"
       },
       {
         "kind": "classify",
