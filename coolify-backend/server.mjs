@@ -1296,7 +1296,10 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const health = await database.health();
         return sendJson(res, 200, { ok: true, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', ...health }, { req });
       }
-      if (req.method === 'GET' && url.pathname === '/admin') return sendHtml(res, 200, adminHtml());
+      if (req.method === 'GET' && url.pathname === '/admin') {
+        res.writeHead(302, { location: process.env.ADMIN_CONSOLE_URL || 'https://learningai4you.com/backend-console.html' });
+        return res.end();
+      }
 
       if (req.method === 'POST' && url.pathname === '/api/auth/signup') return handleSignup(req, res, database);
       if (req.method === 'POST' && url.pathname === '/api/auth/login') return handleLogin(req, res, database);
