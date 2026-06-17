@@ -37,6 +37,9 @@ app.use(cors({
 }));
 app.options('*', cors());
 
+// ---- never cache API responses (so Cloudflare shows cf-cache-status: DYNAMIC on /api/*) ----
+app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
+
 // ---- cookie helpers (cross-site requires SameSite=None + Secure) ----
 function setSession(res, user) {
   const token = jwt.sign({ uid: user.id, admin: user.is_admin }, SECRET, { expiresIn: '30d' });
@@ -159,6 +162,22 @@ app.post('/api/notes', auth, async (req, res) => {
 app.post('/api/minutes', async (req, res) => {
   const { name, minutes, consent } = req.body || {};
   await pool.query('insert into minutes(name,minutes,consent) values($1,$2,$3)', [name || null, minutes | 0, !!consent]);
+  res.json({ ok: true });
+});
+
+// ---- admin auth (gates the Backend Console; same session cookie, requires is_admin) ----
+app.post('/api/admin/login', async (req, res) => {
+  const { email, password } = req.body || {};
+  const { rows } = await pool.query('select * from users where email=$1', [(email || '').toLowerCase().trim()]);
+  const u = rows[0];
+  if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
+    return res.status(401).json({ ok: false, error: 'bad_credentials' });
+  if (!u.is_admin) return res.status(403).json({ ok: false, error: 'not_admin' });
+  setSession(res, u);
+  res.json({ ok: true, user: pub(u) });
+});
+app.post('/api/admin/logout', (_req, res) => {
+  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
   res.json({ ok: true });
 });
 
