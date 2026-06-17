@@ -61,28 +61,13 @@ function applyAppearance(settings = readLearningSettings()) {
   else document.body.removeAttribute('data-theme');
   document.body.dataset.fontScale = settings.fontScale || 'normal';
   document.body.dataset.fontFamily = settings.fontFamily || 'system';
+  document.body.dataset.reduce = settings.reduceMotion ? '1' : '';
 
   const target = document.body.style;
   const accent = settings.accentColor || '';
   const text = settings.theme === 'dark' && settings.textColor === '#121826' ? '' : settings.textColor || '';
   const background = settings.theme === 'dark' && settings.backgroundColor === '#f7f9fc' ? '' : settings.backgroundColor || '';
-  if (theme === 'dark') {
-    target.setProperty('--bg', '#0f1726');
-    target.setProperty('--surface', '#1b2637');
-    target.setProperty('--surface-2', '#243247');
-    target.setProperty('--border', '#33445c');
-    target.setProperty('--text', text || '#f4f7fb');
-    target.setProperty('--text-dim', '#a7b1c2');
-    target.setProperty('--text-faint', '#778397');
-  } else if (theme === 'light') {
-    target.setProperty('--bg', '#f7f9fc');
-    target.setProperty('--surface', '#ffffff');
-    target.setProperty('--surface-2', '#eef4f8');
-    target.setProperty('--border', '#dbe3ea');
-    target.setProperty('--text', text || '#121826');
-    target.setProperty('--text-dim', '#4b5870');
-    target.setProperty('--text-faint', '#7a869a');
-  }
+  if (text) target.setProperty('--text', text);
   if (accent) {
     const rgb = hexToRgb(accent);
     target.setProperty('--accent', accent);
