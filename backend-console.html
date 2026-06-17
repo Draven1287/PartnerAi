@@ -217,12 +217,13 @@ class Component extends DCLogic {
   PAGE = 25;
 
   LVL = { Foundation:'#b6802a', Explorer:'#3a3aa3', Builder:'#2f9c6a' };
-  TOTAL = 247;
-  WEEKDAYS = [['Mon',18],['Tue',26],['Wed',31],['Thu',22],['Fri',29],['Sat',41],['Sun',38]];
-  WEEKS8 = [['8w',62],['7w',74],['6w',88],['5w',103],['4w',121],['3w',147],['2w',176],['Now',205]];
-  RETURN = [['Almost daily',34,'#2f9c6a'],['A few times a week',71,'#3a3aa3'],['About weekly',83,'#b6802a'],['Once so far',59,'#cf5340']];
-  LEVELS = { Foundation:78, Explorer:104, Builder:65 };
-  AGES = [['13–15',96],['16–18',88],['19–24',34],['25–34',18],['35–49',7],['Under 13',4]];
+  TOTAL = 0;
+  ACTIVE = 0;
+  WEEKDAYS = [];
+  WEEKS8 = [];
+  RETURN = [];
+  LEVELS = { Foundation:0, Explorer:0, Builder:0 };
+  AGES = [];
 
   TABS = [['overview','Overview','server'],['learners','Learners','users'],['visits','Visits','pulse'],['levels','Where kids land','target'],['questions','Questions','list'],['connection','Connection','refresh']];
 
@@ -247,26 +248,7 @@ class Component extends DCLogic {
       dist:[13,26,38,23], order:[1,0,3,2] }
   ];
 
-  LEARNERS = (() => {
-    const fn=['Maya','Devon','Sofia','Aiden','Priya','Marcus','Elena','Tyler','Jordan','Aisha','Liam','Nora','Diego','Hana','Owen','Zara','Caleb','Ivy','Mateo','Leah','Noah','Amara','Ethan','Mia','Kai','Ruby','Sam','Lila','Jude','Esme','Theo','Anya','Cole','Faith','Reza','Tessa'];
-    const ln=['R.','K.','L.','T.','S.','W.','G.','B.','M.','P.','N.','C.','H.','D.','F.','A.','J.','V.'];
-    const dom=['gmail.com','icloud.com','westfield.edu','oakridge.org','northhs.edu','stmarys.edu','yahoo.com'];
-    const ages=['13-15','16-18','16-18','19-24','13-15','25-34'];
-    const lasts=['1h ago','2h ago','5h ago','8h ago','1d ago','2d ago','4d ago','6d ago','9d ago','13d ago'];
-    const arr=[];
-    for (let i=0;i<60;i++){
-      const score = 20 + ((i*37+11) % 78);
-      const level = score<45 ? 'Foundation' : score<75 ? 'Explorer' : 'Builder';
-      const lesson = 1 + ((i*7+3) % 29);
-      const visits = 2 + ((i*5+4) % 27);
-      const days = 1 + (visits % 12);
-      const li = (i*11) % lasts.length;
-      const base = level==='Builder' ? 3 : level==='Explorer' ? 2 : 1;
-      const ans = [0,1,2,3,4,5].map(q => Math.max(0, Math.min(3, base + (((i+q)%3)-1))));
-      arr.push({ id:i, name: fn[i%fn.length]+' '+ln[(i*3)%ln.length], email:(fn[i%fn.length].toLowerCase())+(i+1)+'@'+dom[i%dom.length], age:ages[i%ages.length], level, score, lesson, visits, days, last:lasts[li], cold: li>=6, ans });
-    }
-    return arr;
-  })();
+  LEARNERS = [];
 
   el(t,p,...k){ return React.createElement(t,p,...k.flat()); }
   initials(n){ return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
@@ -294,17 +276,22 @@ class Component extends DCLogic {
     const bad = this.state.checks.some(c=>c.status==='bad');
     return bad ? { cls:'bad', label:'Connection: failing' } : { cls:'ok', label:'Connection: healthy' };
   }
-  runDiagnostics(){
-    const steps = [
-      { t:'DNS + TLS reachable', s:'api.learningai4you.com resolves through Cloudflare', status:'ok', ms:'42ms' },
-      { t:'CORS preflight (OPTIONS)', s:'Access-Control-Allow-Origin echoes the site origin', status:'ok', ms:'88ms' },
-      { t:'Credentials allowed', s:'Access-Control-Allow-Credentials: true present', status:'ok', ms:'—' },
-      { t:'Session cookie set', s:'SameSite=None; Secure cookie accepted by browser', status:'ok', ms:'—' },
-      { t:'GET /api/health', s:'200 OK · status ok, db connected', status:'ok', ms:'71ms' },
-      { t:'Cloudflare not caching /api/*', s:'cf-cache-status: DYNAMIC (good)', status:'warn', ms:'—' }
-    ];
-    this.setState({ ran:true, running:true, tab:'connection', checks: steps.map(s=>({ ...s, status:'pend' })) });
-    steps.forEach((s,i)=> setTimeout(()=> this.setState(st=>{ const c=[...st.checks]; c[i]=s; return { checks:c, running: i<steps.length-1 }; }), 320*(i+1)));
+  async runDiagnostics(){
+    this.setState({ ran:true, running:true, tab:'connection', checks:[
+      { t:'API reachable', s:'GET /api/health', status:'pend', ms:'' },
+      { t:'Database connected', s:'Postgres responds', status:'pend', ms:'' },
+      { t:'Admin session', s:'authenticated as admin', status:'pend', ms:'' }
+    ]});
+    const t0=Date.now();
+    const h=await this.apiCall('/api/health');
+    const ms=(Date.now()-t0)+'ms';
+    const apiOk=!!(h&&(h.ok||h.status||h.db));
+    const dbOk=h&&h.db==='connected';
+    this.setState({ running:false, checks:[
+      { t:'API reachable', s: apiOk?'api.learningai4you.com responded':'no response from the API', status: apiOk?'ok':'bad', ms },
+      { t:'Database connected', s: dbOk?'Postgres connected':(h&&h.db?('db: '+h.db):'database not reachable'), status: dbOk?'ok':'bad', ms:'' },
+      { t:'Admin session', s: this.state.authed?'signed in as admin':'not signed in', status: this.state.authed?'ok':'warn', ms:'' }
+    ]});
   }
 
   // ---------- chrome ----------
@@ -317,12 +304,17 @@ class Component extends DCLogic {
     return this.el('div',{className:'bar'}, this.el('div',{className:'bar-in'}, brand, this.el('div',{className:'spacer'}), connBtn, theme));
   }
   // ---------- admin login gate ----------
-  doAdminLogin(){
+  apiBase(){ return String(window.LEARNING_AI_BACKEND_URL||'https://api.learningai4you.com').replace(/\/$/,''); }
+  async apiCall(path,opts){ opts=opts||{}; try{ const r=await fetch(this.apiBase()+path,{method:opts.method||'GET',headers:opts.body?{'content-type':'application/json'}:undefined,credentials:'include',body:opts.body?JSON.stringify(opts.body):undefined}); const d=await r.json().catch(()=>({})); return {ok:r.ok,status:r.status,...d}; }catch(e){ return {ok:false,error:'network_error'}; } }
+  async fetchOverview(){ const r=await this.apiCall('/api/admin/overview'); if(r&&r.ok){ this.TOTAL=r.total||0; this.ACTIVE=r.activeWeek||0; const lv={Foundation:0,Explorer:0,Builder:0}; (r.levels||[]).forEach(x=>{ if(x.level in lv) lv[x.level]=x.n; }); this.LEVELS=lv; this.LEARNERS=(r.learners||[]).map((u,i)=>({ id:i, name:u.display_name||'—', email:u.email||'', age:u.age_range||'—', level:u.level||'Foundation', score:u.score||0, lesson:u.current_lesson||1, visits:u.visits||0, days:u.active_days||0, last:u.last_seen?new Date(u.last_seen).toLocaleDateString():'—', cold:false, ans:[] })); this.setState({loaded:true}); } }
+  async doAdminLogin(){
     const e=(this.state.adminEmail||'').trim(), p=this.state.adminPw||'';
     if(!e || !p) return this.setState({authError:'Enter the admin email and password.'});
-    // Prototype gate only. Real auth: POST /api/admin/login → server checks is_admin
-    // and sets an http-only session cookie. No token is ever stored in the browser.
-    this.setState({authed:true, authError:'', adminPw:''});
+    const r=await this.apiCall('/api/admin/login',{method:'POST',body:{email:e,password:p}});
+    if(r&&r.ok){ await this.fetchOverview(); return this.setState({authed:true, authError:'', adminPw:''}); }
+    if(r&&r.status===403) return this.setState({authError:'That account is not an admin.'});
+    if(r&&r.status===401) return this.setState({authError:'Wrong email or password.'});
+    return this.setState({authError:'Could not reach the server. Try again.'});
   }
   loginView(){
     const inp=(ph,type,val,key)=> this.el('input',{className:'login-inp',type,placeholder:ph,value:val,
@@ -344,8 +336,7 @@ class Component extends DCLogic {
     if (!this.state.authed) return null;
     return this.el('div',{className:'head'},
       this.el('div',null, this.el('div',{className:'kick'},'Admin · learning analytics'), this.el('h1',null,'Backend Console'),
-        this.el('div',{className:'env'}, 'env: ', this.el('b',null,'production'), '  ·  api.learningai4you.com  ·  Coolify + Cloudflare')),
-      this.el('div',{className:'sample-flag'}, this.ico('alert',14), 'Sample data — wired on deploy'));
+        this.el('div',{className:'env'}, 'env: ', this.el('b',null,'production'), '  ·  api.learningai4you.com  ·  Coolify + Cloudflare')));
   }
   tabnav(){
     if (!this.state.authed) return null;
@@ -354,16 +345,16 @@ class Component extends DCLogic {
   }
   foot(){
     if (!this.state.authed) return null;
-    return this.el('p',{className:'foot'},'This console reads from the API in BACKEND.md. Numbers are representative sample data so you can see the populated layout; on deploy it shows real learners. No personal data is invented about real people.');
+    return this.el('p',{className:'foot'},'This console reads live from the API. Numbers start at zero and fill in as real learners sign up.');
   }
 
   // ---------- KPIs ----------
   kpis(){
     const data = [
-      { l:'Total learners', ic:'users', v:String(this.TOTAL), d:'+18 this week', dc:'up' },
-      { l:'Active this week', ic:'pulse', v:'132', d:'53% of all learners', dc:'up' },
-      { l:'Avg. lesson reached', ic:'book', v:'7.4', d:'of 30', dc:'flat' },
-      { l:'Median visits / learner', ic:'clock', v:'9', d:'over ~6 days', dc:'flat' }
+      { l:'Total learners', ic:'users', v:String(this.TOTAL), d:this.TOTAL?'all time':'none yet', dc:'flat' },
+      { l:'Active this week', ic:'pulse', v:String(this.ACTIVE), d:this.TOTAL?Math.round(this.ACTIVE/this.TOTAL*100)+'% of learners':'none yet', dc:'flat' },
+      { l:'Avg. lesson reached', ic:'book', v:'\u2014', d:'not tracked yet', dc:'flat' },
+      { l:'Median visits / learner', ic:'clock', v:'\u2014', d:'not tracked yet', dc:'flat' }
     ];
     return this.el('div',{className:'kpis'}, data.map((k,i)=> this.el('div',{key:i,className:'kpi'},
       this.el('div',{className:'l'}, this.el('span',{style:{width:15,height:15,color:'var(--accent)'}}, this.icon(k.ic)), k.l),
@@ -395,6 +386,7 @@ class Component extends DCLogic {
   }
   detail(){
     const u = this.LEARNERS.find(x=>x.id===this.state.selected) || this.LEARNERS[0];
+    if(!u) return this.el('div',{className:'empty'},'No learners yet. Records appear here as people sign up.');
     const cells = [['Email',u.email,true],['Display name',u.name,false],['Age range',u.age,false],['Diagnostic level',u.level,false],['Score',u.score+' / 100',false],['Current lesson',u.lesson+' of 30',false],['Total visits',String(u.visits),false],['Active days',String(u.days),false],['Last seen',u.last,false]];
     const h = this.el('div',{className:'panel-h'}, this.el('h2',null,u.name), this.el('span',{className:'meta'},'full learner record'));
     const grid = this.el('div',{className:'detail-grid side'}, cells.map(([l,v,m],i)=> this.el('div',{key:i,className:'dcell'}, this.el('div',{className:'l'},l), this.el('div',{className:'v'+(m?' mono':'')},v))));
@@ -407,10 +399,10 @@ class Component extends DCLogic {
     const searching = this.state.search.trim().length > 0;
     const h = this.el('div',{className:'panel-h'}, this.el('h2',null,'Learners'), search);
     const info = this.el('div',{style:{padding:'0 22px 10px',fontSize:'12.5px',color:'var(--text-faint)',fontWeight:600}},
-      `Showing ${searching?all.length+' matching':'all '+all.length} sample learners · scroll the list · click a row for the full record`);
+      `Showing ${searching?all.length+' matching':'all '+all.length} learners · scroll the list · click a row for the full record`);
     const wipe = this.el('div',{style:{display:'flex',gap:'9px',alignItems:'flex-start',margin:'0 22px',padding:'13px 16px',background:'var(--warn-soft)',border:'var(--bw) solid color-mix(in srgb,var(--warn) 35%,var(--border))',borderRadius:'12px',fontSize:'12.5px',lineHeight:'1.5',color:'var(--text-dim)'}},
       this.el('span',{style:{color:'var(--warn)',flex:'none',width:15,height:15,marginTop:'1px'}}, this.icon('alert',15)),
-      this.el('span',null, this.el('b',{style:{color:'var(--text)'}},'These names are fake. '),'Every row is hardcoded in this prototype — it never touches a database. The moment the real API is wired, all of it is gone and the list shows only real learners.'));
+      this.el('span',null, this.el('b',{style:{color:'var(--text)'}},'Live data. '),'This list comes straight from the database. It starts empty and fills as real learners sign up.'));
     return this.el('div',{className:'learners-2col'},
       this.el('div',{className:'panel'}, h, info, this.learnerTable(all),
         this.el('div',{style:{padding:'14px 22px 6px'}}, wipe)),
@@ -422,7 +414,7 @@ class Component extends DCLogic {
     const max = Math.max(...this.WEEKDAYS.map(d=>d[1]));
     const cols = this.WEEKDAYS.map(([lab,v],i)=> this.el('div',{key:i,className:'col'},
       this.el('div',{className:'bv'},v), this.el('div',{className:'bar',style:{height:(v/max*150+8)+'px'}}), this.el('div',{className:'bx'},lab)));
-    const stats = [['205','sessions this week'],['1.6','avg days between visits'],['58%','returned within 7 days'],['Sat','busiest day']];
+    const stats = [['\u2014','sessions this week'],['\u2014','avg days between visits'],['\u2014','returned within 7 days'],['\u2014','busiest day']];
     const weekly = this.el('div',{className:'panel'},
       this.el('div',{className:'panel-h'}, this.el('h2',null,'Visits this week'), this.el('span',{className:'meta'},'sessions per day')),
       this.el('div',{className:'spark'}, cols),
@@ -453,7 +445,7 @@ class Component extends DCLogic {
   levelsTab(){
     const total = this.LEVELS.Foundation+this.LEVELS.Explorer+this.LEVELS.Builder;
     const rows = Object.entries(this.LEVELS).map(([k,c])=>{
-      const pct = Math.round(c/total*100);
+      const pct = total?Math.round(c/total*100):0;
       return this.el('div',{key:k,className:'dist-row'},
         this.el('div',{className:'top'}, this.el('span',null,k), this.el('span',{className:'c'}, c+' learners · '+pct+'%')),
         this.el('div',{className:'track'}, this.el('div',{className:'fill',style:{width:pct+'%',background:this.LVL[k]}})));
@@ -535,7 +527,7 @@ class Component extends DCLogic {
         this.el('td',{className:'num'}, u.lesson+'/30'))))));
     const total = this.LEVELS.Foundation+this.LEVELS.Explorer+this.LEVELS.Builder;
     const miniLevels = this.el('div',{className:'dist'}, Object.entries(this.LEVELS).map(([k,c])=>{
-      const pct = Math.round(c/total*100);
+      const pct = total?Math.round(c/total*100):0;
       return this.el('div',{key:k,className:'dist-row'}, this.el('div',{className:'top'}, this.el('span',null,k), this.el('span',{className:'c'},pct+'%')), this.el('div',{className:'track'}, this.el('div',{className:'fill',style:{width:pct+'%',background:this.LVL[k]}})));
     }));
     return this.el('div',null, this.kpis(),
