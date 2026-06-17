@@ -29,7 +29,7 @@ a palette or theme change is pure CSS, and the system can't drift between two JS
 
 | File | Design-relevant content | Lines | Issue |
 |---|---|---|---|
-| `styles.css` | `:root` 16 tokens, **cool** palette, **light only** | 6–22 | wrong values; no dark/sepia/contrast token blocks |
+| `styles.css` | `:root` 14 design tokens + `--blue` + 2 layout vars (17 decls), **cool**, **light only** | 6–22 | wrong values; no dark/sepia/contrast token blocks |
 | `styles.css` | body font `…"Inter"…`; serif = Georgia | 33, 41 | not Plus Jakarta / Newsreader |
 | `styles.css` | `body[data-theme="dark"] .x{}` component overrides | 734+, 1047+ | per-component dark hacks instead of token theming |
 | `script.js` | `applyAppearance()` JS color injection | 57–101 | hardcoded cool hex overrides CSS |
@@ -45,8 +45,10 @@ a palette or theme change is pure CSS, and the system can't drift between two JS
 ---
 
 ## 2. Decision gate (before Phase 3)
-- [x] **7th arc color = `#b0467e`** ("Staying in Charge") — locked in `design.md §7`. The system
-      had 6 arc colors for 7 arcs; this completes the set.
+- [x] **7th arc color = `#b5683b`** ("Staying in Charge") — the prototype's designed value
+      (`…Redesign.dc.html:675`). *(A `#b0467e` guess was corrected after the audit found the
+      prototype already defines it.)* The production CODE still carries only 6 arc colors and a
+      6-key `V2_ARCS`; Phase 3 brings both to 7.
 - [ ] **Palette picker:** decide whether to keep the 5-option `V2_PALETTES` picker (lines 56–61)
       or drop it in favor of the four canonical themes. (Recommended: drop it; it's the main source
       of cool-color injection.)
@@ -130,10 +132,13 @@ genuinely component-specific tweaks.
 
 - [ ] `v2/app.js` line **44** `ARC_COLORS`:
       `['#2563eb','#0891b2','#7c3aed','#dc2626','#ea580c','#16a34a']`
-      → `['#4257c9','#0e8fa0','#7c52cf','#cf5340','#d57e22','#2f9c6a','#b0467e']`
-- [ ] `v2/v2.css` lines **28–32**: replace `--v2-blue/teal/violet/green/amber` with
-      `--arc-1 … --arc-7` (`design.md §7` values). Update consumers (`grep -n 'var(--v2-'`).
-- [ ] Mosaic consumer at `v2/app.js` line **1126** picks up the new `ARC_COLORS` automatically.
+      → `['#4257c9','#0e8fa0','#7c52cf','#cf5340','#d57e22','#2f9c6a','#b5683b']`
+- [ ] `v2/lessons.js` `window.V2_ARCS` (~line **3698**): add the 7th key
+      `'staying-in-charge': 'Staying in Charge'` (currently 6 keys; the 7th arc has no label there
+      until `app.js:266` recomputes from lesson data — complete the map for correctness).
+- [ ] `v2/v2.css` lines **28–32** `--v2-*` (5 vars) are **DEAD** — `grep 'var(--v2-'` = 0 consumers.
+      Either delete them, or repurpose to `--arc-1…--arc-7` AND switch the mosaic to read CSS vars.
+      As-is, arc color flows only through `ARC_COLORS` (JS), consumed at `v2/app.js:1126`.
 
 ---
 
@@ -153,7 +158,7 @@ genuinely component-specific tweaks.
 ## Phase 5 — Purge hardcoded hex
 Replace raw hex with `var(--token)`, file by file (after Phase 2 the tokens exist):
 - [ ] `v2/v2.css` — 33 literals (highest count).
-- [ ] `styles.css` — 17 literals outside `:root`/theme blocks.
+- [ ] `styles.css` — **4** hex literals outside `:root` (17 total in the file; 13 live in `:root`).
 - [ ] HTML with inline color: `index.html, chapter-1.html, settings.html, projects.html, for-educators.html, backend-console.html`.
 - [ ] Any color with no token → add the token to `design.md` first, then use it.
 
@@ -170,7 +175,8 @@ Replace raw hex with `var(--token)`, file by file (after Phase 2 the tokens exis
 ## Phase 7 — Governance (stop drift)
 - [ ] CI/lint gate: fail a build on raw hex in `*.css`/`*.html` outside `styles.css :root`, the
       theme blocks, and `design.md` (simple `grep -E '#[0-9a-fA-F]{6}'` allow-list, or stylelint
-      `color-no-hex` with the token file allow-listed).
+      `color-no-hex` with the token file allow-listed). **Exclude `v2-redesign/`** — it's a vendored
+      full copy of the prototype bundle in the repo (thousands of literals; not production code).
 - [ ] PR rule: any styling change references `design.md`; no new color/font/radius without adding
       it to `design.md` in the same PR.
 
@@ -187,4 +193,7 @@ Replace raw hex with `var(--token)`, file by file (after Phase 2 the tokens exis
 
 **Biggest risk** is Phase 2.3/2.4 (removing JS color injection): if a theme block is missing a
 token the page falls back to `:root` (light) for that token — so copy all 15 tokens into each
-theme block. Lowest risk: Phase 1 (fonts) and Phase 3 (arc values).
+theme block. Also **strip `script.js` and `v2/app.js` together** — `applyV2Palette()` is called
+unconditionally (`app.js:353`) and the default `V2_PALETTES` entry `green-amber` (`app.js:60`) will
+keep injecting cool colors into the lesson app even if `script.js` is fixed. Lowest risk: Phase 1
+(fonts) and Phase 3 (arc values).

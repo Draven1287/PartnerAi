@@ -190,12 +190,15 @@ and progress bars **as an accent only — never a full surface**. Suggested toke
 | 4 | Judgment & Safety | 5 | `#cf5340` |
 | 5 | Applying | 7 | `#d57e22` |
 | 6 | Building | 6 | `#2f9c6a` |
-| 7 | Staying in Charge | 3 | `#b0467e` |
+| 7 | Staying in Charge | 3 | `#b5683b` |
 
-> **Arc 7 (`#b0467e`)** was chosen to complete the set: a grounded berry/rose, distinct from the
-> other six, in the warm editorial family — fitting for the capstone arc. Standardize all seven in
-> code as `--arc-1…--arc-7`. Note the code is currently behind: `v2/v2.css` ships only 5 `--v2-*`
-> vars and `v2/app.js` `ARC_COLORS` only 6 — both must carry all seven.
+> **Arc 7 = `#b5683b`** — the warm clay the prototype already assigns to "Staying in Charge"
+> (`Learning AI V2 - Redesign.dc.html:675`, in the `ARCS` array, lines 669–675). *(An earlier pass
+> used `#b0467e` on the mistaken belief the prototype defined no 7th color — corrected to the
+> designed value.)* The production **code** is behind the design: `v2/app.js` `ARC_COLORS` (line 44)
+> has only 6 entries and `window.V2_ARCS` only 6 keys, so the 7th arc currently renders with
+> `undefined` color. Bring both to 7; standardize as `--arc-1…--arc-7`. (The `--v2-*` vars in
+> `v2/v2.css` are **dead** — 0 consumers; arc color flows through `ARC_COLORS` in JS.)
 
 ---
 
@@ -335,6 +338,8 @@ Names: `arrow, back, check, lock, msg, copy, server, shield, spark`, … **No em
 
 Lessons load at runtime from `v2/lessons.js`, which sets `window.V2_LESSONS` (array) and
 `window.V2_ARCS`. The app polls for this on mount and re-renders when it lands.
+⚠️ `window.V2_ARCS` currently lists **only 6 arcs** (missing the `staying-in-charge` key); the app
+recomputes the full 7 from the lesson data (`v2/app.js:266`), but the map should be completed to 7.
 - **Lesson shape:** `{ id, num, arc, title, coreQuestion, blurb, steps:[…] }`.
 - **Step kinds** (each via `renderStep`; the prototype demonstrates a representative subset):
   `coldOpen`, `reveal`, `compare`, `nextWord`, `classify`, `promptRepair`, `tryLive`, `verify`,
@@ -396,7 +401,7 @@ filler sections/stats; break reduce-motion or shrink text below the scale floor;
 ## 15. Open / proposed
 - **Logo:** intentionally **TBD** — designed once palette/type/voice lock. The gold-"LA"-on-black mark is parked.
 - **Accent migration:** indigo → amber/terracotta brand (token-only change — see §2).
-- **7th arc color:** ✅ resolved — "Staying in Charge" = `#b0467e`. Standardize `--arc-1…--arc-7` in code (see §7).
+- **7th arc color:** ✅ = `#b5683b` — the prototype's designed value for "Staying in Charge" (an earlier `#b0467e` guess was corrected). Production code carries only 6 arc colors and `V2_ARCS` only 6 keys — bring both to 7 (see §7).
 - **Two snapshots:** `.dc.html` (authoritative, used here) vs `…(standalone).html` (older; e.g. light `--bg:#f6f3ea`). Keep building from the `.dc.html`.
 - **Seamless mosaic:** the sunrise-wash variant is a candidate to revisit; the Arc/Reveal/Hybrid setting may be retired for one unified look.
 
