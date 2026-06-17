@@ -50,6 +50,13 @@ Generate a secret with: `openssl rand -hex 32`
 - **Do not strip cookies** on `/api/*` (the session cookie must pass through).
 
 ## 6. Create the admin login
+> ⚠️ **Verbatim-backend limitation:** this server is shipped exactly as Claude Design built it
+> (`la backend v2`), which does **not** implement `POST /api/admin/login` / `/api/admin/logout`.
+> So the **Backend Console cannot authenticate against the API yet** (and the console UI is itself
+> still a demo). The **learner** endpoints — signup, login, me, progress, diagnostic, notes — work
+> fully; learner sign-in is unaffected. Enabling the admin Console requires adding those two routes
+> (a code change, pending the user's decision). The steps below apply once those routes exist.
+
 The Backend Console requires an `is_admin` user.
 1. Sign up once (in the app, or `POST https://api.learningai4you.com/api/auth/signup`
    with `{email, password, displayName}`).
