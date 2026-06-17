@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
+<script src="backend-config.js"></script>
+<script src="backend-client-v2.js"></script>
 </head>
 <body>
 <template id="__bundler_thumbnail">
@@ -874,6 +876,7 @@ class Component extends DCLogic {
   saveDevice(patch) { try { const d = this.loadDevice(); localStorage.setItem(this.DEVICE, JSON.stringify({ ...d, ...patch })); } catch (e) {} }
   wipeDevice() { try { localStorage.removeItem(this.DEVICE); } catch (e) {} }
   saveProgressFor(completed) {
+    if (window.LearningAIBackend && this.state.email && !this.state.guest) window.LearningAIBackend.saveProgress({ currentLesson: this.state.curNum || 1, completed: completed || {} });
     if (!this.state.email) return;
     const a = this.loadAccounts(); const key = this.state.email.toLowerCase(); const ex = a[key]; if (!ex) return;
     ex.completed = completed; ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers;
@@ -882,25 +885,53 @@ class Component extends DCLogic {
   }
   persistProgress() {
     // called after diagnostic / lesson complete so a returning sign-in restores everything
+    if (window.LearningAIBackend && this.state.email && !this.state.guest) window.LearningAIBackend.saveProgress({ currentLesson: this.state.curNum || 1, completed: this.state.completed || {} });
     if (!this.state.email) return;
     const a = this.loadAccounts(); const key = this.state.email.toLowerCase(); const ex = a[key]; if (!ex) return;
     ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers; ex.level = this.qLevel() ? this.qLevel().label : ex.level;
     ex.completed = this.state.completed; ex.savedNotes = this.state.savedNotes; ex.lessonNotes = this.state.lessonNotes; ex.onboarded = true; ex.lastSeen = Date.now();
     this.saveAccount(ex);
   }
-  doSignup() {
+  async doSignup() {
     const email = (this.state.email || '').trim(), pw = this.state.password || '', name = (this.state.name || '').trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return this.setState({ authError: 'Enter a valid email address.' });
     if (pw.length < 8) return this.setState({ authError: 'Password must be at least 8 characters.' });
     if (!name) return this.setState({ authError: 'Add a display name to create your account.' });
+    const api = window.LearningAIBackend;
+    if (api) {
+      const r = await api.signup(email, pw, name);
+      if (r && r.ok) return this.go('questionnaire', { email, name, guest: false, authError: '', qShuffle: this.genShuffles() });
+      if (r && r.error === 'email_taken') return this.setState({ authError: 'That email already has an account — try signing in.' });
+      if (r && !r.skipped && r.error !== 'network_error') return this.setState({ authError: 'Could not create your account. Please try again.' });
+      // no backend configured or network error -> fall through to the on-device store
+    }
     const accounts = this.loadAccounts();
     if (accounts[email.toLowerCase()]) return this.setState({ authError: 'That email already has an account — try signing in.' });
     this.saveAccount({ email, name, password: pw, onboarded: false, completed: this.state.completed || {}, savedNotes: this.state.savedNotes || [], lessonNotes: this.state.lessonNotes || {}, created: Date.now() });
     this.go('questionnaire', { email, name, guest: false, authError: '', qShuffle: this.genShuffles() });
   }
-  doSignin() {
+  async doSignin() {
     const email = (this.state.email || '').trim(), pw = this.state.password || '';
     if (!email || !pw) return this.setState({ authError: 'Enter your email and password to sign in.' });
+    const api = window.LearningAIBackend;
+    if (api) {
+      const r = await api.login(email, pw);
+      if (r && r.ok) {
+        let me = {}; try { me = await api.me(); } catch (e) {}
+        const prog = (me && me.progress) || {};
+        const completed = prog.completed || {};
+        const onboarded = !!(me && me.onboarded);
+        const ageRange = (me && me.user && me.user.ageRange) || '';
+        const nm = (me && me.user && me.user.displayName) || '';
+        let savedNotes = [];
+        try { const n = await api.getNotes(); if (n && n.ok && Array.isArray(n.notes)) savedNotes = n.notes.map(x => ({ id: x.id, lesson: x.lesson, cardType: x.card_type, fields: x.fields, ts: x.created_at })); } catch (e) {}
+        if (onboarded) return this.go('dashboard', { onboarded: true, guest: false, email, name: nm, qAge: ageRange, qAnswers: {}, completed, savedNotes, lessonNotes: {}, authError: '' });
+        return this.go('questionnaire', { email, name: nm, guest: false, authError: '', qShuffle: this.genShuffles() });
+      }
+      if (r && (r.status === 401 || r.error === 'bad_credentials')) return this.setState({ authError: 'That email or password didn’t match. Try again — or create an account below.' });
+      if (r && !r.skipped && r.error !== 'network_error') return this.setState({ authError: 'Could not sign you in. Please try again.' });
+      // no backend configured or network error -> fall through to the on-device store
+    }
     const acct = this.loadAccounts()[email.toLowerCase()];
     if (!acct) return this.setState({ authError: 'No account found for that email. Create one below.' });
     if (acct.password !== pw) return this.setState({ authError: 'That password doesn\u2019t match. Try again.' });
@@ -1031,7 +1062,7 @@ class Component extends DCLogic {
           this.el('div', { style:{ display:'flex', alignItems:'center', gap:'14px', flexWrap:'wrap', justifyContent:'flex-end' } },
             blockReason ? this.el('span', { className:'block-reason' }, this.el('span', { style:{ width:14, height:14, display:'inline-flex' } }, this.icon('lock')), blockReason) : null,
             this.el('button', { className:'btn btn-primary', disabled:!canNext, style:!canNext?{ opacity:.5, cursor:'not-allowed' }:null,
-              onClick:() => { if (!canNext) return; if (last) { const a = this.loadAccounts(); const ex = a[(this.state.email||'').toLowerCase()]; if (ex) { ex.onboarded = true; ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers; ex.level = this.qLevel() ? this.qLevel().label : ex.level; ex.completed = this.state.completed; ex.savedNotes = this.state.savedNotes; this.saveAccount(ex); } this.go('dashboard', { onboarded:true }); } else this.setState({ qIndex:i+1 }); } },
+              onClick:() => { if (!canNext) return; if (last) { const a = this.loadAccounts(); const ex = a[(this.state.email||'').toLowerCase()]; if (ex) { ex.onboarded = true; ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers; ex.level = this.qLevel() ? this.qLevel().label : ex.level; ex.completed = this.state.completed; ex.savedNotes = this.state.savedNotes; this.saveAccount(ex); } if (window.LearningAIBackend && this.state.email && !this.state.guest) window.LearningAIBackend.saveDiagnostic({ answers: this.state.qAnswers || {}, score: 0, level: this.qLevel() ? this.qLevel().label : 'Foundation', ageRange: this.state.qAge || '' }); this.go('dashboard', { onboarded:true }); } else this.setState({ qIndex:i+1 }); } },
               last ? 'Finish and open dashboard' : 'Next category'))))));
   }
 

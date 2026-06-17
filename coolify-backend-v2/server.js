@@ -98,26 +98,6 @@ app.post('/api/auth/logout', (_req, res) => {
   res.json({ ok: true });
 });
 
-// ---- admin sign-in (gates the Backend Console) ----
-// Same credential check as a normal login, but the account MUST be is_admin.
-// Sets the same http-only session cookie (admin flag is inside the JWT) — no
-// admin token is ever stored in the browser.
-app.post('/api/admin/login', async (req, res) => {
-  const { email, password } = req.body || {};
-  const { rows } = await pool.query('select * from users where email=$1', [(email || '').toLowerCase().trim()]);
-  const u = rows[0];
-  if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
-    return res.status(401).json({ ok: false, error: 'bad_credentials' });
-  if (!u.is_admin) return res.status(403).json({ ok: false, error: 'not_admin' });
-  setSession(res, u);
-  res.json({ ok: true, user: pub(u) });
-});
-
-app.post('/api/admin/logout', (_req, res) => {
-  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
-  res.json({ ok: true });
-});
-
 // ---- hydrate on load ----
 app.get('/api/me', auth, async (req, res) => {
   const u = (await pool.query('select * from users where id=$1', [req.session.uid])).rows[0];
