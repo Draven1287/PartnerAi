@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .ex { --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9; --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573; --accent:#3a3aa3; --accent-soft:rgba(58,58,163,.10); --good:#1f8a5b; --good-soft:rgba(31,138,91,.12); --bad:#c2414b; --gold:#d98a6a; --on-accent:#fff; --shadow:rgba(40,33,20,.10);
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .ex[data-theme="dark"] { --bg:#15161a; --surface:#1e2026; --surface-2:#282b33; --border:#373b44; --text:#f1f2f4; --text-dim:#aeb2bb; --text-faint:#787d88; --accent:#aab0f5; --accent-soft:rgba(170,176,245,.16); --good:#4cc38a; --good-soft:rgba(76,195,138,.16); --bad:#f0808a; --gold:#e0a64d; --on-accent:#15161a; --shadow:rgba(0,0,0,.5); }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 28px 22px 56px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; box-shadow: 0 20px 56px var(--shadow); overflow: hidden; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 20px 26px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .top .kind { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 7px 12px; border-radius: 999px; }
+  .top h2 { font-family:"Newsreader",serif; font-weight: 500; font-size: 21px; margin: 0; letter-spacing:-.01em; }
+  .dots { display: flex; gap: 6px; }
+  .dots .d { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all .3s; }
+  .dots .d.on { background: var(--accent); transform: scale(1.3); }
+  .dots .d.done { background: var(--good); }
+  .seg-theme { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+  .seg-theme button { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+  .seg-theme button.on { background: var(--surface); color: var(--text); }
+
+  /* stage */
+  .stage { position: relative; height: 340px; display: grid; place-items: center; padding: 20px; background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 5%, var(--surface)) 0%, var(--surface) 70%); }
+  .node { display: inline-flex; align-items: center; gap: 9px; padding: 13px 18px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--surface); font-weight: 600; font-size: 15px; box-shadow: 0 6px 18px var(--shadow); }
+  .node .ic { width: 20px; height: 20px; color: var(--accent); display: grid; place-items: center; }
+  .node.brain { border-color: color-mix(in srgb,var(--accent) 50%, var(--border)); background: var(--accent-soft); }
+  .node.goal { border-color: color-mix(in srgb,var(--good) 50%, var(--border)); background: var(--good-soft); color: var(--good); }
+  .io { display: flex; align-items: center; gap: 16px; }
+  .io .lab { font-size: 13px; color: var(--text-faint); font-weight: 600; }
+  .arrow { color: var(--text-faint); display: grid; place-items: center; }
+
+  .appear { animation: appear .5s ease both; }
+  @keyframes appear { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+  .tools { display: flex; gap: 12px; margin-top: 22px; }
+  .tool { display: inline-flex; align-items: center; gap: 7px; padding: 9px 13px; border-radius: 11px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; font-weight: 600; box-shadow: 0 4px 12px var(--shadow); }
+  .tool .ic { width: 16px; height: 16px; color: var(--gold); }
+  .loop-wrap { position: relative; display: grid; place-items: center; gap: 14px; }
+  .pill { padding: 10px 16px; border-radius: 999px; font-size: 13.5px; font-weight: 600; border: 1.5px solid var(--border); background: var(--surface); }
+  .loop-row { display: flex; align-items: center; gap: 10px; }
+  .loop-row .pill.act { border-color: color-mix(in srgb,var(--accent) 45%,var(--border)); }
+  .pulse-loop .pill { animation: glow 2.4s ease-in-out infinite; }
+  .pulse-loop .pill:nth-child(3){ animation-delay: .4s; } .pulse-loop .pill:nth-child(5){ animation-delay: .8s; }
+  @keyframes glow { 0%,100%{ box-shadow: 0 0 0 0 transparent; } 40%{ box-shadow: 0 0 0 4px var(--accent-soft); border-color: var(--accent); } }
+  .orchestrate { display: grid; place-items: center; gap: 8px; }
+  .subs { display: flex; gap: 12px; margin-top: 6px; }
+  .sub { display: grid; place-items: center; gap: 6px; padding: 12px 14px; border-radius: 13px; border: 1.5px solid var(--border); background: var(--surface); font-size: 12.5px; font-weight: 600; min-width: 92px; box-shadow: 0 4px 12px var(--shadow); }
+  .sub .ic { width: 18px; height: 18px; }
+  .fan { display: flex; gap: 26px; }
+  .fan .line { width: 1.5px; height: 22px; background: var(--border); }
+
+  .caption { padding: 22px 26px; border-top: 1px solid var(--border); }
+  .caption .scene-t { font-family:"Newsreader",serif; font-weight: 500; font-size: 20px; margin: 0 0 7px; }
+  .caption p { font-size: 15.5px; line-height: 1.6; color: var(--text-dim); margin: 0; }
+
+  /* checkpoint */
+  .check { padding: 4px 26px 8px; }
+  .check .q { font-family:"Newsreader",serif; font-weight:500; font-size: 19px; margin: 4px 0 14px; }
+  .opts { display: grid; gap: 9px; }
+  .opt { text-align: left; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); padding: 13px 15px; border-radius: 12px; font: inherit; font-size: 14.5px; color: var(--text); display: flex; gap: 10px; align-items: center; transition: all .15s; }
+  .opt:hover:not(:disabled) { border-color: var(--accent); }
+  .opt .mk { width: 19px; height: 19px; border-radius: 50%; border: 2px solid var(--border); flex: none; display: grid; place-items: center; }
+  .opt.right { border-color: var(--good); background: var(--good-soft); } .opt.right .mk { background: var(--good); border-color: var(--good); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb,var(--bad) 8%,var(--surface)); } .opt.wrong .mk { border-color: var(--bad); color: var(--bad); }
+  .fb { font-size: 14px; font-weight: 600; margin: 12px 0 0; min-height: 1em; }
+  .fb.ok { color: var(--good); } .fb.no { color: var(--bad); }
+
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 26px 22px; border-top: 1px solid var(--border); flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--surface-2); }
+  .hint { font-size: 12.5px; color: var(--text-faint); font-weight: 600; }
+</style>
+</helmet>
+<div class="ex" data-theme="{{ theme }}">
+  <div class="wrap">
+    <div class="card">
+      {{ top }}
+      {{ stage }}
+      {{ caption }}
+      {{ controls }}
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 760, &quot;height&quot;: 640}}">
+class Component extends DCLogic {
+  state = { theme:'light', scene:0, answered:false, correct:false, wrong:{} };
+
+  SCENES = [
+    { t:'Just a model', p:'On its own, an AI model only predicts words. You ask something, it writes an answer back. That is genuinely all it does — it can\u2019t open a file, search the web, or change anything in the world.' },
+    { t:'Give it tools', p:'Now we connect that same model to tools it can actually use — a web search, a code runner, your files. The model can now choose to reach for one when it needs to.' },
+    { t:'\u2026and let it loop', p:'Here\u2019s the real shift: the agent runs in a loop. It picks a tool, sees what comes back, and decides the next move — again and again — until the goal is actually done. Act, observe, decide.' },
+    { t:'Quick check', p:'' },
+    { t:'Sub-agents: a team', p:'For a big job, one main agent (the orchestrator) hands focused pieces to specialist sub-agents — each its own little agent with its own tools. They report back, and the orchestrator combines the work. A manager and a team.' },
+    { t:'You\u2019re the manager', p:'Model \u2192 Agent (tools + a loop) \u2192 Sub-agents (a team of agents). The whole chain still answers to a human: you set the goal and you check the result before you trust it.' }
+  ];
+
+  el(t,p,...k){ return React.createElement(t,p,...k.flat()); }
+  icon(name, sz){
+    const P = {
+      brain:'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.5.6 1 1.5 1 3h6c0-1.5.5-2.4 1-3a7 7 0 0 0-4-12z',
+      search:'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
+      code:'M8 18l-6-6 6-6M16 6l6 6-6 6',
+      file:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6',
+      arrow:'M5 12h14M13 5l7 7-7 7', loop:'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15',
+      replay:'M1 4v6h6M3.5 9a9 9 0 1 1-1 6', check:'M20 6 9 17l-5-5',
+      flask:'M9 2h6M10 2v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V2',
+      pen:'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z', shield:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z',
+      user:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8'
+    };
+    return this.el('svg',{viewBox:'0 0 24 24',width:sz||18,height:sz||18,fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',style:{display:'block'}}, this.el('path',{d:P[name]||''}));
+  }
+  ic(name,sz){ return this.el('span',{className:'ic',style:{width:sz||18,height:sz||18}}, this.icon(name,sz)); }
+  node(icon, label, cls){ return this.el('div',{className:'node'+(cls?' '+cls:'')}, this.ic(icon), label); }
+
+  stageContent(){
+    const s = this.state.scene;
+    if (s === 0) return this.el('div',{className:'io appear'},
+      this.el('span',{className:'lab'},'"Explain photosynthesis"'),
+      this.el('span',{className:'arrow'}, this.icon('arrow',20)),
+      this.node('brain','Model','brain'),
+      this.el('span',{className:'arrow'}, this.icon('arrow',20)),
+      this.el('span',{className:'lab'},'a paragraph back'));
+    if (s === 1) return this.el('div',{style:{display:'grid',placeItems:'center'}},
+      this.node('brain','Model','brain'),
+      this.el('div',{className:'tools appear'},
+        this.el('div',{className:'tool'}, this.el('span',{className:'ic'}, this.icon('search',16)),'Search'),
+        this.el('div',{className:'tool'}, this.el('span',{className:'ic'}, this.icon('code',16)),'Run code'),
+        this.el('div',{className:'tool'}, this.el('span',{className:'ic'}, this.icon('file',16)),'Files')));
+    if (s === 2) return this.el('div',{className:'loop-wrap pulse-loop appear'},
+      this.el('div',{className:'loop-row'},
+        this.el('span',{className:'pill act'},'Pick a tool'), this.icon('arrow',18),
+        this.el('span',{className:'pill'},'See result'), this.icon('arrow',18),
+        this.el('span',{className:'pill'},'Decide next')),
+      this.el('span',{style:{color:'var(--accent)'}}, this.icon('loop',26)),
+      this.el('span',{style:{fontSize:'13px',color:'var(--text-faint)',fontWeight:600}},'\u2026repeat until the goal is done'));
+    if (s === 3) return this.el('div',{className:'io appear',style:{gap:'12px'}},
+      this.node('brain','Model','brain'), this.icon('arrow',18),
+      this.el('div',{className:'tool'}, this.el('span',{className:'ic'}, this.icon('loop',16)),'tools + loop'), this.icon('arrow',18),
+      this.node('check','Agent','goal'));
+    if (s === 4) return this.el('div',{className:'orchestrate appear'},
+      this.node('user','Orchestrator agent','brain'),
+      this.el('div',{className:'fan'}, this.el('span',{className:'line'}), this.el('span',{className:'line'}), this.el('span',{className:'line'})),
+      this.el('div',{className:'subs'},
+        this.el('div',{className:'sub'}, this.el('span',{className:'ic',style:{color:'var(--accent)'}}, this.icon('flask',18)),'Research'),
+        this.el('div',{className:'sub'}, this.el('span',{className:'ic',style:{color:'var(--gold)'}}, this.icon('pen',18)),'Writing'),
+        this.el('div',{className:'sub'}, this.el('span',{className:'ic',style:{color:'var(--good)'}}, this.icon('shield',18)),'Check')));
+    return this.el('div',{className:'orchestrate appear',style:{gap:'14px'}},
+      this.el('div',{className:'io',style:{gap:'10px'}},
+        this.el('span',{className:'pill'},'Model'), this.icon('arrow',16),
+        this.el('span',{className:'pill act'},'Agent'), this.icon('arrow',16),
+        this.el('span',{className:'pill'},'Sub-agents')),
+      this.node('user','You set the goal & check the result','goal'));
+  }
+
+  top(){
+    const s = this.state.scene;
+    const dots = this.el('div',{className:'dots'}, this.SCENES.map((_,i)=> this.el('span',{key:i,className:'d'+(i===s?' on':'')+(i<s?' done':'')})));
+    const theme = this.el('div',{className:'seg-theme'}, [['light','Light'],['dark','Dark']].map(([v,l])=> this.el('button',{key:v,className:this.state.theme===v?'on':'',onClick:()=>this.setState({theme:v})},l)));
+    return this.el('div',{className:'top'},
+      this.el('div',{style:{display:'flex',alignItems:'center',gap:'14px',flexWrap:'wrap'}},
+        this.el('span',{className:'kind'}, this.ic('loop',15),'Watch · interactive'),
+        this.el('h2',null,'What is an agent?')),
+      this.el('div',{style:{display:'flex',alignItems:'center',gap:'14px'}}, dots, theme));
+  }
+
+  caption(){
+    const s = this.state.scene; const sc = this.SCENES[s];
+    if (s === 3) {
+      const opts = [
+        { t:'It\u2019s just a bigger, smarter model.', ok:false, fb:'Size isn\u2019t it — a huge model with no tools still can\u2019t *do* anything.' },
+        { t:'It can use tools and keep looping until the goal is done.', ok:true, fb:'Exactly. Tools + a decide-and-repeat loop is what makes it an agent.' },
+        { t:'It writes longer, more detailed answers.', ok:false, fb:'Longer answers are still just answers — no action, no loop.' }
+      ];
+      const rows = opts.map((o,i)=>{
+        const isW = this.state.wrong[i]; const isR = this.state.answered && o.ok;
+        return this.el('button',{key:i,disabled:this.state.answered||isW,className:'opt'+(isR?' right':'')+(isW?' wrong':''),
+          onClick:()=>{ if(this.state.answered) return; if(o.ok) this.setState({answered:true,correct:true,fbTxt:'\u2713 '+o.fb,fbOk:true}); else this.setState({wrong:{...this.state.wrong,[i]:true},fbTxt:'\u2717 '+o.fb,fbOk:false}); }},
+          this.el('span',{className:'mk'}, isR?this.icon('check',12):null), o.t);
+      });
+      return this.el('div',null,
+        this.el('div',{className:'check'},
+          this.el('div',{className:'q'},'So what actually turns a model into an agent?'),
+          this.el('div',{className:'opts'}, rows),
+          this.state.fbTxt ? this.el('p',{className:'fb '+(this.state.fbOk?'ok':'no')}, this.state.fbTxt) : this.el('p',{className:'fb'},'')));
+    }
+    return this.el('div',{className:'caption'}, this.el('div',{className:'scene-t'}, sc.t), this.el('p',null, sc.p));
+  }
+
+  controls(){
+    const s = this.state.scene; const last = s === this.SCENES.length - 1;
+    const gated = s === 3 && !this.state.answered;
+    const back = this.el('button',{className:'btn btn-ghost',disabled:s===0,style:s===0?{opacity:.4,cursor:'default'}:null,onClick:()=> s>0 && this.setState({scene:s-1})},'Back');
+    const next = last
+      ? this.el('button',{className:'btn btn-ghost',onClick:()=>this.setState({scene:0,answered:false,correct:false,wrong:{},fbTxt:''})}, this.ic('replay',15),'Replay')
+      : this.el('button',{className:'btn btn-primary',disabled:gated,onClick:()=> !gated && this.setState({scene:s+1})}, s===0?'Play':'Continue', this.icon('arrow',16));
+    const hint = gated ? this.el('span',{className:'hint'},'Answer to continue') : (last ? this.el('span',{className:'hint'},'That\u2019s the whole idea.') : null);
+    return this.el('div',{className:'controls'}, back, this.el('div',{style:{display:'flex',alignItems:'center',gap:'14px'}}, hint, next));
+  }
+
+  renderVals(){ return { theme:this.state.theme, top:this.top(), stage:this.el('div',{className:'stage'}, this.stageContent()), caption:this.caption(), controls:this.controls() }; }
+}
+</script>
+</body>
+</html>

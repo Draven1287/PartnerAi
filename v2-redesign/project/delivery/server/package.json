@@ -1,0 +1,18 @@
+{
+  "name": "learning-ai-api",
+  "version": "1.0.0",
+  "description": "Learning AI backend API (Express + Postgres) for api.learningai4you.com",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "migrate": "psql \"$DATABASE_URL\" -f schema.sql"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0"
+  }
+}
