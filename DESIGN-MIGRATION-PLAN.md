@@ -45,8 +45,8 @@ a palette or theme change is pure CSS, and the system can't drift between two JS
 ---
 
 ## 2. Decision gate (before Phase 3)
-- [ ] **Pick the 7th arc color** ("Staying in Charge"). The system defines 6 arc colors but the
-      content has 7 arcs (`design.md §7`). Nothing in Phase 3 is final until this is chosen.
+- [x] **7th arc color = `#b0467e`** ("Staying in Charge") — locked in `design.md §7`. The system
+      had 6 arc colors for 7 arcs; this completes the set.
 - [ ] **Palette picker:** decide whether to keep the 5-option `V2_PALETTES` picker (lines 56–61)
       or drop it in favor of the four canonical themes. (Recommended: drop it; it's the main source
       of cool-color injection.)
@@ -130,7 +130,7 @@ genuinely component-specific tweaks.
 
 - [ ] `v2/app.js` line **44** `ARC_COLORS`:
       `['#2563eb','#0891b2','#7c3aed','#dc2626','#ea580c','#16a34a']`
-      → `['#4257c9','#0e8fa0','#7c52cf','#cf5340','#d57e22','#2f9c6a', '<arc7>']`
+      → `['#4257c9','#0e8fa0','#7c52cf','#cf5340','#d57e22','#2f9c6a','#b0467e']`
 - [ ] `v2/v2.css` lines **28–32**: replace `--v2-blue/teal/violet/green/amber` with
       `--arc-1 … --arc-7` (`design.md §7` values). Update consumers (`grep -n 'var(--v2-'`).
 - [ ] Mosaic consumer at `v2/app.js` line **1126** picks up the new `ARC_COLORS` automatically.

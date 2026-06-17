@@ -190,11 +190,12 @@ and progress bars **as an accent only — never a full surface**. Suggested toke
 | 4 | Judgment & Safety | 5 | `#cf5340` |
 | 5 | Applying | 7 | `#d57e22` |
 | 6 | Building | 6 | `#2f9c6a` |
-| 7 | **Staying in Charge** | 3 | ⚠️ **no color defined** — assign during migration |
+| 7 | Staying in Charge | 3 | `#b0467e` |
 
-> **Gap to close:** the redesign defines only **6 arc colors** but the content has **7 arcs**
-> (and `v2/v2.css` ships only 5 `--v2-*` arc vars). Pick a 7th arc color and standardize all
-> seven as `--arc-1…--arc-7`.
+> **Arc 7 (`#b0467e`)** was chosen to complete the set: a grounded berry/rose, distinct from the
+> other six, in the warm editorial family — fitting for the capstone arc. Standardize all seven in
+> code as `--arc-1…--arc-7`. Note the code is currently behind: `v2/v2.css` ships only 5 `--v2-*`
+> vars and `v2/app.js` `ARC_COLORS` only 6 — both must carry all seven.
 
 ---
 
@@ -395,7 +396,7 @@ filler sections/stats; break reduce-motion or shrink text below the scale floor;
 ## 15. Open / proposed
 - **Logo:** intentionally **TBD** — designed once palette/type/voice lock. The gold-"LA"-on-black mark is parked.
 - **Accent migration:** indigo → amber/terracotta brand (token-only change — see §2).
-- **7th arc color:** "Staying in Charge" needs a color; standardize `--arc-1…--arc-7` (see §7).
+- **7th arc color:** ✅ resolved — "Staying in Charge" = `#b0467e`. Standardize `--arc-1…--arc-7` in code (see §7).
 - **Two snapshots:** `.dc.html` (authoritative, used here) vs `…(standalone).html` (older; e.g. light `--bg:#f6f3ea`). Keep building from the `.dc.html`.
 - **Seamless mosaic:** the sunrise-wash variant is a candidate to revisit; the Arc/Reveal/Hybrid setting may be retired for one unified look.
 
