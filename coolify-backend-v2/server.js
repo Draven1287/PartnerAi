@@ -14,6 +14,8 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
+const fs = require('node:fs/promises');
+const path = require('node:path');
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
@@ -59,7 +61,11 @@ const pub = (u) => ({ id: u.id, email: u.email, displayName: u.display_name, age
 // ---- health (Console diagnostics ping — never cache) ----
 app.get('/api/health', async (_req, res) => {
   res.set('Cache-Control', 'no-store');
-  try { await pool.query('select 1'); res.json({ status: 'ok', db: 'connected' }); }
+  try {
+    const { rows } = await pool.query("select to_regclass('public.users') as users_table");
+    if (!rows[0]?.users_table) return res.status(500).json({ status: 'ok', db: 'schema_missing' });
+    res.json({ status: 'ok', db: 'connected' });
+  }
   catch { res.status(500).json({ status: 'ok', db: 'down' }); }
 });
 
@@ -176,4 +182,15 @@ app.get('/api/admin/overview', auth, adminOnly, async (_req, res) => {
 });
 
 const PORT = process.env.PORT || 8787;
-app.listen(PORT, () => console.log(`Learning AI API on :${PORT}`));
+
+async function ensureSchema() {
+  const schemaSql = await fs.readFile(path.join(__dirname, 'schema.sql'), 'utf8');
+  await pool.query(schemaSql);
+}
+
+ensureSchema()
+  .then(() => app.listen(PORT, () => console.log(`Learning AI API on :${PORT}`)))
+  .catch((error) => {
+    console.error('Failed to initialize database schema', error);
+    process.exit(1);
+  });
