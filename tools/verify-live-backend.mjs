@@ -61,15 +61,12 @@ async function checkHttp(path, expectedStatuses, label) {
 
   const expected = expectedStatuses.includes(outcome.response.status);
   const detail = `HTTP ${outcome.response.status}`;
-  if (path === '/health' && outcome.response.ok) {
+  if (path === '/api/health' && outcome.response.ok) {
     try {
       const health = JSON.parse(outcome.text);
-      const marker = [
-        health.buildSha ? `buildSha=${health.buildSha}` : null,
-        health.buildTime ? `buildTime=${health.buildTime}` : null,
-        health.dbStatus ? `dbStatus=${health.dbStatus}` : null,
-        health.migrationVersion ? `migrationVersion=${health.migrationVersion}` : null
-      ].filter(Boolean).join(' ');
+      const healthOk = health.status === 'ok' && health.db === 'connected';
+      const marker = `status=${health.status || 'missing'} db=${health.db || 'missing'}`;
+      if (!healthOk) return result(label, false, `${detail} ${marker}`);
       return result(label, expected, marker ? `${detail} ${marker}` : detail);
     } catch {
       return result(label, false, `${detail} non-JSON health response`);
@@ -86,10 +83,9 @@ async function main() {
   const tcpOk = await checkTcp(apiUrl.hostname, 443);
   checks.push(dnsOk);
   checks.push(tcpOk);
-  checks.push(await checkHttp('/health', [200], 'health'));
-  checks.push(await checkHttp('/admin', [200], 'admin login page'));
-  checks.push(await checkHttp('/api/auth/me', [401], 'learner auth guard'));
-  checks.push(await checkHttp('/api/admin/learners', [401], 'admin api guard'));
+  checks.push(await checkHttp('/api/health', [200], 'health'));
+  checks.push(await checkHttp('/api/me', [401], 'learner auth guard'));
+  checks.push(await checkHttp('/api/admin/overview', [401], 'admin api guard'));
 
   const failed = checks.filter((ok) => !ok).length;
   if (failed > 0) {
