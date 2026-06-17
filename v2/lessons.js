@@ -3701,7 +3701,8 @@
   "conversation": "Conversation & Prompting",
   "judgment": "Judgment & Safety",
   "applying": "Applying",
-  "building": "Building"
+  "building": "Building",
+  "staying": "Staying in Charge"
 };
   if (typeof window.LESSONS === 'undefined') window.LESSONS = window.V2_LESSONS;
 })();

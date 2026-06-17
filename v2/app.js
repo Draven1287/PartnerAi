@@ -41,7 +41,7 @@
   // step kinds that REQUIRE completion before Next unlocks. Toolkit saving is intentionally optional.
   const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
   // arc colors for the mosaic (one hue per arc)
-  const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
+  const ARC_COLORS = ['#4257c9', '#0e8fa0', '#7c52cf', '#cf5340', '#d57e22', '#2f9c6a', '#b5683b'];
   const AGE_RANGES = [
     ['', 'Choose age range'],
     ['under-13', 'Under 13'],
@@ -350,17 +350,10 @@
   function applyAppearance() {
     const s = readJson(KEY.settings, {}) || {};
     const b = document.body, t = b.style;
-    applyV2Palette();
     if (s.theme) b.dataset.theme = s.theme; else b.removeAttribute('data-theme');
     b.dataset.fontScale = s.fontScale || 'normal';
     b.dataset.fontFamily = s.fontFamily || 'system';
-    if (s.theme === 'dark') {
-      t.setProperty('--bg', '#0f1726'); t.setProperty('--surface', '#1b2637'); t.setProperty('--surface-2', '#243247');
-      t.setProperty('--border', '#33445c'); t.setProperty('--text', s.textColor || '#f4f7fb'); t.setProperty('--text-dim', '#a7b1c2'); t.setProperty('--text-faint', '#778397');
-    } else if (s.theme === 'light') {
-      t.setProperty('--bg', '#f7f9fc'); t.setProperty('--surface', '#ffffff'); t.setProperty('--surface-2', '#eef4f8');
-      t.setProperty('--border', '#dbe3ea'); t.setProperty('--text', s.textColor || '#121826'); t.setProperty('--text-dim', '#4b5870'); t.setProperty('--text-faint', '#778397');
-    }
+    b.dataset.reduce = s.reduceMotion ? '1' : '';
     if (s.accentColor) t.setProperty('--accent', s.accentColor);
   }
 
