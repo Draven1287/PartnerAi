@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .lib { --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9; --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573; --accent:#3a3aa3; --accent-soft:rgba(58,58,163,.10); --good:#1f8a5b; --on-accent:#fff; --shadow:rgba(40,33,20,.10);
+    font-family:"Plus Jakarta Sans",system-ui,sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+  .lib[data-theme="dark"] { --bg:#15161a; --surface:#1e2026; --surface-2:#282b33; --border:#373b44; --text:#f1f2f4; --text-dim:#aeb2bb; --text-faint:#787d88; --accent:#aab0f5; --accent-soft:rgba(170,176,245,.16); --good:#4cc38a; --on-accent:#15161a; --shadow:rgba(0,0,0,.5); }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 30px 22px 64px; }
+  .head { margin-bottom: 18px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .kicker { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
+  .head h1 { font-family:"Newsreader",serif; font-weight: 500; font-size: clamp(26px,3.6vw,38px); letter-spacing:-.015em; margin: 8px 0 0; }
+  .head p { color: var(--text-dim); font-size: 15px; margin: 8px 0 0; max-width: 58ch; line-height: 1.5; }
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px; }
+  .seg button { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px var(--shadow); }
+
+  .tabs { display: flex; gap: 8px; margin: 18px 0 16px; flex-wrap: wrap; }
+  .tabs button { border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font: inherit; font-size: 13.5px; font-weight: 600; padding: 9px 15px; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all .14s; }
+  .tabs button:hover { border-color: var(--accent); color: var(--accent); }
+  .tabs button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .tabs button .lz { font-size: 11px; font-weight: 700; opacity: .7; }
+
+  .player-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; box-shadow: 0 18px 50px var(--shadow); overflow: hidden; }
+  .pc-head { display: flex; align-items: center; gap: 12px; padding: 18px 24px 14px; flex-wrap: wrap; }
+  .pc-head .badge { font-size: 11px; font-weight: 700; letter-spacing:.06em; text-transform: uppercase; color: var(--vaccent); background: color-mix(in srgb, var(--vaccent) 13%, transparent); padding: 6px 11px; border-radius: 999px; }
+  .pc-head h2 { font-family:"Newsreader",serif; font-weight: 500; font-size: 22px; margin: 0; }
+  .pc-head .lz { margin-left: auto; font-size: 12px; color: var(--text-faint); font-weight: 600; }
+
+  /* stage */
+  .stage { position: relative; aspect-ratio: 16/9; overflow: hidden; background: var(--vgrad); }
+  .vlive { position: absolute; right: 16px; top: 14px; display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 700; letter-spacing:.08em; text-transform: uppercase; color: rgba(255,255,255,.92); background: rgba(0,0,0,.32); padding: 6px 11px; border-radius: 999px; z-index: 3; }
+  .vlive .d { width: 7px; height: 7px; border-radius: 50%; background: #ff5d5d; }
+  .track { position: absolute; left: 8%; right: 8%; top: 40%; height: 2px; }
+  .tline { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top:-1px; background: rgba(255,255,255,.22); border-radius: 2px; }
+  .tfill { position: absolute; left: 0; top: 50%; height: 2px; margin-top:-1px; background: rgba(255,255,255,.9); border-radius: 2px; }
+  .dot { position: absolute; top: 50%; width: 15px; height: 15px; margin:-7.5px 0 0 -7.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 0 16px rgba(255,255,255,.75); transition: left .55s cubic-bezier(.5,0,.2,1); z-index: 2; }
+  .st { position: absolute; top: 50%; transform: translate(-50%,-50%); display: grid; justify-items: center; gap: 8px; width: 116px; }
+  .st .bubble { width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.3); transition: all .4s; }
+  .st.active .bubble { background: #fff; color: var(--vink); transform: scale(1.13); box-shadow: 0 0 26px rgba(255,255,255,.55); }
+  .st.done .bubble { background: rgba(255,255,255,.3); }
+  .st .lab { font-size: 12px; font-weight: 700; color: #fff; text-align: center; line-height: 1.25; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .st .lab small { display: block; font-weight: 500; opacity: .82; font-size: 10.5px; }
+  .cap { position: absolute; left: 26px; right: 26px; bottom: 50px; font-family:"Newsreader",serif; font-size: clamp(17px,2.4vw,24px); font-weight: 500; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.5); letter-spacing:-.01em; line-height: 1.25; transition: opacity .3s, transform .3s; }
+  .cap b { color: #ffe2b0; font-weight: 600; }
+  .prog { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(0,0,0,.28); z-index: 3; }
+  .prog .f { height: 100%; background: linear-gradient(90deg, #ffd98a, var(--vaccent2)); }
+
+  /* controls */
+  .ctrls { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-top: 1px solid var(--border); }
+  .iconbtn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); display: grid; place-items: center; cursor: pointer; transition: all .14s; flex: none; }
+  .iconbtn:hover { border-color: var(--accent); color: var(--accent); }
+  .iconbtn.pri { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .scrub { flex: 1; height: 28px; position: relative; cursor: pointer; display: flex; align-items: center; }
+  .scrub .bg { position: absolute; left: 0; right: 0; height: 5px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--border); }
+  .scrub .fg { position: absolute; left: 0; height: 5px; border-radius: 3px; background: var(--accent); }
+  .scrub .knob { position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); margin-left: -7px; box-shadow: 0 1px 4px var(--shadow); }
+  .time { font-family:"JetBrains Mono",monospace; font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; min-width: 76px; text-align: center; }
+  .stepn { font-size: 13px; font-weight: 700; color: var(--text-dim); }
+  .bigbtn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 20px; border-radius: 11px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); }
+  .bigbtn:hover { filter: brightness(1.06); }
+  .bigbtn.ghost { background: transparent; color: var(--text); border-color: var(--border); }
+  .bigbtn.ghost:hover { border-color: var(--accent); color: var(--accent); filter: none; }
+  .iconbtn:disabled { cursor: default; }
+  .st .bubble.pulse { }
+  .st.active .bubble { animation: stPulse 1.8s ease-in-out infinite; }
+  @keyframes stPulse { 0%,100%{ box-shadow: 0 0 22px rgba(255,255,255,.5); } 50%{ box-shadow: 0 0 30px rgba(255,255,255,.85); } }
+  .narr { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--text-dim); cursor: pointer; user-select: none; padding: 7px 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface); }
+  .narr.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .pc-foot { padding: 14px 24px 20px; display: flex; gap: 12px; align-items: flex-start; }
+  .pc-foot .tk { flex: 1; font-size: 13.5px; color: var(--text-dim); line-height: 1.5; }
+  .pc-foot .tk b { color: var(--good); }
+  .note { margin-top: 18px; font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
+</style>
+</helmet>
+<div class="lib" data-theme="{{ theme }}">
+  <div class="wrap">
+    {{ head }}
+    {{ tabs }}
+    {{ player }}
+    <p class="note">{{ noteText }}</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 880, &quot;height&quot;: 820}}">
+class Component extends DCLogic {
+  state = { theme:'light', idx:0, step:0 };
+
+  SCRIPTS = [
+    { id:'agency', lesson:'Lesson 1', title:'Agency: the three-step loop', dur:12,
+      accent:'#3a3aa3', accent2:'#d98a6a', ink:'#2b2350', grad:'linear-gradient(150deg,#1b2452,#3b3a73 44%,#6f4a86 70%,#c97f63)',
+      stations:[['bulb','You','set the goal'],['spark','AI','helps in the middle'],['check','You','verify & finish']],
+      beats:[[0,'You decide what you actually want.'],[4,'AI does the heavy lifting — fast.'],[8,'You check it, fix it, and make it yours.']],
+      takeaway:'You start, AI helps in the middle, you verify and finish.' },
+    { id:'agent', lesson:'Lesson 9', title:'What is an agent?', dur:14,
+      accent:'#0e8fa0', accent2:'#4cc38a', ink:'#06343a', grad:'linear-gradient(150deg,#062a38,#0e5566 46%,#1f7e7a 74%,#5bbf97)',
+      stations:[['brain','Model','just predicts'],['tool','+ Tools','search, code, files'],['loop','+ Loop','act, see, decide'],['check','Agent','reaches the goal']],
+      beats:[[0,'On its own, a model only predicts words — it can\u2019t do anything.'],[3.6,'An agent is that model wired to tools it can use.'],[7.2,'And a loop: it acts, sees the result, and decides again.'],[10.6,'That\u2019s an agent — it keeps going until the goal is done.']],
+      takeaway:'Model + tools + a loop = an agent. You still set the goal and check the result.' },
+    { id:'wrong', lesson:'Lesson 8', title:'Why AI sounds sure but can be wrong', dur:12,
+      accent:'#cf5340', accent2:'#d57e22', ink:'#3a1410', grad:'linear-gradient(150deg,#3a1a1a,#6e2f2a 46%,#9c4a3a 74%,#d98a5a)',
+      stations:[['chat','Confident','always sounds sure'],['alert','Fluent \u2260 true','it can invent facts'],['check','Verify','before you trust']],
+      beats:[[0,'AI answers in the same confident voice — even when it\u2019s guessing.'],[4,'Sounding fluent is not the same as being correct.'],[8,'So check anything that matters before you trust it.']],
+      takeaway:'Confidence isn\u2019t proof. Verify the important things yourself.' },
+  ];
+
+  el(t,p,...k){ return React.createElement(t,p,...k.flat()); }
+  script(){ return this.SCRIPTS[this.state.idx]; }
+  icon(name,sz){
+    const P={ bulb:'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.5.6 1 1.5 1 3h6c0-1.5.5-2.4 1-3a7 7 0 0 0-4-12z',
+      spark:'M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4zM19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7z',
+      check:'M20 6 9 17l-5-5', brain:'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.5.6 1 1.5 1 3h6c0-1.5.5-2.4 1-3a7 7 0 0 0-4-12z',
+      tool:'M14.7 6.3a4 4 0 0 1-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 1 5.4-5.4l-2.6 2.6-2-2 2.6-2.6z',
+      loop:'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15',
+      chat:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+      alert:'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+      play:'M6 4l13 8-13 8z', pause:'M7 4h3v16H7zM14 4h3v16h-3z', replay:'M1 4v6h6M3.5 9a9 9 0 1 1-1 6', sound:'M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14', arrow:'M5 12h14M13 5l7 7-7 7', arrowl:'M19 12H5M11 19l-7-7 7-7' };
+    return this.el('svg',{viewBox:'0 0 24 24',width:sz||18,height:sz||18,fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round',style:{display:'block'}}, this.el('path',{d:P[name]||''}));
+  }
+  ic(n,s){ return this.el('span',{style:{width:s||18,height:s||18,display:'inline-flex'}}, this.icon(n,s)); }
+
+  pick(i){ this.setState({ idx:i, step:0 }); }
+  next(){ const n = this.script().stations.length; this.setState(s => ({ step: Math.min(n-1, s.step+1) })); }
+  back(){ this.setState(s => ({ step: Math.max(0, s.step-1) })); }
+  done(){ return this.state.step >= this.script().stations.length - 1; }
+
+  head(){
+    return this.el('div',{className:'head'},
+      this.el('div',null, this.el('div',{className:'kicker'},'Reusable interactive explainers'), this.el('h1',null,'Lesson walk-throughs'),
+        this.el('p',null,'Not a video you watch — a flow you click through. You tap each step yourself, so explaining a concept becomes doing it. Any lesson gets one from a short script.')),
+      this.el('div',{className:'seg'}, [['light','Light'],['dark','Dark']].map(([v,l])=> this.el('button',{key:v,className:this.state.theme===v?'on':'',onClick:()=>this.setState({theme:v})},l))));
+  }
+  tabs(){
+    return this.el('div',{className:'tabs'}, this.SCRIPTS.map((s,i)=> this.el('button',{key:s.id,className:this.state.idx===i?'on':'',onClick:()=>this.pick(i)},
+      s.title, this.el('span',{className:'lz'},'· '+s.lesson))));
+  }
+
+  player(){
+    const s = this.script(); const n = s.stations.length; const step = Math.min(this.state.step, n-1);
+    const last = step >= n-1;
+    const pad = 9; const pos = (i) => pad + (n===1?50-pad:(i/(n-1))*(100-2*pad));
+    const dotLeft = pos(step);
+    const stations = s.stations.map((st,i)=> this.el('div',{key:i,className:'st'+(i===step?' active':'')+(i<step?' done':''),style:{left:pos(i)+'%',cursor:i===step+1?'pointer':'default'},onClick:()=> i===step+1 && this.next()},
+      this.el('div',{className:'bubble'}, this.ic(i<step?'check':st[0],22)),
+      this.el('div',{className:'lab'}, st[1], this.el('small',null,st[2]))));
+    const cap = s.beats[step][1];
+    const capEl = this.el('div',{className:'cap'}, this.el('b',null, cap.split(' ')[0]+' '), cap.split(' ').slice(1).join(' '));
+    const stage = this.el('div',{className:'stage',style:{'--vgrad':s.grad,'--vink':s.ink,'--vaccent':s.accent,'--vaccent2':s.accent2}},
+      this.el('span',{className:'vlive'}, last?'You did the whole loop':'Your turn · tap through it'),
+      this.el('div',{className:'track'},
+        this.el('div',{className:'tline'}), this.el('div',{className:'tfill',style:{width:dotLeft+'%'}}),
+        this.el('div',{className:'dot',style:{left:dotLeft+'%'}}), stations),
+      capEl,
+      this.el('div',{className:'prog'}, this.el('div',{className:'f',style:{width:((step+1)/n*100)+'%'}})));
+
+    const ctrls = this.el('div',{className:'ctrls'},
+      this.el('button',{className:'iconbtn',onClick:()=>this.back(),disabled:step===0,style:step===0?{opacity:.4,cursor:'default'}:null,'aria-label':'Back'}, this.ic('arrowl',16)),
+      this.el('span',{className:'stepn'}, 'Step '+(step+1)+' of '+n),
+      this.el('div',{style:{flex:1}}),
+      last
+        ? this.el('button',{className:'bigbtn ghost',onClick:()=>this.setState({step:0})}, this.ic('replay',15),'Start over')
+        : this.el('button',{className:'bigbtn',onClick:()=>this.next()}, this.stepAction(s,step), this.ic('arrow',16)));
+
+    return this.el('div',{className:'player-card',style:{'--vaccent':s.accent}},
+      this.el('div',{className:'pc-head'},
+        this.el('span',{className:'badge',style:{'--vaccent':s.accent}},'Walk through'),
+        this.el('h2',null, s.title),
+        this.el('span',{className:'lz'}, s.lesson)),
+      stage, ctrls,
+      this.el('div',{className:'pc-foot'},
+        this.el('div',{className:'tk'}, this.el('b',null, last?'Takeaway: ':'You\u2019re doing it: '), last ? s.takeaway : 'walk each step yourself — that\u2019s the loop you\u2019ll repeat for real.')));
+  }
+  stepAction(s, step){ const next = s.stations[step+1]; return next ? next[1] : 'Next'; }
+
+  renderVals(){
+    return { theme:this.state.theme, head:this.head(), tabs:this.tabs(), player:this.player(),
+      noteText:'Each video is built from a short script, so any lesson that explains a concept gets one with no per-lesson animation work. In production each lesson references an explainer by id; abstract concepts (agent, sub-agent, building) get the longer cinematic treatment.' };
+  }
+}
+</script>
+</body>
+</html>

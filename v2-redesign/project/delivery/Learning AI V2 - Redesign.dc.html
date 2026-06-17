@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+<rect width="100" height="100" rx="18" fill="#3a3aa3"/>
+<g transform="translate(30 30)">
+<rect x="0" y="0" width="11" height="11" rx="2.5" fill="#fffdf8"/>
+<rect x="14.5" y="0" width="11" height="11" rx="2.5" fill="#e7a44d"/>
+<rect x="29" y="0" width="11" height="11" rx="2.5" fill="#ffffff" opacity="0.35"/>
+<rect x="0" y="14.5" width="11" height="11" rx="2.5" fill="#e7a44d"/>
+<rect x="14.5" y="14.5" width="11" height="11" rx="2.5" fill="#fffdf8"/>
+<rect x="29" y="14.5" width="11" height="11" rx="2.5" fill="#fffdf8"/>
+<rect x="0" y="29" width="11" height="11" rx="2.5" fill="#ffffff" opacity="0.35"/>
+<rect x="14.5" y="29" width="11" height="11" rx="2.5" fill="#fffdf8"/>
+<rect x="29" y="29" width="11" height="11" rx="2.5" fill="#e7a44d"/>
+</g>
+</svg>
+</template>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  .lp {
+    --bw: 1px;
+    min-height: 100vh;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }
+  .lp[data-theme="light"]    { --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9; --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573; --accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.10); --good:#1f8a5b; --bad:#c2414b; --on-accent:#fff; --shadow:rgba(40,33,20,.08); }
+  .lp[data-theme="dark"]     { --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b; --text:#f3efe6; --text-dim:#b3ab9a; --text-faint:#857e6e; --accent:#a6a4f2; --accent-dim:#bcbaf6; --accent-soft:rgba(166,164,242,.16); --good:#4cc38a; --bad:#f0808a; --on-accent:#16140f; --shadow:rgba(0,0,0,.45); }
+  .lp[data-theme="sepia"]    { --bg:#efe2c8; --surface:#f8efd8; --surface-2:#e6d6b6; --border:#d3c09a; --text:#3f3320; --text-dim:#6e5d3e; --text-faint:#9a8861; --accent:#8a5a23; --accent-dim:#6f4719; --accent-soft:rgba(138,90,35,.13); --good:#5a7d3a; --bad:#b5462f; --on-accent:#fff; --shadow:rgba(80,55,20,.13); }
+  .lp[data-theme="contrast"] { --bw:2px; --bg:#000; --surface:#0c0c0c; --surface-2:#1a1a1a; --border:#ffffff; --text:#ffffff; --text-dim:#ededed; --text-faint:#c4c4c4; --accent:#8fb0ff; --accent-dim:#b3c8ff; --accent-soft:rgba(143,176,255,.22); --good:#3ff08f; --bad:#ff7b85; --on-accent:#000; --shadow:rgba(0,0,0,.6); }
+
+  .lp-canvas { max-width: 1140px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ---------- top nav ---------- */
+  .topnav { position: sticky; top: 0; z-index: 40; backdrop-filter: blur(10px);
+    background: color-mix(in srgb, var(--bg) 84%, transparent); border-bottom: var(--bw) solid var(--border); }
+  .topnav-in { max-width: 1140px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: -.01em; font-size: 16px; }
+  .brand .spark { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(150deg, #f4b66a, #d98a6a); color: #2b2350; }
+  .brand b { color: var(--accent); }
+  .tabs { display: flex; gap: 2px; flex-wrap: wrap; }
+  .tab { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 14px; font-weight: 600; padding: 8px 13px; border-radius: 9px; cursor: pointer; transition: all .15s; }
+  .tab:hover { color: var(--text); background: var(--surface-2); }
+  .tab.on { color: var(--accent); background: var(--accent-soft); }
+  .nav-spacer { flex: 1; }
+  .ctrl { display: flex; align-items: center; gap: 8px; }
+  .ctrl > label { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
+  .seg { display: inline-flex; background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 999px; padding: 3px; gap: 2px; }
+  .seg button { border: 0; background: transparent; color: var(--text-dim); font: inherit; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; cursor: pointer; transition: all .15s; white-space: nowrap; }
+  .seg button:hover { color: var(--text); }
+  .seg button.on { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px var(--shadow); }
+  .lp[data-theme="contrast"] .seg button.on { background: var(--accent); color: var(--on-accent); }
+  .linkbtn { border: 0; background: transparent; color: var(--text-faint); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; padding: 6px 8px; border-radius: 8px; }
+  .linkbtn:hover { color: var(--text); background: var(--surface-2); }
+
+  /* ---------- shared ---------- */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 22px; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; border: var(--bw) solid transparent; transition: all .15s; text-decoration: none; }
+  .btn-primary { background: var(--accent); color: var(--on-accent); }
+  .btn-primary:hover { background: var(--accent-dim); }
+  .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--text-dim); background: var(--surface); }
+  .btn-locked { background: var(--surface-2); color: var(--text-faint); border: var(--bw) dashed var(--border); cursor: not-allowed; }
+  .btn.pop { animation: unlockpop .5s cubic-bezier(.2,1.3,.4,1); }
+  @keyframes unlockpop { 0%{ transform:scale(.92);} 55%{ transform:scale(1.07);} 100%{ transform:scale(1);} }
+  .kicker { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
+  .serif { font-family: "Newsreader", Georgia, serif; font-weight: 500; letter-spacing: -.015em; }
+
+  /* ---------- onboarding ---------- */
+  .onb { max-width: 600px; margin: 0 auto; padding: 48px 0 8px; }
+  .onb.wide { max-width: 720px; }
+  .onb-card { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 22px; box-shadow: 0 22px 60px var(--shadow); padding: 36px 40px; }
+  @media (max-width:560px){ .onb-card { padding: 24px; border-radius: 16px; } }
+  .onb h1 { font-family:"Newsreader",serif; font-weight:500; font-size: clamp(28px,4.6vw,40px); letter-spacing:-.015em; line-height:1.06; margin: 12px 0 14px; }
+  .onb .lead { font-size: 16px; line-height: 1.6; color: var(--text-dim); margin: 0 0 10px; }
+  .onb .fine { font-size: 13px; color: var(--text-faint); margin: 6px 0 0; line-height: 1.5; }
+  .fields { display: grid; gap: 13px; margin: 22px 0 4px; }
+  .field { display: grid; gap: 6px; }
+  .field span { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+  .field input, .field select { padding: 12px 14px; border: var(--bw) solid var(--border); border-radius: 11px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 15px; width: 100%; }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  /* make every form control clearly visible in all themes */
+  .lp input, .lp select, .lp textarea { color-scheme: light dark; }
+  .field input, .field select, .field2 input, .q-note, .nb textarea, .age-card select {
+    border-color: color-mix(in srgb, var(--text-faint) 58%, var(--border)) !important;
+    box-shadow: inset 0 1px 2px color-mix(in srgb, var(--text) 8%, transparent);
+  }
+  .field input::placeholder, .field2 input::placeholder, .q-note::placeholder, .nb textarea::placeholder { color: var(--text-faint); opacity: 1; }
+  .field input:focus, .field2 input:focus, .q-note:focus, .nb textarea:focus, .age-card select:focus { border-color: var(--accent) !important; box-shadow: 0 0 0 3px var(--accent-soft) !important; }
+  .onb-actions { display: flex; gap: 12px; margin-top: 22px; flex-wrap: wrap; }
+  .privacy-note { display: flex; gap: 10px; align-items: flex-start; margin-top: 20px; padding: 14px 16px; background: var(--surface-2); border-radius: 12px; font-size: 13.5px; color: var(--text-dim); line-height: 1.5; }
+  .privacy-note .ic { color: var(--good); flex: none; margin-top: 1px; }
+
+  /* questionnaire */
+  .q-prog { margin-bottom: 18px; }
+  .q-prog .lab { display: flex; justify-content: space-between; gap: 12px; font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 9px; }
+  .q-prog .lab span { white-space: nowrap; }
+  .q-prog .track { height: 7px; border-radius: 999px; background: var(--surface-2); border: var(--bw) solid var(--border); overflow: hidden; }
+  .q-prog .fill { height: 100%; background: var(--accent); transition: width .35s ease; }
+  .q-title { font-family:"Newsreader",serif; font-weight:500; font-size: 26px; line-height:1.15; letter-spacing:-.01em; margin: 14px 0 8px; }
+  .q-copy { font-size: 15.5px; color: var(--text-dim); line-height: 1.55; margin: 0 0 6px; }
+  .qopts { display: grid; gap: 10px; margin: 18px 0 0; }
+  .qopt { text-align: left; cursor: pointer; border: var(--bw) solid var(--border); background: var(--surface); padding: 14px 16px; border-radius: 13px; font: inherit; font-size: 14.5px; line-height: 1.45; color: var(--text); display: flex; gap: 12px; align-items: flex-start; transition: all .15s; }
+  .qopt:hover { border-color: var(--accent); }
+  .qopt .dot { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex: none; margin-top: 1px; display: grid; place-items: center; }
+  .qopt.sel { border-color: var(--accent); background: var(--accent-soft); }
+  .qopt.sel .dot { border-color: var(--accent); }
+  .qopt.sel .dot::after { content:""; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .qopt .num { color: var(--accent); font-weight: 700; }
+  .q-note { width: 100%; min-height: 64px; margin-top: 14px; padding: 12px 14px; border: var(--bw) solid var(--border); border-radius: 12px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 14px; resize: vertical; }
+  .q-note:focus { outline: none; border-color: var(--accent); }
+  .q-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+  .block-reason { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600; color: var(--bad); }
+
+  /* age range — prominent, unmissable on Q1 */
+  .age-card { display: block; margin: 4px 0 22px; padding: 18px 20px; border-radius: 16px;
+    border: 2px solid var(--accent); background: var(--accent-soft); }
+  .age-card.need { animation: agepulse 2s ease-in-out infinite; }
+  @keyframes agepulse { 0%,100%{ box-shadow: 0 0 0 0 var(--accent-soft); } 50%{ box-shadow: 0 0 0 6px var(--accent-soft); } }
+  .age-card .age-top { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+  .age-card .age-step { width: 24px; height: 24px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700; }
+  .age-card .age-label { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.3; white-space: nowrap; }
+  .age-card .age-req { margin-left: auto; flex: none; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); background: var(--surface); padding: 4px 9px; border-radius: 999px; border: var(--bw) solid var(--accent); }
+  .age-card .age-hint { font-size: 13px; color: var(--text-dim); margin: 2px 0 12px 33px; line-height: 1.45; }
+  .age-card select { width: 100%; padding: 13px 15px; border: var(--bw) solid var(--border); border-radius: 11px; background: var(--surface); color: var(--text); font: inherit; font-size: 15.5px; font-weight: 600; }
+  .age-card select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .age-card.done { border-color: var(--good); background: color-mix(in srgb, var(--good) 9%, var(--surface)); animation: none; }
+  .age-card.done .age-step { background: var(--good); }
+  .age-card.done .age-req { color: var(--good); border-color: var(--good); }
+
+  /* ---------- dashboard ---------- */
+  .view-head { padding: 32px 0 6px; }
+  .view-head h1 { font-family:"Newsreader",serif; font-weight:500; font-size: clamp(28px,4vw,40px); letter-spacing:-.015em; line-height:1.05; margin: 10px 0 6px; }
+  .view-head p { color: var(--text-dim); font-size: 16px; margin: 0; max-width: 60ch; line-height:1.5; }
+  .mos-hero { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 22px; box-shadow: 0 18px 50px var(--shadow); padding: 28px 30px; margin: 22px 0; }
+  .mos-hero-grid { display: grid; grid-template-columns: minmax(0, 430px) 1fr; gap: 34px; align-items: center; }
+  @media (max-width: 800px){ .mos-hero-grid { grid-template-columns: 1fr; } }
+  .mos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .mtile { position: relative; aspect-ratio: 1/1; border-radius: 9px; overflow: hidden; border: var(--bw) solid var(--border); display: grid; place-items: center; transition: transform .15s, box-shadow .2s; }
+  .mtile:hover { transform: scale(1.07); z-index: 2; box-shadow: 0 8px 22px var(--shadow); }
+  .mtile .n { font-size: 12px; font-weight: 700; color: var(--text-faint); }
+  .mtile.filled .n { color: rgba(255,255,255,.92); text-shadow: 0 1px 3px rgba(0,0,0,.55); position: absolute; left: 6px; bottom: 4px; font-size: 10px; }
+  .mtile.justfill { animation: tilein .6s ease; }
+  @keyframes tilein { 0%{ transform: scale(.7); filter: saturate(.4) brightness(1.3);} 60%{ transform: scale(1.12);} 100%{ transform: scale(1);} }
+  .mos-side h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 24px; margin: 0 0 6px; }
+  .mos-cap { font-family:"Newsreader",serif; font-size: 17px; color: var(--text-dim); font-style: italic; margin: 0 0 16px; line-height:1.4; }
+  .mos-meter .track { height: 9px; border-radius: 999px; background: var(--surface-2); border: var(--bw) solid var(--border); overflow: hidden; }
+  .mos-meter .fill { height: 100%; background: linear-gradient(90deg, #d98a6a, #f4b66a); transition: width .5s ease; }
+  .mos-meter .lab { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-faint); margin-top: 8px; font-weight: 600; }
+  .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 18px; margin-top: 18px; }
+  .legend-row { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+  .legend-row .ld { width: 11px; height: 11px; border-radius: 4px; flex: none; }
+  .legend-row .lc { color: var(--text-faint); margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 8px 0 22px; }
+  @media (max-width:680px){ .stat-row { grid-template-columns: repeat(2,1fr); } }
+  .stat { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 14px; padding: 16px 18px; }
+  .stat strong { display: block; font-size: 26px; line-height: 1; font-family:"Newsreader",serif; font-weight:500; }
+  .stat span { color: var(--text-dim); font-size: 13px; }
+  .dash-cols { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; align-items: start; }
+  @media (max-width:800px){ .dash-cols { grid-template-columns: 1fr; } }
+  .panel { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 22px 24px; }
+  .panel h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 21px; margin: 0 0 4px; }
+  .panel .sub { color: var(--text-dim); font-size: 14px; margin: 0 0 14px; line-height:1.5; }
+  .arc-bars { display: grid; gap: 12px; }
+  .arc-bar .top { display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 600; margin-bottom: 6px; }
+  .arc-bar .top .c { color: var(--text-faint); font-weight: 600; }
+  .arc-bar .track { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: var(--bw) solid var(--border); }
+  .arc-bar .fill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+  .continue-card { display: flex; flex-direction: column; gap: 14px; }
+  .continue-card .lessonref { display: flex; gap: 12px; align-items: center; padding: 14px; background: var(--surface-2); border-radius: 12px; }
+  .continue-card .lnum { width: 38px; height: 38px; border-radius: 10px; flex: none; display: grid; place-items: center; color: #fff; font-weight: 700; }
+
+  /* ---------- lessons catalog ---------- */
+  .arc-sec { margin-top: 26px; }
+  .arc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .arc-tag { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 5px 11px; border-radius: 999px; }
+  .arc-head h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 22px; margin: 0; }
+  .arc-head .ac { margin-left: auto; color: var(--text-faint); font-size: 13px; font-weight: 600; }
+  .ltiles { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  .ltile { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 14px; align-items: center; padding: 14px 16px; border: var(--bw) solid var(--border); border-radius: 13px; background: var(--surface); cursor: pointer; transition: all .15s; text-align: left; font: inherit; color: var(--text); }
+  .ltile:hover { border-color: var(--accent); transform: translateY(-1px); }
+  .ltile .lnum { width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--surface-2); font-weight: 700; font-size: 14px; }
+  .ltile.done .lnum { background: var(--good); color: #fff; }
+  .ltile .lt-title { font-weight: 600; font-size: 15px; }
+  .ltile .lt-q { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+  .ltile .lt-act { font-size: 12.5px; font-weight: 700; padding: 7px 13px; border-radius: 999px; background: var(--surface-2); color: var(--text-dim); white-space: nowrap; }
+  .ltile .lt-act.next { background: var(--accent-soft); color: var(--accent); }
+  .ltile.done .lt-act { color: var(--good); }
+
+  /* ---------- lesson view ---------- */
+  .lh { padding: 26px 0 8px; }
+  .lh-strip { height: 5px; width: 64px; border-radius: 999px; margin-bottom: 16px; }
+  .crumb { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lh-title { font-family:"Newsreader",serif; font-weight:500; font-size: clamp(26px,3.6vw,40px); line-height:1.05; letter-spacing:-.015em; margin: 12px 0 8px; max-width: 20ch; }
+  .coreq { font-size: 16px; color: var(--text-dim); font-style: italic; font-family:"Newsreader",serif; max-width: 60ch; margin: 0; }
+  .rail { display: flex; gap: 6px; margin: 22px 0 4px; flex-wrap: wrap; }
+  .rstep { display: flex; align-items: center; gap: 8px; padding: 7px 12px 7px 9px; border-radius: 999px; border: var(--bw) solid var(--border); background: var(--surface); font-size: 12.5px; font-weight: 600; color: var(--text-faint); transition: all .2s; }
+  .rstep .ix { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--surface-2); color: var(--text-faint); }
+  .rstep.past { color: var(--text-dim); border-color: color-mix(in srgb, var(--good) 40%, var(--border)); }
+  .rstep.past .ix { background: var(--good); color: #fff; }
+  .rstep.active { color: var(--on-accent); background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 14px var(--accent-soft); }
+  .rstep.active .ix { background: rgba(255,255,255,.22); color: var(--on-accent); }
+  .ws { display: grid; grid-template-columns: minmax(0,1fr) 300px; gap: 22px; align-items: start; margin-top: 22px; }
+  @media (max-width: 880px) { .ws { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 20px; padding: 30px 32px; box-shadow: 0 18px 50px var(--shadow); }
+  @media (max-width:560px){ .card { padding: 22px; border-radius: 16px; } }
+  .kind { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--arc); background: color-mix(in srgb, var(--arc) 12%, transparent); padding: 7px 12px; border-radius: 999px; }
+  .kind .ic { width: 15px; height: 15px; }
+  .ctitle { font-family:"Newsreader",serif; font-weight:500; font-size: 26px; line-height:1.12; letter-spacing:-.01em; margin: 16px 0 12px; }
+  .scenario { font-size: 18px; line-height: 1.6; margin: 0 0 12px; }
+  .lead-q { font-size: 15px; color: var(--text-dim); margin: 16px 0 0; padding: 14px 16px; background: var(--surface-2); border-radius: 12px; border-left: 3px solid var(--arc); }
+  .body { font-size: 16px; line-height: 1.65; margin: 0 0 4px; }
+  .muted { color: var(--text-dim); font-size: 15px; line-height: 1.55; }
+  .callout { border: var(--bw) solid var(--border); border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 10px; padding: 13px 16px; margin: 14px 0 0; font-size: 15px; line-height: 1.55; }
+  .callout b { color: var(--text); }
+  .callout.good { border-left-color: var(--good); } .callout.good b { color: var(--good); }
+  .callout.bad { border-left-color: var(--bad); } .callout.bad b { color: var(--bad); }
+  .turn { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; font-size: 13px; font-weight: 700; color: var(--arc); }
+  .turn .pulse { width: 9px; height: 9px; border-radius: 50%; background: var(--arc); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%{ box-shadow:0 0 0 0 color-mix(in srgb,var(--arc) 55%,transparent);} 70%{ box-shadow:0 0 0 9px transparent;} 100%{ box-shadow:0 0 0 0 transparent;} }
+
+  /* video step — real auto-playing motion graphic */
+  /* video step — interactive walk-through (tap through it) */
+  .av { position: relative; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; margin: 16px 0 0; border: var(--bw) solid var(--border);
+    background: linear-gradient(150deg, #1b2452, #3b3a73 44%, #6f4a86 70%, #c97f63); }
+  .av-track { position: absolute; left: 7%; right: 7%; top: 40%; height: 2px; }
+  .av-line { position: absolute; left: 0; right: 0; top: 50%; height: 2px; margin-top:-1px; background: rgba(255,255,255,.22); border-radius: 2px; }
+  .av-lfill { position: absolute; left: 0; top: 50%; height: 2px; margin-top: -1px; background: rgba(255,255,255,.9); border-radius: 2px; transition: width .5s cubic-bezier(.5,0,.2,1); }
+  .av-dot { position: absolute; top: 50%; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 0 16px rgba(255,255,255,.75); transition: left .5s cubic-bezier(.5,0,.2,1); z-index: 2; }
+  .av-st { position: absolute; top: 50%; transform: translate(-50%,-50%); display: grid; justify-items: center; gap: 7px; width: 110px; }
+  .av-st .bubble { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: rgba(255,255,255,.14); border: 1.5px solid rgba(255,255,255,.3); transition: all .4s; }
+  .av-st.on .bubble { background: #fff; color: #2b2350; transform: scale(1.13); box-shadow: 0 0 26px rgba(255,255,255,.55); animation: avPulse 1.9s ease-in-out infinite; }
+  .av-st.did .bubble { background: rgba(255,255,255,.32); }
+  @keyframes avPulse { 0%,100%{ box-shadow: 0 0 22px rgba(255,255,255,.5);} 50%{ box-shadow: 0 0 32px rgba(255,255,255,.85);} }
+  .av-st .lab { font-size: 12px; font-weight: 700; color: #fff; text-align: center; line-height: 1.25; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+  .av-st .lab small { display: block; font-weight: 500; opacity: .8; font-size: 10.5px; }
+  .av-caps { position: absolute; left: 22px; right: 22px; bottom: 42px; }
+  .av-cap { font-family:"Newsreader",serif; font-size: clamp(17px,2.3vw,22px); font-weight: 500; color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.45); letter-spacing:-.01em; line-height: 1.25; }
+  .av-cap b { color: #ffe2b0; font-weight: 600; }
+  .av-prog { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(0,0,0,.25); }
+  .av-prog .f { height: 100%; background: linear-gradient(90deg, #ffd98a, #d98a6a); transition: width .4s ease; }
+  .av-live { position: absolute; right: 14px; top: 13px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.92); background: rgba(0,0,0,.3); padding: 6px 11px; border-radius: 999px; }
+  .av-nav { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .av-nav .btn { padding: 11px 18px; }
+  .av-stepn { font-size: 13px; font-weight: 700; color: var(--text-dim); margin-left: 4px; }
+  .av-nav .grow { flex: 1; }
+
+  /* classify */
+  .clf { display: grid; gap: 10px; margin: 16px 0 0; }
+  .clf-row { display: flex; flex-direction: column; align-items: stretch; gap: 11px; padding: 15px 17px; border: var(--bw) solid var(--border); border-radius: 14px; background: var(--surface); transition: border-color .2s, background .2s; }
+  .clf-row.right { border-color: var(--good); background: color-mix(in srgb, var(--good) 8%, var(--surface)); }
+  .clf-row.wrong { border-color: var(--bad); animation: shake .4s; }
+  @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+  .clf-text { font-size: 15px; line-height: 1.5; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .clf .chips .chip { flex: 1 1 160px; }
+  .chip { cursor: pointer; border: var(--bw) solid var(--border); background: var(--surface-2); color: var(--text); padding: 9px 16px; border-radius: 999px; font: inherit; font-size: 13.5px; font-weight: 600; line-height: 1.3; transition: all .15s; display: inline-flex; align-items: center; justify-content: center; text-align: center; min-height: 40px; }
+  .chip:hover:not(:disabled) { border-color: var(--arc); color: var(--arc); }
+  .chip:disabled { cursor: default; }
+  .chip.right { background: var(--good); color: #fff; border-color: var(--good); }
+  .chip.wrong { background: var(--bad); color: #fff; border-color: var(--bad); }
+  .chip.dim { opacity: .42; }
+
+  /* exit check */
+  .opts { display: grid; gap: 10px; margin: 16px 0 0; }
+  .opt { text-align: left; cursor: pointer; border: var(--bw) solid var(--border); background: var(--surface); padding: 15px 17px; border-radius: 13px; font: inherit; font-size: 15px; line-height: 1.45; color: var(--text); transition: all .15s; display: flex; gap: 11px; align-items: flex-start; }
+  .opt:hover:not(:disabled) { border-color: var(--arc); }
+  .opt .mark { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--border); flex: none; margin-top: 1px; display: grid; place-items: center; }
+  .opt.right { border-color: var(--good); background: color-mix(in srgb, var(--good) 9%, var(--surface)); }
+  .opt.right .mark { border-color: var(--good); background: var(--good); color: #fff; }
+  .opt.wrong { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 7%, var(--surface)); }
+  .opt.wrong .mark { border-color: var(--bad); color: var(--bad); }
+  .opt:disabled { cursor: default; }
+
+  /* workflow */
+  .wf-pick { display: flex; gap: 8px; flex-wrap: wrap; margin: 14px 0 0; }
+  .wf-list { list-style: none; counter-reset: w; margin: 14px 0 0; padding: 0; display: grid; gap: 7px; }
+  .wf-list li { counter-increment: w; display: flex; gap: 11px; align-items: center; padding: 11px 14px; background: color-mix(in srgb, var(--good) 8%, var(--surface)); border: var(--bw) solid color-mix(in srgb,var(--good) 35%,var(--border)); border-radius: 11px; font-size: 14.5px; }
+  .wf-list li::before { content: counter(w); width: 22px; height: 22px; flex: none; border-radius: 50%; background: var(--good); color: #fff; display: grid; place-items: center; font-size: 12px; font-weight: 700; }
+
+  .field2 { display: grid; gap: 5px; }
+  .field2 span { font-size: 13px; font-weight: 600; color: var(--text-dim); }
+  .field2 input { padding: 11px 13px; border: var(--bw) solid var(--border); border-radius: 11px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 15px; }
+  .field2 input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .promptbox { white-space: pre-wrap; background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 13px; padding: 16px 18px; margin: 16px 0; font-size: 15px; line-height: 1.55; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+  .fb { margin: 16px 0 0; font-size: 14.5px; font-weight: 600; min-height: 1.2em; line-height: 1.5; }
+  .fb.ok { color: var(--good); } .fb.no { color: var(--bad); }
+
+  .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+  .lockhint { display: flex; align-items: center; gap: 7px; margin-top: 12px; font-size: 13px; color: var(--text-faint); }
+  .lockhint .cnt { font-weight: 700; color: var(--arc); }
+  .nb { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 18px; position: sticky; top: 84px; }
+  @media (max-width:880px){ .nb { position: static; } }
+  .nb h3 { font-family:"Newsreader",serif; font-weight:500; font-size: 18px; margin: 2px 0 6px; }
+  .nb p { font-size: 12.5px; color: var(--text-faint); margin: 0 0 10px; line-height: 1.5; }
+  .nb textarea { width: 100%; min-height: 150px; border: var(--bw) solid var(--border); border-radius: 11px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 14px; padding: 11px; resize: vertical; line-height: 1.5; }
+  .nb textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .nb .st { font-size: 12px; color: var(--good); margin-top: 8px; font-weight: 600; }
+
+  /* done */
+  .done { text-align: center; padding: 40px 0 8px; }
+  .done .kick { color: var(--good); }
+  .auth-error { display: flex; align-items: center; gap: 9px; margin-top: 14px; padding: 11px 14px; border-radius: 11px; background: color-mix(in srgb, var(--bad) 12%, var(--surface)); border: var(--bw) solid color-mix(in srgb, var(--bad) 40%, var(--border)); color: var(--bad); font-size: 13.5px; font-weight: 600; line-height: 1.4; }
+
+  /* welcome / gate */
+  .welcome { max-width: 600px; margin: 0 auto; padding: 40px 0 8px; text-align: center; }
+  .welcome .wlogo { width: 52px; height: 52px; border-radius: 15px; margin: 0 auto 18px; display: grid; place-items: center; background: linear-gradient(150deg, #f4b66a, #d98a6a); }
+  .welcome .wlogo svg { width: 30px; height: 30px; }
+  .wtitle { font-family:"Newsreader",serif; font-weight: 500; font-size: clamp(30px,5vw,46px); letter-spacing:-.02em; line-height: 1.04; margin: 12px auto 14px; max-width: 16ch; }
+  .wlead { font-size: 17px; line-height: 1.55; color: var(--text-dim); max-width: 50ch; margin: 0 auto; }
+  .wmos { max-width: 320px; margin: 26px auto 12px; }
+  .wmoscap { font-family:"Newsreader",serif; font-style: italic; font-size: 15.5px; color: var(--text-dim); max-width: 44ch; margin: 0 auto; line-height: 1.4; }
+  .wrow { display: flex; gap: 12px; justify-content: center; margin-top: 26px; flex-wrap: wrap; }
+  .done h1 { font-family:"Newsreader",serif; font-weight:500; font-size: clamp(30px,5vw,50px); margin: 12px 0 10px; letter-spacing:-.015em; line-height:1.05; }
+  .done .sub { font-size: 17px; color: var(--text-dim); max-width: 46ch; margin: 0 auto 26px; line-height: 1.5; }
+  .done-mos { max-width: 360px; margin: 0 auto; }
+  .done .row { display: flex; gap: 12px; justify-content: center; margin-top: 28px; flex-wrap: wrap; }
+
+  /* settings + stubs */
+  .set-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media (max-width:680px){ .set-grid { grid-template-columns: 1fr; } }
+  .set-card { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 22px 24px; }
+  .set-card h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 20px; margin: 0 0 4px; }
+  .set-card .sub { color: var(--text-dim); font-size: 13.5px; margin: 0 0 16px; line-height:1.5; }
+  .set-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  .set-row > span { font-size: 14px; font-weight: 600; }
+  .mini-mos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 16px; max-width: 240px; }
+  .mini-mos .mtile { border-radius: 5px; }
+  .stub { max-width: 640px; }
+  .stub .lead { font-size: 17px; color: var(--text-dim); line-height: 1.6; }
+
+  /* text size scaling */
+  .lp[data-fs="large"] .ctitle, .lp[data-fs="large"] .q-title { font-size: 29px; }
+  .lp[data-fs="large"] .scenario { font-size: 20px; }
+  .lp[data-fs="large"] .body, .lp[data-fs="large"] .opt, .lp[data-fs="large"] .qopt, .lp[data-fs="large"] .muted, .lp[data-fs="large"] .clf-text, .lp[data-fs="large"] .q-copy, .lp[data-fs="large"] .lead-q { font-size: 16.5px; }
+  .lp[data-fs="xl"] .ctitle, .lp[data-fs="xl"] .q-title { font-size: 33px; }
+  .lp[data-fs="xl"] .scenario { font-size: 22px; }
+  .lp[data-fs="xl"] .body, .lp[data-fs="xl"] .opt, .lp[data-fs="xl"] .qopt, .lp[data-fs="xl"] .muted, .lp[data-fs="xl"] .clf-text, .lp[data-fs="xl"] .q-copy, .lp[data-fs="xl"] .lead-q { font-size: 18px; }
+
+  /* ---------- editorial content pages (About / Projects / Teaching) ---------- */
+  .page { max-width: 760px; margin: 0 auto; }
+  .page-hero { padding: 36px 0 8px; }
+  .page-hero h1 { font-family:"Newsreader",serif; font-weight:500; font-size: clamp(30px,5vw,48px); letter-spacing:-.02em; line-height:1.03; margin: 12px 0 14px; max-width: 16ch; }
+  .page-hero .lead { font-size: 19px; line-height: 1.55; color: var(--text-dim); max-width: 56ch; margin: 0; }
+  .prose { margin-top: 8px; }
+  .prose h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 27px; letter-spacing:-.01em; line-height:1.15; margin: 36px 0 12px; }
+  .prose h3 { font-size: 16px; font-weight: 700; margin: 22px 0 8px; letter-spacing:.01em; }
+  .prose p { font-size: 16.5px; line-height: 1.68; color: var(--text); margin: 0 0 14px; max-width: 68ch; }
+  .prose p.small { font-size: 13.5px; color: var(--text-faint); line-height:1.6; }
+  .prose em { font-style: italic; color: var(--text-dim); }
+  .prose strong { font-weight: 700; }
+  .prose ul { margin: 0 0 16px; padding-left: 0; list-style: none; display: grid; gap: 9px; }
+  .prose ul li { position: relative; padding-left: 26px; font-size: 16px; line-height: 1.55; max-width: 66ch; }
+  .prose ul li::before { content:""; position: absolute; left: 6px; top: 9px; width: 7px; height: 7px; border-radius: 2px; background: var(--accent); }
+  .prose a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+  .status-strip { display: flex; gap: 10px; align-items: flex-start; padding: 14px 18px; background: var(--accent-soft); border: var(--bw) solid color-mix(in srgb,var(--accent) 30%, var(--border)); border-radius: 13px; font-size: 14.5px; line-height: 1.5; color: var(--text); margin: 18px 0 8px; }
+  .pull { font-family:"Newsreader",serif; font-style: italic; font-size: 21px; line-height: 1.45; color: var(--text); border-left: 3px solid var(--accent); padding: 4px 0 4px 20px; margin: 18px 0; max-width: 60ch; }
+  .hr { height: var(--bw); background: var(--border); border: 0; margin: 28px 0; }
+  .feature { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 18px; box-shadow: 0 16px 44px var(--shadow); padding: 30px 32px; margin: 22px 0; }
+  @media (max-width:560px){ .feature { padding: 22px; } }
+  .feature .tag { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+  .feature h2 { margin-top: 8px; }
+  .stat-grid2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
+  @media (max-width:560px){ .stat-grid2 { grid-template-columns: repeat(2,1fr); } }
+  .stat2 { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 13px; padding: 15px 16px; }
+  .stat2 .num { font-family:"Newsreader",serif; font-weight:500; font-size: 23px; letter-spacing:-.01em; }
+  .stat2 .label { font-size: 12px; color: var(--text-dim); margin-top: 3px; line-height: 1.35; }
+  .tldr { background: var(--surface-2); border: var(--bw) solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 18px 20px; margin: 18px 0 8px; }
+  .tldr h4 { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; font-weight: 700; }
+  .compare2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 16px 0; }
+  @media (max-width:600px){ .compare2 { grid-template-columns: 1fr; } }
+  .cmp { border: var(--bw) solid var(--border); border-radius: 13px; padding: 16px 18px; background: var(--surface); }
+  .cmp.bad { border-color: color-mix(in srgb,var(--bad) 40%,var(--border)); }
+  .cmp.good { border-color: color-mix(in srgb,var(--good) 45%,var(--border)); }
+  .cmp h4 { margin: 0 0 8px; font-size: 13px; font-weight: 700; }
+  .cmp.bad h4 { color: var(--bad); } .cmp.good h4 { color: var(--good); }
+  .cmp pre { margin: 0 0 8px; padding: 12px 13px; background: var(--surface-2); border-radius: 9px; font-family: ui-monospace,"SF Mono",Menlo,monospace; font-size: 12.5px; line-height: 1.5; white-space: pre-wrap; color: var(--text); }
+  .cmp p { font-size: 13.5px; color: var(--text-dim); margin: 0; line-height: 1.45; }
+  .ingrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  @media (max-width:600px){ .ingrid { grid-template-columns: 1fr; } }
+  .ingr { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 13px; padding: 16px 18px; }
+  .ingr .num { font-family:"Newsreader",serif; font-size: 20px; color: var(--accent); }
+  .ingr h4 { margin: 4px 0 6px; font-size: 15px; font-weight: 700; }
+  .ingr p { font-size: 13.5px; color: var(--text-dim); margin: 0; line-height: 1.5; }
+  .callout-box { border: var(--bw) solid var(--border); border-left: 3px solid var(--accent); background: var(--surface-2); border-radius: 12px; padding: 16px 20px; margin: 18px 0; }
+  .callout-box.good { border-left-color: var(--good); }
+  .callout-box h4 { margin: 0 0 6px; font-size: 13px; font-weight: 700; letter-spacing:.02em; }
+  .callout-box p { margin: 0; font-family:"Newsreader",serif; font-size: 18px; font-style: italic; color: var(--text); line-height: 1.4; }
+  .rhythm { display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 10px; margin: 16px 0 6px; text-align: center; align-items: stretch; }
+  .rhythm .blk { border-radius: 12px; padding: 18px 10px; border: var(--bw) solid var(--border); background: var(--surface); display: grid; align-content: center; }
+  .rhythm .blk.mid { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .rhythm .blk .big { font-family:"Newsreader",serif; font-weight:500; font-size: 30px; }
+  .rhythm .blk .cap { font-size: 13px; margin-top: 2px; }
+
+  /* ---------- saved notes ---------- */
+  .notes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+  @media (max-width:680px){ .notes-grid { grid-template-columns: 1fr; } }
+  .note-card { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 20px 22px; border-top: 3px solid var(--arc); }
+  .note-card .nc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .note-card .nc-type { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--arc); }
+  .note-card .nc-ts { margin-left: auto; font-size: 12px; color: var(--text-faint); }
+  .note-card .nc-lesson { font-size: 12.5px; color: var(--text-dim); margin-bottom: 12px; }
+  .note-card .nc-field { margin-bottom: 11px; }
+  .note-card .nc-field .l { font-size: 12px; color: var(--text-faint); font-weight: 600; margin-bottom: 2px; }
+  .note-card .nc-field .v { font-size: 15px; color: var(--text); line-height: 1.4; }
+  .notes-empty { text-align: center; max-width: 440px; margin: 40px auto; }
+  .notes-empty .ne-mark { width: 56px; height: 56px; border-radius: 16px; background: var(--surface-2); border: var(--bw) solid var(--border); display: grid; place-items: center; margin: 0 auto 16px; color: var(--text-faint); }
+  .notes-empty h2 { font-family:"Newsreader",serif; font-weight:500; font-size: 24px; margin: 0 0 8px; }
+  .notes-empty p { color: var(--text-dim); font-size: 15px; line-height: 1.55; margin: 0 0 18px; }
+
+  /* switch */
+  .sw { width: 46px; height: 27px; border-radius: 999px; border: var(--bw) solid var(--border); background: var(--surface-2); position: relative; cursor: pointer; transition: background .15s; flex: none; }
+  .sw.on { background: var(--accent); border-color: var(--accent); }
+  .sw .knob { position: absolute; top: 2px; left: 2px; width: 21px; height: 21px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .18s; }
+  .sw.on .knob { transform: translateX(19px); }
+  .lp[data-reduce="1"] * { animation: none !important; }
+
+  /* note composer (My Notes) */
+  .note-composer { background: var(--surface); border: var(--bw) solid var(--border); border-radius: 16px; padding: 18px 20px; margin-top: 22px; box-shadow: 0 8px 26px var(--shadow); }
+  .note-composer .nc-h { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+  .note-composer .nc-h span { color: var(--accent); }
+  .note-composer .nc-ta { width: 100%; min-height: 88px; border: var(--bw) solid color-mix(in srgb, var(--text-faint) 55%, var(--border)); border-radius: 12px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 14.5px; padding: 12px 14px; resize: vertical; line-height: 1.5; }
+  .note-composer .nc-ta:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .note-composer .nc-ta::placeholder { color: var(--text-faint); }
+  .note-card { position: relative; }
+  .nc-del { position: absolute; top: 12px; right: 12px; width: 26px; height: 26px; border-radius: 8px; border: var(--bw) solid var(--border); background: var(--surface-2); color: var(--text-faint); font-size: 17px; line-height: 1; cursor: pointer; display: grid; place-items: center; }
+  .nc-del:hover { color: var(--bad); border-color: var(--bad); }
+  .note-card .nc-top { padding-right: 32px; }
+
+  /* tryLive paste-back loop */
+  .tl-step { display: flex; gap: 14px; align-items: flex-start; margin: 18px 0 0; }
+  .tl-n { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 13px; margin-top: 2px; }
+  .tl-n.ok { background: var(--good); }
+  .tl-h { font-size: 15.5px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.4; }
+  .tl-paste { width: 100%; min-height: 96px; border: var(--bw) solid color-mix(in srgb, var(--text-faint) 55%, var(--border)); border-radius: 12px; background: var(--surface-2); color: var(--text); font: inherit; font-size: 14.5px; padding: 12px 14px; resize: vertical; line-height: 1.5; }
+  .tl-paste:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .tl-paste::placeholder { color: var(--text-faint); }
+
+  /* ---------- mobile polish (<640px) ---------- */
+  @media (max-width: 640px) {
+    .lp-canvas { padding: 0 16px 64px; }
+    .topnav-in { padding: 10px 16px; gap: 10px; }
+    .topnav .tabs { order: 3; width: 100%; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; gap: 2px; }
+    .topnav .tabs::-webkit-scrollbar { display: none; }
+    .topnav .tab { flex: none; padding: 7px 11px; font-size: 13px; }
+    .ctrl > label { display: none; }
+    .seg button { padding: 5px 9px; font-size: 12px; }
+    .lh-title { font-size: clamp(24px, 7vw, 32px); }
+    .rail { gap: 5px; }
+    .rstep { padding: 6px 10px 6px 8px; font-size: 11.5px; }
+    .av-nav { flex-wrap: wrap; }
+    .av-cap { font-size: 16px; }
+    .av-st { width: 84px; } .av-st .bubble { width: 40px; height: 40px; }
+    .av-st .lab { font-size: 11px; } .av-st .lab small { font-size: 9.5px; }
+    .mtile .n { font-size: 10px; }
+    .nav { flex-direction: column-reverse; align-items: stretch; }
+    .nav .btn { justify-content: center; }
+    .wrow .btn, .onb-actions .btn, .done .row .btn { width: 100%; justify-content: center; }
+    .view-head h1, .page-hero h1, .done h1 { font-size: clamp(26px, 7vw, 34px); }
+  }
+</style>
+</helmet>
+
+<div class="lp" data-theme="{{ theme }}" data-fs="{{ fs }}" data-reduce="{{ reduce }}">
+  {{ nav }}
+  {{ main }}
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1140, &quot;height&quot;: 1500}}">
+class Component extends DCLogic {
+  state = {
+    theme: 'light',
+    fontScale: 'normal',     // normal | large | xl
+    variant: 'arc',          // mosaic style: reveal | arc | hybrid
+    reduceMotion: false,
+    onboarded: false,
+    email: '', password: '', name: '',
+    authMode: 'signin',      // signin | signup
+    authError: '',
+    qShuffle: null,
+    guest: true,             // true until they create an account
+    view: 'welcome',         // welcome | gate | account | questionnaire | dashboard | lessons | lesson | done | settings | about | projects | teaching | notes
+    // questionnaire
+    qIndex: 0, qAnswers: {}, qAge: '', qNote: {},
+    // lessons / progress
+    completed: {},           // lessonNum -> true
+    justFilled: null,
+    savedNotes: [],          // [{ id, lesson, title, cardType, fields, ts }]
+    // lesson interaction
+    idx: 0, sel: {}, passed: {}, note: '', pop: false
+  };
+
+  ARCS = [
+    { name: 'Orientation', color: '#4257c9' },
+    { name: 'Understanding', color: '#0e8fa0' },
+    { name: 'Conversation', color: '#7c52cf' },
+    { name: 'Judgment & Safety', color: '#cf5340' },
+    { name: 'Applying', color: '#d57e22' },
+    { name: 'Building', color: '#2f9c6a' }
+  ];
+  IMG = 'v2/sunrise-progress.png';
+  GATED = { classify: 1, workflowChain: 1, exitCheck: 1 };
+
+  AGES = [['','Choose age range'],['under-13','Under 13'],['13-15','13-15'],['16-18','16-18'],['19-24','19-24'],['25-34','25-34'],['35-49','35-49'],['50-plus','50+'],['prefer-not','Prefer not to say']];
+
+  // Per-ATTEMPT shuffle: order is randomized once when the diagnostic starts (different
+  // per learner, stable through one sitting), never re-rolled on refresh. Scoring always
+  // uses the option's true rank (0-3), never its on-screen slot — so analytics stay correct.
+  genShuffles() {
+    const s = {};
+    for (let i = 0; i < this.QUESTIONS.length; i++) {
+      const a = [0, 1, 2, 3];
+      for (let j = a.length - 1; j > 0; j--) { const k = Math.floor(Math.random() * (j + 1)); const t = a[j]; a[j] = a[k]; a[k] = t; }
+      s[i] = a;
+    }
+    return s;
+  }
+
+  QUESTIONS = [
+    { key:'definition', cat:'Category 1', title:'When someone says "AI," what do they mean?', copy:'Pick the answer you could explain and use reliably right now.',
+      options:['A website that gives answers when you type questions.','A computer program that can copy human writing and conversation.','A trained model that finds patterns in data and uses those patterns to make predictions or decisions.','A family of systems: language models, image models, recommendation systems, robots, agents, and tools that can act across software.'] },
+    { key:'capability', cat:'Category 2', title:'What can modern AI systems actually do?', copy:'Someone says, "AI is just a smarter search engine." What do you think?',
+      options:['That sounds right. It mostly finds information faster.','It can answer questions, write drafts, and summarize text.','It can explain, code, plan, translate, analyze images, simulate conversations, and help build tools.','It can become part of a workflow: using tools, calling APIs, checking files, running code, and coordinating multi-step work.'] },
+    { key:'limits', cat:'Category 3', title:'When should you slow down and check?', copy:'An AI gives a confident answer about a medical, legal, or scientific fact. What would you actually do next?',
+      options:['Trust it if the answer sounds detailed.','Ask it again and see if it says the same thing.','Ask for sources, then check reliable sources yourself.','Treat it as a starting point, verify outside the model, and ask what evidence would change the answer.'] },
+    { key:'learning', cat:'Category 4', title:'How should you use AI without losing control?', copy:'Pick what you would actually do when you are learning something new.',
+      options:['Let it do the main thinking so you can move faster.','Ask it to explain the answer in easier words.','Ask for hints, examples, and a check so you still do the important thinking.','Use it as a tutor, critic, and practice partner while protecting the skill you are building.'] },
+    { key:'impact', cat:'Category 5', title:"How do you think about AI's real-world costs?", copy:'Someone says, "AI has real environmental and social costs." What would you say back?',
+      options:['They are wrong. New technology always wins.','They are right. AI should probably be avoided.','The costs are real, but we should compare them with benefits and better infrastructure.','We should ask: which model, what task, how much energy, what alternative, what benefit, and who pays the cost?'] },
+    { key:'systems', cat:'Category 6', title:'What do you know beyond chatbots?', copy:'What comes after typing questions into a chatbot?',
+      options:['Mostly better chatbots.','Tools that write, summarize, and search faster.','Personal tutors, coding helpers, research assistants, creative tools, and agents that use software.','AI systems connected to data, tools, robots, labs, simulations, businesses, and scientific workflows.'] }
+  ];
+
+  LESSON = {
+    arc: 'Orientation', arcIndex: 0, num: 1,
+    title: 'Why AI matters — and why you stay in charge',
+    coreQuestion: 'When should I use AI, and what do I keep deciding myself?',
+    steps: [
+      { kind:'coldOpen', title:'You already know all three of these people',
+        scenario:'Look at your group chat. One person runs everything through AI — their work is faster and they\'re getting way more done. Another swears it off: AI is dangerous, so they do every assignment themselves, by hand. A third uses it for literally everything, no exceptions. They\'re all talking over each other, and every one of them is sure they\'re right.',
+        prompt:'Before you read on — in one sentence, where do you actually land?' },
+      { kind:'classify', title:'Sort these uses', prompt:'Which of these keep you learning, and which quietly replace your thinking?',
+        buckets:['Keeps me thinking','Replaces my thinking'],
+        items:[
+          { text:'Ask AI to explain a concept, then re-explain it back in your own words', answer:0 },
+          { text:'Paste the homework question and copy the answer', answer:1 },
+          { text:'Ask for 3 angles on an essay, then pick and argue one yourself', answer:0 },
+          { text:'Let AI write the whole essay and submit it', answer:1 }
+        ],
+        reveal:'The line is not "AI or no AI." It is "did I still do the thinking that matters?"' },
+      { kind:'reveal', title:'Agency is the real skill',
+        body:'AI is useful when a human keeps the goal, the method, and the verification. Speed is not the same as understanding.',
+        mistake:'Trusting a fluent answer because it sounds confident.',
+        good:'Use AI to improve your reasoning, and skip it when it tempts you to stop thinking.' },
+      { kind:'watch', title:'Agency: the three-step loop', source:'Animated explainer',
+        caption:'A short visual: who keeps the goal, who does the middle, and who verifies before trusting.',
+        takeaway:'You start, AI helps in the middle, you verify and finish.' },
+      { kind:'tryLive', title:'Try it for real',
+        prompt:'I am deciding when AI helps me without replacing my thinking. Give me 5 useful use cases and 5 risky shortcuts for someone like me. For each risky shortcut, add one question I should ask myself before using it.',
+        react:'Now you\u2019re in charge — paste what you got back, then pick the one line you\u2019d double-check before trusting it.' },
+      { kind:'workflowChain', title:'Build the stay-in-charge routine',
+        goal:'You are stuck on a hard homework problem and want AI help without handing over your thinking.',
+        correct:['Try the problem yourself first, even badly','Ask AI to explain only the part you are stuck on','Re-explain the idea back in your own words','Check the answer against your notes or textbook','Write the final answer yourself'],
+        note:'Notice who starts and who finishes: you do. AI only helps in the middle, and you verify before you trust.' },
+      { kind:'toolkitSave', title:'Save your agency rule', cardType:'Agency rule',
+        fields:[
+          { key:'help', label:'I want AI to help me…', placeholder:'draft, explain, brainstorm…' },
+          { key:'never', label:'I will not let AI decide…', placeholder:'what I actually believe' },
+          { key:'check', label:'Before I trust it, I will check…', placeholder:'one source / my own attempt' }
+        ] },
+      { kind:'exitCheck', title:'Quick check', question:'Which is the strongest reason to keep a human in charge?',
+        options:[
+          { text:'AI handles routine stuff fine, so a human mostly needs to step in on the genuinely hard questions', ok:false, feedback:"You often can't tell in advance which question is the hard one." },
+          { text:'A fluent answer can still be wrong or low-value', ok:true, feedback:'Exactly. Confidence is not proof.' },
+          { text:'Teachers and parents are still uncomfortable with AI, so it is safer to keep a person visibly involved', ok:false, feedback:"That's about how it looks to other people, not about quality." }
+        ] }
+    ]
+  };
+
+  KIND = {
+    coldOpen:{ label:'Cold open', icon:'msg' }, classify:{ label:'Sort it', icon:'cols' },
+    reveal:{ label:'Key idea', icon:'bulb' }, watch:{ label:'Watch', icon:'play' },
+    tryLive:{ label:'Try it for real', icon:'spark' }, workflowChain:{ label:'Build a workflow', icon:'flow' },
+    toolkitSave:{ label:'Save it · optional', icon:'save' }, exitCheck:{ label:'Quick check', icon:'check' }
+  };
+
+  el(t, p, ...k) { return React.createElement(t, p, ...k.flat()); }
+  arc() { return this.ARCS[this.LESSON.arcIndex].color; }
+  ix(i) { return this.state.sel[i] || {}; }
+  setIx(i, patch) { this.setState(s => ({ sel: { ...s.sel, [i]: { ...(s.sel[i] || {}), ...patch } } })); }
+  go(view, extra) { this.setState({ view, ...(extra || {}) }); window.scrollTo(0, 0); }
+  doneCount() { return Object.values(this.state.completed).filter(Boolean).length; }
+
+  icon(name) {
+    const P = {
+      msg:'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
+      cols:'M4 5h6v14H4zM14 5h6v14h-6z',
+      bulb:'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12c.5.6 1 1.5 1 3h6c0-1.5.5-2.4 1-3a7 7 0 0 0-4-12z',
+      play:'M6 4l13 8-13 8z',
+      pause:'M7 4h3v16H7zM14 4h3v16h-3z',
+      spark:'M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4zM19 14l.9 2.3L22 17l-2.1.7L19 20l-.9-2.3L16 17l2.1-.7z',
+      flow:'M4 6h.01M4 12h.01M4 18h.01M9 6h11M9 12h11M9 18h11',
+      save:'M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z',
+      check:'M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3',
+      copy:'M9 9h10v10H9zM5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1',
+      arrow:'M5 12h14M13 5l7 7-7 7', back:'M19 12H5M11 19l-7-7 7-7',
+      lock:'M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4',
+      sun:'M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4',
+      shield:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'
+    };
+    return this.el('svg', { viewBox:'0 0 24 24', width:18, height:18, fill:'none', stroke:'currentColor', strokeWidth:2, strokeLinecap:'round', strokeLinejoin:'round', style:{ display:'block' } }, this.el('path', { d:P[name]||'' }));
+  }
+
+  // ---------- mosaic ----------
+  tileStyle(i, filled, variant) {
+    const col = i % 6, row = Math.floor(i / 6), arc = this.ARCS[Math.floor(i / 5)].color;
+    if (filled && (variant === 'reveal' || variant === 'hybrid')) return { backgroundImage:`url("${this.IMG}")`, backgroundSize:'600% 500%', backgroundPosition:`calc(${col} * 20%) calc(${row} * 25%)`, borderColor:'rgba(20,16,8,.28)' };
+    if (filled && variant === 'arc') return { background:arc, borderColor:`color-mix(in srgb, ${arc} 60%, #000)`, boxShadow:`inset 0 0 0 1px color-mix(in srgb, ${arc} 30%, transparent)` };
+    // unfilled — clean neutral with a faint arc-tinted seed dot
+    if (variant === 'hybrid') return { background:`color-mix(in srgb, ${arc} 14%, var(--surface-2))`, borderColor:`color-mix(in srgb, ${arc} 22%, var(--border))` };
+    return { background:'var(--surface-2)', borderColor:`color-mix(in srgb, ${arc} 26%, var(--border))` };
+  }
+  mosaic(fillCount, variant, justIdx, cls) {
+    const tiles = [];
+    for (let i = 0; i < 30; i++) {
+      const filled = i < fillCount;
+      tiles.push(this.el('div', { key:i, className:'mtile'+(filled?' filled':'')+(i===justIdx?' justfill':''), style:this.tileStyle(i, filled, variant),
+        title:`Lesson ${i+1} · ${this.ARCS[Math.floor(i/5)].name}${filled?' ✓':''}` }, this.el('span', { className:'n' }, String(i+1))));
+    }
+    return this.el('div', { className:'mos'+(cls?' '+cls:'') }, tiles);
+  }
+
+  // ---------- top nav ----------
+  brandMark() {
+    // a small mosaic grid coming into focus — ties the logo to the progress concept
+    const cells = [
+      [0,0,'a'],[1,0,'g'],[2,0,'f'],
+      [0,1,'g'],[1,1,'a'],[2,1,'a'],
+      [0,2,'f'],[1,2,'a'],[2,2,'g']
+    ];
+    const fill = { a:'currentColor', g:'#e7a44d', f:'rgba(255,255,255,.35)' };
+    const s = 6.4, gap = 1.4, o = 2.2;
+    return this.el('svg', { viewBox:'0 0 24 24', width:18, height:18, style:{ display:'block', color:'#2b2350' } },
+      cells.map(([cx, cy, t], k) => this.el('rect', { key:k, x:o+cx*(s+gap), y:o+cy*(s+gap), width:s, height:s, rx:1.7, fill:fill[t] })));
+  }
+
+  nav() {
+    const tabs = [['dashboard','Dashboard'],['lessons','Lessons'],['notes','My Notes'],['settings','Settings'],['about','About'],['projects','Projects'],['teaching','Teaching AI']];
+    const v = this.state.view;
+    const inApp = this.state.onboarded;
+    const isActive = (k) => v === k || (k === 'lessons' && (v === 'lesson' || v === 'done'));
+    return this.el('div', { className:'topnav' }, this.el('div', { className:'topnav-in' },
+      this.el('button', { className:'brand', style:{ border:0, background:'transparent', cursor:'pointer', font:'inherit', padding:0, color:'var(--text)' }, onClick:() => this.go(inApp ? 'dashboard' : 'welcome') },
+        this.el('span', { className:'spark' }, this.brandMark()),
+        this.el('span', null, 'Learning ', this.el('b', null, 'AI'))),
+      inApp ? this.el('nav', { className:'tabs' }, tabs.map(([k, l]) => this.el('button', { key:k, className:'tab'+(isActive(k)?' on':''), onClick:() => this.go(k, k==='lessons'||k==='dashboard'?{}:null) }, l))) : null,
+      this.el('div', { className:'nav-spacer' }),
+      (!inApp && v !== 'account') ? this.el('button', { className:'linkbtn', style:{ color:'var(--accent)', fontWeight:700 }, onClick:() => this.go('account', { authMode:'signin' }) }, 'Sign in') : null,
+      this.el('div', { className:'ctrl' },
+        this.el('label', null, 'Theme'),
+        this.el('div', { className:'seg' }, [['light','Light'],['dark','Dark'],['sepia','Sepia'],['contrast','Contrast']].map(([val,l]) =>
+          this.el('button', { key:val, className:this.state.theme===val?'on':'', onClick:() => this.setState({ theme:val }) }, l)))),
+      inApp ? this.el('button', { className:'linkbtn', onClick:() => this.go('welcome', { onboarded:false, guest:true, completed:{}, qAnswers:{}, qIndex:0, qAge:'', savedNotes:[], email:'', password:'', name:'' }) }, 'Sign out') : null
+    ));
+  }
+
+  // ---- demo "backend": localStorage stand-in for the real API (see BACKEND.md §3b).
+  // Maps 1:1 to signup/login/me so the prototype shows the real returning-user flow.
+  STORE = 'learningai-demo-accounts';
+  loadAccounts() { try { return JSON.parse(localStorage.getItem(this.STORE) || '{}'); } catch (e) { return {}; } }
+  saveAccount(acct) { const a = this.loadAccounts(); a[acct.email.toLowerCase()] = acct; localStorage.setItem(this.STORE, JSON.stringify(a)); }
+  saveProgressFor(completed) {
+    if (!this.state.email) return;
+    const a = this.loadAccounts(); const key = this.state.email.toLowerCase(); const ex = a[key]; if (!ex) return;
+    ex.completed = completed; ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers;
+    ex.level = this.qLevel() ? this.qLevel().label : ex.level; ex.savedNotes = this.state.savedNotes; ex.lastSeen = Date.now();
+    this.saveAccount(ex);
+  }
+  persistProgress() {
+    // called after diagnostic / lesson complete so a returning sign-in restores everything
+    if (!this.state.email) return;
+    const a = this.loadAccounts(); const key = this.state.email.toLowerCase(); const ex = a[key]; if (!ex) return;
+    ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers; ex.level = this.qLevel() ? this.qLevel().label : ex.level;
+    ex.completed = this.state.completed; ex.savedNotes = this.state.savedNotes; ex.onboarded = true; ex.lastSeen = Date.now();
+    this.saveAccount(ex);
+  }
+  doSignup() {
+    const email = (this.state.email || '').trim(), pw = this.state.password || '', name = (this.state.name || '').trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return this.setState({ authError: 'Enter a valid email address.' });
+    if (pw.length < 8) return this.setState({ authError: 'Password must be at least 8 characters.' });
+    if (!name) return this.setState({ authError: 'Add a display name to create your account.' });
+    const accounts = this.loadAccounts();
+    if (accounts[email.toLowerCase()]) return this.setState({ authError: 'That email already has an account — try signing in.' });
+    this.saveAccount({ email, name, password: pw, onboarded: false, completed: this.state.completed || {}, savedNotes: this.state.savedNotes || [], created: Date.now() });
+    this.go('questionnaire', { email, name, guest: false, authError: '', qShuffle: this.genShuffles() });
+  }
+  doSignin() {
+    const email = (this.state.email || '').trim(), pw = this.state.password || '';
+    if (!email || !pw) return this.setState({ authError: 'Enter your email and password to sign in.' });
+    const acct = this.loadAccounts()[email.toLowerCase()];
+    if (!acct) return this.setState({ authError: 'No account found for that email. Create one below.' });
+    if (acct.password !== pw) return this.setState({ authError: 'That password doesn\u2019t match. Try again.' });
+    // success — restore their saved data (this is the "/api/me hydrate" step)
+    if (acct.onboarded) {
+      this.go('dashboard', { onboarded: true, guest: false, email, name: acct.name, qAge: acct.ageRange || '', qAnswers: acct.answers || {}, completed: acct.completed || {}, savedNotes: acct.savedNotes || [], authError: '' });
+    } else {
+      this.go('questionnaire', { email, name: acct.name, guest: false, authError: '', qShuffle: this.genShuffles() });
+    }
+  }
+
+  // ---- welcome (guest landing) ----
+  welcomeView() {
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Welcome' }, this.el('div', { className:'welcome' },
+      this.el('div', { className:'wlogo' }, this.brandMark()),
+      this.el('div', { className:'kicker' }, 'A free, interactive AI course — by a high-schooler'),
+      this.el('h1', { className:'wtitle' }, 'Learn to use AI without letting it think for you.'),
+      this.el('p', { className:'wlead' }, 'No signup, no catch. Start the first lesson right now — you only make an account when you want to save your progress and keep going.'),
+      this.el('div', { className:'wmos' }, this.mosaic(0, this.state.variant, -1)),
+      this.el('p', { className:'wmoscap' }, 'Each lesson you finish paints one square of a sunrise. Thirty lessons, one picture you build by learning.'),
+      this.el('div', { className:'wrow' },
+        this.el('button', { className:'btn btn-primary', style:{ fontSize:'16px', padding:'15px 26px' }, onClick:() => this.go('lesson', { view:'lesson', idx:0, sel:{}, passed:{}, guest:true }) },
+          'Start Lesson 1 — free', this.el('span', { style:{ width:17, height:17 } }, this.icon('arrow'))),
+        this.el('button', { className:'btn btn-ghost', onClick:() => this.go('account', { authMode:'signin' }) }, 'I have an account')),
+      this.el('p', { className:'fine', style:{ textAlign:'center', marginTop:'18px' } }, 'No account needed to try it. Free forever — we never sell your data.')));
+  }
+
+  // ---- gate (save wall after the free lesson) ----
+  gateView() {
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Save your progress' }, this.el('div', { className:'welcome' },
+      this.el('div', { className:'kicker', style:{ color:'var(--good)' } }, 'You painted your first square'),
+      this.el('h1', { className:'wtitle', style:{ fontSize:'clamp(28px,4.4vw,42px)' } }, 'Nice — that\u2019s 1 of 30.'),
+      this.el('p', { className:'wlead' }, 'Create a free account to save this square and unlock the rest of the sunrise. It takes ten seconds, and your progress follows you to any device.'),
+      this.el('div', { className:'wmos' }, this.mosaic(1, this.state.variant, 0)),
+      this.el('div', { className:'wrow' },
+        this.el('button', { className:'btn btn-primary', style:{ fontSize:'16px', padding:'15px 26px' }, onClick:() => this.go('account', { authMode:'signup' }) },
+          'Create a free account & continue', this.el('span', { style:{ width:17, height:17 } }, this.icon('arrow'))),
+        this.el('button', { className:'btn btn-ghost', onClick:() => this.go('account', { authMode:'signin' }) }, 'I already have one')),
+      this.el('p', { className:'fine', style:{ textAlign:'center', marginTop:'18px' } }, 'Your one finished lesson is held on this device until you save it.')));
+  }
+
+  // ---- onboarding: account ----
+  accountView() {
+    const mode = this.state.authMode;
+    const signup = mode === 'signup';
+    const toggle = this.el('div', { className:'seg', style:{ marginBottom:'4px' } },
+      [['signin','Sign in'],['signup','Create account']].map(([v,l]) =>
+        this.el('button', { key:v, className:this.state.authMode===v?'on':'', onClick:() => this.setState({ authMode:v, authError:'' }) }, l)));
+    const field = (label, type, key, ac, ph) => this.el('label', { className:'field' }, this.el('span', null, label),
+      this.el('input', { type, placeholder:ph, autoComplete:ac, value:this.state[key]||'', onChange:(e) => this.setState({ [key]:e.target.value, authError:'' }) }));
+    const fields = [ field('Email','email','email','email','you@school.edu'),
+      field('Password','password','password', signup?'new-password':'current-password', signup?'At least 8 characters':'Your password') ];
+    if (signup) fields.push(field('Display name','text','name','name','What should we call you?'));
+    const err = this.state.authError ? this.el('div', { className:'auth-error' }, this.el('span', { style:{ width:15, height:15, flex:'none' } }, this.icon('lock')), this.state.authError) : null;
+    const submit = this.el('button', { className:'btn btn-primary', style:{ width:'100%', justifyContent:'center' }, onClick:() => signup ? this.doSignup() : this.doSignin() }, signup ? 'Create account & start' : 'Sign in');
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Account' }, this.el('div', { className:'onb' },
+      this.el('div', { className:'onb-card' },
+        this.el('div', { className:'kicker' }, 'Learning AI · Step 1 of 2'),
+        this.el('h1', null, signup ? 'Create your account' : 'Welcome back'),
+        this.el('p', { className:'lead' }, signup ? 'We use your email only to sign you in and save your progress — no ads, no selling your information, never asking for money.' : 'Sign in to pick up exactly where you left off.'),
+        toggle,
+        this.el('div', { className:'fields' }, fields),
+        err,
+        this.el('div', { style:{ marginTop:'18px' } }, submit),
+        this.el('div', { className:'privacy-note' }, this.el('span', { className:'ic', style:{ width:18, height:18 } }, this.icon('shield')),
+          this.el('span', null, 'Your progress is saved to your account, so signing in on any device brings it back.')),
+        this.el('p', { className:'fine' }, 'Demo: accounts are stored in this browser to show the real sign-in / remember-me flow. On the live site this runs against the backend (see BACKEND.md).'))));
+  }
+
+  // ---------- onboarding: questionnaire ----------
+  qLevel() {
+    const vals = this.QUESTIONS.map(q => this.state.qAnswers[q.key]).filter(v => v != null);
+    if (!vals.length) return null;
+    const pct = Math.round(vals.reduce((a, b) => a + b, 0) / (this.QUESTIONS.length * 3) * 100);
+    return { pct, label: pct < 45 ? 'Foundation' : pct < 75 ? 'Explorer' : 'Builder' };
+  }
+  questionnaireView() {
+    const i = this.state.qIndex, total = this.QUESTIONS.length, q = this.QUESTIONS[i];
+    const sel = this.state.qAnswers[q.key];
+    const order = (this.state.qShuffle && this.state.qShuffle[i]) || [0, 1, 2, 3];
+    const opts = order.map((origIdx, d) => this.el('button', { key:origIdx, className:'qopt'+(sel===origIdx?' sel':''), onClick:() => this.setState(s => ({ qAnswers:{ ...s.qAnswers, [q.key]:origIdx } })) },
+      this.el('span', { className:'dot' }), this.el('span', null, this.el('span', { className:'num' }, String.fromCharCode(65+d)+'.  '), q.options[origIdx])));
+    const needAge = i === 0 && !this.state.qAge;
+    const age = i === 0 ? this.el('div', { className:'age-card'+(needAge?' need':'')+(this.state.qAge?' done':'') },
+      this.el('div', { className:'age-top' },
+        this.el('span', { className:'age-step' }, this.state.qAge ? '✓' : '1'),
+        this.el('span', { className:'age-label' }, 'Choose your age range'),
+        this.el('span', { className:'age-req' }, this.state.qAge ? 'Set' : 'Required')),
+      this.el('p', { className:'age-hint' }, 'This tailors examples and reading level to you. We never share it.'),
+      this.el('select', { value:this.state.qAge, onChange:(e) => this.setState({ qAge:e.target.value }) }, this.AGES.map(([v, l]) => this.el('option', { key:v, value:v }, l)))) : null;
+    const canNext = sel != null && (i !== 0 || this.state.qAge);
+    const blockReason = sel == null ? 'Pick an answer to continue' : needAge ? 'Choose your age range above to continue' : null;
+    const last = i === total - 1;
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Questionnaire' }, this.el('div', { className:'onb wide' },
+      this.el('div', { className:'onb-card' },
+        this.el('div', { className:'q-prog' },
+          this.el('div', { className:'lab' }, this.el('span', null, `${q.cat} of 6`), this.el('span', null, 'Diagnostic')),
+          this.el('div', { className:'track' }, this.el('div', { className:'fill', style:{ width:`${Math.round((i+1)/total*100)}%` } }))),
+        this.el('div', { className:'kicker' }, 'Set your starting point'),
+        this.el('h1', { className:'q-title' }, q.title),
+        this.el('p', { className:'q-copy' }, q.copy),
+        age,
+        this.el('div', { className:'qopts' }, opts),
+        this.el('textarea', { className:'q-note', placeholder:'Optional: add nuance in your own words.', value:this.state.qNote[q.key]||'', onChange:(e) => this.setState(s => ({ qNote:{ ...s.qNote, [q.key]:e.target.value } })) }),
+        this.el('div', { className:'q-actions' },
+          this.el('button', { className:'btn btn-ghost', disabled:i===0, style:i===0?{ opacity:.4, cursor:'default' }:null, onClick:() => i>0 && this.setState({ qIndex:i-1 }) }, 'Back'),
+          this.el('div', { style:{ display:'flex', alignItems:'center', gap:'14px', flexWrap:'wrap', justifyContent:'flex-end' } },
+            blockReason ? this.el('span', { className:'block-reason' }, this.el('span', { style:{ width:14, height:14, display:'inline-flex' } }, this.icon('lock')), blockReason) : null,
+            this.el('button', { className:'btn btn-primary', disabled:!canNext, style:!canNext?{ opacity:.5, cursor:'not-allowed' }:null,
+              onClick:() => { if (!canNext) return; if (last) { const a = this.loadAccounts(); const ex = a[(this.state.email||'').toLowerCase()]; if (ex) { ex.onboarded = true; ex.ageRange = this.state.qAge; ex.answers = this.state.qAnswers; ex.level = this.qLevel() ? this.qLevel().label : ex.level; ex.completed = this.state.completed; ex.savedNotes = this.state.savedNotes; this.saveAccount(ex); } this.go('dashboard', { onboarded:true }); } else this.setState({ qIndex:i+1 }); } },
+              last ? 'Finish and open dashboard' : 'Next category'))))));
+  }
+
+  // ---------- dashboard ----------
+  dashboardView() {
+    const done = this.doneCount(); const pct = Math.round(done / 30 * 100); const lvl = this.qLevel();
+    const caps = ['Your canvas is waiting. Finish a lesson to uncover the first square.','The night is starting to lift.','The horizon is glowing now.','Almost there — the sun is breaking through.','Complete. A whole sunrise, earned one lesson at a time.'];
+    const cap = done === 0 ? caps[0] : caps[Math.min(4, Math.max(1, Math.round(done / 7.5)))];
+    const legend = this.el('div', { className:'legend' }, this.ARCS.map((a, k) => {
+      const c = Math.max(0, Math.min(5, done - k*5));
+      return this.el('div', { key:k, className:'legend-row' }, this.el('span', { className:'ld', style:{ background:a.color } }), this.el('span', null, a.name), this.el('span', { className:'lc' }, `${c}/5`));
+    }));
+    const arcBars = this.el('div', { className:'arc-bars' }, this.ARCS.map((a, k) => {
+      const c = Math.max(0, Math.min(5, done - k*5));
+      return this.el('div', { key:k, className:'arc-bar' },
+        this.el('div', { className:'top' }, this.el('span', null, a.name), this.el('span', { className:'c' }, `${c}/5`)),
+        this.el('div', { className:'track' }, this.el('div', { className:'fill', style:{ width:`${c/5*100}%`, background:a.color } })));
+    }));
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Dashboard' },
+      this.el('div', { className:'view-head' },
+        this.el('div', { className:'kicker' }, lvl ? `Your level · ${lvl.label}` : 'Welcome'),
+        this.el('h1', null, done === 0 ? "You're all set. Let's begin." : 'Welcome back.'),
+        this.el('p', null, 'Every lesson you finish uncovers one square of a sunrise. Six arcs, thirty lessons, one picture you paint by learning.')),
+      // mosaic centerpiece — on top
+      this.el('div', { className:'mos-hero' }, this.el('div', { className:'mos-hero-grid' },
+        this.el('div', null, this.mosaic(done, this.state.variant, this.state.justFilled)),
+        this.el('div', { className:'mos-side' },
+          this.el('div', { className:'kicker' }, 'Progress mosaic'),
+          this.el('h2', null, `${done} of 30 squares filled`),
+          this.el('p', { className:'mos-cap' }, cap),
+          this.el('div', { className:'mos-meter' },
+            this.el('div', { className:'track' }, this.el('div', { className:'fill', style:{ width:`${pct}%` } })),
+            this.el('div', { className:'lab' }, this.el('span', null, `${done}/30 lessons`), this.el('span', null, `${pct}%`))),
+          legend))),
+      this.el('div', { className:'stat-row' },
+        this.el('div', { className:'stat' }, this.el('strong', null, String(done)), this.el('span', null, 'squares revealed')),
+        this.el('div', { className:'stat' }, this.el('strong', null, `${pct}%`), this.el('span', null, 'course complete')),
+        this.el('div', { className:'stat' }, this.el('strong', null, lvl ? lvl.label : '—'), this.el('span', null, 'diagnostic level')),
+        this.el('button', { className:'stat', style:{ border:'var(--bw) solid var(--border)', cursor:'pointer', textAlign:'left', font:'inherit', color:'var(--text)' }, onClick:() => this.go('notes') }, this.el('strong', null, String(this.state.savedNotes.length)), this.el('span', null, 'saved notes'))),
+      this.el('div', { className:'dash-cols' },
+        this.el('div', { className:'panel continue-card' },
+          this.el('h2', null, 'Continue learning'),
+          this.el('div', { className:'lessonref' },
+            this.el('span', { className:'lnum', style:{ background:this.arc() } }, String(this.LESSON.num)),
+            this.el('div', null, this.el('div', { style:{ fontWeight:600 } }, this.LESSON.title), this.el('div', { className:'muted', style:{ fontSize:'13px' } }, `${this.LESSON.arc} · ~8 min`))),
+          this.el('button', { className:'btn btn-primary', onClick:() => this.go('lesson', { idx:0, sel:{}, passed:{} }) }, done===0?'Start Lesson 1':'Open next lesson', this.el('span', { style:{ width:16, height:16 } }, this.icon('arrow'))),
+          this.el('button', { className:'btn btn-ghost', onClick:() => this.go('lessons') }, 'Browse all 30 lessons')),
+        this.el('div', { className:'panel' },
+          this.el('h2', null, 'Your six arcs'),
+          this.el('p', { className:'sub' }, 'Each arc is five lessons. Fill an arc to complete a band of the picture.'),
+          arcBars)));
+  }
+
+  // ---------- lessons catalog ----------
+  lessonsView() {
+    const done = this.doneCount();
+    const secs = this.ARCS.map((a, ai) => {
+      const rows = [];
+      for (let n = ai*5 + 1; n <= ai*5 + 5; n++) {
+        const isDone = !!this.state.completed[n];
+        const isNext = !isDone && n === done + 1;
+        const playable = n === 1; // only Lesson 1 is wired in this demo
+        rows.push(this.el('button', { key:n, className:'ltile'+(isDone?' done':''),
+          onClick:() => playable ? this.go('lesson', { idx:0, sel:{}, passed:{} }) : null,
+          style:!playable?{ opacity:.66 }:null },
+          this.el('span', { className:'lnum', style:isDone?null:(isNext?{ background:'var(--accent-soft)', color:'var(--accent)' }:null) }, isDone?'✓':String(n)),
+          this.el('span', null,
+            this.el('div', { className:'lt-title' }, n===1 ? this.LESSON.title : `Lesson ${n}`),
+            this.el('div', { className:'lt-q' }, n===1 ? this.LESSON.coreQuestion : `${a.name} · part of the ${a.name.toLowerCase()} arc`)),
+          this.el('span', { className:'lt-act'+(isNext?' next':'') }, isDone?'Review':playable?(isNext?'Start':'Open'):'Soon')));
+      }
+      return this.el('section', { key:ai, className:'arc-sec' },
+        this.el('div', { className:'arc-head' },
+          this.el('span', { className:'arc-tag', style:{ color:a.color, background:`color-mix(in srgb, ${a.color} 14%, transparent)` } }, `Arc ${ai+1}`),
+          this.el('h2', null, a.name),
+          this.el('span', { className:'ac' }, `${Math.max(0, Math.min(5, done - ai*5))}/5 complete`)),
+        this.el('div', { className:'ltiles' }, rows));
+    });
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Lessons' },
+      this.el('div', { className:'view-head' }, this.el('div', { className:'kicker' }, '30 lessons · 6 arcs'), this.el('h1', null, 'All lessons'),
+        this.el('p', null, 'Work straight through, or jump to the arc you need. In this prototype, Lesson 1 is fully playable.')),
+      secs);
+  }
+
+  // ---------- lesson interaction renderers ----------
+  pass(i) { this.setState(s => ({ passed:{ ...s.passed, [i]:true }, pop:true })); setTimeout(() => this.setState({ pop:false }), 600); }
+  unlocked(i) { const s = this.LESSON.steps[i]; return !this.GATED[s.kind] || !!this.state.passed[i]; }
+  copyText(txt) {
+    try { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(txt).catch(() => this.fallbackCopy(txt)); return; } } catch (e) {}
+    this.fallbackCopy(txt);
+  }
+  fallbackCopy(txt) {
+    try { const ta = document.createElement('textarea'); ta.value = txt; ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); } catch (e) {}
+  }
+  saveNote(i, s) {
+    const vals = this.ix(i).vals || {};
+    const fields = s.fields.map(f => ({ label:f.label, value:(vals[f.key] || '').trim() })).filter(f => f.value);
+    const noteId = `${this.LESSON.num}-${i}`;
+    this.setState(st => {
+      const rest = st.savedNotes.filter(n => n.id !== noteId);
+      return { savedNotes: [{ id:noteId, lesson:this.LESSON.num, lessonTitle:this.LESSON.title, arc:this.LESSON.arc, arcIndex:this.LESSON.arcIndex, cardType:s.cardType || 'Note', fields, ts:'Just now' }, ...rest] };
+    });
+    this.setIx(i, { saved:true });
+  }
+
+  renderStep(s, i) {
+    const head = (extra) => [
+      this.el('span', { className:'kind' }, this.el('span', { className:'ic' }, this.icon(this.KIND[s.kind].icon)), this.KIND[s.kind].label),
+      this.el('h2', { className:'ctitle' }, s.title), ...extra ];
+    const turn = (txt) => this.el('div', { className:'turn' }, this.el('span', { className:'pulse' }), txt);
+
+    if (s.kind === 'coldOpen') return head([ this.el('p', { className:'scenario' }, s.scenario), this.el('p', { className:'lead-q' }, s.prompt) ]);
+    if (s.kind === 'reveal') return head([ this.el('p', { className:'body', style:{ fontSize:'18px' } }, s.body),
+      s.mistake ? this.el('div', { className:'callout bad' }, this.el('b', null, 'Common mistake: '), s.mistake) : null,
+      s.good ? this.el('div', { className:'callout good' }, this.el('b', null, 'Better: '), s.good) : null ]);
+    if (s.kind === 'watch') {
+      const ixs = this.ix(i);
+      const steps = [['bulb','You','set the goal','You decide what you actually want.'],['spark','AI','helps in the middle','AI does the heavy lifting — fast.'],['check','You','verify & finish','You check it, fix it, and make it yours.']];
+      const n = steps.length; const step = Math.min(ixs.wstep || 0, n-1); const last = step >= n-1;
+      const pad = 9; const pos = (k) => pad + (k/(n-1))*(100-2*pad);
+      const stations = steps.map((st,k) => this.el('div', { key:k, className:'av-st'+(k===step?' on':'')+(k<step?' did':''), style:{ left:pos(k)+'%', cursor:k===step+1?'pointer':'default' }, onClick:() => k===step+1 && this.setIx(i, { wstep:k }) },
+        this.el('div', { className:'bubble' }, this.el('span', { style:{ width:22, height:22 } }, this.icon(k<step?'check':st[0]))),
+        this.el('div', { className:'lab' }, st[1], this.el('small', null, st[2]))));
+      const cp = steps[step][3].split(' ');
+      const player = this.el('div', { className:'av' },
+        this.el('span', { className:'av-live' }, last ? 'You did the whole loop' : 'Your turn · tap through it'),
+        this.el('div', { className:'av-track' },
+          this.el('div', { className:'av-line' }), this.el('div', { className:'av-lfill', style:{ width:pos(step)+'%' } }), this.el('div', { className:'av-dot', style:{ left:pos(step)+'%' } }), stations),
+        this.el('div', { className:'av-caps' }, this.el('div', { className:'av-cap' }, this.el('b', null, cp[0]+' '), cp.slice(1).join(' '))),
+        this.el('div', { className:'av-prog' }, this.el('div', { className:'f', style:{ width:((step+1)/n*100)+'%' } })));
+      const wnav = this.el('div', { className:'av-nav' },
+        this.el('button', { className:'btn btn-ghost', disabled:step===0, style:step===0?{ opacity:.4, cursor:'default' }:null, onClick:() => this.setIx(i, { wstep:Math.max(0,step-1) }) }, 'Back'),
+        this.el('span', { className:'av-stepn' }, 'Step '+(step+1)+' of '+n),
+        this.el('span', { className:'grow' }),
+        last
+          ? this.el('button', { className:'btn btn-ghost', onClick:() => this.setIx(i, { wstep:0 }) }, this.el('span', { style:{ width:15, height:15 } }, this.icon('back')), 'Start over')
+          : this.el('button', { className:'btn btn-primary', onClick:() => this.setIx(i, { wstep:step+1 }) }, steps[step+1][1], this.el('span', { style:{ width:16, height:16 } }, this.icon('arrow'))));
+      return head([
+        player, wnav,
+        this.el('div', { className:'callout good' }, this.el('b', null, last?'Takeaway: ':'You\u2019re doing it: '), last ? s.takeaway : 'walk each step yourself — that\u2019s the loop you\u2019ll repeat with real AI.')
+      ]);
+    }
+    if (s.kind === 'tryLive') { const ixs = this.ix(i); const pasted = (ixs.pasted||'').trim().length>0; const reacted = (ixs.reacted||'').trim().length>0;
+      return head([
+        this.el('div', { className:'tl-step' }, this.el('span', { className:'tl-n' }, '1'),
+          this.el('div', { style:{ flex:1, minWidth:0 } },
+            this.el('div', { className:'tl-h' }, 'Copy this prompt and run it in any AI tool'),
+            this.el('div', { className:'promptbox' }, s.prompt),
+            this.el('button', { className:'btn btn-primary', style:{ fontSize:'14px', padding:'11px 18px' }, onClick:() => { this.copyText(s.prompt); this.setIx(i, { copied:true }); setTimeout(() => this.setIx(i, { copied:false }), 1600); } },
+              this.el('span', { style:{ width:15, height:15 } }, this.icon('copy')), ixs.copied?'Copied ✓':'Copy prompt'))),
+        this.el('div', { className:'tl-step' }, this.el('span', { className:'tl-n' }, '2'),
+          this.el('div', { style:{ flex:1, minWidth:0 } },
+            this.el('div', { className:'tl-h' }, 'Paste what the AI gave you back'),
+            this.el('textarea', { className:'tl-paste', placeholder:'Paste the AI\u2019s answer here…', value:ixs.pasted||'', onChange:(e) => this.setIx(i, { pasted:e.target.value }) }))),
+        pasted ? this.el('div', { className:'tl-step' }, this.el('span', { className:'tl-n'+(reacted?' ok':'') }, reacted?'✓':'3'),
+          this.el('div', { style:{ flex:1, minWidth:0 } },
+            this.el('div', { className:'tl-h' }, s.react),
+            this.el('textarea', { className:'tl-paste', placeholder:'In one line — which part, and why?', value:ixs.reacted||'', onChange:(e) => this.setIx(i, { reacted:e.target.value }) }),
+            reacted ? this.el('div', { className:'callout good', style:{ marginTop:'10px' } }, this.el('b', null, 'That\u2019s the loop: '), 'AI drafted, you decided what to trust. That\u2019s staying in charge.') : null)) : null
+      ]);
+    }
+    if (s.kind === 'classify') {
+      const ixs = this.ix(i), doneR = ixs.done || {}, wrong = ixs.wrong;
+      const rows = s.items.map((item, ri) => { const isDone = doneR[ri];
+        return this.el('div', { key:ri, className:'clf-row'+(isDone?' right':'')+(wrong===ri?' wrong':'') },
+          this.el('span', { className:'clf-text' }, item.text),
+          this.el('div', { className:'chips' }, s.buckets.map((b, bi) => this.el('button', { key:bi, disabled:!!isDone, className:'chip'+(isDone&&bi===item.answer?' right':'')+(isDone&&bi!==item.answer?' dim':''),
+            onClick:() => { if (doneR[ri]) return;
+              if (bi === item.answer) { const nd = { ...doneR, [ri]:true }; const all = Object.keys(nd).length === s.items.length; this.setIx(i, { done:nd, wrong:null, fb:all?'✓ '+s.reveal:null, fbok:all }); if (all) this.pass(i); }
+              else { this.setIx(i, { wrong:ri, fb:`Not quite — that belongs in "${s.buckets[item.answer]}." Try that row again.`, fbok:false }); setTimeout(() => this.setIx(i, { wrong:null }), 500); } } }, b))));
+      });
+      return head([ this.el('p', { className:'muted' }, s.prompt), turn('Sort every row to continue'), this.el('div', { className:'clf' }, rows), ixs.fb ? this.el('p', { className:'fb '+(ixs.fbok?'ok':'no') }, ixs.fb) : null ]);
+    }
+    if (s.kind === 'exitCheck') {
+      const ixs = this.ix(i), wrongSet = ixs.wrongSet || {}, won = ixs.won;
+      const opts = s.options.map((o, oi) => { const isWrong = wrongSet[oi], isRight = won && o.ok;
+        return this.el('button', { key:oi, disabled:won||isWrong, className:'opt'+(isRight?' right':'')+(isWrong?' wrong':''),
+          onClick:() => { if (won) return; if (o.ok) { this.setIx(i, { won:true, fb:'✓ '+o.feedback, fbok:true }); this.pass(i); } else { this.setIx(i, { wrongSet:{ ...wrongSet, [oi]:true }, fb:'✗ '+o.feedback, fbok:false }); } } },
+          this.el('span', { className:'mark' }, isRight ? this.icon('check') : null), o.text);
+      });
+      return head([ this.el('p', { className:'body' }, s.question), turn('Pick the right answer to continue'), this.el('div', { className:'opts' }, opts), ixs.fb ? this.el('p', { className:'fb '+(ixs.fbok?'ok':'no') }, ixs.fb) : null ]);
+    }
+    if (s.kind === 'workflowChain') {
+      const ixs = this.ix(i), picked = ixs.picked || [], wrong = ixs.wrong;
+      const remaining = s.correct.filter(c => !picked.includes(c)).sort();
+      const chips = remaining.map((c) => this.el('button', { key:c, className:'chip'+(wrong===c?' wrong':''),
+        onClick:() => { const expected = s.correct[picked.length];
+          if (c === expected) { const np = [...picked, c]; const all = np.length === s.correct.length; this.setIx(i, { picked:np, wrong:null, fb:all?'✓ '+s.note:`Good. Now pick step ${np.length+1}.`, fbok:true }); if (all) this.pass(i); }
+          else { this.setIx(i, { wrong:c, fb:`Not yet — before "${c}", you need "${expected}."`, fbok:false }); setTimeout(() => this.setIx(i, { wrong:null }), 500); } } }, c));
+      return head([ this.el('div', { className:'callout' }, this.el('b', null, 'Goal: '), s.goal), turn('Put the steps in the safest order'),
+        this.el('div', { className:'wf-pick' }, chips.length ? chips : this.el('span', { className:'muted' }, 'All placed ✓')),
+        picked.length ? this.el('ol', { className:'wf-list' }, picked.map((p, pi) => this.el('li', { key:pi }, p))) : null,
+        ixs.fb ? this.el('p', { className:'fb '+(ixs.fbok?'ok':'no') }, ixs.fb) : null ]);
+    }
+    if (s.kind === 'toolkitSave') { const ixs = this.ix(i), vals = ixs.vals || {};
+      return head([ this.el('div', { className:'callout' }, this.el('b', null, 'Optional — '), 'this is your notebook, not a test. Saving is never required to move on.'),
+        this.el('div', { className:'fields' }, s.fields.map((f) => this.el('label', { key:f.key, className:'field2' }, this.el('span', null, f.label),
+          this.el('input', { type:'text', placeholder:f.placeholder, value:vals[f.key]||'', onChange:(e) => this.setIx(i, { vals:{ ...vals, [f.key]:e.target.value } }) })))),
+        this.el('div', { style:{ marginTop:'16px', display:'flex', gap:'12px', alignItems:'center' } },
+          this.el('button', { className:'btn btn-primary', style:{ fontSize:'14px', padding:'11px 18px' }, onClick:() => this.saveNote(i, s) }, ixs.saved ? 'Update my note' : 'Save to my notes'),
+          ixs.saved ? this.el('span', { className:'fb ok', style:{ margin:0 } }, 'Saved to My Notes ✓') : null) ]);
+    }
+    return head([]);
+  }
+
+  lessonView() {
+    const L = this.LESSON, i = this.state.idx, s = L.steps[i], A = this.arc(), total = L.steps.length, last = i === total - 1, unlocked = this.unlocked(i);
+    const rail = this.el('div', { className:'rail' }, L.steps.map((st, k) => this.el('div', { key:k, className:'rstep'+(k===i?' active':'')+(k<i?' past':''), style:k===i?{ '--arc':A }:null },
+      this.el('span', { className:'ix' }, k<i?'✓':String(k+1)), this.el('span', null, this.KIND[st.kind].label))));
+    let hint = null;
+    if (this.GATED[s.kind] && !unlocked) { let cnt=''; const ixs = this.ix(i);
+      if (s.kind==='classify') cnt = `${Object.keys(ixs.done||{}).length} of ${s.items.length}`;
+      if (s.kind==='workflowChain') cnt = `${(ixs.picked||[]).length} of ${s.correct.length}`;
+      hint = this.el('div', { className:'lockhint' }, this.el('span', { style:{ width:14, height:14 } }, this.icon('lock')),
+        cnt ? this.el('span', null, 'Complete ', this.el('span', { className:'cnt' }, cnt), ' to unlock Next') : 'Finish this step to unlock Next');
+    }
+    const nextBtn = this.el('button', { className:'btn '+(unlocked?'btn-primary':'btn-locked')+(this.state.pop?' pop':''), disabled:!unlocked,
+      onClick:() => { if (!unlocked) return; if (last) { const completed = { ...this.state.completed, [L.num]:true }; this.saveProgressFor(completed); this.setState({ completed, justFilled:L.num-1 }); this.go(this.state.guest ? 'gate' : 'done'); } else this.setState({ idx:i+1 }); } },
+      last?'Finish lesson ✓':'Next', last?null:this.el('span', { style:{ width:16, height:16 } }, this.icon('arrow')));
+    const backBtn = this.el('button', { className:'btn btn-ghost', onClick:() => i>0 ? this.setState({ idx:i-1 }) : this.go(this.state.guest ? 'welcome' : 'lessons') },
+      this.el('span', { style:{ width:16, height:16 } }, this.icon('back')), i>0?'Back':(this.state.guest?'Exit':'All lessons'));
+    const card = this.el('div', { className:'card', style:{ '--arc':A } }, this.renderStep(s, i));
+    const notebook = this.el('aside', { className:'nb' }, this.el('h3', null, 'Lesson notebook'),
+      this.el('p', null, 'Margin notes, just for you. Autosaves — never required to move on.'),
+      this.el('textarea', { placeholder:'Write anything you want to remember…', value:this.state.note, onChange:(e) => this.setState({ note:e.target.value }) }),
+      this.state.note.trim() ? this.el('p', { className:'st' }, 'Autosaved to your notes') : null);
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Lesson' },
+      this.el('header', { className:'lh' },
+        this.el('div', { className:'lh-strip', style:{ background:A } }),
+        this.el('div', { className:'crumb' }, this.el('span', { style:{ color:A } }, L.arc), this.el('span', null, '·'), this.el('span', null, `Lesson ${L.num} of 30`), this.el('span', null, '·'), this.el('span', null, `Step ${i+1} of ${total}`)),
+        this.el('h1', { className:'lh-title' }, L.title),
+        this.el('p', { className:'coreq' }, L.coreQuestion), rail),
+      this.el('div', { className:'ws' },
+        this.el('div', null, card, this.el('div', { className:'nav' }, backBtn, this.el('div', { style:{ textAlign:'right' } }, nextBtn, hint))), notebook));
+  }
+
+  doneView() {
+    const done = this.doneCount();
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Lesson complete' }, this.el('div', { className:'done' },
+      this.el('div', { className:'kick kicker' }, 'Lesson complete'),
+      this.el('h1', null, done<=1?'First light.':'Another square filled.'),
+      this.el('p', { className:'sub' }, `You uncovered square ${done} of 30. Keep going and the whole sunrise comes into focus.`),
+      this.el('div', { className:'done-mos' }, this.mosaic(done, this.state.variant, this.state.justFilled)),
+      this.el('div', { className:'row' },
+        this.el('button', { className:'btn btn-primary', onClick:() => this.go('lessons') }, 'Next lesson', this.el('span', { style:{ width:16, height:16 } }, this.icon('arrow'))),
+        this.el('button', { className:'btn btn-ghost', onClick:() => this.go('dashboard') }, 'Back to dashboard'))));
+  }
+
+  // ---------- settings ----------
+  settingsView() {
+    const seg = (opts, cur, fn) => this.el('div', { className:'seg' }, opts.map(([v, l]) => this.el('button', { key:v, className:cur===v?'on':'', onClick:() => fn(v) }, l)));
+    const sw = (on, fn) => this.el('div', { className:'sw'+(on?' on':''), role:'switch', 'aria-checked':on, tabIndex:0, onClick:fn }, this.el('div', { className:'knob' }));
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'Settings' },
+      this.el('div', { className:'view-head' }, this.el('div', { className:'kicker' }, 'Your account & appearance'), this.el('h1', null, 'Settings'),
+        this.el('p', null, 'Everything here is saved on this device. Your sign-in email is only used to save your progress.')),
+      this.el('div', { className:'set-grid' },
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Account'), this.el('p', { className:'sub' }, 'Your email signs you in and saves progress across devices. We never sell it or send ads.'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Signed in as'), this.el('span', { className:'muted', style:{ fontWeight:600 } }, this.state.email || 'you@school.edu')),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Diagnostic level'), this.el('span', { className:'muted' }, this.qLevel() ? this.qLevel().label : 'Not taken yet')),
+          this.el('div', { style:{ display:'flex', gap:'10px', marginTop:'16px', flexWrap:'wrap' } },
+            this.el('button', { className:'btn btn-ghost', onClick:() => this.go('questionnaire', { qIndex:0, qAnswers:{}, qShuffle:this.genShuffles() }) }, 'Retake diagnostic'),
+            this.el('button', { className:'btn btn-ghost', onClick:() => this.go('account', { onboarded:false, completed:{}, savedNotes:[], qAnswers:{}, qIndex:0, qAge:'', email:'' }) }, 'Sign out'))),
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Color theme'), this.el('p', { className:'sub' }, 'Four full themes — light, dark, sepia, and high-contrast. (Today\'s V2 only ships light and dark.)'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Theme'), seg([['light','Light'],['dark','Dark'],['sepia','Sepia'],['contrast','Contrast']], this.state.theme, v => this.setState({ theme:v })))),
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Text size'), this.el('p', { className:'sub' }, 'Scales the reading area for younger or low-vision learners.'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Reading size'), seg([['normal','Normal'],['large','Large'],['xl','Extra large']], this.state.fontScale, v => this.setState({ fontScale:v }))),
+          this.el('p', { className:'body', style:{ margin:'14px 0 0' } }, 'The quick brown fox jumps. This sentence resizes as you change the setting.')),
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Progress mosaic style'), this.el('p', { className:'sub' }, 'How completed squares look. Arc fills each square with its arc colour; Reveal uncovers a sunrise; Hybrid does both.'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Fill style'), seg([['arc','Arc'],['reveal','Reveal'],['hybrid','Hybrid']], this.state.variant, v => this.setState({ variant:v }))),
+          this.mosaic(11, this.state.variant, -1, 'mini-mos')),
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Motion'), this.el('p', { className:'sub' }, 'Turn off the fill animations and pulses if movement is distracting.'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Reduce motion'), sw(this.state.reduceMotion, () => this.setState(s => ({ reduceMotion:!s.reduceMotion }))))),
+        this.el('div', { className:'set-card' }, this.el('h2', null, 'Your notes'), this.el('p', { className:'sub' }, 'Everything you save in a lesson lives in My Notes — your private toolkit.'),
+          this.el('div', { className:'set-row' }, this.el('span', null, 'Saved notes'), this.el('span', { className:'muted' }, `${this.state.savedNotes.length} saved`)),
+          this.el('button', { className:'btn btn-ghost', style:{ marginTop:'14px' }, onClick:() => this.go('notes') }, 'Open My Notes'))));
+  }
+
+  // ---------- saved notes ----------
+  notesView() {
+    const notes = this.state.savedNotes;
+    const draft = this.state.noteDraft || '';
+    const composer = this.el('div', { className:'note-composer' },
+      this.el('div', { className:'nc-h' }, this.el('span', { style:{ width:16, height:16 } }, this.icon('save')), 'Write your own note'),
+      this.el('textarea', { className:'nc-ta', placeholder:'Anything you want to remember — a question, an idea, a rule of your own…', value:draft, onChange:(e) => this.setState({ noteDraft:e.target.value }) }),
+      this.el('div', { style:{ display:'flex', justifyContent:'flex-end', marginTop:'10px' } },
+        this.el('button', { className:'btn btn-primary', disabled:!draft.trim(), style:!draft.trim()?{ opacity:.5, cursor:'not-allowed' }:null, onClick:() => this.addPersonalNote() }, 'Add to my notes')));
+    const cards = notes.length ? this.el('div', { className:'notes-grid' }, notes.map(n => this.noteCard(n)))
+      : this.el('div', { className:'notes-empty', style:{ margin:'28px auto' } },
+        this.el('div', { className:'ne-mark' }, this.el('span', { style:{ width:24, height:24 } }, this.icon('save'))),
+        this.el('h2', null, 'Nothing saved yet'),
+        this.el('p', null, 'Write a note above, or finish a lesson\u2019s “Save it” step — they all collect here, private to you.'));
+    return this.el('div', { className:'lp-canvas', 'data-screen-label':'My Notes' },
+      this.el('div', { className:'view-head' }, this.el('div', { className:'kicker' }, 'Your private toolkit'), this.el('h1', null, 'My Notes'),
+        this.el('p', null, notes.length ? `${notes.length} saved. Only you can see these.` : 'Write your own notes here, or save them from lessons.')),
+      composer, cards);
+  }
+  noteCard(n) {
+    const del = this.el('button', { className:'nc-del', onClick:() => this.delNote(n.id), 'aria-label':'Delete note' }, '×');
+    if (n.personal) return this.el('div', { key:n.id, className:'note-card', style:{ '--arc':'var(--accent)' } },
+      this.el('div', { className:'nc-top' }, this.el('span', { className:'nc-type' }, 'My note'), this.el('span', { className:'nc-ts' }, n.ts), del),
+      this.el('div', { className:'nc-field' }, this.el('div', { className:'v' }, n.fields[0].value)));
+    return this.el('div', { key:n.id, className:'note-card', style:{ '--arc':this.ARCS[n.arcIndex].color } },
+      this.el('div', { className:'nc-top' }, this.el('span', { className:'nc-type' }, n.cardType), this.el('span', { className:'nc-ts' }, n.ts)),
+      this.el('div', { className:'nc-lesson' }, `Lesson ${n.lesson} · ${n.lessonTitle}`),
+      n.fields.map((f, k) => this.el('div', { key:k, className:'nc-field' }, this.el('div', { className:'l' }, f.label), this.el('div', { className:'v' }, f.value))));
+  }
+  addPersonalNote() {
+    const v = (this.state.noteDraft || '').trim(); if (!v) return;
+    const note = { id:'me-'+Date.now(), personal:true, cardType:'My note', ts:'Just now', fields:[{ label:'Note', value:v }] };
+    const savedNotes = [note, ...this.state.savedNotes];
+    this.setState({ savedNotes, noteDraft:'' });
+    if (this.state.email) { const a = this.loadAccounts(); const ex = a[this.state.email.toLowerCase()]; if (ex) { ex.savedNotes = savedNotes; this.saveAccount(ex); } }
+  }
+  delNote(id) {
+    const savedNotes = this.state.savedNotes.filter(n => n.id !== id);
+    this.setState({ savedNotes });
+    if (this.state.email) { const a = this.loadAccounts(); const ex = a[this.state.email.toLowerCase()]; if (ex) { ex.savedNotes = savedNotes; this.saveAccount(ex); } }
+  }
+
+  // ---------- about ----------
+  aboutView() {
+    const P = (...c) => this.el('p', null, ...c);
+    const E = (t) => this.el('em', null, t);
+    const S = (t) => this.el('strong', null, t);
+    return this.el('div', { className:'lp-canvas page', 'data-screen-label':'About' },
+      this.el('div', { className:'page-hero' }, this.el('div', { className:'kicker' }, 'About'),
+        this.el('h1', null, 'Why this site exists.'),
+        this.el('p', { className:'lead' }, 'Built by a high school student for anyone in high school and up who wants to learn AI the right way.')),
+      this.el('div', { className:'prose' },
+        this.el('div', { className:'status-strip' }, this.el('span', null, S('Status: '), 'The interactive course is live with all 30 lessons. The original chapter pages remain as a free, no-account way to read the core ideas.')),
+        this.el('h2', null, 'The question that started it'),
+        P("I'm Aarav. A few months ago I asked my dad a question that's still with me: ", E('"If AI can write my essays, explain things better than my textbooks, and solve my problems, why am I in school?"')),
+        P("He didn't have a clean answer. He's been thinking about it ever since, and it sparked a series of talks he gave to my school's teachers and students. But I wanted to do something with the question too — something I could share with people my age and beyond."),
+        this.el('h2', null, 'Why a website'),
+        P("I looked at what's out there for people who want to learn AI. The big sites — Khan Academy, MIT, Code.org, Google's AI Essentials — are mostly written by adults for adults, then dumbed down. Most focus on what AI ", E('is'), ". Very few focus on what to ", E('do'), " with it: how to be a great partner with it, how to push back when it's wrong, how to actually build things."),
+        P("There's also a missing voice. I couldn't find a serious AI course written by a high schooler. So I built one."),
+        this.el('h2', null, 'Who this is for'),
+        P('Anyone who wants to learn how to actually work with AI. Specifically:'),
+        this.el('ul', null,
+          this.el('li', null, S('Students'), ' (9th grade through college) who use AI every week but feel like they\'re not really learning ', E('from'), ' it.'),
+          this.el('li', null, S('Adults'), ' (parents, teachers, professionals, anyone curious) who want a clear, honest overview without the hype.'),
+          this.el('li', null, S('Older learners'), ' who haven\'t gotten into AI yet and want a friendly on-ramp.')),
+        P("It's free. You don't need any technical background. If you can read a textbook and click a button, you can use this site."),
+        this.el('h2', null, 'The thesis'),
+        this.el('p', { className:'pull' }, 'AI takes some skills away and gives others in return. Writing essays from scratch matters less. Writing prompts matters more. Memorising facts matters less. Pattern recognition matters more.'),
+        P("The new skills aren't smaller. They're different. And almost no one is teaching them yet."),
+        this.el('h2', null, 'What I believe'),
+        this.el('ul', null,
+          this.el('li', null, S('AI is a partner skill, not a replacement skill. '), 'The people who get good at partnering with AI will outperform people who just use it.'),
+          this.el('li', null, S('Honesty over hype. '), "AI is incredible. It's also wrong sometimes. Both things are true."),
+          this.el('li', null, S('Productive struggle still matters. '), "Don't outsource the thinking you should be learning. Build the foundation, then scale it with AI."),
+          this.el('li', null, S('Peer voice matters. '), 'The best people to teach high schoolers about AI are high schoolers.')),
+        this.el('h2', null, 'How this site is built'),
+        P('The course was structured with help from AI tools. I wrote the brief, made the editorial decisions, and reviewed every page. AI helped me draft, refine, and tighten. That partnership ', E('is'), ' the skill this site is about, so it felt right to use it building the thing.'),
+        P('Your progress and settings stay in your own browser and account. We don\'t sell your data.'),
+        this.el('h2', null, 'Credits'),
+        P('This is a project of ', S('Aarav Shah'), '.'),
+        P('Special thanks to my dad, Shaleen, for the questions that started all this and for the source material in the education talks he gave in 2026.'),
+        this.el('hr', { className:'hr' }),
+        this.el('p', { className:'small' }, 'This redesign is the V2 interactive course. A real chatbot (bring-your-own-key) is also planned.')));
+  }
+
+  // ---------- projects ----------
+  projectsView() {
+    const P = (...c) => this.el('p', null, ...c);
+    const S = (t) => this.el('strong', null, t);
+    const stats = [['3.18 → 1.18','training loss (63% drop)'],['300','iterations'],['~4 min','total training time'],['1.44 GB','peak memory used'],['0.228%','of params trained (LoRA)'],['$0','cost']];
+    return this.el('div', { className:'lp-canvas page', 'data-screen-label':'Projects' },
+      this.el('div', { className:'page-hero' }, this.el('div', { className:'kicker' }, 'Projects'),
+        this.el('h1', null, 'Things built with AI as a partner.'),
+        this.el('p', { className:'lead' }, 'Real projects, real people, real walkthroughs. Seeded with the founder\'s project — the rest comes from learners like you.')),
+      this.el('div', { className:'prose' },
+        this.el('div', { className:'feature' },
+          this.el('div', { className:'tag' }, 'Featured project · by Aarav'),
+          this.el('h2', { style:{ margin:'8px 0 6px' } }, 'I built a small LLM on my MacBook Air.'),
+          this.el('p', { className:'pull', style:{ margin:'0 0 14px' } }, '15 years old. 1 laptop. ~4 minutes of training. $0.'),
+          P('The idea: instead of building a frontier model from scratch (which costs $200,000+ in compute), ', S('borrow'), " a model like Meta's free Llama 3.2 1B Instruct and teach it a new trick."),
+          this.el('h3', null, 'The recipe'),
+          this.el('ul', null,
+            this.el('li', null, S('Base model: '), 'Llama 3.2 1B Instruct, 4-bit quantized (free from Meta)'),
+            this.el('li', null, S('Dataset: '), '2,000 SQL examples from Hugging Face'),
+            this.el('li', null, S('Method: '), "LoRA fine-tuning — trained only 0.228% of the model's parameters"),
+            this.el('li', null, S('Hardware: '), 'MacBook Air M3, 16 GB RAM · ~4 minutes, 300 iterations')),
+          this.el('h3', null, 'The result'),
+          P('Before fine-tuning, "Show me all students in 10th grade" gave a chatty 72-token markdown response. After fine-tuning, the same prompt produced a clean 39-token SQL query, ready to paste into a database.'),
+          this.el('div', { className:'stat-grid2' }, stats.map(([n, l], k) => this.el('div', { key:k, className:'stat2' }, this.el('div', { className:'num' }, n), this.el('div', { className:'label' }, l)))),
+          this.el('h3', null, 'What I took away'),
+          this.el('ul', null,
+            this.el('li', null, "AI isn't magic. It's math, data, and a lot of training."),
+            this.el('li', null, "You don't need a $200K supercomputer to do real ML."),
+            this.el('li', null, 'If a 9th grader can build a real LLM specialist on a MacBook Air, so can you.'))),
+        this.el('h2', null, 'Submit your own project'),
+        P('Did you build something with AI as a partner? Send it in. We\'ll feature good work here so other learners can see what\'s possible.'),
+        this.el('h2', null, "What we're looking for"),
+        this.el('ul', null,
+          this.el('li', null, S('Real problems, not toy demos. '), 'Did your project actually solve something or teach you something?'),
+          this.el('li', null, S('An honest story. '), "What worked, what didn't, where AI was useful and where it wasn't."),
+          this.el('li', null, S('Beginner-friendly write-ups. '), 'Other learners should be able to copy your approach.'),
+          this.el('li', null, S('Anyone, any age. '), 'The gallery is open.'))));
+  }
+
+  // ---------- teaching ----------
+  teachingView() {
+    const P = (...c) => this.el('p', null, ...c);
+    const S = (t) => this.el('strong', null, t);
+    const tools = [['01','Learning AI','Best for course support, prompt coaching, quick quizzes, and private practice in the browser.'],['02','Hugging Face Chat','Compare open models and see that "AI" is not one single product.'],['03','LM Studio','For older students and adults who want to run models locally and understand privacy and model size.'],['04','Real-world data tools','Local or environmental datasets so AI work connects to evidence and place-based questions.']];
+    return this.el('div', { className:'lp-canvas page', 'data-screen-label':'Teaching AI' },
+      this.el('div', { className:'page-hero' }, this.el('div', { className:'kicker' }, 'For educators, parents & adult learners'),
+        this.el('h1', null, 'Teach AI as a practice, not a subject.'),
+        this.el('p', { className:'lead' }, 'AI literacy lands when people try it, break it, repair it, and talk about what changed. The point is not tool training. The point is judgment.')),
+      this.el('div', { className:'prose' },
+        this.el('div', { className:'tldr' }, this.el('h4', null, 'TL;DR'),
+          this.el('ul', null,
+            this.el('li', null, 'Start with a live AI failure, then improve it in front of the room.'),
+            this.el('li', null, 'Teach one durable model: context, role, examples, constraints.'),
+            this.el('li', null, 'Spend more time doing than explaining.'),
+            this.el('li', null, 'Name the learning line: when AI helps you grow, and when it short-circuits the work.'))),
+        this.el('h2', null, 'The 20-40-20 workshop shape'),
+        P('For classrooms, faculty workshops, and parent nights, a simple rhythm works: 20 minutes teaching, 40 minutes practicing, 20 minutes sharing. Anything more lecture-heavy makes AI feel abstract.'),
+        this.el('div', { className:'rhythm' },
+          this.el('div', { className:'blk' }, this.el('div', { className:'big' }, '20'), this.el('div', { className:'cap' }, 'teach')),
+          this.el('div', { className:'blk mid' }, this.el('div', { className:'big' }, '40'), this.el('div', { className:'cap' }, 'practice')),
+          this.el('div', { className:'blk' }, this.el('div', { className:'big' }, '20'), this.el('div', { className:'cap' }, 'share'))),
+        this.el('p', { className:'small' }, 'The learning happens in the iteration, not the explanation.'),
+        this.el('h2', null, 'Start with a failure'),
+        P('Give AI a vague prompt and let everyone watch it produce something generic. Then add context, role, examples, and constraints. The room sees the same tool become more useful because the human became more specific.'),
+        this.el('div', { className:'compare2' },
+          this.el('div', { className:'cmp bad' }, this.el('h4', null, 'Too abstract'), this.el('pre', null, 'Tell me about AI.'), this.el('p', null, 'Big topic, vague output, no clear use.')),
+          this.el('div', { className:'cmp good' }, this.el('h4', null, 'Teachable'), this.el('pre', null, 'Act as a patient tutor for a 9th grader.\nExplain why AI can be confidently wrong.\nUse one analogy and end with a question.'), this.el('p', null, 'Clear audience, job, style, and output shape.'))),
+        this.el('h2', null, 'Adults and students need different doors'),
+        this.el('div', { className:'compare2' },
+          this.el('div', { className:'cmp' }, this.el('h4', null, 'Adults'), this.el('p', null, 'Start with an existing workflow: email, meeting prep, research, lesson planning. They need to feel the time-back quickly, then you can talk about skill atrophy and verification.')),
+          this.el('div', { className:'cmp' }, this.el('h4', null, 'Students'), this.el('p', null, 'Start with curiosity and identity. Let them stress-test AI, find mistakes, compare answers, and build small things. Do not lead with "this makes homework easier."'))),
+        this.el('h2', null, 'The ethical core'),
+        P('The strongest rule is not "AI is allowed" or "AI is banned." The better question is: ', S('what part of this work is supposed to grow my mind?'), ' If AI helps with that, use it. If AI removes that part, pause.'),
+        this.el('div', { className:'callout-box' }, this.el('h4', null, 'Use this line'), this.el('p', null, 'AI should help you think better, not make it unnecessary to think.')),
+        this.el('h2', null, 'Sustainable AI learning tools'),
+        P('Use tools that match the learning goal instead of defaulting to the biggest model every time. For practice, smaller, local, or no-signup tools often teach more because learners can see the tradeoffs clearly.'),
+        this.el('div', { className:'ingrid' }, tools.map(([n, t, d], k) => this.el('div', { key:k, className:'ingr' }, this.el('div', { className:'num' }, n), this.el('h4', null, t), this.el('p', null, d)))),
+        this.el('div', { className:'callout-box good' }, this.el('h4', null, 'Good classroom test'), this.el('p', null, 'If students can explain what they did, what the AI contributed, what they checked, and what they still think themselves, the tool is supporting learning.'))));
+  }
+
+  main() {
+    let body;
+    switch (this.state.view) {
+      case 'welcome': body = this.welcomeView(); break;
+      case 'gate': body = this.gateView(); break;
+      case 'account': body = this.accountView(); break;
+      case 'questionnaire': body = this.questionnaireView(); break;
+      case 'lessons': body = this.lessonsView(); break;
+      case 'lesson': body = this.lessonView(); break;
+      case 'done': body = this.doneView(); break;
+      case 'settings': body = this.settingsView(); break;
+      case 'notes': body = this.notesView(); break;
+      case 'about': body = this.aboutView(); break;
+      case 'projects': body = this.projectsView(); break;
+      case 'teaching': body = this.teachingView(); break;
+      default: body = this.dashboardView();
+    }
+    return body;
+  }
+
+  renderVals() {
+    return { theme: this.state.theme, fs: this.state.fontScale, reduce: this.state.reduceMotion ? '1' : '0', nav: this.nav(), main: this.main() };
+  }
+}
+</script>
+</body>
+</html>
