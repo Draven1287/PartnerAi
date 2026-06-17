@@ -1,103 +1,69 @@
-# Learning AI — Design System (`design.md`)
+# Learning AI — Frontend Design System (`design.md`)
 
-**Status:** canonical source of truth for the Learning AI visual system.
-**Origin:** extracted verbatim from the Claude Design redesign prototype
-(`Learning AI V2 - Redesign.dc.html` / standalone) and `Brand Identity.dc.html`.
-If a value here and a value in code disagree, **this file wins.**
+**Product:** Learning AI — a free, interactive course that teaches people to use AI *without
+letting it think for them*.
+**Audience:** teens (13+), adults learning for themselves, and adults guiding a young person.
+**This doc:** the complete frontend spec — tokens, type, components, screens, interaction,
+state, content model, accessibility, voice. It describes the app **as built** in
+`Learning AI V2 - Redesign.dc.html`, and flags where the **proposed brand**
+(`Brand Identity.dc.html`) intends to evolve it.
 
-> **Governance:** no raw color / font / radius / shadow literals in components —
-> everything references a token or pattern defined here. New value → add it here first.
-> Migration status & steps live in [`DESIGN-MIGRATION-PLAN.md`](./DESIGN-MIGRATION-PLAN.md).
-
----
-
-## 0. Brand foundation
-
-**Essence:** *warm, human, a little academic, and quietly premium.* "Warm and grounded,
-never neon — everything else is paper and ink." Editorial serif + clean sans.
-
-**Tagline:** *Learn to use AI without letting it think for you.*
-
-**Voice & tone:**
-- **Clear over clever** — short words, real examples. If a sentence needs re-reading, cut it.
-- **Honest about AI, no hype** — "a confident answer can still be wrong."
-- **Warm, not corporate** — talk like a sharp friend, not a brand.
-- **You stay in charge** — every lesson points back to the learner's judgment, never the tool's.
-- **Lesson voice is student-first** (concrete, second-person, scene-based). Breadth for
-  adults/educators lives in framing pages (About/Teaching), not in lesson copy. Do not flatten.
+> **Governance:** no raw color / font / radius / shadow literals in components — read a token
+> or pattern defined here. New value → add it here first. Migration steps live in
+> [`DESIGN-MIGRATION-PLAN.md`](./DESIGN-MIGRATION-PLAN.md).
+>
+> **Source-of-truth note:** values below are extracted **verbatim from the `.dc.html` app**
+> (the authoritative build). The exported `…(standalone).html` is a slightly older snapshot
+> with a few different values (e.g. light `--bg:#f6f3ea` vs the app's `#faf9f5`) — when they
+> disagree, **the `.dc.html` app wins**, as recorded here.
 
 ---
 
-## 1. Typography
-
-| Role | Family | Weight |
-|---|---|---|
-| **Display / editorial** | `"Newsreader", Georgia, serif` | 500 |
-| **UI / body** | `"Plus Jakarta Sans", system-ui, sans-serif` | 400 / 500 / 600 / 700 |
-| **Mono** | `ui-monospace, "SF Mono", Menlo, monospace` | — |
-
-**Load in every `<head>`:**
-```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
-```
-
-### Type scale (observed values → named roles)
-| Role | Size | Family / weight | Use |
-|---|---|---|---|
-| Display | `clamp(30px, 5vw, 50px)` | Newsreader 500, `letter-spacing:-.02em` | Hero |
-| Page title (h1) | `26px` (up to 40px on marketing) | Newsreader 500 | Screen titles |
-| Section (h2) | `24px` | Newsreader 500 | Section heads |
-| Subsection (h3) | `20–22px` | Newsreader 500 | Card titles |
-| Lead | `17–18px` | Plus Jakarta 400 | Intros |
-| **Body (base)** | `15px` | Plus Jakarta 400, line-height ~1.55 | Default UI/body |
-| Body small | `13.5–14px` | Plus Jakarta 400/600 | Dense UI, chips |
-| Caption / meta | `12–13px` | Plus Jakarta 600 | Labels, hints |
-| Overline / micro | `10.5–11px` | Plus Jakarta 700, `text-transform:uppercase`, `letter-spacing:.1–.14em` | Kickers, tags |
-
-Headings use weight **500** (the serif carries personality, so it stays light).
-Buttons/labels **600**; overlines/brand **700**.
+## 1. Design principles
+1. **You stay in charge.** Every screen reinforces that the learner — not the AI — keeps the goal, method, and verification. The UI never automates away the thinking.
+2. **Editorial, not "tech."** Serif display + warm paper tones — a well-made book, not a dashboard. No neon, no gratuitous gradients.
+3. **Warm & human, quietly premium.** Friendly copy, generous spacing, soft shadows, restrained color.
+4. **Honest about AI.** Name limits plainly. Confidence is not proof.
+5. **Calm density.** One clear action per screen; progressive disclosure over option walls.
+6. **Accessible by default.** Four themes (incl. high-contrast), three font scales, reduced-motion, ≥44px targets.
 
 ---
 
-## 2. Semantic color tokens (15)
+## 2. Color
 
-The only color tokens components may use. Always semantic, never a raw value.
+CSS custom properties on the root, switched by `[data-theme="light|dark|sepia|contrast"]`.
+**Never hard-code hex** — read the token. All tokens exist in every theme.
 
-| Token | Purpose |
+### Token roles (15)
+| Token | Role |
 |---|---|
-| `--bw` | Base border width (`1px`; `2px` in high-contrast). |
-| `--bg` | Page background. |
-| `--surface` | Card / panel background. |
-| `--surface-2` | Inset/secondary surface (inputs, wells, chips). |
-| `--border` | Hairlines, dividers. |
-| `--text` | Primary text. |
-| `--text-dim` | Secondary text. |
-| `--text-faint` | Tertiary text, placeholders, overlines. |
-| `--accent` | Primary brand accent (links, primary buttons, active). |
-| `--accent-dim` | Hover/active accent. |
-| `--accent-soft` | Accent tint (selected bg, focus ring). |
-| `--good` | Success / correct. |
-| `--bad` | Error / incorrect. |
-| `--on-accent` | Text/icons on an `--accent` fill. |
-| `--shadow` | Shadow color. |
+| `--bg` | Page background |
+| `--surface` | Cards, raised panels |
+| `--surface-2` | Insets, inputs, secondary fills, chips |
+| `--border` | Hairlines, dividers (`--bw` wide) |
+| `--text` | Primary text |
+| `--text-dim` | Secondary text, body copy |
+| `--text-faint` | Tertiary — labels, captions, placeholders, overlines |
+| `--accent` | Primary action, active state, links |
+| `--accent-dim` | Accent hover/active |
+| `--accent-soft` | Accent tint backgrounds (selected, active tab, focus ring) |
+| `--good` | Success, correct, "safe" |
+| `--bad` | Error, warning, "verify first" |
+| `--on-accent` | Text/icon on an accent fill |
+| `--shadow` | Shadow color (theme-aware) |
+| `--bw` | Border width (`1px`; **`2px`** in contrast theme) |
 
----
+### As-built palette (authoritative — accent = indigo)
 
-## 3. Themes (4)
-
-Applied via `data-theme="light|dark|sepia|contrast"` on the root element. **Light is default.**
-
-### Light (default)
+**Light (default)**
 ```css
 --bw:1px;
---bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9;
+--bg:#faf9f5; --surface:#ffffff; --surface-2:#f0eee6; --border:#e7e3d8;
 --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573;
---accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.10);
---good:#1f8a5b; --bad:#c2414b; --on-accent:#fff; --shadow:rgba(40,33,20,.08);
+--accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.09);
+--good:#1f8a5b; --bad:#c2414b; --on-accent:#fff; --shadow:rgba(40,33,20,.07);
 ```
-### Dark
+**Dark**
 ```css
 --bw:1px;
 --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b;
@@ -105,15 +71,15 @@ Applied via `data-theme="light|dark|sepia|contrast"` on the root element. **Ligh
 --accent:#a6a4f2; --accent-dim:#bcbaf6; --accent-soft:rgba(166,164,242,.16);
 --good:#4cc38a; --bad:#f0808a; --on-accent:#16140f; --shadow:rgba(0,0,0,.45);
 ```
-### Sepia
+**Sepia**
 ```css
 --bw:1px;
---bg:#efe2c8; --surface:#f8efd8; --surface-2:#e6d6b6; --border:#d3c09a;
---text:#3f3320; --text-dim:#6e5d3e; --text-faint:#9a8861;
---accent:#8a5a23; --accent-dim:#6f4719; --accent-soft:rgba(138,90,35,.13);
---good:#5a7d3a; --bad:#b5462f; --on-accent:#fff; --shadow:rgba(80,55,20,.13);
+--bg:#e7d4ab; --surface:#f4e6c2; --surface-2:#dcc798; --border:#c9b07f;
+--text:#443318; --text-dim:#6c552c; --text-faint:#9a7f4f;
+--accent:#a85d16; --accent-dim:#864a10; --accent-soft:rgba(168,93,22,.15);
+--good:#5f7a2c; --bad:#b23f28; --on-accent:#fff; --shadow:rgba(95,62,18,.17);
 ```
-### High-contrast
+**High-contrast**
 ```css
 --bw:2px;
 --bg:#000; --surface:#0c0c0c; --surface-2:#1a1a1a; --border:#ffffff;
@@ -122,106 +88,144 @@ Applied via `data-theme="light|dark|sepia|contrast"` on the root element. **Ligh
 --good:#3ff08f; --bad:#ff7b85; --on-accent:#000; --shadow:rgba(0,0,0,.6);
 ```
 
+### Proposed brand direction — "Ink, Paper & a warm accent" *(not yet built)*
+The brand board moves the lead accent **indigo → warm amber/terracotta** to match the editorial identity. Proposed roles:
+- **Ink Black** `#14110D` (logo) · **Ink** `#1C1822` (text/dark UI)
+- **Amber** `#D79438` (accent) · **Terracotta** `#C25A3C` (warm secondary)
+- **Paper** `#F4ECDB` (bg) · **Card** `#FFFAF0` · **Sand** `#E3D8C2` (borders) · **Stone** `#5D5749` (dim text)
+- **Green** `#1F8A5B` (success) · **Clay** `#C2414B` (warning)
+
+> **Migration:** adopting this = change only the `--accent*` tokens (and optionally `--bg/--surface`
+> to the warmer paper values). Because everything reads tokens, the whole app re-skins. **Don't touch
+> component CSS.** Until then, indigo above is the live target.
+
 ---
 
-## 4. Arc identity colors (6)
+## 3. Typography
 
-For arc chips, the progress mosaic, and progress bars — **as accents only, never full surfaces.**
-Suggested tokens `--arc-1 … --arc-6` (theme-independent).
-
-| # | Arc | Color |
+| Family | Use | Weights |
 |---|---|---|
-| 1 | Orientation | `#4257c9` |
-| 2 | Understanding | `#0e8fa0` |
-| 3 | Conversation | `#7c52cf` |
-| 4 | Judgment & Safety | `#cf5340` |
-| 5 | Applying | `#d57e22` |
-| 6 | Building | `#2f9c6a` |
+| **Newsreader** (serif) | Display: H1s, lesson titles, core questions, pull quotes. `letter-spacing:-.015em`; italics for editorial asides. | 400 / 500 / 600 |
+| **Plus Jakarta Sans** (sans) | All UI: body, buttons, labels, nav, inputs. | 400 / 500 / 600 / 700 |
+| **Mono** | `ui-monospace, "SF Mono", Menlo, monospace` — code, prompts. | — |
 
----
+> The brand board references **Inter** as the sans; the app ships **Plus Jakarta Sans**. The
+> constant is the *role split* (editorial serif + clean sans); the exact sans is interchangeable.
 
-## 5. Spacing scale
+**Load in every `<head>`:**
+```html
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+```
 
-Observed rhythm (px): **2 · 6 · 8 · 10 · 12 · 14 · 16 · 18 · 20 · 22 · 24 · 28 · 30 · 32 · 34**.
-Common gaps: `6` (tight stacks), `8` (chips/buttons/grid), `12` (lists/bars), `24–34` (sections).
-Recommend tokenizing as `--sp-1:4 … --sp-8:32`.
-
----
-
-## 6. Radius scale
-
-| Token (suggested) | Value | Use |
+### Scale & rules
+| Role | Size | Family / weight |
 |---|---|---|
-| `--r-sm` | `8px` | small controls, tags |
-| `--r-md` | `11–12px` | inputs, buttons |
-| `--r-lg` | `16px` | compact cards |
-| `--r-xl` | `20–22px` | cards, mosaic hero |
-| `--r-pill` | `999px` | chips, segmented control |
-| circle | `50%` | dots, toggle knob, avatars |
+| H1 (page/onboarding) | `clamp(28px, 4.6vw, 40px)`, line-height ~1.05 | Newsreader 500 |
+| Lesson / section title | `24–26px` | Newsreader 500 |
+| Core question (lesson) | `16–18px`, italic, `--text-dim` | Newsreader italic |
+| Lead | `17–18px` | Plus Jakarta 400 |
+| **Body (base)** | `15–16px`, line-height 1.55–1.6, `--text-dim` | Plus Jakarta 400 |
+| Body small | `13.5–14px` | Plus Jakarta 400/600 |
+| Labels / captions | `12.5–13px`, weight 600 | Plus Jakarta |
+| Kicker / eyebrow / tag | `11px`, `letter-spacing:.14em`, uppercase, weight 700, `--text-faint` (tag = `--accent`) | Plus Jakarta |
+
+- Use `text-wrap: pretty` / `balance` on headings.
+- Font-scale via `data-fs="normal|large|xl"` on root scales the whole UI.
 
 ---
 
-## 7. Elevation (shadow scale)
+## 4. Spacing, radius, elevation
 
-All shadows use `var(--shadow)` for color (except accent glows).
-
-| Token (suggested) | Value | Use |
-|---|---|---|
-| `--sh-xs` | `0 1px 4px var(--shadow)` | subtle lift |
-| `--sh-sm` | `0 8px 22px var(--shadow)` | popovers, raised |
-| `--sh-md` | `0 16px 44px var(--shadow)` | cards |
-| `--sh-lg` | `0 18px 50px var(--shadow)` | hero cards, mosaic |
-| `--sh-xl` | `0 22px 60px var(--shadow)` | modals |
-| focus ring | `0 0 0 3px var(--accent-soft)` (6px for large) | keyboard focus, selected |
-| accent lift | `0 4px 14px var(--accent-soft)` | primary button hover |
-
----
-
-## 8. Motion
-
-| Kind | Duration | Notes |
-|---|---|---|
-| Micro (hover/press) | `.15s` | `transition: all .15s` on buttons/tabs/chips |
-| Standard (color/shadow) | `.2s` | `border-color .2s, background .2s` |
-| Toggle knob | `.18s` | `transform .18s` |
-| Progress fill | `.35–.5s ease` | `transition: width .35s ease` |
-
-**Easing vocabulary** (from `animations.jsx`): `easeOutCubic` (default out), `easeInOutCubic`
-(default in-out), `easeOutBack` (playful overshoot — unlock/tile pops), `easeOutExpo`,
-`easeOutElastic` (special moments), `easeInQuad` (exits).
-
-**Named keyframes:**
-- `tilein` — a mosaic tile completing (`scale(.7)→1.12→1`, saturate up). 
-- `unlockpop` — the "Next" button unlocking (`scale(.92)→1.07→1`).
-- `pulse` — attention ring using `var(--arc)` (`box-shadow 0→9px transparent`).
-- `shake` — invalid input.
-- `agepulse` — age-range field prompt.
-
-**Reduce motion:** `data-reduce="1"` on root disables animations/transitions.
+- **Container:** outer canvas `max-width ~1140px`, side padding 24px, bottom padding 80px.
+  Content columns cap at **560 / 600 / 680 / 880px** depending on screen.
+- **Spacing rhythm (px):** 2 · 6 · 8 · 10 · 12 · 14 · 16 · 18 · 20 · 22 · 24 · 28 · 30 · 32 · 34.
+  Common gaps: 6 (tight), 8 (chips/buttons/grid), 12 (lists/bars), 24–34 (sections). Always
+  flex/grid + `gap:`, never margin-based inline spacing.
+- **Radius:** inputs/buttons `11–12px` · compact cards `16px` · cards/mosaic `20–22px` ·
+  pills/tags `999px` · small tiles `8–9px` · circles `50%`.
+- **Elevation** (color always `var(--shadow)` unless an accent glow):
+  | Use | Value |
+  |---|---|
+  | subtle lift | `0 1px 4px var(--shadow)` |
+  | raised / popover | `0 8px 22px var(--shadow)` |
+  | card | `0 16px 44px var(--shadow)` (doc baseline `0 10px 30px`) |
+  | hero card / mosaic | `0 18px 50px var(--shadow)` |
+  | modal / onboarding | `0 22px 60px var(--shadow)` |
+  | focus ring | `0 0 0 3px var(--accent-soft)` (6px for large) |
+  | primary-button hover lift | `0 4px 14px var(--accent-soft)` |
+  No hard or multi-layer drop shadows.
+- **Borders:** always `var(--bw) solid var(--border)` so the contrast theme thickens them automatically.
 
 ---
 
-## 9. Responsive breakpoints
-Max-width breakpoints used: **560 · 600 · 680 · 800 · 880 px**. Recommend consolidating to two
-canonical stops — **`≤560px` (mobile)** and **`≤880px` (tablet/narrow)** — during the migration.
+## 5. Motion
+- Subtle, purposeful, **always disable-able** via reduce-motion (`data-reduce="1"` on root).
+- **Durations:** micro (hover/press) `.15s` · color/shadow `.2s` · toggle knob `.18s` · progress fill `.35–.5s ease`.
+- **Easing vocabulary** (`animations.jsx`): `easeOutCubic` (default out), `easeInOutCubic`,
+  `easeOutBack` (playful overshoot), `easeOutExpo`, `easeOutElastic` (special), `easeInQuad` (exits).
+- **Named keyframes:** `pop`/`unlockpop` (button unlock spring), `tilein` (mosaic tile completes),
+  `agepulse` (age card until answered), `pulse` (arc attention ring), `shake` (invalid input).
+- No autoplaying, looping, or attention-grabbing motion.
 
 ---
 
-## 10. Component primitives
+## 6. Responsive breakpoints
+Max-width stops in use: **560 · 600 · 680 · 800 · 880 px**. Recommend consolidating to two
+canonical stops during migration — **`≤560px` (mobile)** and **`≤880px` (tablet/narrow)**.
 
-All values below are from the prototype; they compose entirely from the tokens above.
+---
 
-### Buttons
+## 7. Arc system (content spine)
+
+**7 arcs**, sizes `[5,4,3,5,7,6,3]` → **33 lessons**. Arc color is used for chips, the mosaic,
+and progress bars **as an accent only — never a full surface**. Suggested tokens `--arc-1…--arc-7`.
+
+| # | Arc | Lessons | Color |
+|---|---|---|---|
+| 1 | Orientation | 5 | `#4257c9` |
+| 2 | Understanding | 4 | `#0e8fa0` |
+| 3 | Conversation & Prompting | 3 | `#7c52cf` |
+| 4 | Judgment & Safety | 5 | `#cf5340` |
+| 5 | Applying | 7 | `#d57e22` |
+| 6 | Building | 6 | `#2f9c6a` |
+| 7 | **Staying in Charge** | 3 | ⚠️ **no color defined** — assign during migration |
+
+> **Gap to close:** the redesign defines only **6 arc colors** but the content has **7 arcs**
+> (and `v2/v2.css` ships only 5 `--v2-*` arc vars). Pick a 7th arc color and standardize all
+> seven as `--arc-1…--arc-7`.
+
+---
+
+## 8. Component primitives
+
+All values from the app; everything composes from the tokens above.
+
+### Buttons (`.btn`)
 ```css
 .btn         { display:inline-flex; align-items:center; gap:8px; padding:13px 22px;
                border-radius:12px; font-size:15px; font-weight:600;
                border:var(--bw) solid transparent; transition:all .15s; cursor:pointer; }
-.btn-primary { background:var(--accent); color:var(--on-accent); }
-.btn-primary:hover { background:var(--accent-dim); }            /* + accent lift shadow */
+.btn-primary { background:var(--accent); color:var(--on-accent); }       /* one per view */
+.btn-primary:hover { background:var(--accent-dim); }                      /* + accent lift */
 .btn-ghost   { background:transparent; color:var(--text); border-color:var(--border); }
 .btn-ghost:hover { border-color:var(--text-dim); background:var(--surface); }
 .btn-locked  { background:var(--surface-2); color:var(--text-faint);
-               border:var(--bw) dashed var(--border); cursor:not-allowed; }  /* gated "Next" */
+               border:var(--bw) dashed var(--border); cursor:not-allowed; }  /* gated; .pop on unlock */
+```
+
+### Top nav (`.topnav`)
+Sticky, blurred, hairline-bottom. Left: **brand** (mark + "Learning **AI**"). Right: **tabs** +
+theme/scale controls + **Sign out**.
+- **Tab order:** Dashboard · Lessons · My Notes · About · Projects · Gallery · *For Adults*¹ · Teaching AI · **Settings** (Settings last).
+- ¹ *For Adults* appears only when the user's age range is **18+**.
+```css
+.tabs { display:flex; gap:2px; flex-wrap:wrap; }
+.tab  { border:0; background:transparent; color:var(--text-dim); font-size:14px; font-weight:600;
+        padding:8px 13px; border-radius:9px; transition:all .15s; }
+.tab:hover { color:var(--text); background:var(--surface-2); }
+.tab.on    { color:var(--accent); background:var(--accent-soft); }
 ```
 
 ### Cards
@@ -229,111 +233,170 @@ All values below are from the prototype; they compose entirely from the tokens a
 .card          { background:var(--surface); border:var(--bw) solid var(--border);
                  border-radius:20px; padding:30px 32px; box-shadow:0 18px 50px var(--shadow); }
 .card.compact  { padding:22px; border-radius:16px; }
+.onb-card      { border-radius:22px; box-shadow:0 22px 60px var(--shadow); max-width:600–720px; margin:auto; }
 ```
+Lesson step card carries `--arc` (the lesson's arc color) as a CSS var for accenting.
+Editorial content cards: `.bi-card`, `.toolcard`, `.proj`, `.infocard`. Tinted aside: `.callout-box(.good)`.
 
 ### Inputs / select / textarea
 ```css
 input, .field select, select, textarea {
   padding:12px 14px; border:var(--bw) solid var(--border); border-radius:11px;
   background:var(--surface-2); color:var(--text); font-size:15px; width:100%; }
-/* visible-affordance variant gets a stronger border + inset shadow: */
+/* forced-visible affordance so controls read on every theme: */
 textarea, select { border-color:color-mix(in srgb,var(--text-faint) 58%,var(--border));
   box-shadow:inset 0 1px 2px color-mix(in srgb,var(--text) 8%,transparent); }
 .field      { display:grid; gap:6px; }
-.field span { font-size:13px; font-weight:600; color:var(--text-dim); }   /* field label */
+.field span { font-size:13px; font-weight:600; color:var(--text-dim); }
+/* focus: accent border + 3px accent-soft glow. */
+.age-card   { the prominent age selector on Q1; pulses (agepulse) until answered; drives the adult gate. }
 ```
 
-### Chips (selectable)
+### Chips · segmented control · toggle
 ```css
 .chip { border:var(--bw) solid var(--border); background:var(--surface-2); color:var(--text);
         padding:9px 16px; border-radius:999px; font-size:13.5px; font-weight:600;
-        min-height:40px; display:inline-flex; align-items:center; justify-content:center;
-        transition:all .15s; cursor:pointer; }
+        min-height:40px; transition:all .15s; cursor:pointer; }
 .chip.selected { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); }
-```
-
-### Tabs / nav
-```css
-.tabs   { display:flex; gap:2px; flex-wrap:wrap; }
-.tab    { border:0; background:transparent; color:var(--text-dim); font-size:14px;
-          font-weight:600; padding:8px 13px; border-radius:9px; transition:all .15s; }
-.tab:hover { color:var(--text); background:var(--surface-2); }
-.tab.on    { color:var(--accent); background:var(--accent-soft); }
-.nav    { display:flex; justify-content:space-between; gap:12px; margin-top:24px; flex-wrap:wrap; }
-```
-
-### Segmented control / toggle
-```css
-.seg   { display:inline-flex; background:var(--surface-2); border:var(--bw) solid var(--border);
-         border-radius:999px; padding:3px; gap:2px; }
+.seg  { display:inline-flex; background:var(--surface-2); border:var(--bw) solid var(--border);
+        border-radius:999px; padding:3px; gap:2px; }              /* active = raised --surface chip */
 .switch .knob { width:21px; height:21px; border-radius:50%; background:#fff;
-         box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .18s; }  /* on: translateX(19px) */
+        box-shadow:0 1px 3px rgba(0,0,0,.3); transition:transform .18s; }  /* on: translateX(19px) */
 ```
 
-### Callout
+### Callout · labels · progress · dot
 ```css
 .callout { border:var(--bw) solid var(--border); border-left:3px solid var(--accent);
            background:var(--surface-2); border-radius:10px; padding:13px 16px;
            font-size:15px; line-height:1.55; }
+.kicker  { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--text-faint); font-weight:700; }
+.tag     { font-size:11px; letter-spacing:.1em;  text-transform:uppercase; color:var(--accent);     font-weight:700; }
+.fill    { height:100%; background:var(--accent); transition:width .35s ease; }   /* use --arc-N per arc */
+.dot     { width:20px; height:20px; border-radius:50%; border:2px solid var(--border);
+           display:grid; place-items:center; }                    /* selected → var(--accent) */
 ```
 
-### Labels — kicker / tag / overline
-```css
-.kicker { font-size:11px; letter-spacing:.14em; text-transform:uppercase;
-          color:var(--text-faint); font-weight:700; }
-.tag    { font-size:11px; letter-spacing:.1em;  text-transform:uppercase;
-          color:var(--accent); font-weight:700; }
-.ctrl > label { font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
-          color:var(--text-faint); font-weight:700; }
-```
-
-### Progress bars
-```css
-.arc-bars { display:grid; gap:12px; }
-.arc-bar .top { display:flex; justify-content:space-between; font-size:13.5px; font-weight:600; }
-.fill { height:100%; background:var(--accent); transition:width .35s ease; }  /* use --arc-N per arc */
-```
-
-### Selection dot (radio/checkbox)
-```css
-.dot { width:20px; height:20px; border-radius:50%; border:2px solid var(--border);
-       display:grid; place-items:center; }            /* selected → border/fill var(--accent) */
-```
-
-### Progress mosaic (centerpiece)
+### Progress mosaic (`.mos` / `.mtile`)
+6-column grid, one square tile per lesson. Completed tiles fill (arc color / reveal image /
+hybrid per the **mosaic style** setting); incomplete = neutral with a faint arc-tinted border.
+Hover scales; a newly-completed tile plays `tilein`.
 ```css
 .mos-hero { background:var(--surface); border:var(--bw) solid var(--border);
             border-radius:22px; padding:28px 30px; box-shadow:0 18px 50px var(--shadow); }
-.mos      { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }   /* 6×5 = 30 tiles */
-/* tile completes with @keyframes tilein; fills with its arc color (--arc-N). */
+.mos      { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
 ```
-Three fill styles (Settings → mosaic style): **Arc** (tile = arc color), **Reveal** (uncovers
-`v2/sunrise-progress.png`), **Hybrid**. Unfilled tiles: `--surface-2` with faint arc-tinted border.
+> A seamless **"sunrise wash"** alternative (one continuous gradient, no gaps) was prototyped and reverted — parked as a future direction.
 
 ### Brand mark
 ```css
-.brand       { display:flex; align-items:center; gap:10px; font-weight:700;
-               letter-spacing:-.01em; font-size:16px; }
-.brand .spark{ width:28px; height:28px; border-radius:9px; display:grid; place-items:center;
-               background:linear-gradient(150deg,#f4b66a,#d98a6a); color:#2b2350; }
+.brand        { display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:-.01em; font-size:16px; }
+.brand .spark { width:28px; height:28px; border-radius:9px; display:grid; place-items:center;
+                background:linear-gradient(150deg,#f4b66a,#d98a6a); color:#2b2350; }
 ```
-Logomark concept = a small **mosaic grid coming into focus** (the progress metaphor), not a sun glyph.
+Logomark concept = a small **mosaic grid coming into focus** (progress metaphor). **Final logo is TBD** (see §13).
+
+### Scroll rail (`.scrollrail` / `-thumb`)
+Custom vertical position indicator pinned right. Thumb height = viewport/page ratio; top = scroll %.
+Shows only when scrollable. Driven by a passive scroll listener writing styles directly (no re-render).
+
+### Icons
+One inline-SVG set via `this.icon(name)` — stroke/fill `currentColor`, sized by caller (13–18px).
+Names: `arrow, back, check, lock, msg, copy, server, shield, spark`, … **No emoji.**
 
 ---
 
-## 11. Accessibility
-- **Themes:** every token pair meets WCAG AA in all four themes; high-contrast (`--bw:2px`,
-  pure black/white) is the AAA fallback.
-- **Text size:** `data-fs="normal|large|xl"` on root scales type.
-- **Reduce motion:** `data-reduce="1"` disables animation.
-- **Hit targets** ≥ 44px (chips already set `min-height:40px` + padding); visible focus rings
-  (`0 0 0 3px var(--accent-soft)`) in every theme; keyboard operable on gated controls.
+## 9. Screens & flows
+
+- **Onboarding:** `welcome → gate → account → questionnaire → dashboard`. Editorial hero
+  ("Start Lesson 1 — free", "No account needed to try it… we never sell your data"). Guest mode
+  lets people try Lesson 1 before committing; device storage preserves their work.
+  Questionnaire = one question/screen + progress bar; **Q1 = age range** in a prominent `.age-card`
+  (pulses until answered) → produces a `level` (Foundation / Explorer / …) and drives the adult gate.
+- **Dashboard:** editorial header + **progress mosaic** + "continue where you left off" + arc overview.
+- **Lessons catalog:** grouped by arc; each lesson `.ltile` with number/✓/lock, title, core
+  question, action (Start / Open / Review / **Locked**). **Sequential gating** — a lesson opens only
+  after the previous completes; completed lessons stay open (`lessonUnlocked(n)`).
+- **Lesson player:** one step card at a time + progress crumb + Back/Next + persistent **notebook**
+  (`.nb` textarea, autosaved per lesson). Completing the exit check fills the mosaic tile + unlocks next.
+- **My Notes:** every saved **toolkit card** across lessons + freeform notebook text.
+- **Projects:** (1) creator info/proof project; (2) curated buildable projects + a 3-step submit
+  (finish lesson → build with your AI → ask for a reproducible summary → email it). Submissions →
+  privacy alias via **Open in Gmail** + mailto fallback, pre-filled.
+- **Gallery:** creator's project + (eventually) submitted learner projects.
+- **For Adults** (18+ only): *use it yourself* / *guide a young person* + grid of free AI tools (each links to sign-up; "not affiliated / free plans change" disclaimer).
+- **About / Teaching AI:** editorial long-form pages.
+- **Settings:** Account (+ account switcher when multiple on device), **Appearance** (theme),
+  **Text size**, **Motion** (reduce-motion, described in plain language).
 
 ---
 
-## 12. Do / Don't
-- ✅ `color:var(--text-dim)`  ❌ `color:#5d5749`
-- ✅ `background:var(--surface)`  ❌ `background:#fffdf8`
-- ✅ `.btn .btn-primary` for actions  ❌ a one-off styled `<button>`
-- ✅ arc color on a chip/bar/tile  ❌ arc color as a page/section background
-- ✅ add a value to this file first, then use the token  ❌ introduce a stray hex/size in a component
+## 10. Content model (lessons)
+
+Lessons load at runtime from `v2/lessons.js`, which sets `window.V2_LESSONS` (array) and
+`window.V2_ARCS`. The app polls for this on mount and re-renders when it lands.
+- **Lesson shape:** `{ id, num, arc, title, coreQuestion, blurb, steps:[…] }`.
+- **Step kinds** (each via `renderStep`; the prototype demonstrates a representative subset):
+  `coldOpen`, `reveal`, `compare`, `nextWord`, `classify`, `promptRepair`, `tryLive`, `verify`,
+  `workflowChain`, `evalTest`, `biasSpot`, `agentDesign`, `toolkitSave`, `exitCheck`.
+  Gated kinds (`classify`, `workflowChain`, `exitCheck`) must be passed before "Next" unlocks.
+
+> **Editing lessons:** change the per-lesson source and rebuild `v2/lessons.js` — don't hard-code
+> lesson content in the component. New step kind → add a matching branch in `renderStep`.
+
+---
+
+## 11. State & persistence
+Single DC logic class; one flat state object; navigation is `state.view`.
+- **Views:** `welcome | gate | account | questionnaire | dashboard | lessons | lesson | done | settings | about | projects | gallery | adults | teaching | notes`.
+- **Progress:** `completed{num→true}`, `curNum`, `nextLessonNum()`, `lessonUnlocked(n)`.
+- **Notes:** `lessonNotes{num→text}` (notebook) + `savedNotes[]` (toolkit cards).
+- **Prefs:** `theme`, `fontScale`, `reduceMotion`, mosaic `variant`.
+- **Auth:** `email/name`, `authMode`, `guest`, `qAge` (drives adult gate).
+- **Persistence:** device storage rehydrates on mount (notes, savedNotes, completed, draft) so
+  guest work survives reloads; signed-in accounts also persist progress. **Never clear storage you
+  didn't write.** Storage keys to preserve: `learningai-progress`, `learningai-toolkit`,
+  `learningai-settings`, `learningai-v2-assessment`, `learningai-v2-diagnostic-draft`.
+
+> **Backend:** syncs to the API in `BACKEND.md` (http-only cookie auth, `/api/progress`, `/api/notes`,
+> `/api/diagnostic`, admin console behind `/api/admin/login`). Until wired, runs fully client-side.
+
+---
+
+## 12. Accessibility
+- **Four themes** incl. true high-contrast (`#000/#fff`, `--bw:2px`).
+- **Three font scales** (`data-fs`) that resize the whole UI.
+- **Reduce-motion** (`data-reduce`), described in plain language in Settings.
+- Inputs have forced-visible borders + focus rings on every theme.
+- Targets ≥44px; switches use `role="switch"` + `aria-checked`.
+- Color is never the only signal (icon + text on locked/done/correct).
+- `data-screen-label` on major screens.
+
+---
+
+## 13. Voice & copy
+**warm · human · premium · academic · honest · clear.**
+- Clear over clever — short words, real examples; if a sentence needs rereading, cut it.
+- Honest about AI — name limits; a confident answer can still be wrong.
+- Warm, not corporate — say "you," contractions, sound like a sharp friend.
+- You stay in charge — every lesson points back to the learner's judgment.
+- Lesson voice is **student-first** (concrete, second-person, scene-based); breadth for adults lives in framing pages, not lesson copy.
+
+---
+
+## 14. Do / Don't
+**Do** — read color/spacing from tokens; support all four themes; Newsreader for display, the sans
+for UI; flex/grid + `gap`; soft single-token shadows; `var(--bw)` borders; one primary action per
+screen; gate lessons sequentially; keep content in `v2/lessons.js`.
+**Don't** — hard-code hex; add neon or stacked gradients; use emoji/decorative SVG as content; add
+filler sections/stats; break reduce-motion or shrink text below the scale floor; clear storage you didn't write.
+
+---
+
+## 15. Open / proposed
+- **Logo:** intentionally **TBD** — designed once palette/type/voice lock. The gold-"LA"-on-black mark is parked.
+- **Accent migration:** indigo → amber/terracotta brand (token-only change — see §2).
+- **7th arc color:** "Staying in Charge" needs a color; standardize `--arc-1…--arc-7` (see §7).
+- **Two snapshots:** `.dc.html` (authoritative, used here) vs `…(standalone).html` (older; e.g. light `--bg:#f6f3ea`). Keep building from the `.dc.html`.
+- **Seamless mosaic:** the sunrise-wash variant is a candidate to revisit; the Arc/Reveal/Hybrid setting may be retired for one unified look.
+
+*Files: `Learning AI V2 - Redesign.dc.html` (app) · `v2/lessons.js` (content) · `Brand Identity.dc.html` (brand draft) · `Backend Console.dc.html` + `BACKEND.md` (admin/backend).*
