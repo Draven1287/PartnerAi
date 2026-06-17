@@ -1,0 +1,54 @@
+# Coolify deploy for the re-done Learning AI backend (api.learningai4you.com).
+# Two services: a fresh Postgres + the Node/Express API.
+# schema.sql runs automatically the first time the database initializes.
+#
+# Required env (set in Coolify -> Environment Variables):
+#   POSTGRES_PASSWORD   - a long random string
+#   SESSION_SECRET      - a long random string
+# Optional (have sensible defaults):
+#   POSTGRES_DB (learningai), POSTGRES_USER (learningai), ALLOWED_ORIGINS
+
+services:
+  learning-ai-db-v2:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-learningai}
+      POSTGRES_USER: ${POSTGRES_USER:-learningai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - learning-ai-db-v2-data:/var/lib/postgresql/data
+      # Auto-creates the tables (users, diagnostics, progress, visits, notes, minutes)
+      # on first boot only, while the data volume is empty.
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  learning-ai-api-v2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 8787
+      DATABASE_URL: postgres://${POSTGRES_USER:-learningai}:${POSTGRES_PASSWORD}@learning-ai-db-v2:5432/${POSTGRES_DB:-learningai}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://learningai4you.com,https://www.learningai4you.com}
+    expose:
+      - "8787"
+    depends_on:
+      learning-ai-db-v2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/api/health').then(r=>r.json()).then(j=>process.exit(j.db==='connected'?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  learning-ai-db-v2-data:
