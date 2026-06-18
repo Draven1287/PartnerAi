@@ -462,7 +462,7 @@ class Component extends DCLogic {
     const subtabs = this.el('div',{className:'subtabs'}, this.QUESTIONS.map((qq,i)=> this.el('button',{key:i,className:this.state.qIndex===i?'on':'',onClick:()=>this.setState({qIndex:i})}, qq.cat)));
     const order = q.order || [0,1,2,3];
     const rows = order.map((ai,p)=>{
-      const txt = q.options[ai]; const pct = q.dist[ai]; const best = ai===3;
+      const txt = q.options[ai]; const pct = 0; const best = ai===3;
       return this.el('div',{key:p,className:'qopt-row'+(best?' best':'')},
         this.el('div',{className:'letter'}, String.fromCharCode(65+p)),
         this.el('div',{className:'body'},
@@ -471,20 +471,20 @@ class Component extends DCLogic {
     });
     const bestLetter = String.fromCharCode(65+order.indexOf(3));
     const weakLetter = String.fromCharCode(65+order.indexOf(0));
-    const bestPct = q.dist[3];
-    const weakPct = q.dist[0];
-    const bestOf = Math.round(bestPct / 100 * this.TOTAL);
+    const bestPct = 0;
+    const weakPct = 0;
+    const bestOf = 0;
     const summary = this.el('div',{className:'qsummary'},
       this.el('div',{className:'qs-cell best'},
         this.el('div',{className:'qs-l'}, this.ico('check',13), 'Best answer · '+bestLetter),
         this.el('div',{className:'qs-v'}, bestPct+'%'),
-        this.el('div',{className:'qs-s'}, `~${bestOf} of ${this.TOTAL} chose the strongest answer`)),
+        this.el('div',{className:'qs-s'}, (this.TOTAL ? `~${bestOf} of ${this.TOTAL} chose the strongest answer` : 'no responses yet'))),
       this.el('div',{className:'qs-cell weak'},
         this.el('div',{className:'qs-l'}, this.ico('alert',13), 'Weakest answer · '+weakLetter),
         this.el('div',{className:'qs-v'}, weakPct+'%'),
         this.el('div',{className:'qs-s'}, 'still hold the most basic view')));
     return this.el('div',{className:'panel'},
-      this.el('div',{className:'panel-h'}, this.el('h2',null,'Diagnostic questions'), this.el('span',{className:'meta'},'how 247 learners answered')),
+      this.el('div',{className:'panel-h'}, this.el('h2',null,'Diagnostic questions'), this.el('span',{className:'meta'}, this.TOTAL ? ('how '+this.TOTAL+' learners answered') : 'no responses yet')),
       subtabs,
       this.el('div',{className:'qbody'}, this.el('div',{className:'qt'}, q.cat+' — '+q.title), this.el('div',{className:'qopt-dist'}, rows),
         summary,
