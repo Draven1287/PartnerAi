@@ -948,7 +948,7 @@ class Component extends DCLogic {
   }
   renderDeletePanel() {
     const m = this.state.deleteMode; if (!m) return null;
-    const cancel = { className:'btn btn-ghost', onClick:() => this.setState({ deleteMode:null, deleteTarget:null }) };
+    const cancel = { className:'btn btn-ghost', onClick:() => this.setState({ deleteMode:null, deleteTarget:null, deleteError:null }) };
     if (m === 'select') {
       return this.el('div', { style:{ marginTop:'14px', padding:'14px 16px', border:'var(--bw) solid var(--border)', borderRadius:'12px', background:'var(--surface-2)' } },
         this.el('div', { style:{ fontWeight:700, fontSize:'13px', marginBottom:'8px' } }, 'Which account do you want to delete?'),
@@ -965,6 +965,7 @@ class Component extends DCLogic {
       this.el('p', { style:{ fontSize:'13px', lineHeight:'1.5', margin:'0 0 12px' } },
         isCur ? this.el('span', null, 'Permanently delete ', this.el('b', null, t), ' and all of its progress. This cannot be undone.')
               : this.el('span', null, 'Remove ', this.el('b', null, t), ' from this device. To delete it from the server, sign in as that account first.')),
+      this.state.deleteError ? this.el('p', { style:{ color:'var(--bad)', fontSize:'13px', fontWeight:600, margin:'0 0 10px' } }, this.state.deleteError) : null,
       this.el('div', { style:{ display:'flex', gap:'10px', flexWrap:'wrap' } },
         this.el('button', cancel, 'Cancel'),
         this.el('button', { className:'btn btn-primary', style:{ background:'var(--bad)', borderColor:'var(--bad)' }, onClick:() => this.deleteAccount(t) }, isCur ? 'Delete account' : 'Remove from device')));
@@ -972,12 +973,15 @@ class Component extends DCLogic {
   async deleteAccount(email) {
     const cur = (this.state.email || '').toLowerCase();
     const target = (email || cur).toLowerCase();
-    try { const a = this.loadAccounts(); delete a[target]; localStorage.setItem(this.STORE, JSON.stringify(a)); } catch (e) {}
     if (target === cur && !this.state.guest) {
-      try { const base = (window.LEARNING_AI_BACKEND_URL || 'https://api.learningai4you.com').replace(/\/$/, ''); await fetch(base + '/api/account/delete', { method:'POST', credentials:'include' }); } catch (e) {}
+      let ok = false;
+      try { const base = (window.LEARNING_AI_BACKEND_URL || 'https://api.learningai4you.com').replace(/\/$/, ''); const r = await fetch(base + '/api/account/delete', { method:'POST', credentials:'include' }); ok = r.ok; } catch (e) {}
+      if (!ok) return this.setState({ deleteMode:'confirm', deleteTarget:target, deleteError:'Could not delete your account right now. Please try again in a moment.' });
+      try { const a = this.loadAccounts(); delete a[target]; localStorage.setItem(this.STORE, JSON.stringify(a)); } catch (e) {}
       this.wipeDevice();
-      return this.go('welcome', { onboarded:false, guest:true, completed:{}, curNum:1, lessonNotes:{}, qAnswers:{}, qIndex:0, qAge:'', savedNotes:[], email:'', password:'', name:'', deleteMode:null, deleteTarget:null });
+      return this.go('welcome', { onboarded:false, guest:true, completed:{}, curNum:1, lessonNotes:{}, qAnswers:{}, qIndex:0, qAge:'', savedNotes:[], email:'', password:'', name:'', deleteMode:null, deleteTarget:null, deleteError:null });
     }
+    try { const a = this.loadAccounts(); delete a[target]; localStorage.setItem(this.STORE, JSON.stringify(a)); } catch (e) {}
     this.setState({ deleteMode:null, deleteTarget:null });
   }
   otherAccounts() {
@@ -1461,7 +1465,7 @@ class Component extends DCLogic {
           this.el('div', { style:{ display:'flex', gap:'10px', marginTop:'16px', flexWrap:'wrap' } },
             this.el('button', { className:'btn btn-ghost', onClick:() => this.go('questionnaire', { qIndex:0, qAnswers:{}, qShuffle:this.genShuffles() }) }, 'Retake diagnostic'),
             this.el('button', { className:'btn btn-ghost', onClick:() => { this.wipeDevice(); this.go('account', { onboarded:false, completed:{}, curNum:1, lessonNotes:{}, savedNotes:[], qAnswers:{}, qIndex:0, qAge:'', email:'' }); } }, 'Sign out'),
-            this.el('button', { className:'btn btn-ghost', style:{ color:'var(--bad)', borderColor:'var(--bad)' }, onClick:() => { const accts = this.savedAccounts(); this.setState({ deleteMode: accts.length > 1 ? 'select' : 'confirm', deleteTarget:(this.state.email || '').toLowerCase() }); } }, 'Delete account')),
+            this.el('button', { className:'btn btn-ghost', style:{ color:'var(--bad)', borderColor:'var(--bad)' }, onClick:() => { const accts = this.savedAccounts(); this.setState({ deleteMode: accts.length > 1 ? 'select' : 'confirm', deleteTarget:(this.state.email || '').toLowerCase(), deleteError:null }); } }, 'Delete account')),
           this.renderDeletePanel()),
         this.el('div', { className:'set-card' }, this.el('h2', null, 'Color theme'), this.el('p', { className:'sub' }, 'Four full themes — light, dark, sepia, and high-contrast. (Today\'s V2 only ships light and dark.)'),
           this.el('div', { className:'set-row' }, this.el('span', null, 'Theme'), seg([['light','Light'],['dark','Dark'],['sepia','Sepia'],['contrast','Contrast']], this.state.theme, v => this.setState({ theme:v })))),
