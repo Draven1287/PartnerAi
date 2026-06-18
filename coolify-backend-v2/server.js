@@ -165,6 +165,18 @@ app.post('/api/minutes', async (req, res) => {
   res.json({ ok: true });
 });
 
+// ---- delete account (self) — removes the signed-in user + all their data ----
+app.post('/api/account/delete', auth, async (req, res) => {
+  const uid = req.session.uid;
+  await pool.query('delete from notes where user_id=$1', [uid]);
+  await pool.query('delete from visits where user_id=$1', [uid]);
+  await pool.query('delete from diagnostics where user_id=$1', [uid]);
+  await pool.query('delete from progress where user_id=$1', [uid]);
+  await pool.query('delete from users where id=$1', [uid]);
+  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
+  res.json({ ok: true });
+});
+
 // ---- admin auth (gates the Backend Console; same session cookie, requires is_admin) ----
 app.post('/api/admin/login', async (req, res) => {
   const { email, password } = req.body || {};
