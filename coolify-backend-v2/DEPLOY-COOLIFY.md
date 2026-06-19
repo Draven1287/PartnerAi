@@ -25,6 +25,8 @@
 ```
 POSTGRES_PASSWORD=<long random string>
 SESSION_SECRET=<long random string>
+# admin allowlist — these emails auto-become Console admins (no SQL needed):
+ADMIN_EMAILS=aarav@shah.so
 # optional (defaults are fine):
 POSTGRES_DB=learningai
 POSTGRES_USER=learningai
@@ -50,21 +52,17 @@ Generate a secret with: `openssl rand -hex 32`
 - **Do not strip cookies** on `/api/*` (the session cookie must pass through).
 
 ## 6. Create the admin login
-> ⚠️ **Verbatim-backend limitation:** this server is shipped exactly as Claude Design built it
-> (`la backend v2`), which does **not** implement `POST /api/admin/login` / `/api/admin/logout`.
-> So the **Backend Console cannot authenticate against the API yet** (and the console UI is itself
-> still a demo). The **learner** endpoints — signup, login, me, progress, diagnostic, notes — work
-> fully; learner sign-in is unaffected. Enabling the admin Console requires adding those two routes
-> (a code change, pending the user's decision). The steps below apply once those routes exist.
+The admin routes (`POST /api/admin/login` + `/api/admin/overview`) are now implemented,
+and admin access is controlled by the **`ADMIN_EMAILS`** env var from step 2 — **no SQL needed.**
 
-The Backend Console requires an `is_admin` user.
-1. Sign up once (in the app, or `POST https://api.learningai4you.com/api/auth/signup`
-   with `{email, password, displayName}`).
-2. Promote that user — from a shell with `psql` access to the new DB:
-   ```bash
-   psql "$DATABASE_URL" -v email="you@example.com" -f make-admin.sql
-   ```
-   (or run the contents of `make-admin.sql` in Coolify's Postgres console.)
+1. Make sure `ADMIN_EMAILS` lists every admin's email (e.g. `ADMIN_EMAILS=aarav@shah.so`).
+2. That person signs up once in the app (or `POST /api/auth/signup`). On signup **or** the
+   next login, the server sees the email in `ADMIN_EMAILS` and flips `is_admin=true` automatically.
+3. Log into the Console at `https://learningai4you.com/admin` with that account — it loads the
+   real learner data via `/api/admin/overview`.
+
+To add/remove admins later: edit `ADMIN_EMAILS` and redeploy. (The old manual path still
+works if ever needed: run `make-admin.sql` against the DB.)
 
 ## 7. Verify it's live
 - API health: open `https://api.learningai4you.com/api/health`
