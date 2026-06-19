@@ -232,6 +232,20 @@ app.get('/api/admin/overview', auth, adminOnly, async (_req, res) => {
   res.json({ ok: true, total, activeWeek: active, levels, learners });
 });
 
+// ---- admin: delete any user by email (clean up test/unwanted accounts) ----
+app.post('/api/admin/delete-user', auth, adminOnly, async (req, res) => {
+  const email = String((req.body || {}).email || '').toLowerCase().trim();
+  if (!email) return res.status(400).json({ ok: false, error: 'missing_email' });
+  const u = (await pool.query('select id from users where email=$1', [email])).rows[0];
+  if (!u) return res.status(404).json({ ok: false, error: 'not_found' });
+  await pool.query('delete from notes where user_id=$1', [u.id]);
+  await pool.query('delete from visits where user_id=$1', [u.id]);
+  await pool.query('delete from diagnostics where user_id=$1', [u.id]);
+  await pool.query('delete from progress where user_id=$1', [u.id]);
+  await pool.query('delete from users where id=$1', [u.id]);
+  res.json({ ok: true, deleted: email });
+});
+
 const PORT = process.env.PORT || 8787;
 
 async function ensureSchema() {

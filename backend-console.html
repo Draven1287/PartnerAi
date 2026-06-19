@@ -199,6 +199,15 @@
   .login-inp::placeholder { color: var(--text-faint); }
   .login-btn { width: 100%; justify-content: center; font-size: 15px; padding: 13px; }
   .login-foot { font-size: 12px; color: var(--text-faint); line-height: 1.5; margin: 16px 0 0; }
+  /* delete-user controls + test-account flag */
+  .tbl th.act, .tbl td.act { text-align: right; white-space: nowrap; width: 1%; padding-right: 22px; }
+  .del-btn { font: inherit; font-size: 11.5px; font-weight: 700; color: #b4232e; background: transparent; border: 1px solid color-mix(in srgb, #b4232e 38%, var(--border)); border-radius: 7px; padding: 4px 11px; cursor: pointer; transition: background .12s, border-color .12s; }
+  .del-btn:hover { background: color-mix(in srgb, #b4232e 12%, transparent); border-color: #b4232e; }
+  .del-btn.lg { font-size: 13px; padding: 9px 15px; }
+  .test-row td { background: color-mix(in srgb, #6d28d9 8%, transparent); }
+  .test-row:hover td { background: color-mix(in srgb, #6d28d9 13%, transparent); }
+  .test-row .nm { color: #6d28d9; }
+  .test-tag { display: inline-block; margin-left: 7px; font-size: 9.5px; font-weight: 800; letter-spacing: .06em; color: #fff; background: #6d28d9; border-radius: 4px; padding: 1px 5px 0; vertical-align: middle; }
 </style>
 </helmet>
 <div class="bc" data-theme="{{ theme }}">
@@ -307,7 +316,15 @@ class Component extends DCLogic {
   // ---------- admin login gate ----------
   apiBase(){ return String(window.LEARNING_AI_BACKEND_URL||'https://api.learningai4you.com').replace(/\/$/,''); }
   async apiCall(path,opts){ opts=opts||{}; try{ const r=await fetch(this.apiBase()+path,{method:opts.method||'GET',headers:opts.body?{'content-type':'application/json'}:undefined,credentials:'include',body:opts.body?JSON.stringify(opts.body):undefined}); const d=await r.json().catch(()=>({})); return {ok:r.ok,status:r.status,...d}; }catch(e){ return {ok:false,error:'network_error'}; } }
-  async fetchOverview(){ const r=await this.apiCall('/api/admin/overview'); if(r&&r.ok){ this.TOTAL=r.total||0; this.ACTIVE=r.activeWeek||0; const lv={Foundation:0,Explorer:0,Builder:0}; (r.levels||[]).forEach(x=>{ if(x.level in lv) lv[x.level]=x.n; }); this.LEVELS=lv; this.LEARNERS=(r.learners||[]).map((u,i)=>({ id:i, name:u.display_name||'—', email:u.email||'', age:u.age_range||'—', level:u.level||'Foundation', score:u.score||0, lesson:u.current_lesson||1, visits:u.visits||0, days:u.active_days||0, last:u.last_seen?new Date(u.last_seen).toLocaleDateString():'—', cold:false, ans:[] })); this.setState({loaded:true}); } }
+  async fetchOverview(){ const r=await this.apiCall('/api/admin/overview'); if(r&&r.ok){ this.TOTAL=r.total||0; this.ACTIVE=r.activeWeek||0; const lv={Foundation:0,Explorer:0,Builder:0}; (r.levels||[]).forEach(x=>{ if(x.level in lv) lv[x.level]=x.n; }); this.LEVELS=lv; this.LEARNERS=(r.learners||[]).map((u,i)=>({ id:i, name:u.display_name||'—', email:u.email||'', age:u.age_range||'—', level:u.level||'Foundation', score:u.score||0, lesson:u.current_lesson||1, visits:u.visits||0, days:u.active_days||0, last:u.last_seen?new Date(u.last_seen).toLocaleDateString():'—', cold:false, ans:[], isTest:/@example\.com$/i.test(u.email||'') })); this.setState({loaded:true}); } }
+  async deleteUser(u,ev){
+    if(ev&&ev.stopPropagation) ev.stopPropagation();
+    if(!u||!u.email) return;
+    if(!window.confirm('Delete '+(u.name||u.email)+' ('+u.email+')?\n\nThis permanently removes the account and all of its data. This cannot be undone.')) return;
+    const r=await this.apiCall('/api/admin/delete-user',{method:'POST',body:{email:u.email}});
+    if(r&&r.ok){ this.setState({selected:null}); await this.fetchOverview(); }
+    else { window.alert('Could not delete this user: '+((r&&(r.error||r.status))||'unknown error')+'.\nIf this says 404, the backend needs a redeploy to pick up the delete-user route.'); }
+  }
   async doAdminLogin(){
     const e=(this.state.adminEmail||'').trim(), p=this.state.adminPw||'';
     if(!e || !p) return this.setState({authError:'Enter the admin email and password.'});
@@ -371,16 +388,17 @@ class Component extends DCLogic {
   }
   learnerRow(u){
     const sel = this.state.selected===u.id;
-    return this.el('tr',{key:u.id,className:sel?'sel':'',onClick:()=>this.setState({selected:u.id})},
-      this.el('td',null, this.el('div',{className:'who'}, this.el('span',{className:'ava',style:{background:this.LVL[u.level]}}, this.initials(u.name)),
-        this.el('div',null, this.el('div',{className:'nm'},u.name), this.el('div',{className:'em'},u.email)))),
+    return this.el('tr',{key:u.id,className:(sel?'sel':'')+(u.isTest?' test-row':''),onClick:()=>this.setState({selected:u.id})},
+      this.el('td',null, this.el('div',{className:'who'}, this.el('span',{className:'ava',style:{background:u.isTest?'#6d28d9':this.LVL[u.level]}}, this.initials(u.name)),
+        this.el('div',null, this.el('div',{className:'nm'},u.name, u.isTest?this.el('span',{className:'test-tag'},'TEST'):null), this.el('div',{className:'em'},u.email)))),
       this.el('td',null, this.el('span',{className:'lvl '+u.level}, u.level)),
       this.el('td',null, this.el('div',{className:'lprog'}, this.el('div',{className:'track'}, this.el('div',{className:'fill',style:{width:(u.lesson/30*100)+'%'}})), this.el('span',{className:'n'}, u.lesson+'/30'))),
       this.el('td',{className:'num'}, u.visits),
-      this.el('td',{className:'num seen'+(u.cold?' cold':'')}, u.last));
+      this.el('td',{className:'num seen'+(u.cold?' cold':'')}, u.last),
+      this.el('td',{className:'act'}, this.el('button',{className:'del-btn',title:'Delete this user',onClick:(e)=>this.deleteUser(u,e)},'Delete')));
   }
   learnerTable(list){
-    const head = this.el('thead',null, this.el('tr',null, this.el('th',null,'Learner'), this.el('th',null,'Diagnostic'), this.el('th',null,'Progress'), this.el('th',{className:'num'},'Visits'), this.el('th',{className:'num'},'Last seen')));
+    const head = this.el('thead',null, this.el('tr',null, this.el('th',null,'Learner'), this.el('th',null,'Diagnostic'), this.el('th',null,'Progress'), this.el('th',{className:'num'},'Visits'), this.el('th',{className:'num'},'Last seen'), this.el('th',{className:'act'},'')));
     const bodyRows = list.length ? this.el('tbody',null, list.map(u=>this.learnerRow(u))) : null;
     const table = this.el('div',{className:'tbl-scroll'}, this.el('table',{className:'tbl'}, head, bodyRows));
     return list.length ? table : this.el('div',{className:'empty'},'No learners match that search.');
@@ -389,9 +407,10 @@ class Component extends DCLogic {
     const u = this.LEARNERS.find(x=>x.id===this.state.selected) || this.LEARNERS[0];
     if(!u) return this.el('div',{className:'empty'},'No learners yet. Records appear here as people sign up.');
     const cells = [['Email',u.email,true],['Display name',u.name,false],['Age range',u.age,false],['Diagnostic level',u.level,false],['Score',u.score+' / 100',false],['Current lesson',u.lesson+' of 30',false],['Total visits',String(u.visits),false],['Active days',String(u.days),false],['Last seen',u.last,false]];
-    const h = this.el('div',{className:'panel-h'}, this.el('h2',null,u.name), this.el('span',{className:'meta'},'full learner record'));
+    const h = this.el('div',{className:'panel-h'}, this.el('h2',null,u.name, u.isTest?this.el('span',{className:'test-tag'},'TEST'):null), this.el('span',{className:'meta'},'full learner record'));
     const grid = this.el('div',{className:'detail-grid side'}, cells.map(([l,v,m],i)=> this.el('div',{key:i,className:'dcell'}, this.el('div',{className:'l'},l), this.el('div',{className:'v'+(m?' mono':'')},v))));
-    return this.el('div',null, h, grid);
+    const del = this.el('div',{style:{padding:'4px 22px 18px'}}, this.el('button',{className:'del-btn lg',onClick:(e)=>this.deleteUser(u,e)},'Delete this user'));
+    return this.el('div',null, h, grid, del);
   }
   learnersTab(){
     const search = this.el('div',{className:'search'}, this.el('span',{className:'ic'}, this.ico('search',16)),
