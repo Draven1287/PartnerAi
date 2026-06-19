@@ -229,7 +229,28 @@ app.get('/api/admin/overview', auth, adminOnly, async (_req, res) => {
     left join progress p on p.user_id=u.id
     left join lateral (select level,score from diagnostics dd where dd.user_id=u.id order by taken_at desc limit 1) d on true
     order by last_seen desc nulls last limit 100`)).rows;
-  res.json({ ok: true, total, activeWeek: active, levels, learners });
+  // age distribution
+  const ages = (await pool.query(
+    "select coalesce(nullif(age_range,''),'Unknown') label, count(*)::int n from users group by 1 order by n desc")).rows;
+  // visits per day, last 7 calendar days (always 7 buckets, oldest -> newest)
+  const visitsByDay = (await pool.query(`
+    with days as (select generate_series(date_trunc('day',now())-interval '6 days', date_trunc('day',now()), interval '1 day') d)
+    select to_char(d,'Dy') label,
+           (select count(*)::int from visits v where date_trunc('day',v.started_at)=days.d) n
+    from days order by d`)).rows;
+  // visits per week, last 8 weeks
+  const visitsByWeek = (await pool.query(`
+    with wks as (select generate_series(date_trunc('week',now())-interval '7 weeks', date_trunc('week',now()), interval '1 week') w)
+    select to_char(w,'Mon DD') label,
+           (select count(*)::int from visits v where date_trunc('week',v.started_at)=wks.w) n
+    from wks order by w`)).rows;
+  // how often learners come back: bucket by number of distinct active days
+  const returnBuckets = (await pool.query(`
+    with per as (select user_id, count(distinct date(started_at)) days from visits group by user_id)
+    select case when days<=1 then '1 day' when days<=3 then '2-3 days' when days<=7 then '4-7 days' else '8+ days' end bucket,
+           count(*)::int n
+    from per group by 1`)).rows;
+  res.json({ ok: true, total, activeWeek: active, levels, learners, ages, visitsByDay, visitsByWeek, returnBuckets });
 });
 
 // ---- admin: delete any user by email (clean up test/unwanted accounts) ----

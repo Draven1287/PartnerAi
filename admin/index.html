@@ -84,10 +84,13 @@
   .tbl tbody tr { cursor: pointer; transition: background .12s; }
   .tbl tbody tr:hover { background: var(--surface-2); }
   .tbl tbody tr.sel { background: var(--accent-soft); }
-  .who { display: flex; align-items: center; gap: 11px; }
+  .who { display: flex; align-items: center; gap: 11px; min-width: 0; }
+  .who > div { min-width: 0; flex: 1 1 auto; }
   .ava { width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 13px; }
-  .who .nm { font-weight: 600; color: var(--text); }
-  .who .em { font-size: 12px; color: var(--text-faint); font-family:"JetBrains Mono",monospace; }
+  .who .nm { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .who .em { font-size: 12px; color: var(--text-faint); font-family:"JetBrains Mono",monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* keep the Learner column from blowing out the table when an email is long */
+  .tbl thead th:first-child, .tbl tbody td:first-child { max-width: 260px; }
   .lvl { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
   .lvl.Foundation { color: var(--warn); background: var(--warn-soft); }
   .lvl.Explorer { color: var(--accent); background: var(--accent-soft); }
@@ -103,9 +106,9 @@
   /* learner detail */
   .detail-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; padding: 4px 22px 20px; }
   @media (max-width:600px){ .detail-grid { grid-template-columns: 1fr 1fr; } }
-  .dcell { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 12px; padding: 13px 15px; }
+  .dcell { background: var(--surface-2); border: var(--bw) solid var(--border); border-radius: 12px; padding: 13px 15px; min-width: 0; }
   .dcell .l { font-size: 11px; letter-spacing:.05em; text-transform: uppercase; color: var(--text-faint); font-weight: 700; }
-  .dcell .v { font-size: 15px; font-weight: 600; margin-top: 5px; }
+  .dcell .v { font-size: 15px; font-weight: 600; margin-top: 5px; overflow-wrap: anywhere; word-break: break-word; }
   .dcell .v.mono { font-family:"JetBrains Mono",monospace; font-size: 13px; }
   .learners-2col { display: grid; grid-template-columns: minmax(0,1fr) 358px; gap: 18px; align-items: start; }
   @media (max-width:900px){ .learners-2col { grid-template-columns: 1fr; } }
@@ -316,7 +319,7 @@ class Component extends DCLogic {
   // ---------- admin login gate ----------
   apiBase(){ return String(window.LEARNING_AI_BACKEND_URL||'https://api.learningai4you.com').replace(/\/$/,''); }
   async apiCall(path,opts){ opts=opts||{}; try{ const r=await fetch(this.apiBase()+path,{method:opts.method||'GET',headers:opts.body?{'content-type':'application/json'}:undefined,credentials:'include',body:opts.body?JSON.stringify(opts.body):undefined}); const d=await r.json().catch(()=>({})); return {ok:r.ok,status:r.status,...d}; }catch(e){ return {ok:false,error:'network_error'}; } }
-  async fetchOverview(){ const r=await this.apiCall('/api/admin/overview'); if(r&&r.ok){ this.TOTAL=r.total||0; this.ACTIVE=r.activeWeek||0; const lv={Foundation:0,Explorer:0,Builder:0}; (r.levels||[]).forEach(x=>{ if(x.level in lv) lv[x.level]=x.n; }); this.LEVELS=lv; this.LEARNERS=(r.learners||[]).map((u,i)=>({ id:i, name:u.display_name||'—', email:u.email||'', age:u.age_range||'—', level:u.level||'Foundation', score:u.score||0, lesson:u.current_lesson||1, visits:u.visits||0, days:u.active_days||0, last:u.last_seen?new Date(u.last_seen).toLocaleDateString():'—', cold:false, ans:[], isTest:/@example\.com$/i.test(u.email||'') })); this.setState({loaded:true}); } }
+  async fetchOverview(){ const r=await this.apiCall('/api/admin/overview'); if(r&&r.ok){ this.TOTAL=r.total||0; this.ACTIVE=r.activeWeek||0; const lv={Foundation:0,Explorer:0,Builder:0}; (r.levels||[]).forEach(x=>{ if(x.level in lv) lv[x.level]=x.n; }); this.LEVELS=lv; this.LEARNERS=(r.learners||[]).map((u,i)=>({ id:i, name:u.display_name||'—', email:u.email||'', age:u.age_range||'—', level:u.level||'Foundation', score:u.score||0, lesson:u.current_lesson||1, visits:u.visits||0, days:u.active_days||0, last:u.last_seen?new Date(u.last_seen).toLocaleDateString():'—', cold:false, ans:[], isTest:/@example\.com$/i.test(u.email||'') })); this.AGES=(r.ages||[]).map(a=>[a.label,a.n]); this.WEEKDAYS=(r.visitsByDay||[]).map(d=>[d.label,d.n]); this.WEEKS8=(r.visitsByWeek||[]).map(d=>[d.label,d.n]); const RC={'1 day':'#b4232e','2-3 days':'#d98324','4-7 days':'#3a3aa3','8+ days':'#2e7d4f'}; this.RETURN=['1 day','2-3 days','4-7 days','8+ days'].map(l=>{ const f=(r.returnBuckets||[]).find(b=>b.bucket===l); return [l,f?f.n:0,RC[l]]; }); this.setState({loaded:true}); } }
   async deleteUser(u,ev){
     if(ev&&ev.stopPropagation) ev.stopPropagation();
     if(!u||!u.email) return;
@@ -431,24 +434,32 @@ class Component extends DCLogic {
 
   // ---------- visits ----------
   visitsTab(){
-    const max = Math.max(...this.WEEKDAYS.map(d=>d[1]));
-    const cols = this.WEEKDAYS.map(([lab,v],i)=> this.el('div',{key:i,className:'col'},
+    const wd = this.WEEKDAYS||[], wk = this.WEEKS8||[];
+    const anyVisits = wd.some(d=>d[1]>0) || wk.some(d=>d[1]>0);
+    if (!anyVisits) return this.el('div',{className:'panel'},
+      this.el('div',{className:'panel-h'}, this.el('h2',null,'Visits this week'), this.el('span',{className:'meta'},'sessions per day')),
+      this.el('div',{className:'empty'},'No visits recorded yet. This fills in as learners open the app (each visit is logged once per session).'));
+    const max = Math.max(1, ...wd.map(d=>d[1]));
+    const cols = wd.map(([lab,v],i)=> this.el('div',{key:i,className:'col'},
       this.el('div',{className:'bv'},v), this.el('div',{className:'bar',style:{height:(v/max*150+8)+'px'}}), this.el('div',{className:'bx'},lab)));
-    const stats = [['\u2014','sessions this week'],['\u2014','avg days between visits'],['\u2014','returned within 7 days'],['\u2014','busiest day']];
+    const sessionsWeek = wd.reduce((a,b)=>a+b[1],0);
+    const busiest = wd.length ? wd.reduce((a,b)=>b[1]>a[1]?b:a)[0] : '\u2014';
+    const returned = (this.RETURN||[]).filter(r=>r[0]!=='1 day').reduce((a,b)=>a+b[1],0);
+    const stats = [[String(sessionsWeek),'sessions this week'],['\u2014','avg days between visits'],[String(returned),'returned within 7 days'],[busiest,'busiest day']];
     const weekly = this.el('div',{className:'panel'},
       this.el('div',{className:'panel-h'}, this.el('h2',null,'Visits this week'), this.el('span',{className:'meta'},'sessions per day')),
       this.el('div',{className:'spark'}, cols),
       this.el('div',{className:'vstats'}, stats.map(([n,l],i)=> this.el('div',{key:i,className:'vstat'}, this.el('div',{className:'n'},n), this.el('div',{className:'l'},l)))));
     // 8-week trend
-    const tmax = Math.max(...this.WEEKS8.map(d=>d[1]));
-    const tcols = this.WEEKS8.map(([lab,v],i)=> this.el('div',{key:i,className:'col'},
+    const tmax = Math.max(1, ...wk.map(d=>d[1]));
+    const tcols = wk.map(([lab,v],i)=> this.el('div',{key:i,className:'col'},
       this.el('div',{className:'bv'},v), this.el('div',{className:'bar',style:{height:(v/tmax*130+8)+'px',background:'color-mix(in srgb,var(--accent) '+(55+i*5)+'%, var(--surface-2))'}}), this.el('div',{className:'bx'},lab)));
     const trend = this.el('div',{className:'panel'},
       this.el('div',{className:'panel-h'}, this.el('h2',null,'Growth'), this.el('span',{className:'meta'},'weekly sessions, last 8 weeks')),
       this.el('div',{className:'spark',style:{height:'170px',padding:'18px 20px 8px'}}, tcols));
     // return frequency
-    const rtot = this.RETURN.reduce((a,b)=>a+b[1],0);
-    const rrows = this.RETURN.map(([lab,c,col],i)=>{
+    const rtot = (this.RETURN||[]).reduce((a,b)=>a+b[1],0) || 1;
+    const rrows = (this.RETURN||[]).map(([lab,c,col],i)=>{
       const pct = Math.round(c/rtot*100);
       return this.el('div',{key:i,className:'dist-row'},
         this.el('div',{className:'top'}, this.el('span',null,lab), this.el('span',{className:'c'}, c+' · '+pct+'%')),
