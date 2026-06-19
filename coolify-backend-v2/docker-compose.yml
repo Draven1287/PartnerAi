@@ -37,6 +37,7 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-learningai}:${POSTGRES_PASSWORD}@learning-ai-db-v2:5432/${POSTGRES_DB:-learningai}
       SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET is required}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://learningai4you.com,https://www.learningai4you.com}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
     expose:
       - "8787"
     depends_on:

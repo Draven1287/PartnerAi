@@ -24,6 +24,23 @@ const ORIGINS = (process.env.ALLOWED_ORIGINS ||
 ).split(',');
 const PROD = process.env.NODE_ENV === 'production';
 
+// ---- admin allowlist (set ADMIN_EMAILS="a@x.com,b@y.com" in Coolify env) ----
+// Any email listed here is auto-granted is_admin on signup/login — no SQL needed.
+// Add/remove admins by editing the env var and redeploying.
+const ADMIN_EMAILS = new Set(
+  (process.env.ADMIN_EMAILS || '')
+    .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean)
+);
+// If the user's email is in the allowlist but the DB flag isn't set yet, set it.
+// Mutates the passed-in row so setSession() mints an admin token immediately.
+async function syncAdmin(u) {
+  if (u && ADMIN_EMAILS.has(String(u.email || '').toLowerCase()) && !u.is_admin) {
+    await pool.query('update users set is_admin=true where id=$1', [u.id]);
+    u.is_admin = true;
+  }
+  return u;
+}
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -84,6 +101,7 @@ app.post('/api/auth/signup', async (req, res) => {
       'insert into users(email,password_hash,display_name) values($1,$2,$3) returning *',
       [email.toLowerCase().trim(), hash, displayName.trim()]);
     await pool.query('insert into progress(user_id) values($1) on conflict do nothing', [rows[0].id]);
+    await syncAdmin(rows[0]);
     setSession(res, rows[0]);
     res.json({ ok: true, user: pub(rows[0]) });
   } catch (e) {
@@ -98,6 +116,7 @@ app.post('/api/auth/login', async (req, res) => {
   const u = rows[0];
   if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
     return res.status(401).json({ ok: false, error: 'bad_credentials' });
+  await syncAdmin(u);
   setSession(res, u);
   res.json({ ok: true, user: pub(u) });
 });
@@ -184,6 +203,7 @@ app.post('/api/admin/login', async (req, res) => {
   const u = rows[0];
   if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
     return res.status(401).json({ ok: false, error: 'bad_credentials' });
+  await syncAdmin(u);   // allowlisted emails become admin here, even on first login
   if (!u.is_admin) return res.status(403).json({ ok: false, error: 'not_admin' });
   setSession(res, u);
   res.json({ ok: true, user: pub(u) });
