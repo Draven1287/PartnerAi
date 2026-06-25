@@ -42,6 +42,7 @@ async function syncAdmin(u) {
 }
 
 const app = express();
+app.set('trust proxy', true);   // behind Railway/Cloudflare proxy — trust X-Forwarded-* for req.hostname
 app.use(express.json());
 app.use(cookieParser());
 
@@ -58,13 +59,21 @@ app.options('*', cors());
 app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
 // ---- cookie helpers (cross-site requires SameSite=None + Secure) ----
-function setSession(res, user) {
+// Host-aware cookie domain: on *.learningai4you.com use the shared parent domain
+// (so api + apex/www share the cookie); on any other host (e.g. *.up.railway.app)
+// use a host-only cookie. Lets auth work on the Railway URLs and the real domain.
+function cookieDomain(req) {
+  const host = String((req && req.hostname) || '').toLowerCase();
+  return (host === 'learningai4you.com' || host.endsWith('.learningai4you.com'))
+    ? '.learningai4you.com' : undefined;
+}
+function setSession(req, res, user) {
   const token = jwt.sign({ uid: user.id, admin: user.is_admin }, SECRET, { expiresIn: '30d' });
   res.cookie('session', token, {
     httpOnly: true,
-    secure: PROD,                 // true in production (HTTPS via Cloudflare)
+    secure: PROD,                 // true in production (HTTPS)
     sameSite: PROD ? 'none' : 'lax',
-    domain: PROD ? '.learningai4you.com' : undefined,
+    domain: PROD ? cookieDomain(req) : undefined,
     maxAge: 1000 * 60 * 60 * 24 * 30,
   });
 }
@@ -102,7 +111,7 @@ app.post('/api/auth/signup', async (req, res) => {
       [email.toLowerCase().trim(), hash, displayName.trim()]);
     await pool.query('insert into progress(user_id) values($1) on conflict do nothing', [rows[0].id]);
     await syncAdmin(rows[0]);
-    setSession(res, rows[0]);
+    setSession(req, res, rows[0]);
     res.json({ ok: true, user: pub(rows[0]) });
   } catch (e) {
     if (e.code === '23505') return res.status(409).json({ ok: false, error: 'email_taken' });
@@ -117,12 +126,12 @@ app.post('/api/auth/login', async (req, res) => {
   if (!u || !(await bcrypt.compare(password || '', u.password_hash)))
     return res.status(401).json({ ok: false, error: 'bad_credentials' });
   await syncAdmin(u);
-  setSession(res, u);
+  setSession(req, res, u);
   res.json({ ok: true, user: pub(u) });
 });
 
-app.post('/api/auth/logout', (_req, res) => {
-  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('session', { domain: PROD ? cookieDomain(req) : undefined });
   res.json({ ok: true });
 });
 
@@ -192,7 +201,7 @@ app.post('/api/account/delete', auth, async (req, res) => {
   await pool.query('delete from diagnostics where user_id=$1', [uid]);
   await pool.query('delete from progress where user_id=$1', [uid]);
   await pool.query('delete from users where id=$1', [uid]);
-  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
+  res.clearCookie('session', { domain: PROD ? cookieDomain(req) : undefined });
   res.json({ ok: true });
 });
 
@@ -205,11 +214,11 @@ app.post('/api/admin/login', async (req, res) => {
     return res.status(401).json({ ok: false, error: 'bad_credentials' });
   await syncAdmin(u);   // allowlisted emails become admin here, even on first login
   if (!u.is_admin) return res.status(403).json({ ok: false, error: 'not_admin' });
-  setSession(res, u);
+  setSession(req, res, u);
   res.json({ ok: true, user: pub(u) });
 });
-app.post('/api/admin/logout', (_req, res) => {
-  res.clearCookie('session', { domain: PROD ? '.learningai4you.com' : undefined });
+app.post('/api/admin/logout', (req, res) => {
+  res.clearCookie('session', { domain: PROD ? cookieDomain(req) : undefined });
   res.json({ ok: true });
 });
 
