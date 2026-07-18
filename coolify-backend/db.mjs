@@ -5,8 +5,9 @@ import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
-const MIGRATION_VERSION = 5;
-const CONTENT_VERSION = 'v2-2026-06-01';
+const MIGRATION_VERSION = 6;
+const CONTENT_VERSION = 'v2-2026-07-17';
+const FREE_LESSON_NUMS = [1, 7, 11, 16, 21, 26, 31, 36, 41, 46];
 
 const LESSONS = [
   ['chapter-1', 1, 'Orientation', 'Why AI matters - and why you stay in charge'],
@@ -183,6 +184,7 @@ export function createDb(options = {}) {
     if (version < 3) await migrateV3();
     if (version < 4) await migrateV4();
     if (version < 5) await migrateV5();
+    if (version < 6) await migrateV6();
     await seedLessons();
     await seedAdmin();
     await importLegacyJsonStore();
@@ -203,6 +205,17 @@ export function createDb(options = {}) {
         last_active_at timestamptz,
         deleted_at timestamptz
       );
+
+      -- The first Railway test backend created a smaller users table before
+      -- schema_migrations existed. Repair that table in place so existing test
+      -- accounts are preserved and the versioned schema can take over.
+      ALTER TABLE users
+        ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'learner',
+        ADD COLUMN IF NOT EXISTS disabled boolean NOT NULL DEFAULT false,
+        ADD COLUMN IF NOT EXISTS email_verified_at timestamptz,
+        ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now(),
+        ADD COLUMN IF NOT EXISTS last_active_at timestamptz,
+        ADD COLUMN IF NOT EXISTS deleted_at timestamptz;
 
       CREATE TABLE IF NOT EXISTS user_profiles (
         user_id uuid PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
@@ -573,6 +586,67 @@ export function createDb(options = {}) {
     await query('INSERT INTO schema_migrations(version) VALUES (5) ON CONFLICT DO NOTHING');
   }
 
+  async function migrateV6() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS access_products (
+        id text PRIMARY KEY,
+        title text NOT NULL,
+        description text NOT NULL DEFAULT '',
+        billing_mode text NOT NULL CHECK (billing_mode IN ('free', 'one_time', 'subscription')),
+        status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'retired')),
+        metadata_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS user_entitlements (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        product_id text NOT NULL REFERENCES access_products(id),
+        grant_type text NOT NULL CHECK (grant_type IN ('purchase', 'admin', 'legacy', 'scholarship', 'subscription')),
+        status text NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'expired', 'refunded', 'revoked')),
+        provider text,
+        external_customer_id text,
+        external_reference text,
+        starts_at timestamptz NOT NULL DEFAULT now(),
+        ends_at timestamptz,
+        metadata_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        created_at timestamptz NOT NULL DEFAULT now(),
+        updated_at timestamptz NOT NULL DEFAULT now(),
+        UNIQUE (user_id, product_id, external_reference)
+      );
+
+      CREATE TABLE IF NOT EXISTS payment_events (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        provider text NOT NULL,
+        provider_event_id text NOT NULL,
+        event_type text NOT NULL,
+        status text NOT NULL DEFAULT 'received' CHECK (status IN ('received', 'processed', 'ignored', 'failed')),
+        payload_json jsonb NOT NULL DEFAULT '{}'::jsonb,
+        error_text text,
+        received_at timestamptz NOT NULL DEFAULT now(),
+        processed_at timestamptz,
+        UNIQUE (provider, provider_event_id)
+      );
+
+      CREATE INDEX IF NOT EXISTS user_entitlements_active_idx
+        ON user_entitlements(user_id, product_id, status, starts_at, ends_at);
+      CREATE INDEX IF NOT EXISTS payment_events_status_idx
+        ON payment_events(status, received_at);
+    `);
+    await query(`INSERT INTO access_products(id, title, description, billing_mode, status, metadata_json)
+      VALUES
+        ('core-50', 'Core 50', 'Permanent access to all 50 authored lessons, corrections, accessibility improvements, and learner-owned records.', 'one_time', 'draft', '{"permanent":true}'::jsonb),
+        ('continuum', 'Continuum', 'Optional recurring value only when reviewed updates, new scenarios, coached practice, or team pathways can be sustained.', 'subscription', 'draft', '{"removesCoreOnCancel":false}'::jsonb)
+      ON CONFLICT (id) DO UPDATE SET
+        title = EXCLUDED.title,
+        description = EXCLUDED.description,
+        billing_mode = EXCLUDED.billing_mode,
+        metadata_json = EXCLUDED.metadata_json,
+        updated_at = now()`);
+    await query('INSERT INTO schema_migrations(version) VALUES (6) ON CONFLICT DO NOTHING');
+  }
+
   async function seedLessons() {
     const lessons = loadStaticLessons();
     await query(`INSERT INTO curriculum_tracks(id, title, description, sort_order, status)
@@ -674,7 +748,7 @@ export function createDb(options = {}) {
             lesson.id,
             index,
             String(step.kind || 'reveal'),
-            ['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain'].includes(step.kind),
+            ['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'tryLive', 'verify'].includes(step.kind),
             CONTENT_VERSION,
             `${lesson.id}-step-${index + 1}`,
             String(step.title || ''),
@@ -798,6 +872,20 @@ export function createDb(options = {}) {
         ]);
       }
       return rowUser(result.rows[0]);
+    });
+  }
+
+  async function deleteUserAccount(userId) {
+    return transaction(async tx => {
+      const current = await tx('SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL FOR UPDATE', [userId]);
+      if (!current.rows[0]) return false;
+      // These two tables intentionally retain operational history when an
+      // admin disables an account, so remove their learner-linked rows before
+      // the hard delete. All other learner tables cascade from users.
+      await tx('DELETE FROM learning_minutes WHERE user_id = $1', [userId]);
+      await tx('DELETE FROM audit_events WHERE target_user_id = $1', [userId]);
+      await tx('DELETE FROM users WHERE id = $1', [userId]);
+      return true;
     });
   }
 
@@ -1300,6 +1388,52 @@ export function createDb(options = {}) {
     return { version, lessonCount: result.rowCount };
   }
 
+  async function accessForUser(userId) {
+    const [entitlements, lessonRows] = await Promise.all([
+      query(`SELECT ue.product_id, ue.grant_type, ue.status, ue.starts_at, ue.ends_at,
+          ue.provider, ue.external_reference, ap.title, ap.billing_mode
+        FROM user_entitlements ue
+        JOIN access_products ap ON ap.id = ue.product_id
+        WHERE ue.user_id = $1
+          AND ue.status = 'active'
+          AND ue.starts_at <= now()
+          AND (ue.ends_at IS NULL OR ue.ends_at > now())
+        ORDER BY ue.created_at ASC`, [userId]),
+      query(`SELECT id, num FROM lessons WHERE status = 'published' ORDER BY num ASC`)
+    ]);
+    const active = entitlements.rows.map(row => ({
+      productId: row.product_id,
+      title: row.title,
+      billingMode: row.billing_mode,
+      grantType: row.grant_type,
+      startsAt: row.starts_at,
+      endsAt: row.ends_at || null
+    }));
+    const coreOwned = active.some(item => item.productId === 'core-50');
+    const continuumActive = active.some(item => item.productId === 'continuum');
+    const freeLessonIds = lessonRows.rows.filter(row => FREE_LESSON_NUMS.includes(row.num)).map(row => row.id);
+    const enforcementEnabled = String(process.env.ENFORCE_COURSE_ACCESS || '').toLowerCase() === 'true';
+    const allowedLessonIds = enforcementEnabled && !coreOwned
+      ? freeLessonIds
+      : lessonRows.rows.map(row => row.id);
+    return {
+      model: 'learn-first-permanent-core',
+      enforcementEnabled,
+      accessMode: enforcementEnabled ? (coreOwned ? 'core-owner' : 'free-path') : 'preview',
+      coreOwned,
+      continuumActive,
+      freeLessonIds,
+      allowedLessonIds,
+      entitlements: active,
+      promises: {
+        coreIsPermanent: true,
+        subscriptionRequiredForCore: false,
+        cancellingContinuumRemovesCore: false,
+        lessonsContainSalesGates: false
+      }
+    };
+  }
+
   async function stateForUser(userId) {
     const user = await findUserById(userId);
     const assessment = await query(`SELECT ar.calculated_json, ar.created_at, ar.level, ar.focus_area, ar.primary_goal, ar.learning_style, ar.main_concern
@@ -1312,6 +1446,7 @@ export function createDb(options = {}) {
     const learnerState = await query('SELECT current_lesson_id, current_step_index, updated_at FROM learner_state WHERE user_id = $1', [userId]);
     return {
       user,
+      access: await accessForUser(userId),
       assessment: assessment.rows[0] ? { ...assessment.rows[0].calculated_json, updatedAt: assessment.rows[0].created_at } : null,
       learnerState: learnerState.rows[0] || null,
       progress: progress.rows.map(row => ({ lessonId: row.lesson_id, currentStep: row.last_step_index, completedAt: row.completed_at || '', updatedAt: row.updated_at })),
@@ -1343,6 +1478,7 @@ export function createDb(options = {}) {
     });
     return {
       user: state.user,
+      access: state.access,
       assessment: state.assessment,
       currentLesson: state.learnerState?.current_lesson_id || nextLesson?.id || '',
       currentStep: state.learnerState?.current_step_index || 0,
@@ -1885,6 +2021,7 @@ export function createDb(options = {}) {
     close,
     createUser,
     updateUserProfile,
+    deleteUserAccount,
     findUserByEmail,
     findUserById,
     findAdminByEmail,
@@ -1907,6 +2044,7 @@ export function createDb(options = {}) {
     importLocal,
     curriculum,
     curriculumLesson,
+    accessForUser,
     dashboardForUser,
     createFeedbackRequest,
     createProjectReview,

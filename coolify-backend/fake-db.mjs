@@ -48,13 +48,33 @@ export function createFakeDb(options = {}) {
     password_hash: '',
     disabled: false
   };
+  const accessForUser = async () => {
+    const published = lessons.filter(lesson => lesson.status === 'published');
+    const freeNums = new Set([1, 7, 11, 16, 21, 26, 31, 36, 41, 46]);
+    return {
+      model: 'learn-first-permanent-core',
+      enforcementEnabled: false,
+      accessMode: 'preview',
+      coreOwned: false,
+      continuumActive: false,
+      freeLessonIds: published.filter(lesson => freeNums.has(Number(lesson.num))).map(lesson => lesson.id),
+      allowedLessonIds: published.map(lesson => lesson.id),
+      entitlements: [],
+      promises: {
+        coreIsPermanent: true,
+        subscriptionRequiredForCore: false,
+        cancellingContinuumRemovesCore: false,
+        lessonsContainSalesGates: false
+      }
+    };
+  };
 
   return {
     async init() {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
     async health() {
-      return { dbStatus: 'ok', migrationVersion: 5 };
+      return { dbStatus: 'ok', migrationVersion: 6 };
     },
     async createUser({ email, passwordHash, displayName }) {
       const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
@@ -83,6 +103,21 @@ export function createFakeDb(options = {}) {
         });
       }
       return publicUser(row);
+    },
+    async deleteUserAccount(userId) {
+      const row = users.get(userId);
+      if (!row) return false;
+      usersByEmail.delete(row.email);
+      users.delete(userId);
+      assessments.delete(userId);
+      for (const [tokenHash, session] of sessions) if (session.user_id === userId) sessions.delete(tokenHash);
+      for (const [tokenHash, token] of resetTokens) if (token.userId === userId) resetTokens.delete(tokenHash);
+      for (const rows of [progress, quizSubmissions, activityCompletions, toolkit, visits, interactions, audits]) {
+        for (let index = rows.length - 1; index >= 0; index -= 1) {
+          if (rows[index].userId === userId || rows[index].targetUserId === userId) rows.splice(index, 1);
+        }
+      }
+      return true;
     },
     async findAdminByEmail(email) {
       return email === admin.email ? admin : null;
@@ -145,6 +180,7 @@ export function createFakeDb(options = {}) {
     async stateForUser(userId) {
       return {
         user: publicUser(users.get(userId)),
+        access: await accessForUser(userId),
         assessment: assessments.get(userId) || null,
         learnerState: null,
         progress: progress.filter(row => row.userId === userId).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: row.updatedAt })),
@@ -333,6 +369,7 @@ export function createFakeDb(options = {}) {
       const publishedLessons = lessons.filter(lesson => lesson.status === 'published');
       return {
         user: publicUser(users.get(userId)),
+        access: await accessForUser(userId),
         currentLesson: userProgress[0]?.lessonId || 'chapter-1',
         currentStep: userProgress[0]?.currentStep || 0,
         nextLesson: publishedLessons.find(lesson => !userProgress.some(row => row.lessonId === lesson.id && row.completedAt)) || null,
@@ -347,6 +384,7 @@ export function createFakeDb(options = {}) {
         modules: [{ id: 'orientation', title: 'Orientation', completedLessons, totalLessons: publishedLessons.length }]
       };
     },
+    accessForUser,
     async createFeedbackRequest() { return { id: 'feedback-1', status: 'queued' }; },
     async createProjectReview() { return { id: 'project-1', status: 'queued' }; },
     async createTutorSession() { return { id: 'session-1', status: 'open' }; },

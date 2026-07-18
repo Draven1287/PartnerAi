@@ -1,0 +1,37 @@
+{
+  "kind": "critique-panel",
+  "score": 4.2,
+  "axes": {
+    "clarity": {
+      "score": 5,
+      "notes": "The lesson has one dominant question per step, explicit lock reasons, respectful retry copy, and a single successful exit outcome."
+    },
+    "hierarchy": {
+      "score": 4,
+      "notes": "The ruled editorial composition is specific to Learning AI, though the Settings live-preview and Access offer structures still read somewhat like familiar product patterns."
+    },
+    "typography": {
+      "score": 4,
+      "notes": "Avenir-led reading and display roles plus monospaced evidence labels are disciplined; quality still depends on locally available Avenir Next rather than a bundled font."
+    },
+    "motion": {
+      "score": 4,
+      "notes": "Motion is causal and learner-triggered, but live reduced-motion timing and focus continuity could not be browser-exercised in this run."
+    },
+    "accessibility": {
+      "score": 4,
+      "notes": "Native controls, focus-visible styling, 44px targets, skip navigation, live regions, forced-colors rules, and reduced-motion parity are encoded. Live keyboard traversal, assistive technology, and Windows High Contrast remain unproven."
+    },
+    "brand": {
+      "score": 4,
+      "notes": "The Decision Record, human-versus-AI evidence language, and restrained proof moments feel owned. The generic account form and some settings controls need future production context to become equally distinctive."
+    }
+  },
+  "unproven": [
+    "Live multi-viewport scrollWidth at 360, 390, 430, 600, 768, 820, 1024, 1366, 1440, and 1920px",
+    "End-to-end keyboard focus order in a rendered browser",
+    "Screen-reader announcements and focus recovery",
+    "Windows High Contrast behavior",
+    "Production authentication, synchronization, payment, export, and cancellation flows"
+  ]
+}

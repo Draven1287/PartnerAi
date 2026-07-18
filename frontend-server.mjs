@@ -1,0 +1,120 @@
+import http from 'node:http';
+import https from 'node:https';
+import { createReadStream, existsSync, statSync } from 'node:fs';
+import { extname, join, normalize, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ROOT = fileURLToPath(new URL('.', import.meta.url));
+const PORT = Number(process.env.PORT || 8080);
+const API_ORIGIN = String(process.env.API_INTERNAL_URL || '').replace(/\/$/, '');
+const CANONICAL_HOST = String(process.env.CANONICAL_HOST || '').trim().toLowerCase();
+const BLOCKED_PREFIXES = ['/coolify-backend/', '/tools/', '/docs/', '/reviews/', '/backend/cloudflare/'];
+const MIME = new Map([
+  ['.css', 'text/css; charset=utf-8'],
+  ['.gif', 'image/gif'],
+  ['.html', 'text/html; charset=utf-8'],
+  ['.ico', 'image/x-icon'],
+  ['.jpeg', 'image/jpeg'],
+  ['.jpg', 'image/jpeg'],
+  ['.js', 'text/javascript; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
+  ['.mjs', 'text/javascript; charset=utf-8'],
+  ['.png', 'image/png'],
+  ['.svg', 'image/svg+xml'],
+  ['.txt', 'text/plain; charset=utf-8'],
+  ['.webp', 'image/webp'],
+  ['.woff', 'font/woff'],
+  ['.woff2', 'font/woff2']
+]);
+
+function headers(pathname) {
+  const immutable = /\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|woff2?)$/i.test(pathname);
+  return {
+    'cache-control': immutable ? 'public, max-age=3600, stale-while-revalidate=86400' : 'no-cache',
+    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.learningai4you.com https://www.google-analytics.com http://127.0.0.1:* http://localhost:*; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    'cross-origin-opener-policy': 'same-origin',
+    'permissions-policy': 'camera=(), microphone=(), geolocation=()',
+    'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-content-type-options': 'nosniff',
+    'x-frame-options': 'DENY'
+  };
+}
+
+function safeFile(pathname) {
+  if (pathname.includes('\0') || BLOCKED_PREFIXES.some(prefix => pathname.startsWith(prefix))) return null;
+  const decoded = decodeURIComponent(pathname);
+  const relative = normalize(decoded).replace(/^[/\\]+/, '');
+  const absolute = resolve(join(ROOT, relative));
+  if (!absolute.startsWith(resolve(ROOT) + '/')) return null;
+  return absolute;
+}
+
+const server = http.createServer((request, response) => {
+  const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  const requestHost = String(request.headers.host || '').split(':')[0].toLowerCase();
+  if (CANONICAL_HOST && requestHost && requestHost !== CANONICAL_HOST) {
+    response.writeHead(308, { location: `https://${CANONICAL_HOST}${url.pathname}${url.search}`, ...headers(url.pathname) });
+    response.end();
+    return;
+  }
+  if (url.pathname === '/health') {
+    response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', ...headers(url.pathname) });
+    response.end(JSON.stringify({ ok: true, service: 'learning-ai-frontend' }));
+    return;
+  }
+  if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
+    if (!API_ORIGIN) {
+      response.writeHead(503, { 'content-type': 'application/json; charset=utf-8', ...headers(url.pathname) });
+      response.end(JSON.stringify({ ok: false, error: 'api_proxy_not_configured' }));
+      return;
+    }
+    const target = new URL(`${url.pathname}${url.search}`, API_ORIGIN);
+    const transport = target.protocol === 'https:' ? https : http;
+    const upstream = transport.request(target, {
+      method: request.method,
+      headers: {
+        ...request.headers,
+        host: target.host,
+        'x-forwarded-host': request.headers.host || '',
+        'x-forwarded-proto': 'https'
+      }
+    }, upstreamResponse => {
+      response.writeHead(upstreamResponse.statusCode || 502, upstreamResponse.headers);
+      upstreamResponse.pipe(response);
+    });
+    upstream.on('error', error => {
+      if (response.headersSent) return response.destroy(error);
+      response.writeHead(502, { 'content-type': 'application/json; charset=utf-8', ...headers(url.pathname) });
+      response.end(JSON.stringify({ ok: false, error: 'api_proxy_unavailable' }));
+    });
+    request.pipe(upstream);
+    return;
+  }
+  if (url.pathname === '/') {
+    response.writeHead(302, { location: '/v2/', ...headers(url.pathname) });
+    response.end();
+    return;
+  }
+  if (!['GET', 'HEAD'].includes(request.method || 'GET')) {
+    response.writeHead(405, { allow: 'GET, HEAD', ...headers(url.pathname) });
+    response.end('Method not allowed');
+    return;
+  }
+
+  let pathname = url.pathname;
+  if (pathname.endsWith('/')) pathname += 'index.html';
+  const file = safeFile(pathname);
+  if (!file || !existsSync(file) || !statSync(file).isFile()) {
+    response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', ...headers(pathname) });
+    response.end('Not found');
+    return;
+  }
+
+  response.writeHead(200, { 'content-type': MIME.get(extname(file).toLowerCase()) || 'application/octet-stream', ...headers(pathname) });
+  if (request.method === 'HEAD') response.end();
+  else createReadStream(file).pipe(response);
+});
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Learning AI frontend listening on 0.0.0.0:${PORT}`);
+});

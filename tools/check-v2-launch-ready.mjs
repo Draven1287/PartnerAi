@@ -2,8 +2,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const root = new URL('../', import.meta.url);
-const gatedKinds = new Set(['classify', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'watch']);
-const learnerActionKinds = new Set([...gatedKinds, 'toolkitSave']);
+const gatedKinds = new Set(['classify', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'watch', 'tryLive', 'verify']);
+const learnerActionKinds = new Set(gatedKinds);
 const results = [];
 
 function file(path) {
@@ -51,8 +51,12 @@ function firstExitIndex(lesson) {
 }
 
 function checkLessonContent(lessons) {
-  if (lessons.length === 30) pass('lesson-count', '30 lessons present');
-  else fail('lesson-count', `${lessons.length} lessons present; expected 30`);
+  if (lessons.length === 50) pass('lesson-count', '50 lessons present');
+  else fail('lesson-count', `${lessons.length} lessons present; expected 50`);
+
+  const arcs = new Set(lessons.map(lesson => lesson.arc));
+  if (arcs.size === 10) pass('arc-count', '10 arcs present');
+  else fail('arc-count', `${arcs.size} arcs present; expected 10`);
 
   const ids = new Set();
   for (const lesson of lessons) {
@@ -92,15 +96,18 @@ function checkBackendSurface() {
   const v2Api = read('v2/v2-api.js');
   const index = read('v2/index.html');
   const config = read('backend-config.js');
+  const frontendServer = read('frontend-server.mjs');
 
   const requiredServerSnippets = [
     "url.pathname === '/api/auth/signup'",
     "url.pathname === '/api/auth/login'",
     "url.pathname === '/api/v2/curriculum'",
+    "url.pathname === '/api/v2/account'",
     "url.pathname === '/api/v2/progress'",
     "url.pathname === '/api/v2/quiz-answer'",
     "url.pathname === '/api/v2/activity-complete'",
     "url.pathname === '/api/v2/dashboard'",
+    "url.pathname === '/api/v2/access'",
     "url.pathname === '/api/v2/feedback-request'",
     "url.pathname === '/api/v2/project-review'",
     "url.pathname === '/api/v2/tutor-sessions'",
@@ -109,6 +116,7 @@ function checkBackendSurface() {
     "url.pathname === '/api/admin/ai-requests'",
     "url.pathname === '/api/admin/export.csv'",
     "url.pathname === '/api/admin/assessment-export.csv'",
+    "server.listen(PORT, '0.0.0.0'",
     'csrf_required'
   ];
 
@@ -133,7 +141,10 @@ function checkBackendSurface() {
     'CREATE TABLE IF NOT EXISTS tutor_sessions',
     'CREATE TABLE IF NOT EXISTS tutor_messages',
     'CREATE TABLE IF NOT EXISTS progress_insights',
-    'CREATE TABLE IF NOT EXISTS audit_events'
+    'CREATE TABLE IF NOT EXISTS audit_events',
+    'CREATE TABLE IF NOT EXISTS access_products',
+    'CREATE TABLE IF NOT EXISTS user_entitlements',
+    'CREATE TABLE IF NOT EXISTS payment_events'
   ];
 
   for (const snippet of requiredTables) {
@@ -144,11 +155,17 @@ function checkBackendSurface() {
   if (v2Api.includes('x-csrf-token')) pass('frontend-csrf-bridge');
   else fail('frontend-csrf-bridge', 'v2/v2-api.js must send x-csrf-token on writes');
 
-  if (index.includes('index, follow') && !index.includes('noindex, nofollow')) pass('v2-public-indexing');
-  else fail('v2-public-indexing', 'V2 should be indexable now that it replaces V1 online');
+  if (v2Api.includes('deleteAccount(confirmation)') && db.includes('async function deleteUserAccount')) pass('self-service-account-deletion');
+  else fail('self-service-account-deletion', 'learner settings must be able to permanently delete account data');
 
-  if (config.includes('https://api.learningai4you.com')) pass('production-api-config');
-  else fail('production-api-config', 'backend-config.js must point production to api.learningai4you.com');
+  if (index.includes('index, follow') && !index.includes('noindex, nofollow')) pass('v2-public-indexing');
+  else warn('v2-public-indexing', 'V2 remains noindex until the public deployment and domain are verified');
+
+  if (config.includes('window.location.origin') && frontendServer.includes('API_INTERNAL_URL') && frontendServer.includes("url.pathname.startsWith('/api/')")) {
+    pass('production-api-config', 'same-origin proxy to Railway private API');
+  } else {
+    fail('production-api-config', 'production must use the frontend same-origin API proxy');
+  }
 }
 
 function main() {

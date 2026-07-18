@@ -1,7 +1,7 @@
 /* ============================================================
    Learning AI V2 — engine
    V2 == V1 (same pages/assessment/My Path/look). Differences:
-   6 arcs · 30 lessons · more interaction per lesson · better UI.
+   10 arcs · 50 lessons · more interaction per lesson · better UI.
 
    Lessons are step-by-step. You must COMPLETE each interactive
    part before "Next" unlocks. Progress shows as a fill-in mosaic
@@ -21,6 +21,8 @@
    ============================================================ */
 
 (function () {
+  const PRODUCT_VERSION = String(window.LEARNING_AI_PRODUCT_VERSION || 'V2').toUpperCase();
+  const PRODUCT_PATH = String(window.LEARNING_AI_PRODUCT_PATH || '/v2/');
   let LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
   let ARCS = window.V2_ARCS ? Object.values(window.V2_ARCS) : [];
   const KEY = {
@@ -39,12 +41,11 @@
   let curriculumLoadedFromBackend = false;
 
   // step kinds that REQUIRE completion before Next unlocks. Toolkit saving is intentionally optional.
-  const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain']);
+  const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'tryLive', 'verify']);
   // arc colors for the mosaic (one hue per arc)
-  const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a'];
+  const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a', '#a21caf', '#0f766e', '#b45309', '#475569'];
   const AGE_RANGES = [
     ['', 'Choose age range'],
-    ['under-13', 'Under 13'],
     ['13-15', '13-15'],
     ['16-18', '16-18'],
     ['19-24', '19-24'],
@@ -54,6 +55,7 @@
     ['prefer-not', 'Prefer not to say']
   ];
   const V2_PALETTES = [
+    { id: 'editorial-control', name: 'Editorial Control', bg: '#f1f0eb', surface: '#faf9f5', surface2: '#e6e5df', border: '#c9c8c1', text: '#15191f', textDim: '#5d636a', accent: '#b42318', accentSoft: '#f3d9d5' },
     { id: 'clear-blue', name: 'Clear Blue', bg: '#f7f9fc', surface: '#ffffff', surface2: '#eef4f8', border: '#dbe3ea', text: '#121826', textDim: '#4b5870', accent: '#2563eb', accentSoft: '#dbeafe' },
     { id: 'teal-studio', name: 'Teal Studio', bg: '#f2fbfb', surface: '#ffffff', surface2: '#e2f3f2', border: '#c7dfdf', text: '#102026', textDim: '#45606a', accent: '#0f8b8d', accentSoft: '#d6f3f0' },
     { id: 'ink-coral', name: 'Ink Coral', bg: '#fbf7f4', surface: '#ffffff', surface2: '#f5e7df', border: '#e2d3ca', text: '#171821', textDim: '#5d5965', accent: '#e0523f', accentSoft: '#ffe1dc' },
@@ -284,6 +286,7 @@
       const completed = {};
       state.progress.forEach(row => {
         if (row.completedAt) completed[row.lessonId] = { completedAt: row.completedAt };
+        if (Number.isInteger(Number(row.currentStep))) recordStepReached(row.lessonId, Number(row.currentStep));
       });
       saveProgress({ completed });
     }
@@ -352,14 +355,31 @@
     const b = document.body, t = b.style;
     applyV2Palette();
     if (s.theme) b.dataset.theme = s.theme; else b.removeAttribute('data-theme');
+    b.dataset.motion = s.reduceMotion ? 'reduced' : 'full';
     b.dataset.fontScale = s.fontScale || 'normal';
     b.dataset.fontFamily = s.fontFamily || 'system';
     if (s.theme === 'dark') {
       t.setProperty('--bg', '#0f1726'); t.setProperty('--surface', '#1b2637'); t.setProperty('--surface-2', '#243247');
       t.setProperty('--border', '#33445c'); t.setProperty('--text', s.textColor || '#f4f7fb'); t.setProperty('--text-dim', '#a7b1c2'); t.setProperty('--text-faint', '#778397');
+      t.setProperty('--accent', s.accentColor || '#ff8178'); t.setProperty('--accent-soft', '#40201d');
+      b.style.colorScheme = 'dark';
     } else if (s.theme === 'light') {
       t.setProperty('--bg', '#f7f9fc'); t.setProperty('--surface', '#ffffff'); t.setProperty('--surface-2', '#eef4f8');
       t.setProperty('--border', '#dbe3ea'); t.setProperty('--text', s.textColor || '#121826'); t.setProperty('--text-dim', '#4b5870'); t.setProperty('--text-faint', '#778397');
+      t.setProperty('--accent', s.accentColor || '#b42318'); t.setProperty('--accent-soft', '#f3d9d5');
+      b.style.colorScheme = 'light';
+    } else if (s.theme === 'sepia') {
+      t.setProperty('--bg', '#f4ecd8'); t.setProperty('--surface', '#fff8e7'); t.setProperty('--surface-2', '#eadfc5');
+      t.setProperty('--border', '#9b8a6f'); t.setProperty('--text', s.textColor || '#2b241c'); t.setProperty('--text-dim', '#5e5040'); t.setProperty('--text-faint', '#74634f');
+      t.setProperty('--accent', s.accentColor || '#8c2f1f'); t.setProperty('--accent-soft', '#ead0bd');
+      b.style.colorScheme = 'light';
+    } else if (s.theme === 'contrast') {
+      t.setProperty('--bg', '#ffffff'); t.setProperty('--surface', '#ffffff'); t.setProperty('--surface-2', '#f0f0f0');
+      t.setProperty('--border', '#000000'); t.setProperty('--text', s.textColor || '#000000'); t.setProperty('--text-dim', '#1a1a1a'); t.setProperty('--text-faint', '#333333');
+      t.setProperty('--accent', s.accentColor || '#0037a6'); t.setProperty('--accent-soft', '#dce8ff');
+      b.style.colorScheme = 'light';
+    } else {
+      b.style.colorScheme = 'light dark';
     }
     if (s.accentColor) t.setProperty('--accent', s.accentColor);
   }
@@ -367,13 +387,14 @@
   function apiErrorText(error) {
     if (error === 'network_error') return 'Could not reach the server. Check your connection and try again.';
     if (error === 'request_timeout') return 'The server took too long to respond. Please try again.';
-    if (error === 'invalid_credentials') return 'That email and password did not match an account.';
-    if (error === 'email_exists') return 'That email already has an account. Use Sign in instead.';
+    if (error === 'invalid_credentials' || error === 'invalid_login') return 'That email and password do not match. Check the password, or create a new account with a different email.';
+    if (error === 'email_exists') return 'That email already has an account. Choose Sign in and use the password you created earlier.';
+    if (error === 'rate_limited') return 'Too many attempts. Wait a few minutes, then try again.';
     return error || 'Could not complete that request.';
   }
 
   function activePalette() {
-    const id = get(KEY.palette) || 'green-amber';
+    const id = get(KEY.palette) || 'editorial-control';
     return V2_PALETTES.find(palette => palette.id === id) || V2_PALETTES[0];
   }
 
@@ -489,8 +510,8 @@
     const done = readProgress().completed;
     const grid = h('div', { class: 'mosaic painting-mosaic' + (opts.small ? ' mosaic-small' : ''), 'aria-label': 'Course progress painting' });
     LESSONS.forEach((l, i) => {
-      const col = i % 6;
-      const row = Math.floor(i / 6);
+      const col = i % 10;
+      const row = Math.floor(i / 10);
       const filled = !!done[l.id];
       const locked = !!l.stub;
       const current = l.id === opts.currentId;
@@ -591,15 +612,27 @@
   // ============================================================
   function tag(t) { return h('span', { class: 'step-tag' }, t); }
   function card(kids) { return h('div', { class: 'lesson-card' }, kids); }
+  function prose(text, className = '') {
+    const blocks = String(text || '').split(/\n{2,}/).map(block => block.trim()).filter(Boolean);
+    return h('div', { class: `lesson-prose ${className}`.trim() }, blocks.map(block => h('p', null, block)));
+  }
+  function lessonStage(kind) {
+    if (kind === 'coldOpen') return 'Frame';
+    if (kind === 'reveal' || kind === 'nextWord') return 'Understand';
+    if (kind === 'toolkitSave') return 'Capture';
+    if (kind === 'exitCheck') return 'Prove';
+    return 'Practice';
+  }
 
   const steps = {
     coldOpen(s) {
-      return card([tag('Cold open'), h('h2', null, s.title), h('p', { class: 'scenario' }, s.scenario), s.prompt ? h('p', { class: 'muted' }, s.prompt) : null]);
+      return card([tag('Start with your experience'), h('h2', null, s.title), prose(s.scenario, 'scenario'),
+        s.prompt ? h('div', { class: 'lesson-reflection' }, [h('strong', null, 'Before you continue'), h('p', null, s.prompt)]) : null]);
     },
     reveal(s) {
-      return card([tag('Key idea'), h('h2', null, s.title), h('p', null, s.body),
+      return card([tag('Understand the mechanism'), h('h2', null, s.title), prose(s.body),
         s.mistake ? h('div', { class: 'callout callout-bad' }, [h('strong', null, 'Common mistake: '), s.mistake]) : null,
-        s.good ? h('div', { class: 'callout callout-good' }, [h('strong', null, 'Better: '), s.good]) : null]);
+        s.good ? h('div', { class: 'callout callout-good' }, [h('strong', null, 'Keep control: '), s.good]) : null]);
     },
     compare(s) {
       return card([tag('Compare'), h('h2', null, s.title),
@@ -618,14 +651,39 @@
       return card([tag('Predict'), h('h2', null, s.title),
         h('p', { class: 'nw-stem' }, [`“${s.stem} `, h('span', { class: 'nw-blank' }, '____'), '”']), ...bars, h('p', { class: 'why' }, s.note)]);
     },
-    tryLive(s) {
+    tryLive(s, ctx) {
       const btn = h('button', { class: 'btn btn-primary', onclick: () => copyText(s.prompt, btn) }, 'Copy prompt');
-      return card([tag('Try it for real'), h('h2', null, s.title), h('pre', { class: 'prompt-box' }, s.prompt), btn, s.note ? h('p', { class: 'why' }, s.note) : null]);
+      const evidence = h('textarea', { rows: '4', 'data-evidence': 'try-live', placeholder: 'Write what you noticed, changed, or checked…' });
+      const fb = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
+      const complete = h('button', { class: 'btn btn-ghost', onclick: () => {
+        const value = evidence.value.trim();
+        if (value.length < 12) { fb.textContent = 'Add one specific observation before continuing.'; return; }
+        recordInteraction(s, { evidence: value, completed: true });
+        fb.textContent = '✓ You captured evidence from the attempt.';
+        complete.disabled = true;
+        ctx.unlock();
+      } }, 'Record what happened');
+      return card([tag('Try it for real'), h('h2', null, s.title), h('pre', { class: 'prompt-box' }, s.prompt), btn,
+        s.note ? h('p', { class: 'why' }, s.note) : null,
+        h('label', { class: 'pr-field evidence-field' }, [h('span', null, 'Evidence from your attempt'), evidence]), complete, fb,
+        lockHint('Try the prompt and record one specific observation to continue.')]);
     },
-    verify(s) {
+    verify(s, ctx) {
+      const evidence = h('textarea', { rows: '4', 'data-evidence': 'verify', placeholder: 'What did the independent check show? Name the source or method you used…' });
+      const fb = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
+      const complete = h('button', { class: 'btn btn-primary', onclick: () => {
+        const value = evidence.value.trim();
+        if (value.length < 12) { fb.textContent = 'Add the result of a real independent check before continuing.'; return; }
+        recordInteraction(s, { evidence: value, completed: true });
+        fb.textContent = '✓ The check is recorded. Keep the source with your decision.';
+        complete.disabled = true;
+        ctx.unlock();
+      } }, 'Record verification');
       return card([tag('Verify'), h('h2', null, s.title), h('div', { class: 'callout' }, [h('strong', null, 'Claim: '), s.claim]),
         h('p', { class: 'muted' }, 'Read laterally — check the claim against other sources first:'), h('ol', null, (s.steps || []).map(x => h('li', null, x))),
-        s.note ? h('p', { class: 'why' }, s.note) : null]);
+        s.note ? h('p', { class: 'why' }, s.note) : null,
+        h('label', { class: 'pr-field evidence-field' }, [h('span', null, 'Verification evidence'), evidence]), complete, fb,
+        lockHint('Record what an independent source or method showed to continue.')]);
     },
     workflowChain(s, ctx) {
       const correct = s.correct || [];
@@ -804,17 +862,17 @@
   function viewAuthGate() {
     const message = h('p', { class: 'step-feedback', id: 'auth-message', 'aria-live': 'polite' }, '');
     const form = h('form', { class: 'auth-card' }, [
-      h('div', { class: 'tagline' }, 'Learning AI'),
-      h('h1', null, 'Sign in to save your progress'),
-      h('p', { class: 'lead' }, 'We use your email only to sign you in and save your progress. We will not send ads. We will not ask you for money. We will not sell your information.'),
-      h('p', { class: 'muted' }, 'Each email creates its own learner account. To switch learners, sign out and use a different email.'),
+      h('div', { class: 'tagline' }, 'Your learning record'),
+      h('h1', null, 'Continue your learning'),
+      h('p', { class: 'lead' }, 'Sign in to return to your lessons, progress painting, and Saved Notes.'),
       h('label', { class: 'pr-field' }, [h('span', null, 'Email'), h('input', { name: 'email', type: 'email', autocomplete: 'email', required: 'true' })]),
       h('label', { class: 'pr-field' }, [h('span', null, 'Password'), h('input', { name: 'password', type: 'password', autocomplete: 'current-password', required: 'true', minlength: '8' })]),
-      h('label', { class: 'pr-field' }, [h('span', null, 'Display name'), h('input', { name: 'displayName', type: 'text', autocomplete: 'name', maxlength: '40', placeholder: 'Required when creating an account' })]),
+      h('label', { class: 'pr-field' }, [h('span', null, 'Display name · new accounts only'), h('input', { name: 'displayName', type: 'text', autocomplete: 'name', maxlength: '40', placeholder: 'How should we address you?' })]),
       h('div', { class: 'row-gap' }, [
-        h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'signup' }, 'Create account'),
-        h('button', { class: 'btn btn-ghost', type: 'submit', 'data-mode': 'login' }, 'Sign in')
+        h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'login' }, 'Sign in'),
+        h('button', { class: 'btn btn-ghost', type: 'submit', 'data-mode': 'signup' }, 'Create a new account')
       ]),
+      h('p', { class: 'auth-privacy' }, 'New here? Add a display name, then choose Create a new account. Your email is used only for your account and progress.'),
       message
     ]);
     form.addEventListener('submit', async event => {
@@ -844,16 +902,26 @@
       location.hash = '#/';
       render();
     });
-    return h('div', { class: 'container view auth-view' }, [form]);
+    const introduction = h('section', { class: 'auth-intro' }, [
+      h('div', { class: 'tagline' }, 'Learning AI'),
+      h('h2', null, 'Keep your judgment. Expand what you can do.'),
+      h('p', null, 'Fifty guided lessons for understanding, questioning, and directing AI—without handing over control.'),
+      h('div', { class: 'auth-proof' }, [
+        h('span', null, '10 arcs'),
+        h('span', null, '50 lessons'),
+        h('span', null, 'Your evidence')
+      ])
+    ]);
+    return h('div', { class: 'container view auth-view' }, [h('div', { class: 'auth-shell' }, [introduction, form])]);
   }
 
   function viewApiUnavailable() {
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
         h('div', { class: 'tagline' }, 'Learning AI'),
-        h('h1', null, 'V2 accounts are unavailable right now'),
-        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course. V1 is still the public site while V2 is being built.'),
-        h('p', { class: 'muted' }, 'For local testing, start the V2 backend and reload this page.')
+        h('h1', null, `${PRODUCT_VERSION} accounts are unavailable right now`),
+        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course.'),
+        h('p', { class: 'muted' }, `For local testing, start the Learning AI backend and reload ${PRODUCT_VERSION}.`)
       ])
     ]);
   }
@@ -892,7 +960,6 @@
     const questionnaireLabel = hasAssessment() ? 'Retake questionnaire' : 'Take questionnaire';
     return h('div', { class: 'account-bar' }, [
       h('span', null, `Signed in as ${currentUser.displayName || currentUser.email}`),
-      h('a', { class: 'btn btn-ghost', href: '#/' }, 'Dashboard'),
       h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, questionnaireLabel),
       h('button', { class: 'btn btn-ghost', onclick: async () => {
         await api.logout();
@@ -1009,7 +1076,7 @@
         recommendedLessonId: insight.lessonId,
         recommendationReason: insight.reason,
         primaryGoal: 'Learn AI with judgment, practice, and useful projects.',
-        learningStyle: 'Interactive V2 lessons with checks before moving on.',
+        learningStyle: `Interactive ${PRODUCT_VERSION} lessons with checks before moving on.`,
         mainConcern: weakest ? `Needs the most support in ${weakest}.` : 'Build strong AI judgment.',
         weakestCategory: weakest,
         strongestCategory: strongest,
@@ -1032,6 +1099,7 @@
     const progressFill = h('span', { style: `width:${Math.round(((index + 1) / total) * 100)}%` });
     const ageSelect = index === 0 ? h('label', { class: 'diagnostic-profile' }, [
       h('span', null, 'Age range'),
+      h('small', { class: 'muted' }, 'Learning AI is designed for ages 13+. Choose “Prefer not to say” if you do not want to share an age range.'),
       h('select', { onchange: event => {
         draft.profile.ageRange = event.target.value;
         saveDraft(draft);
@@ -1092,9 +1160,8 @@
       render();
     } }, 'Finish and open dashboard');
 
-    // Only offer a way out when a starting point already exists — otherwise
-    // the dashboard route just gates straight back here.
-    const returnLink = hasAssessment() ? h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' }, 'Take me back to my dashboard')) : null;
+    const returnLink = h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' },
+      hasAssessment() ? 'Take me back to my dashboard' : 'Skip for now and open the dashboard'));
 
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
@@ -1177,7 +1244,7 @@
           h('div', { class: 'dashboard-stats' }, [
             h('div', { class: 'dash-stat' }, [h('strong', null, `${done}`), h('span', null, 'tiles revealed')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${pct}%`), h('span', null, 'complete')]),
-            h('div', { class: 'dash-stat' }, [h('strong', null, profile ? `${profile.score ?? 0}%` : 'Needed'), h('span', null, 'questionnaire')]),
+            h('div', { class: 'dash-stat' }, [h('strong', null, profile ? `${profile.score ?? 0}%` : 'Not set'), h('span', null, 'starting point')]),
             h('div', { class: 'dash-stat' }, [h('strong', null, `${readToolkit().length}`), h('span', null, 'saved notes')])
           ]),
           h('div', { class: 'row-gap' }, [
@@ -1220,7 +1287,7 @@
       h('header', { class: 'hero compact lessons-catalog-head' }, [
         h('div', { class: 'tagline' }, 'Lesson catalog'),
         h('h1', null, 'All lessons'),
-        h('p', { class: 'lead' }, 'This is the full V2 lesson list. Dashboard shows your next action; this page is for opening any available lesson or reviewing completed work.'),
+        h('p', { class: 'lead' }, `This is the full ${PRODUCT_VERSION} journey. Today shows your next action; this page lets you open any lesson or review completed work.`),
         h('div', { class: 'catalog-action-row' }, [
           next ? h('a', { class: 'btn btn-primary', href: `#/lesson/${next.id}/0` }, `Open lesson ${next.num}`) : h('a', { class: 'btn btn-primary', href: '#/projects' }, 'Start a project'),
           h('a', { class: 'btn btn-ghost', href: '#/' }, 'Back to dashboard'),
@@ -1251,11 +1318,15 @@
     currentLessonStepIndex = idx;
     const step = lesson.steps[idx];
     const last = idx === total - 1;
-    const gated = GATED.has(step.kind);
+    const gated = Boolean(step.gated) || GATED.has(step.kind);
 
-    // step progress dots
-    const dots = h('div', { class: 'step-dots' }, lesson.steps.map((_, i) =>
-      h('span', { class: 'dot' + (i === idx ? ' active' : '') + (i < idx ? ' past' : '') })));
+    const lessonStages = [...new Set(lesson.steps.map(lessonStep => lessonStage(lessonStep.kind)))];
+    const activeStageIndex = lessonStages.indexOf(lessonStage(step.kind));
+    const stageRail = h('ol', { class: 'lesson-stage-rail', 'aria-label': 'Lesson sequence', style: `--lesson-steps:${lessonStages.length}` }, lessonStages.map((stageName, i) =>
+      h('li', {
+        class: (i === activeStageIndex ? 'active' : '') + (i < activeStageIndex ? ' past' : ''),
+        'aria-current': i === activeStageIndex ? 'step' : null
+      }, [h('span', { class: 'stage-number' }, String(i + 1).padStart(2, '0')), h('span', { class: 'stage-name' }, stageName)])));
 
     // Next/Finish button — locked for gated steps until unlock() is called
     const advance = () => {
@@ -1273,12 +1344,22 @@
     const alreadyPassed = isDone(id) || idx < maxStepReached(id);
     if (gated && !alreadyPassed) nextBtn.disabled = true;
     if (gated && alreadyPassed) { nextBtn.classList.remove('is-locked'); nextBtn.setAttribute('aria-label', nextLabel); }
+    let body = null;
     const ctx = {
       unlock() {
         if (!nextBtn.disabled) return;
         nextBtn.disabled = false;
         nextBtn.classList.remove('is-locked');
         nextBtn.setAttribute('aria-label', nextLabel);
+        // Persist the newly reached boundary as soon as the learner completes
+        // the gate, so a refresh does not make them repeat valid evidence.
+        recordStepReached(id, Math.min(idx + 1, total - 1));
+        saveProgressToBackend({ lessonId: id, currentStep: Math.min(idx + 1, total - 1), completed: false });
+        const hint = body?.querySelector('.lock-hint');
+        if (hint) {
+          hint.textContent = '✓ Step complete. Next is available.';
+          hint.classList.add('done');
+        }
         nextBtn.focus();
       }
     };
@@ -1288,7 +1369,14 @@
       : h('a', { class: 'btn btn-ghost', href: '#/lessons' }, '← All lessons');
 
     const renderer = steps[step.kind] || steps.reveal;
-    const body = renderer(step, ctx);
+    body = renderer(step, ctx);
+    if (gated && !nextBtn.disabled) {
+      const hint = body.querySelector('.lock-hint');
+      if (hint) {
+        hint.textContent = '✓ Step complete. Next is available.';
+        hint.classList.add('done');
+      }
+    }
     const notebook = buildLessonNotebook(lesson);
 
     saveProgressToBackend({ lessonId: id, currentStep: idx, completed: false });
@@ -1296,10 +1384,16 @@
     return h('div', { class: 'container view lesson-view' }, [
       accountBar(),
       h('div', { class: 'lesson-head' }, [
-        h('span', { class: 'crumb' }, `${lesson.arc} · Lesson ${lesson.num} of 30 · part ${idx + 1}/${total}`),
-        h('h1', { class: 'lesson-h1' }, lesson.title),
-        h('p', { class: 'core-q' }, lesson.coreQuestion),
-        dots
+        h('div', { class: 'lesson-heading-copy' }, [
+          h('span', { class: 'crumb' }, `${lesson.arc} · Lesson ${lesson.num} of ${LESSONS.length} · part ${idx + 1}/${total}`),
+          h('h1', { class: 'lesson-h1' }, lesson.title),
+          h('p', { class: 'core-q' }, lesson.coreQuestion)
+        ]),
+        h('div', { class: 'lesson-outcome' }, [
+          h('div', null, [h('span', null, 'You will leave with'), h('strong', null, lesson.blurb)]),
+          h('div', null, [h('span', null, 'Designed time'), h('strong', null, `${lesson.minutes || 8} minutes`)])
+        ]),
+        stageRail
       ]),
       h('div', { class: 'lesson-workspace' }, [
         h('div', { class: 'lesson-main' }, [body, h('div', { class: 'lesson-nav row-gap' }, [back, nextBtn])]),
@@ -1390,12 +1484,42 @@
       h('div', { class: 'row-gap' }, [h('button', { class: 'btn btn-primary', type: 'submit' }, 'Save name')]),
       profileMessage
     ]);
+    const deletionMessage = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
+    const deletionForm = h('form', { class: 'settings-profile-form', onsubmit: async event => {
+      event.preventDefault();
+      const confirmation = String(new FormData(event.currentTarget).get('confirmation') || '').trim();
+      if (confirmation !== 'DELETE') {
+        deletionMessage.textContent = 'Type DELETE exactly before removing the account.';
+        return;
+      }
+      const button = event.currentTarget.querySelector('button[type="submit"]');
+      if (button) button.disabled = true;
+      deletionMessage.textContent = 'Deleting your account and learning data...';
+      const result = api ? await api.deleteAccount(confirmation).catch(() => ({ ok: false, error: 'network_error' })) : { ok: false, error: 'backend_not_configured' };
+      if (!result.ok) {
+        if (button) button.disabled = false;
+        deletionMessage.textContent = apiErrorText(result.error);
+        return;
+      }
+      currentUser = null;
+      serverState = null;
+      clearV2LocalSession();
+      location.hash = '#/';
+      render();
+    } }, [
+      h('label', { class: 'pr-field' }, [
+        h('span', null, 'Type DELETE to confirm'),
+        h('input', { name: 'confirmation', type: 'text', autocomplete: 'off', spellcheck: 'false' })
+      ]),
+      h('div', { class: 'row-gap' }, [h('button', { class: 'btn btn-ghost', type: 'submit' }, 'Delete my account')]),
+      deletionMessage
+    ]);
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
       h('header', { class: 'hero compact' }, [
-        h('div', { class: 'tagline' }, 'V2 settings'),
+        h('div', { class: 'tagline' }, `${PRODUCT_VERSION} settings`),
         h('h1', null, 'Make the course easier to use'),
-        h('p', { class: 'lead' }, 'These settings stay in V2. They do not send you back to the older site.')
+        h('p', { class: 'lead' }, `These settings stay with your Learning AI account and update ${PRODUCT_VERSION} immediately.`)
       ]),
       h('section', { class: 'v2-card-grid' }, [
         h('article', { class: 'dashboard-section v2-settings-card' }, [
@@ -1407,24 +1531,35 @@
         h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Theme'),
           h('div', { class: 'seg-row' }, [
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'light' }) }, 'Light'),
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: 'dark' }) }, 'Dark'),
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ theme: '' }) }, 'Default')
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.theme === 'light' ? 'true' : 'false', onclick: () => savePatch({ theme: 'light' }) }, 'Light'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.theme === 'dark' ? 'true' : 'false', onclick: () => savePatch({ theme: 'dark' }) }, 'Dark'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.theme === 'sepia' ? 'true' : 'false', onclick: () => savePatch({ theme: 'sepia' }) }, 'Sepia'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.theme === 'contrast' ? 'true' : 'false', onclick: () => savePatch({ theme: 'contrast' }) }, 'High contrast'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': !settings.theme ? 'true' : 'false', onclick: () => savePatch({ theme: '' }) }, 'Default')
           ]),
           h('p', { class: 'muted' }, `Current: ${settings.theme || 'default'}`)
         ]),
         h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Text size'),
           h('div', { class: 'seg-row' }, [
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'normal' }) }, 'Normal'),
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'large' }) }, 'Large'),
-            h('button', { class: 'btn btn-ghost', onclick: () => savePatch({ fontScale: 'xl' }) }, 'Extra large')
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': !settings.fontScale || settings.fontScale === 'normal' ? 'true' : 'false', onclick: () => savePatch({ fontScale: 'normal' }) }, 'Normal'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.fontScale === 'large' ? 'true' : 'false', onclick: () => savePatch({ fontScale: 'large' }) }, 'Large'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.fontScale === 'xl' ? 'true' : 'false', onclick: () => savePatch({ fontScale: 'xl' }) }, 'Extra large')
           ]),
-          h('p', { class: 'muted' }, 'This is for reading comfort during lessons.')
+          h('p', { class: 'muted' }, `Current: ${settings.fontScale === 'xl' ? 'extra large' : settings.fontScale || 'normal'}. This changes immediately for reading comfort.`)
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Motion'),
+          h('p', null, 'Motion shows route changes and progress. Reduce it whenever movement makes reading or concentration harder.'),
+          h('div', { class: 'seg-row' }, [
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.reduceMotion ? 'false' : 'true', onclick: () => savePatch({ reduceMotion: false }) }, 'Full motion'),
+            h('button', { class: 'btn btn-ghost', 'aria-pressed': settings.reduceMotion ? 'true' : 'false', onclick: () => savePatch({ reduceMotion: true }) }, 'Reduce motion')
+          ]),
+          h('p', { class: 'muted' }, settings.reduceMotion ? 'Reduced motion is on. All information and feedback remain available.' : 'Full motion is on. Your device-level reduced-motion preference is still respected.')
         ]),
         h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Starting point'),
-          h('p', null, 'Every learner sets a starting point with the questionnaire before the lessons open — it personalizes your path and shows us where people begin.'),
+          h('p', null, 'The optional questionnaire personalizes your suggested starting point. You can skip it and begin with lesson 1 at any time.'),
           h('div', { class: 'row-gap' }, [
             h('a', { class: 'btn btn-primary', href: '#/questionnaire' }, hasAssessment() ? 'Retake questionnaire' : 'Take questionnaire'),
             h('button', { class: 'btn btn-ghost', onclick: () => {
@@ -1436,6 +1571,12 @@
               render();
             } }, 'Clear local result')
           ])
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card callout-bad' }, [
+          h('h2', null, 'Delete account and learning data'),
+          h('p', null, 'This permanently removes your account, progress, questionnaire answers, interaction evidence, and Saved Notes from Learning AI. It cannot be undone.'),
+          h('p', { class: 'muted' }, 'This affects Learning AI only. It does not delete an account or chat history from any outside AI service you used for practice.'),
+          deletionForm
         ])
       ])
     ]);
@@ -1526,6 +1667,39 @@
     ]);
   }
 
+  function viewAccess() {
+    return h('div', { class: 'container view v2-page access-page free-access-page' }, [
+      accountBar(),
+      h('header', { class: 'access-hero' }, [
+        h('div', { class: 'tagline' }, 'Open access'),
+        h('h1', null, 'All 50 lessons. Free.'),
+        h('p', { class: 'lead' }, 'Understanding AI should not depend on finishing a trial or keeping a subscription. Every lesson, interaction, project prompt, accessibility setting, and progress record is available without a course payment.'),
+        h('p', { class: 'access-status' }, 'Your learning path is open. No lesson is locked behind payment.')
+      ]),
+      h('section', { class: 'free-access-grid', 'aria-label': 'What free access includes' }, [
+        h('article', { class: 'free-access-statement' }, [
+          h('span', { class: 'tagline' }, 'The complete journey'),
+          h('strong', null, '10 arcs · 50 authored lessons'),
+          h('p', null, 'Start with what AI is, learn how to direct and verify it, then use it to build useful projects while keeping your own judgment.')
+        ]),
+        h('article', { class: 'free-access-statement' }, [
+          h('span', { class: 'tagline' }, 'Your record'),
+          h('strong', null, 'Progress and Saved Notes'),
+          h('p', null, 'Your completed lessons, evidence, preferences, and optional notes stay connected to your account.')
+        ]),
+        h('article', { class: 'free-access-statement' }, [
+          h('span', { class: 'tagline' }, 'The promise'),
+          h('strong', null, 'Learning comes before commerce'),
+          h('p', null, 'There are no purchase prompts inside lessons, no completion pressure, and no recurring payment required to keep learning.')
+        ])
+      ]),
+      h('div', { class: 'row-gap access-free-action' }, [
+        h('a', { class: 'btn btn-primary', href: '#/lessons' }, 'Explore all 50 lessons'),
+        h('a', { class: 'btn btn-ghost', href: '#/' }, 'Return to Today')
+      ])
+    ]);
+  }
+
   function viewTeaching() {
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
@@ -1557,9 +1731,9 @@
     return h('div', { class: 'container view v2-page' }, [
       accountBar(),
       h('header', { class: 'hero compact' }, [
-        h('div', { class: 'tagline' }, 'About V2'),
+        h('div', { class: 'tagline' }, `About ${PRODUCT_VERSION}`),
         h('h1', null, 'Learning AI is for anyone starting from questions'),
-        h('p', { class: 'lead' }, 'V2 is being built as a guided course with accounts, saved progress, interactive lessons, and projects. The goal is not “AI for high school students only.” It is AI learning that works whether you are a student, teacher, parent, builder, or curious adult.')
+        h('p', { class: 'lead' }, `${PRODUCT_VERSION} is a guided course with accounts, saved progress, interactive lessons, and projects. It begins with anxious and curious learners aged 13+, while remaining useful to teachers, parents, builders, and adults starting from questions.`)
       ])
     ]);
   }
@@ -1584,7 +1758,7 @@
         h('section', { class: 'lesson-card' }, [
           h('div', { class: 'tagline' }, 'Learning AI'),
           h('h1', null, 'Checking your account...'),
-          h('p', { class: 'muted' }, 'V2 saves progress to the Learning AI backend.')
+          h('p', { class: 'muted' }, `${PRODUCT_VERSION} saves progress to the Learning AI backend.`)
         ])
       ]));
       return;
@@ -1612,15 +1786,11 @@
     }
     if (parts[0] !== 'lesson' && parts[0] !== 'done') currentLessonId = null;
     let node;
-    // The questionnaire is required before lessons: it gives every learner a
-    // recommended start AND gives the course data on where people begin.
-    // Settings/about stay reachable so appearance and info aren't locked away.
-    const needsQuestionnaire = currentUser && !hasAssessment()
-      && !['diagnostic', 'questionnaire', 'settings', 'about'].includes(parts[0] || '');
-    if (needsQuestionnaire) node = viewDiagnostic();
-    else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
+    // The questionnaire personalizes a starting point but never blocks the course.
+    if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewDashboard();
     else if (parts[0] === 'lessons') node = viewLessonsCatalog();
+    else if (parts[0] === 'access') node = viewAccess();
     else if (parts[0] === 'settings') node = viewSettings();
     else if (parts[0] === 'projects') node = viewProjects();
     else if (parts[0] === 'teaching') node = viewTeaching();
@@ -1644,7 +1814,7 @@
     const hash = location.hash || '#/';
     if (hash === lastTrackedHash) return;
     lastTrackedHash = hash;
-    window.gtag('event', 'page_view', { page_location: location.href, page_path: '/v2/' + hash.replace(/^#/, '') });
+    window.gtag('event', 'page_view', { page_location: location.href, page_path: PRODUCT_PATH + hash.replace(/^#/, '') });
   }
 
   // ---------- time tracking: report active minutes to the backend ----------

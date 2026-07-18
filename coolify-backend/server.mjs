@@ -1274,7 +1274,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
     }
     await database.init();
     dbReady = true;
-  })().catch(error => { dbInitError = error; dbReady = false; });
+  })().catch(error => {
+    dbInitError = error;
+    dbReady = false;
+    console.error('Database initialization failed:', error);
+  });
   return http.createServer(async (req, res) => {
     let url;
     try {
@@ -1454,10 +1458,26 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const user = await database.updateUserProfile({ userId: session.user.id, displayName });
         return user ? sendJson(res, 200, { ok: true, user }, { req }) : sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
       }
+      if (req.method === 'DELETE' && url.pathname === '/api/v2/account') {
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const body = await readJsonBody(req);
+        if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+        if (String(body.confirmation || '') !== 'DELETE') return sendJson(res, 400, { ok: false, error: 'confirmation_required' }, { req });
+        const deleted = await database.deleteUserAccount(session.user.id);
+        return deleted
+          ? sendJson(res, 200, { ok: true }, { req, cookie: clearCookie('lai_session') })
+          : sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
+      }
       if (req.method === 'GET' && url.pathname === '/api/v2/dashboard') {
         const session = await requireUser(req, res, database);
         if (!session) return;
         return sendJson(res, 200, { ok: true, dashboard: await database.dashboardForUser(session.user.id) }, { req });
+      }
+      if (req.method === 'GET' && url.pathname === '/api/v2/access') {
+        const session = await requireUser(req, res, database);
+        if (!session) return;
+        return sendJson(res, 200, { ok: true, access: await database.accessForUser(session.user.id) }, { req });
       }
       if (req.method === 'GET' && url.pathname === '/api/v2/curriculum') {
         const session = await requireUser(req, res, database);
@@ -1608,7 +1628,7 @@ export { hashPassword, isSafeName, nameKey, normalizeName, summarize };
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const server = createServer();
-  server.listen(PORT, () => {
-    console.log(`Learning AI backend listening on http://127.0.0.1:${PORT}/admin`);
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Learning AI backend listening on 0.0.0.0:${PORT}`);
   });
 }

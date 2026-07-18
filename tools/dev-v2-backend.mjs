@@ -45,7 +45,7 @@ function loadSeedLessons() {
       stepId: `${lesson.id}-step-${stepIndex + 1}`,
       stepIndex,
       kind: step.kind || 'reveal',
-      gated: ['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain'].includes(step.kind),
+      gated: ['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'tryLive', 'verify'].includes(step.kind),
       title: step.title || '',
       payload: step
     })) : []

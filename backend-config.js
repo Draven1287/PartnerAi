@@ -22,5 +22,7 @@
       : defaultLocalBackend;
     return;
   }
-  window.LEARNING_AI_BACKEND_URL = 'https://api.learningai4you.com';
+  // Production uses the frontend's same-origin /api proxy. That keeps learner
+  // sessions first-party and reaches the API over Railway's private network.
+  window.LEARNING_AI_BACKEND_URL = window.location.origin;
 })();
