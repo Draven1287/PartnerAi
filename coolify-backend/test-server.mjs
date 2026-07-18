@@ -90,6 +90,40 @@ function createFakeDb() {
       }
       return publicUser(row);
     },
+    async deleteUserAccount(userId) {
+      const row = users.get(userId);
+      if (!row) return false;
+
+      usersByEmail.delete(row.email);
+      users.delete(userId);
+      assessments.delete(userId);
+
+      for (const [tokenHash, session] of sessions) {
+        if (session.user_id === userId) sessions.delete(tokenHash);
+      }
+      for (const [tokenHash, token] of resetTokens) {
+        if (token.userId === userId) resetTokens.delete(tokenHash);
+      }
+
+      for (const rows of [
+        progress,
+        quizSubmissions,
+        activityCompletions,
+        feedbackRequests,
+        projectReviews,
+        tutorSessions,
+        tutorMessages,
+        toolkit,
+        audits
+      ]) {
+        for (let index = rows.length - 1; index >= 0; index -= 1) {
+          const item = rows[index];
+          if (item.userId === userId || item.targetUserId === userId) rows.splice(index, 1);
+        }
+      }
+
+      return true;
+    },
     async findAdminByEmail(email) {
       return email === admin.email ? admin : null;
     },
@@ -179,6 +213,20 @@ function createFakeDb() {
     },
     async curriculumLesson(lessonId, { includeDrafts = true } = {}) {
       return lessons.find(lesson => lesson.id === lessonId && (includeDrafts || lesson.status === 'published')) || null;
+    },
+    async accessForUser() {
+      const published = lessons.filter(lesson => lesson.status === 'published');
+      return {
+        model: 'learn-first-permanent-core',
+        enforcementEnabled: false,
+        accessMode: 'preview',
+        coreOwned: false,
+        continuumActive: false,
+        freeLessonIds: published.filter(lesson => [1, 7, 11, 16, 21, 26, 31, 36, 41, 46].includes(Number(lesson.num))).map(lesson => lesson.id),
+        allowedLessonIds: published.map(lesson => lesson.id),
+        entitlements: [],
+        promises: { coreIsPermanent: true, subscriptionRequiredForCore: false, cancellingContinuumRemovesCore: false, lessonsContainSalesGates: false }
+      };
     },
     async adminCreateLesson({ lesson }) {
       const requestedNum = Number(lesson.num);
@@ -641,6 +689,10 @@ async function runRouteChecks(db, label) {
     const curriculum = await request('/api/v2/curriculum', { headers: { cookie: learnerCookie } });
     assert.equal(curriculum.response.status, 200);
     assert.equal(curriculum.body.curriculum.tracks[0].id, 'core-ai-literacy');
+    const access = await request('/api/v2/access', { headers: { cookie: learnerCookie } });
+    assert.equal(access.response.status, 200);
+    assert.equal(access.body.access.model, 'learn-first-permanent-core');
+    assert.equal(access.body.access.promises.subscriptionRequiredForCore, false);
 
     const assessment = await request('/api/v2/assessment', {
       method: 'PUT',
@@ -1012,6 +1064,51 @@ async function runRouteChecks(db, label) {
     assert.equal(edited.response.status, 200);
     assert.equal(edited.body.lesson.title, 'Edited title');
     assert.equal(edited.body.lesson.levelId, 'explorer');
+
+    const deleteEmail = `delete-${Date.now()}@example.com`;
+    const deleteSignup = await request('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: deleteEmail, password: 'delete-learning-pass', displayName: 'Delete Me' }
+    });
+    assert.equal(deleteSignup.response.status, 201);
+    const deleteCookie = cookieHeader(deleteSignup.headers.get('set-cookie'));
+
+    const deleteBlocked = await request('/api/v2/account', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: deleteCookie },
+      body: { confirmation: 'DELETE' }
+    });
+    assert.equal(deleteBlocked.response.status, 403);
+
+    const deleteUnconfirmed = await request('/api/v2/account', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: deleteCookie, 'x-csrf-token': deleteSignup.body.csrfToken },
+      body: { confirmation: 'delete' }
+    });
+    assert.equal(deleteUnconfirmed.response.status, 400);
+    assert.equal(deleteUnconfirmed.body.error, 'confirmation_required');
+
+    const deleteAccount = await request('/api/v2/account', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: deleteCookie, 'x-csrf-token': deleteSignup.body.csrfToken },
+      body: { confirmation: 'DELETE' }
+    });
+    assert.equal(deleteAccount.response.status, 200);
+    const deletedSession = await request('/api/auth/me', { headers: { cookie: deleteCookie } });
+    assert.equal(deletedSession.response.status, 401);
+    const deletedLogin = await request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: deleteEmail, password: 'delete-learning-pass' }
+    });
+    assert.equal(deletedLogin.response.status, 401);
+    const reuseDeletedEmail = await request('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: deleteEmail, password: 'new-delete-learning-pass', displayName: 'Fresh Account' }
+    });
+    assert.equal(reuseDeletedEmail.response.status, 201);
 
     const adminLogout = await request('/api/admin/logout', {
       method: 'POST',

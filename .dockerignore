@@ -1,0 +1,11 @@
+.git
+.gitignore
+.DS_Store
+node_modules
+reviews
+backend/cloudflare/.dev.vars
+**/.env
+**/.env.*
+!**/.env.example
+*.pem
+*.key

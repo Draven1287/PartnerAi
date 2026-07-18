@@ -36,7 +36,6 @@ function assertMatches(path, pattern, message) {
   assert.ok(pattern.test(read(path)), message || `${path} must match ${pattern}`);
 }
 
-assertExists('Referenceable Content.md');
 assertExists('coolify-backend/server.mjs');
 assertExists('coolify-backend/db.mjs');
 assertExists('coolify-backend/fake-db.mjs');
@@ -99,6 +98,7 @@ assertIncludes('coolify-backend/server.mjs', "action:'resetPassword'");
 assertIncludes('coolify-backend/server.mjs', "action:'delete'");
 assertIncludes('coolify-backend/server.mjs', "api('/api/admin/curriculum/lessons/' + encodeURIComponent(lesson.id)");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/import-local'");
+assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/account'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/dashboard'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname === '/api/v2/curriculum'");
 assertIncludes('coolify-backend/server.mjs', "url.pathname.startsWith('/api/v2/lessons/')");
@@ -136,7 +136,7 @@ assertIncludes('coolify-backend/server.mjs', "req.method === 'POST' && url.pathn
 assertIncludes('coolify-backend/server.mjs', 'learnerCsv(rows)');
 assertIncludes('coolify-backend/server.mjs', 'assessmentResponsesCsv(rows)');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS users');
-assertIncludes('coolify-backend/db.mjs', 'const MIGRATION_VERSION = 5');
+assertIncludes('coolify-backend/db.mjs', 'const MIGRATION_VERSION = 6');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_tracks');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_levels');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_modules');
@@ -167,6 +167,9 @@ assertIncludes('coolify-backend/db.mjs', 'async function createProjectReview');
 assertIncludes('coolify-backend/db.mjs', 'async function createTutorSession');
 assertIncludes('coolify-backend/db.mjs', 'async function progressInsights');
 assertIncludes('coolify-backend/db.mjs', 'async function archiveToolkit');
+assertIncludes('coolify-backend/db.mjs', 'async function deleteUserAccount');
+assertIncludes('coolify-backend/db.mjs', 'DELETE FROM learning_minutes WHERE user_id = $1');
+assertIncludes('coolify-backend/db.mjs', 'DELETE FROM audit_events WHERE target_user_id = $1');
 assertIncludes('coolify-backend/db.mjs', 'async function adminAiRequests');
 assertIncludes('coolify-backend/db.mjs', 'async function adminVisitAnalytics');
 assertIncludes('coolify-backend/db.mjs', 'page_visits_visited_at_idx');
@@ -184,7 +187,8 @@ assertIncludes('coolify-backend/db.mjs', 'ON CONFLICT (lesson_id, step_index) DO
 assertIncludes('coolify-backend/db.mjs', 'DELETE FROM lesson_steps WHERE lesson_id = $1 AND step_index >= $2');
 
 const backendConfig = read('backend-config.js');
-assertIncludes('backend-config.js', 'https://api.learningai4you.com');
+assertIncludes('backend-config.js', 'window.LEARNING_AI_BACKEND_URL = window.location.origin');
+assertNotIncludes('backend-config.js', "window.LEARNING_AI_BACKEND_URL = 'https://api.learningai4you.com'");
 assertIncludes('backend-config.js', 'http://127.0.0.1:8787');
 assertNotIncludes('backend-config.js', 'ADMIN_TOKEN');
 assertNotIncludes('backend-config.js', 'API_KEY');

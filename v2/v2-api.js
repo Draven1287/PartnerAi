@@ -52,8 +52,14 @@
     updateProfile(profile) {
       return request('/api/v2/profile', { method: 'PUT', body: profile });
     },
+    deleteAccount(confirmation) {
+      return request('/api/v2/account', { method: 'DELETE', body: { confirmation } });
+    },
     dashboard() {
       return request('/api/v2/dashboard');
+    },
+    access() {
+      return request('/api/v2/access');
     },
     curriculum() {
       return request('/api/v2/curriculum', { timeoutMs: 4000 });
@@ -96,6 +102,9 @@
     },
     saveToolkit(card) {
       return request('/api/v2/toolkit', { method: 'POST', body: card });
+    },
+    deleteToolkit(id) {
+      return request(`/api/v2/toolkit/${encodeURIComponent(id)}`, { method: 'DELETE' });
     },
     saveMinutes(minutes) {
       return request('/api/v2/minutes', { method: 'POST', body: minutes });
