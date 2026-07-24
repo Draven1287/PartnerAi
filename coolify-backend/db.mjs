@@ -5,7 +5,7 @@ import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
-const MIGRATION_VERSION = 7;
+const MIGRATION_VERSION = 8;
 const CONTENT_VERSION = 'v2-2026-07-17';
 const FREE_LESSON_NUMS = [1, 7, 11, 16, 21, 26, 31, 36, 41, 46];
 const COURSE_LESSON_COUNT = 50;

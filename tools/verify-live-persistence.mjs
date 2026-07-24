@@ -8,7 +8,7 @@ if (process.env.ALLOW_LIVE_ACCOUNT_TEST !== 'yes') {
   process.exit(2);
 }
 
-const base = String(process.env.LEARNING_AI_API_ORIGIN || 'https://api.learningai4you.com').replace(/\/$/, '');
+const base = String(process.env.LEARNING_AI_API_ORIGIN || 'https://learningai4you.com').replace(/\/$/, '');
 const suffix = `${Date.now()}-${randomBytes(3).toString('hex')}`;
 const email = `launch-check-${suffix}@example.com`;
 const password = `Launch-check-${randomBytes(12).toString('hex')}!`;
@@ -44,6 +44,7 @@ try {
   const health = await call('/api/health');
   expectOk(health, 'health', 200);
   assert.equal(health.data.dbStatus, 'ok', 'production database must be connected');
+  assert.ok(Number(health.data.migrationVersion) >= 8, 'production database migration 8 is required');
 
   const signup = await call('/api/auth/signup', {
     method: 'POST',
@@ -148,6 +149,7 @@ try {
 
   console.log(`PASS live PostgreSQL persistence (${base}, migration ${health.data.migrationVersion})`);
 } finally {
+  const cleanupFailures = [];
   for (const [remainingEmail, remainingPassword] of remainingAccounts) {
     cookie = '';
     csrfToken = '';
@@ -155,11 +157,16 @@ try {
       method: 'POST',
       body: { email: remainingEmail, password: remainingPassword }
     }).catch(() => null);
-    if (!login?.data?.ok) continue;
-    await call('/api/v2/account', {
+    if (!login?.data?.ok) {
+      cleanupFailures.push(`${remainingEmail}: could not reacquire session`);
+      continue;
+    }
+    const deleted = await call('/api/v2/account', {
       method: 'DELETE',
       csrf: true,
       body: { confirmation: 'DELETE' }
-    }).catch(() => {});
+    }).catch(() => null);
+    if (!deleted?.data?.ok) cleanupFailures.push(`${remainingEmail}: account deletion was not confirmed`);
   }
+  if (cleanupFailures.length) throw new Error(`Live-test cleanup failed: ${cleanupFailures.join('; ')}`);
 }

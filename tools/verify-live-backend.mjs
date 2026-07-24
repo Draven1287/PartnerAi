@@ -75,7 +75,7 @@ async function checkHttp(path, expectedStatuses, label) {
       const ready = expected
         && health.ok === true
         && health.dbStatus === 'ok'
-        && Number(health.migrationVersion) >= 7
+        && Number(health.migrationVersion) >= 8
         && health.buildSha
         && health.buildSha !== 'local'
         && health.passwordResetEmailConfigured === true;

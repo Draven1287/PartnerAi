@@ -136,7 +136,7 @@ assertIncludes('coolify-backend/server.mjs', "req.method === 'POST' && url.pathn
 assertIncludes('coolify-backend/server.mjs', 'learnerCsv(rows)');
 assertIncludes('coolify-backend/server.mjs', 'assessmentResponsesCsv(rows)');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS users');
-assertIncludes('coolify-backend/db.mjs', 'const MIGRATION_VERSION = 7');
+assertIncludes('coolify-backend/db.mjs', 'const MIGRATION_VERSION = 8');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_tracks');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_levels');
 assertIncludes('coolify-backend/db.mjs', 'CREATE TABLE IF NOT EXISTS curriculum_modules');

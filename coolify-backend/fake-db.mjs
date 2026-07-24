@@ -27,6 +27,7 @@ export function createFakeDb(options = {}) {
   const visits = [];
   const interactions = [];
   const audits = [];
+  let nextUserId = 1;
   const lessons = Array.isArray(options.lessons) && options.lessons.length ? options.lessons : [{
     id: 'chapter-1',
     num: 1,
@@ -78,7 +79,7 @@ export function createFakeDb(options = {}) {
       return { dbStatus: 'ok', migrationVersion: 8 };
     },
     async createUser({ email, passwordHash, displayName }) {
-      const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
+      const row = { id: `user-${nextUserId++}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
       users.set(row.id, row);
       usersByEmail.set(email, row);
       return publicUser(row);
@@ -113,7 +114,7 @@ export function createFakeDb(options = {}) {
       assessments.delete(userId);
       for (const [tokenHash, session] of sessions) if (session.user_id === userId) sessions.delete(tokenHash);
       for (const [tokenHash, token] of resetTokens) if (token.userId === userId) resetTokens.delete(tokenHash);
-      for (const rows of [progress, quizSubmissions, activityCompletions, toolkit, visits, interactions, audits]) {
+      for (const rows of [progress, quizSubmissions, activityCompletions, toolkit, minuteEntries, visits, interactions, audits]) {
         for (let index = rows.length - 1; index >= 0; index -= 1) {
           if (rows[index].userId === userId || rows[index].targetUserId === userId) rows.splice(index, 1);
         }

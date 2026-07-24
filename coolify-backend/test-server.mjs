@@ -33,6 +33,7 @@ function createFakeDb() {
   const minuteEntries = [];
   const assessments = new Map();
   const audits = [];
+  let nextUserId = 1;
   const lessons = [{
     id: 'chapter-1',
     num: 1,
@@ -79,7 +80,7 @@ function createFakeDb() {
       return { dbStatus: 'ok', migrationVersion: 8 };
     },
     async createUser({ email, passwordHash, displayName }) {
-      const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
+      const row = { id: `user-${nextUserId++}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
       users.set(row.id, row);
       usersByEmail.set(email, row);
       return publicUser(row);
@@ -130,6 +131,7 @@ function createFakeDb() {
         tutorSessions,
         tutorMessages,
         toolkit,
+        minuteEntries,
         audits
       ]) {
         for (let index = rows.length - 1; index >= 0; index -= 1) {
