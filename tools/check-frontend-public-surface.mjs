@@ -56,6 +56,13 @@ try {
   assert.match(accessPage, /aria-controls="accountPassword" aria-pressed="false"/, 'password visibility control must expose accessible state');
   assert.match(accessPage, /password\.type=willShow\?'text':'password'/, 'password visibility button must toggle the input type');
   assert.match(accessPage, /showPassword\.textContent=willShow\?'Hide password':'Show password'/, 'password visibility button must explain its current action');
+  const lessonPage = await readFile(new URL('../learning-ai-design-assets/lesson.html', import.meta.url), 'utf8');
+  assert.match(lessonPage, /answers are still saved as a draft on this device/, 'failed lesson saves must accurately preserve and describe the local draft');
+  assert.match(lessonPage, /lesson is not marked complete until it saves to your account/, 'failed lesson saves must not claim completion');
+  assert.doesNotMatch(lessonPage, /lesson is complete on this device, but the account copy did not save/i, 'failed lesson saves must not report a false local completion');
+  const onboardingPage = await readFile(new URL('../learning-ai-design-assets/onboarding.html', import.meta.url), 'utf8');
+  assert.match(onboardingPage, /theme\.js\?v=teen-game-4/, 'questionnaire page must load the shared onboarding controller');
+  assert.match(accessPage, /Continue to the questions/, 'successful account creation must continue to the questionnaire');
   for (const path of [
     '/HANDOFF.md',
     '/DESIGN-MIGRATION-PLAN.md',
