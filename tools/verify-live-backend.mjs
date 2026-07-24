@@ -1,7 +1,9 @@
 import dns from 'node:dns/promises';
 import net from 'node:net';
 
-const DEFAULT_API_URL = 'https://api.learningai4you.com';
+// Production clients use the frontend's same-origin /api proxy. Verify that
+// public contract instead of the internal API service hostname.
+const DEFAULT_API_URL = 'https://learningai4you.com';
 const apiUrl = new URL(process.env.LEARNING_AI_API_URL || DEFAULT_API_URL);
 const timeoutMs = Number(process.env.VERIFY_TIMEOUT_MS || 10000);
 
@@ -64,10 +66,24 @@ async function checkHttp(path, expectedStatuses, label) {
   if (path === '/api/health' && outcome.response.ok) {
     try {
       const health = JSON.parse(outcome.text);
-      const healthOk = health.status === 'ok' && health.db === 'connected';
-      const marker = `status=${health.status || 'missing'} db=${health.db || 'missing'}`;
-      if (!healthOk) return result(label, false, `${detail} ${marker}`);
-      return result(label, expected, marker ? `${detail} ${marker}` : detail);
+      const marker = [
+        health.buildSha ? `buildSha=${health.buildSha}` : null,
+        health.buildTime ? `buildTime=${health.buildTime}` : null,
+        health.dbStatus ? `dbStatus=${health.dbStatus}` : null,
+        health.migrationVersion ? `migrationVersion=${health.migrationVersion}` : null
+      ].filter(Boolean).join(' ');
+      const ready = expected
+        && health.ok === true
+        && health.dbStatus === 'ok'
+        && Number(health.migrationVersion) >= 7
+        && health.buildSha
+        && health.buildSha !== 'local'
+        && health.passwordResetEmailConfigured === true;
+      return result(
+        label,
+        ready,
+        `${marker ? `${detail} ${marker}` : detail} passwordResetEmailConfigured=${Boolean(health.passwordResetEmailConfigured)}`
+      );
     } catch {
       return result(label, false, `${detail} non-JSON health response`);
     }
@@ -84,8 +100,8 @@ async function main() {
   checks.push(dnsOk);
   checks.push(tcpOk);
   checks.push(await checkHttp('/api/health', [200], 'health'));
-  checks.push(await checkHttp('/api/me', [401], 'learner auth guard'));
-  checks.push(await checkHttp('/api/admin/overview', [401], 'admin api guard'));
+  checks.push(await checkHttp('/api/auth/me', [401], 'learner auth guard'));
+  checks.push(await checkHttp('/api/admin/learners', [401], 'admin api guard'));
 
   const failed = checks.filter((ok) => !ok).length;
   if (failed > 0) {

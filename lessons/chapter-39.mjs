@@ -15,12 +15,12 @@ export default {
       "kind": "coldOpen",
       "title": "You have the answer. Are you any smarter?",
       "scenario": "You're stuck on a real decision — say, whether to take the harder class next term. You paste it into an AI, read the tidy answer, and go with it. A week later a friend asks why you chose it, and you realize you can repeat the AI's reasons but you can't actually explain them.",
-      "prompt": "Before you read on: think of one real question you'd normally just hand over for the answer. What would you actually understand afterward — the topic, or just the AI's conclusion?"
+      "prompt": "Before you read on, choose what you need from help: more options, a challenged assumption, missing evidence, or a final decision. Which of those should stay yours, and what could the AI safely help expose?"
     },
     {
       "kind": "reveal",
       "title": "The mechanism, and why 'partner' is only a way of using it",
-      "body": "An AI assistant learned patterns from huge amounts of human writing and predicts the most likely next words. Because that's the mechanism — not truth-checking — a good answer and a confident wrong one can look identical. In 2026 these tools also browse the web, use other tools, and remember across chats, but they still hallucinate. 'Thinking partner' is a way of USING the AI, a comparison — not a claim about the tool. The AI has no goals and doesn't care whether you learn. You only get the thinking-partner effect because you wrote a prompt that forces YOU to do a reasoning step before it hands anything over. The win isn't the answer; it's that you stayed in the driver's seat and can now explain the thing in your own words.",
+      "body": "An AI assistant learned patterns from huge amounts of human writing and predicts likely language. Because that mechanism is not truth-checking, a useful suggestion and a confident error can look alike. 'Thinking partner' is a way of USING the tool, not a claim that it thinks or cares. You create the benefit by writing your own first view, choosing what evidence matters, and keeping the final decision. Before using an outside assistant, choose a low-stakes or invented decision and remove names, school or workplace details, money amounts, private messages, health information, and another person's data. What you enter leaves LearningAI.",
       "mistake": "Ask the lazy way, read the answer, and assume that because the AI could answer it, there was no point thinking about it yourself.",
       "good": "Ask in a way that makes you reason first — so you walk away understanding it, not just holding a conclusion."
     },
@@ -60,7 +60,7 @@ export default {
       "kind": "tryLive",
       "title": "Run the thinking-partner prompt for real",
       "prompt": "I want to think through [a real question or decision you're actually chewing on], not just be handed the answer. Don't answer yet. First ask me [2 or 3] questions about how I'm currently thinking about it. After I reply, point out [one thing I seem to be missing — a blind spot, a weak assumption, an angle I skipped] — then let me take another go before you give your own view.",
-      "note": "Fully worked example: \"I want to think through whether I should take the harder class next term instead of the easy one, not just be handed the answer. Don't answer yet. First ask me 2 questions about how I'm currently thinking about it. After I reply, point out one assumption I'm making that might not be true — then let me take another go before you give your own view.\" Pick something real, not a trivia question. Actually answer its questions yourself before it gives any view."
+      "note": "Worked example: 'I want to think through whether to join a weekend repair project or keep that time free. Do not decide for me. Ask two questions, identify one assumption, and name one fact I should check.' Use a low-stakes or invented situation with no identifying details. Answer the questions yourself, check any load-bearing claim independently, and record your reason before reading the assistant's view."
     },
     {
       "kind": "toolkitSave",
@@ -95,17 +95,17 @@ export default {
           "feedback": "That's it. The skill is keeping yourself in the loop — you can explain it in your own words, not just repeat the AI."
         },
         {
-          "text": "Get a clean final answer from the AI faster than before.",
+          "text": "I used the AI to surface two options and a hidden assumption, then chose the fastest option without checking whether the assumption was true.",
           "ok": false,
-          "feedback": "Speed to an answer isn't the win here. If you let it just answer, run the prompt again and do the reasoning steps yourself."
+          "feedback": "The tool widened the view, but the decision still rests on an unchecked assumption. Verify the load-bearing fact, then write your own reason."
         },
         {
-          "text": "Have the AI write the conclusion so you can hand it in.",
+          "text": "I wrote my own conclusion, but it mostly repeats the AI's reasons and I cannot explain which evidence changed my view.",
           "ok": false,
           "feedback": "Then you have a conclusion but you're no smarter. The point is that YOU can explain it afterward."
         },
         {
-          "text": "Trust the AI's view because it browsed the web and sounded confident.",
+          "text": "I compared the AI's view with my first view, but treated its linked sources as verified without opening them.",
           "ok": false,
           "feedback": "Confident and web-connected still doesn't mean checked — these tools predict likely words and can be confidently wrong. Reason it through yourself and verify anything load-bearing."
         }

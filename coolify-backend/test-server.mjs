@@ -654,6 +654,28 @@ async function runRouteChecks(db, label) {
     let learnerCsrf = state.body.csrfToken;
     assert.ok(learnerCsrf);
 
+    const secondSignup = await request('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: `second-${Date.now()}@example.com`, password: 'learning-ai-pass', displayName: 'Second Learner' }
+    });
+    assert.equal(secondSignup.response.status, 201);
+    const secondCookie = cookieHeader(secondSignup.headers.get('set-cookie'));
+    const secondInitialState = await request('/api/v2/state', { headers: { cookie: secondCookie } });
+    assert.equal(secondInitialState.response.status, 200);
+    assert.deepEqual(secondInitialState.body.state.progress, []);
+    const secondProgress = await request('/api/v2/progress', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: secondCookie, 'x-csrf-token': secondInitialState.body.csrfToken },
+      body: { lessonId: 'chapter-1', currentStep: 1, completed: true }
+    });
+    assert.equal(secondProgress.response.status, 200);
+    const firstStateAfterSecondWrite = await request('/api/v2/state', { headers: { cookie: learnerCookie } });
+    const secondStateAfterWrite = await request('/api/v2/state', { headers: { cookie: secondCookie } });
+    assert.deepEqual(firstStateAfterSecondWrite.body.state.progress.map(row => row.lessonId), ['chapter-1']);
+    assert.deepEqual(secondStateAfterWrite.body.state.progress.map(row => row.lessonId), ['chapter-1']);
+    learnerCsrf = firstStateAfterSecondWrite.body.csrfToken;
+
     const profileBlocked = await request('/api/v2/profile', {
       method: 'PUT',
       headers: { 'content-type': 'application/json', cookie: learnerCookie },

@@ -13,7 +13,7 @@ export default {
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The call that sounds exactly like her",
+      "title": "The call that sounds exactly right",
       "scenario": "Your phone rings. It's your grandson's number — his voice, panicked: \"Grandma, it's me, I'm in trouble and need $500 fast. Please don't tell Mom, just send it.\" It sounds like him. Every word.",
       "prompt": "Before you read on: what would you check to decide if this is really him? Notice if your instinct is to listen harder for something 'off' in the voice."
     },
@@ -71,13 +71,13 @@ export default {
         "Ask your agreed code word only the real person would know",
         "If money already moved, call your bank's fraud line and report it to the police or local fraud authority"
       ],
-      "note": "The whole point: you never judge whether it 'looked real.' You confirm through a channel you already trust. Analogy warning — it's tempting to think of catching a fake like spotting a bad photocopy, look close and you'll see flaws. That comparison no longer holds: AI now makes voices and faces with no reliable flaws to spot."
+      "note": "The whole point: you never judge whether it 'looked real.' You confirm through a channel you already trust. Looking for glitches can be a clue, but it is not a reliable verification method; convincing synthetic voices and faces may contain no obvious flaw."
     },
     {
       "kind": "tryLive",
       "title": "Pressure-test a message with a coach",
-      "prompt": "Act as a scam-awareness coach. Here is a message I received: [paste the exact message or describe the call]. List the warning signs in it, then walk me through exactly how I would verify it is real using a [separate channel I already trust] — and tell me what NOT to do.",
-      "note": "Fill the first blank with the real text or a summary of the call — e.g. \"Grandma it's me, I need $500 fast, don't tell Mom.\" Fill the second with a way to reach the real person that does NOT come from the suspicious message — e.g. \"the mobile number for my grandson already saved in my phone, or asking his mother directly.\" A good coach flags urgency + secrecy + payment and points you to that independent contact."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use this invented message; do not paste a real suspicious message, link, phone number, login code, bank detail, or person's name: 'I'm stuck and need $500 in ten minutes. Keep this secret.' List the warning signs, then build a verification plan using a separate contact route that existed before the message. Tell me what not to click, send, or reveal.",
+      "note": "Practice on the invented text. If a real message arrives, stop interacting with it. Use a saved contact or an official number you find independently; never use contact details supplied by the suspicious message."
     },
     {
       "kind": "toolkitSave",
@@ -112,19 +112,19 @@ export default {
       "question": "You get a video call. It looks and sounds exactly like your boss: \"I'm in a meeting — wire $2,000 to this account in the next 10 minutes, and don't message anyone.\" What's your move?",
       "options": [
         {
-          "text": "Look closely for glitches in the video; if it looks flawless, send the money.",
+          "text": "Pause the payment, ask a question only the boss is likely to know, and continue on the same video call if the answer sounds right.",
           "ok": false,
-          "feedback": "By 2026 there are no reliable glitches to catch. 'Did it look real?' gives you zero information — only the channel does."
+          "feedback": "Pausing is right, but the suspicious channel cannot verify itself. A prepared scammer or model may answer convincingly. Switch channels."
         },
         {
-          "text": "Send it — the boss said it's urgent and to keep it quiet, so there's no time to check.",
+          "text": "Message a coworker through the same meeting chat to ask whether the request seems normal.",
           "ok": false,
-          "feedback": "Urgency + secrecy + a payment request are the exact red flags. That pressure is the scam working, not a reason to skip verifying."
+          "feedback": "A second opinion helps, but an account or meeting may be compromised. Reach the boss or finance team through a known, separate route."
         },
         {
           "text": "Name the two red flags (urgency + payment), then reach the real boss on a number or app you already have saved and ask your code word — without judging whether the video looked real.",
           "ok": true,
-          "feedback": "Exactly. You never relied on the call seeming convincing. You verified through a channel you already trust."
+          "feedback": "Exactly. You did not rely on the call seeming convincing. You verified through a channel you already trusted."
         },
         {
           "text": "Reply to the video call to ask a few questions and see if 'they' answer like your boss would.",

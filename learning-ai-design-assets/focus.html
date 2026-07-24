@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Focus · LearningAI</title>
+  <link rel="stylesheet" href="./glass-finish.css">
+  <link rel="stylesheet" href="./theme.css?v=teen-game-4">
+  <link rel="stylesheet" href="./focus.css?v=badge-6">
+  <link rel="stylesheet" href="./focus-refinement.css?rings=7">
+  <link rel="stylesheet" href="./achievement-vault.css?v=art-1">
+  <style>.rhythm-scale small,.timer-readout span,.medal-front small,.medal-back em,.medal-back span,.medal>small{font-size:12px}</style>
+</head>
+<body>
+  <div class="nav-stage">
+    <header class="nav-shell" id="navShell">
+      <div class="nav-glass">
+        <a class="brand" href="./stage-1-navigation-proof.html" aria-label="LearningAI dashboard"><span class="mark" aria-hidden="true"></span><span>LearningAI</span></a>
+        <nav aria-label="Primary">
+          <a href="./stage-1-navigation-proof.html">Dashboard</a>
+          <a href="./progress.html">Progress</a>
+          <a href="./lessons.html">Lessons</a>
+          <a href="./focus.html" aria-current="page">Focus</a>
+          <a href="./projects.html">Projects</a>
+          <a href="./about.html">About</a>
+          <a href="./about.html#teaching">Teaching AI</a>
+        </nav>
+        <div class="welcome"><span class="greeting" id="greeting">Welcome back, Learner</span></div>
+        <a class="settings" href="./settings.html" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1v-4a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v.09a1.7 1.7 0 0 0 1.4 1.51 1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1v4a1.7 1.7 0 0 0-.6 1Z"/></svg></a>
+      </div>
+    </header>
+  </div>
+
+  <main class="focus-main">
+    <header class="focus-hero">
+      <div>
+        <p class="eyebrow">Focus</p>
+        <h1>Give learning<br>your full attention.</h1>
+      </div>
+      <p>Twenty-five minutes is the recommended checkpoint—not a stopping rule. Continue for as long as your attention still feels clear.</p>
+    </header>
+
+    <section class="focus-layout" aria-labelledby="timerTitle">
+      <article class="focus-panel timer-panel">
+        <div class="timer-copy">
+          <p class="eyebrow">Today’s learning</p>
+          <h2 id="timerTitle">One calm interval.</h2>
+          <p id="timerStatus" aria-live="polite">Ready when you are.</p>
+          <div class="focus-recommendation" id="focusRecommendation">
+            <span>Recommended learning window</span>
+            <strong>25–30 minutes</strong>
+            <p>Start with 25 minutes of focused learning, then pause for a brief attention check. Continue only while your thinking still feels clear.</p>
+          </div>
+          <div class="checkpoint-picker time-planner" id="timePlanner">
+            <div class="planner-heading">
+              <label for="checkpointLength">How long do you want to learn?</label>
+              <output id="plannedMinutes" for="checkpointLength">25 minutes</output>
+            </div>
+            <input id="checkpointLength" type="range" min="10" max="60" step="5" value="25" aria-describedby="focusRecommendation timeEstimate">
+            <div class="planner-scale" aria-hidden="true"><span>10</span><span>25 recommended</span><span>60</span></div>
+            <div class="time-estimate" id="timeEstimate" aria-live="polite">
+              <strong id="estimateLessons">About 2 lessons fit</strong>
+              <span id="estimateArcTime">Arc 1 takes about 47 minutes</span>
+              <span id="estimateCourseTime">All 50 lessons take about 8 hours 22 minutes</span>
+            </div>
+          </div>
+          <div class="timer-actions">
+            <button class="action primary" id="timerToggle" type="button">Start focus</button>
+            <button class="action" id="timerFinish" type="button">Finish session</button>
+          </div>
+          <p class="focus-privacy">Stored only in this browser: focus duration, session count, and earned dates. LearningAI does not record what you type.</p>
+          <label class="sound-choice"><input id="soundEnabled" type="checkbox"><span>Play a gentle sound at the checkpoint <small>Optional · off by default</small></span></label>
+        </div>
+        <div class="timer-dial" aria-label="Time spent learning today">
+          <svg viewBox="0 0 220 220" role="img" aria-label="Progress toward the next learning checkpoint">
+            <defs><linearGradient id="focusGradient" x1="0" x2="1"><stop stop-color="#13b9cb"/><stop offset=".52" stop-color="#91d63a"/><stop offset="1" stop-color="#f0b640"/></linearGradient></defs>
+            <circle class="dial-track" cx="110" cy="110" r="91"/>
+            <circle class="dial-value" id="dialValue" cx="110" cy="110" r="91"/>
+          </svg>
+          <div class="timer-readout"><strong id="timerClock">00:00</strong><span id="checkpointLabel">next check-in · 25:00</span></div>
+        </div>
+      </article>
+
+      <aside class="focus-panel today-panel">
+        <p class="eyebrow">A healthy rhythm</p>
+        <h2>Attention has seasons.</h2>
+        <div class="rhythm-scale" aria-label="Suggested learning session lengths">
+          <span style="--level:.56"><b>20</b><small>gentle</small></span>
+          <span class="recommended" style="--level:.72"><b>25</b><small>recommended</small></span>
+          <span style="--level:.84"><b>30</b><small>deep</small></span>
+          <span style="--level:1"><b>45</b><small>extended</small></span>
+        </div>
+        <p class="rhythm-note">At every checkpoint, LearningAI pauses and asks whether you want to finish or continue. There is no maximum and no penalty for stopping early.</p>
+      </aside>
+    </section>
+
+    <section class="focus-panel achievement-vault" aria-labelledby="capabilityTitle">
+      <div class="vault-head">
+        <div>
+          <p class="eyebrow">Capability collection</p>
+          <h2 id="capabilityTitle">Ten arcs. Ten capabilities you practise.</h2>
+        </div>
+        <p><strong id="capabilityEarnedCount">0</strong> of 10 earned</p>
+      </div>
+      <p class="vault-help">Click or tap any medal to flip it. Drag horizontally to turn it slowly. Locked medals are safe to inspect—they do not start or skip a lesson. Each major medal unlocks when you finish an arc and marks a practical human capability you practiced; time alone never earns one.</p>
+      <div class="capability-grid" id="capabilityGrid" aria-label="Arc capability medals"></div>
+    </section>
+
+    <details class="focus-panel achievement-vault milestone-vault" open>
+      <summary class="vault-head">
+        <div>
+          <p class="eyebrow">Smaller milestones</p>
+          <h2 id="milestoneTitle">The moments that keep you moving.</h2>
+        </div>
+        <p><strong id="milestoneEarnedCount">0</strong> of 12 earned <span aria-hidden="true">＋</span></p>
+      </summary>
+      <p class="vault-help">Milestone pins mark lessons, focus time, returns, notes, and projects. They are intentionally simpler than arc medals: useful encouragement, never a score of intelligence.</p>
+      <div class="milestone-grid" id="milestoneGrid" aria-label="Learning milestone pins"></div>
+    </details>
+
+    <section class="focus-panel rotation-console" aria-labelledby="rotationTitle">
+      <div class="rotation-copy">
+        <p class="eyebrow">Inspect the object</p>
+        <h2 id="rotationTitle">Turn <span id="selectedBadgeName">First Signal</span></h2>
+        <p>Drag horizontally on a medal with a mouse, trackpad, or finger. A vertical finger gesture still scrolls the page. Press Enter to flip, use the arrow keys to turn, or move the slider.</p>
+      </div>
+      <aside class="selected-achievement-detail" aria-live="polite" aria-label="Selected achievement details">
+        <p class="eyebrow">Selected achievement</p>
+        <h3 id="selectedBadgeDetailName">First Signal</h3>
+        <p id="selectedBadgeMeaning">Explain what prediction is and choose when not to trust it.</p>
+        <dl>
+          <div><dt>Requirement</dt><dd id="selectedBadgeRequirement">Complete 5 lessons</dd></div>
+          <div><dt>Status</dt><dd id="selectedBadgeStatus">0 of 5 lessons</dd></div>
+          <div><dt>Engraving</dt><dd id="selectedBadgeEarned">Earned date appears here</dd></div>
+        </dl>
+      </aside>
+      <label for="badgeRotation">
+        <span>Rotation</span>
+        <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
+      </label>
+      <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="rotationTitle">
+      <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
+      <div class="rotation-actions" aria-label="Quick badge rotation controls">
+        <button id="badgeShowFront" type="button">Show front</button>
+        <button id="badgeShowBack" type="button">Show back</button>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="checkpoint" id="checkpointDialog" aria-labelledby="checkpointTitle">
+    <div class="checkpoint-inner">
+      <div class="checkpoint-orbit" aria-hidden="true"><span></span></div>
+      <p class="eyebrow">Attention checkpoint</p>
+      <h2 id="checkpointTitle">How does your mind feel?</h2>
+      <p>You have reached your planned learning interval. You can finish with the work saved, or continue while your attention is still clear.</p>
+      <div class="checkpoint-actions">
+        <button class="action primary" id="checkpointDone" type="button">I’m done for now</button>
+        <button class="action" data-continue="10" type="button">Continue 10 minutes</button>
+        <button class="action" data-continue="20" type="button">Continue 20 minutes</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="./theme.js?v=teen-game-4"></script>
+  <script src="./nav-behavior.js?v=nav-5"></script>
+  <script src="../v2/lessons.js?v=course-5"></script>
+  <script src="./course-state.js?v=course-state-2"></script>
+  <script src="./focus.js?v=teen-badge-6"></script>
+  <script src="./achievement-vault.js?v=art-1"></script>
+</body>
+</html>

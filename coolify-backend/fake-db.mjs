@@ -74,7 +74,7 @@ export function createFakeDb(options = {}) {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
     async health() {
-      return { dbStatus: 'ok', migrationVersion: 6 };
+      return { dbStatus: 'ok', migrationVersion: 7 };
     },
     async createUser({ email, passwordHash, displayName }) {
       const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };

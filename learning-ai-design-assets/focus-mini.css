@@ -1,0 +1,38 @@
+.focus-mini {
+  --focus-accent: #2e8e98;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 18px;
+  align-items: center;
+  margin: 18px 0 24px;
+  padding: 15px 17px 15px 20px;
+  border: 1px solid rgba(255,255,255,.82);
+  border-radius: 22px;
+  color: #202522;
+  background: linear-gradient(145deg,rgba(255,255,255,.42),rgba(255,255,255,.10) 58%,rgba(217,226,224,.19));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.96), inset 0 -1px 0 rgba(34,39,37,.10), 0 13px 34px rgba(38,41,38,.09);
+  backdrop-filter: blur(20px) saturate(1.24);
+  -webkit-backdrop-filter: blur(20px) saturate(1.24);
+}
+.focus-mini-copy { min-width: 0; }
+.focus-mini-label { display: block; color: #69716d; font-size: 9px; font-weight: 760; letter-spacing: .15em; text-transform: uppercase; }
+.focus-mini-title { display: block; margin-top: 5px; font-size: 14px; font-weight: 690; letter-spacing: -.02em; }
+.focus-mini-status { display: block; margin-top: 3px; overflow: hidden; color: #6c736f; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.focus-mini-meter { position: relative; display: grid; width: 58px; height: 58px; place-items: center; }
+.focus-mini-meter svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.focus-mini-track,.focus-mini-value { fill: none; stroke-width: 7; }
+.focus-mini-track { stroke: rgba(39,46,43,.10); }
+.focus-mini-value { stroke: var(--focus-accent); stroke-linecap: round; transition: stroke-dashoffset 320ms ease; }
+.focus-mini-time { position: relative; z-index: 1; font-size: 9px; font-weight: 760; letter-spacing: -.02em; }
+.focus-mini-actions { display: flex; align-items: center; gap: 8px; }
+.focus-mini-button,.focus-mini-link { display: inline-flex; align-items: center; justify-content: center; min-height: 38px; padding: 0 13px; border: 1px solid rgba(38,44,41,.14); border-radius: 13px; color: #222825; background: rgba(255,255,255,.40); box-shadow: inset 0 1px 0 white,0 6px 15px rgba(34,39,37,.07); font: inherit; font-size: 10px; font-weight: 720; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.focus-mini-button { border-color: #29312e; color: white; background: #29312e; }
+.focus-mini-button:hover,.focus-mini-link:hover { transform: translateY(-1px); }
+.focus-mini-button:focus-visible,.focus-mini-link:focus-visible { outline: 3px solid color-mix(in oklab,var(--focus-accent) 55%,white); outline-offset: 3px; }
+@media(max-width:700px){
+  .focus-mini { grid-template-columns: minmax(0,1fr) auto; gap: 12px; padding: 14px; }
+  .focus-mini-meter { width: 52px; height: 52px; }
+  .focus-mini-actions { grid-column: 1 / -1; }
+  .focus-mini-button,.focus-mini-link { flex: 1; }
+}
+@media(prefers-reduced-motion:reduce){.focus-mini-value,.focus-mini-button,.focus-mini-link{transition:none}}

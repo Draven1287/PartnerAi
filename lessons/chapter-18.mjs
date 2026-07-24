@@ -7,7 +7,7 @@ export default {
   "arc": "Trust & Everyday AI",
   "title": "A Daily Habit, Not a Crutch",
   "coreQuestion": "How do I use AI every day in a way that makes my own thinking sharper instead of switching my brain off?",
-  "blurb": "The same AI can leave your brain off or on — the difference is entirely in how you ask.",
+  "blurb": "Use AI often without giving away the part you want your own brain to learn.",
   "minutes": 8,
   "resources": [],
   "steps": [
@@ -51,7 +51,7 @@ export default {
           "answer": 1
         }
       ],
-      "reveal": "Same machine, different instructions. 'Crutch' and 'coach' are a comparison to help you feel the difference — not a claim about what the AI is doing inside. The AI is genuinely capable in 2026: it can search the live web, take steps, use tools, and remember across chats. But it still has no idea what YOU are trying to get better at, and it can still hallucinate. So you have to build that into how you ask."
+      "reveal": "Same machine, different instructions. 'Crutch' and 'coach' are a comparison to help you feel the difference—not a claim about what the AI is doing inside. Assistants can search, use tools, take several steps, and sometimes reuse saved information. They still cannot choose which human ability you want to protect. You make that boundary explicit."
     },
     {
       "kind": "reveal",
@@ -63,8 +63,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run your coach habit once, right now",
-      "prompt": "I want a 5-minute daily habit, using you, that makes me sharper at [an area, e.g. writing clear messages] instead of dependent. Don't do the work for me — make me try first, then coach me. My guardrail is: [the one step I'll always do myself, e.g. I always write the first draft before I show it to you]. Start now: give me one small thing to attempt for [today's real example, e.g. a thank-you text to my neighbor who watered my plants], wait for my try, then improve it and tell me one thing to fix next time.",
-      "note": "Use a REAL thing from today, not a hypothetical — that's what makes the habit live. Do your try before you let it help. If it jumps in and does the whole thing anyway, remind it: 'wait for my attempt first.'"
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or redacted example; do not paste names, private messages, school details, or another person's information. I want a 5-minute habit that makes me sharper at [an area, e.g. writing clear messages] instead of dependent. Don't do the work for me — make me try first, then coach me. My guardrail is: [the one step I'll always do myself]. Give me one small practice task, wait for my try, then point out one useful improvement.",
+      "note": "Choose an ordinary practice task: a pretend customer reply, a made-up thank-you, a game strategy, or a short explanation. Do your try before the AI helps. If it jumps in, say: 'Pause. Wait for my attempt first.'"
     },
     {
       "kind": "toolkitSave",
@@ -99,14 +99,14 @@ export default {
           "feedback": "That's the win. You can name a specific thing YOU did that the AI didn't — the skill stayed yours."
         },
         {
-          "text": "\"The AI wrote all of it and I sent it.\"",
+          "text": "\"I gave the AI my main points, let it draft the message, then changed the greeting and sent it.\"",
           "ok": false,
-          "feedback": "The guardrail slipped. If the only honest answer is 'the AI did all of it,' redo it and keep your one step for yourself."
+          "feedback": "You made a small edit, but the AI still did the skill you meant to practice. Keep the first meaningful attempt or the final decision for yourself."
         },
         {
-          "text": "\"I didn't run it on a new task — I just reread yesterday's.\"",
+          "text": "\"I asked the AI for three drafts, chose the one I liked, and rewrote one sentence.\"",
           "ok": false,
-          "feedback": "The check is about DOING the habit on a fresh, real task — that's the only way you find out if the guardrail holds."
+          "feedback": "Choosing is a real decision, but it does not practice drafting. If drafting is the skill you want, make your own rough version before comparing options."
         }
       ]
     }

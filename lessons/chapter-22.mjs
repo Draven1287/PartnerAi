@@ -74,8 +74,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run it, then grade it yourself",
-      "prompt": "Answer this in [a countable limit]. Do not use the word [banned word]. Question: [your real question]",
-      "note": "Fill the blanks with YOUR own request — not the bike one. A countable limit is something you can literally count afterward ('exactly 3 bullet points', 'one short paragraph'), not a vibe ('keep it brief'). Pick one specific banned word ('amazing', 'utilize', 'synergy'). Then do the verify step: count the bullets — is it really the number you asked for? — and Ctrl-F or eyeball the reply for the banned word. If it slipped, send one fix reply ('That was 4 bullets and used \"amazing\" — redo it in exactly 3 and drop that word') and watch it tighten."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or public question; do not paste private messages, names, account information, or another person's data. Answer this in [a countable limit]. Do not use the word [banned word]. Question: [your low-stakes question]",
+      "note": "Choose a practical request such as a used-bike checklist, meal-prep plan, or game-night reminder. Count the result and scan for the banned word. If it misses, report the exact break, request one repair, and check again."
     },
     {
       "kind": "toolkitSave",
@@ -110,14 +110,14 @@ export default {
           "feedback": "Exactly. The skill is proving the result: you counted, you scanned, you caught the break, and you correct in one reply and check again."
         },
         {
-          "text": "Accept it — the AI ignores limits anyway, so setting them was pointless.",
+          "text": "Keep the five steps because the extra one is useful, but remove the banned word and call it close enough.",
           "ok": false,
-          "feedback": "That's the misconception this lesson fixes. Countable limits usually hold, and when one breaks you can catch it in five seconds and fix it in one reply."
+          "feedback": "That may be a reasonable product choice, but it does not meet the stated constraint. Either change the requirement deliberately or repair the output—do not pretend both were satisfied."
         },
         {
-          "text": "Assume it obeyed since you asked clearly, and move on without reading the reply.",
+          "text": "Ask the AI to certify that it followed both limits, then accept its self-check.",
           "ok": false,
-          "feedback": "Never assume it obeyed — the AI doesn't tally as it writes. The whole point is the verify step: count and scan every time."
+          "feedback": "The same system's self-check is a clue, not evidence. Count and scan the visible output yourself."
         },
         {
           "text": "Rewrite the request as 'please keep it shorter and simpler' and resend.",

@@ -11,8 +11,13 @@ const DATA_FILE = process.env.DATA_FILE || join(__dirname, 'data', 'minutes.json
 const BUILD_SHA = process.env.BUILD_SHA || process.env.COOLIFY_GIT_COMMIT_SHA || 'local';
 const BUILD_TIME = process.env.BUILD_TIME || new Date().toISOString();
 const SESSION_DAYS = 30;
+const COURSE_LESSON_COUNT = 50;
 const ADMIN_SESSION_HOURS = 8;
 const PASSWORD_RESET_MINUTES = 60;
+const PASSWORD_RESET_FROM = String(process.env.PASSWORD_RESET_FROM || '').trim();
+const PUBLIC_WEB_ORIGIN = String(process.env.PUBLIC_WEB_ORIGIN || 'https://learningai4you.com').replace(/\/$/, '');
+const RESEND_API_KEY = String(process.env.RESEND_API_KEY || '').trim();
+const PASSWORD_RESET_EMAIL_CONFIGURED = Boolean(PASSWORD_RESET_FROM && PUBLIC_WEB_ORIGIN && RESEND_API_KEY);
 const DEFAULT_SITE_ORIGINS = [
   'https://learningai4you.com',
   'https://www.learningai4you.com',
@@ -42,6 +47,7 @@ function originSet(value, fallback) {
 }
 const ALLOWED_ORIGINS = originSet(process.env.CORS_ORIGINS, DEFAULT_SITE_ORIGINS);
 const ADMIN_ALLOWED_ORIGINS = originSet(process.env.ADMIN_CORS_ORIGINS, DEFAULT_ADMIN_ORIGINS);
+const TRUST_PROXY = process.env.TRUST_PROXY === '1';
 const RATE_LIMITS = new Map();
 const scrypt = promisify(scryptCallback);
 const LESSON_STATUSES = new Set(['draft', 'published', 'locked']);
@@ -82,7 +88,7 @@ function isSafeName(name) {
 }
 
 function isSafePassword(password) {
-  return typeof password === 'string' && password.length >= 8 && password.length <= 200;
+  return typeof password === 'string' && password.length >= 10 && password.length <= 200;
 }
 
 function isSafeLessonId(lessonId) {
@@ -359,9 +365,9 @@ function daysSince(value) {
 }
 
 function lessonNumber(value) {
-  if (Number.isFinite(Number(value))) return Math.max(1, Math.min(30, Number(value)));
+  if (Number.isFinite(Number(value))) return Math.max(1, Math.min(COURSE_LESSON_COUNT, Number(value)));
   const match = String(value || '').match(/(\d+)/);
-  return match ? Math.max(1, Math.min(30, Number(match[1]))) : 0;
+  return match ? Math.max(1, Math.min(COURSE_LESSON_COUNT, Number(match[1]))) : 0;
 }
 
 function consoleLevel(value) {
@@ -388,7 +394,7 @@ function buildAdminOverview({ learners = [], analytics = {}, visits = null } = {
   const normalizedLearners = learners.map(row => {
     const attempt = latestAttemptByUser.get(row.id) || {};
     const completed = Number(row.completedLessons || 0);
-    const lesson = lessonNumber(row.currentLesson) || Math.max(1, Math.min(30, completed + 1));
+    const lesson = lessonNumber(row.currentLesson) || Math.max(1, Math.min(COURSE_LESSON_COUNT, completed + 1));
     return {
       id: row.id,
       email: row.email || '',
@@ -484,6 +490,10 @@ async function hashPassword(password) {
 }
 
 function clientIp(req) {
+  if (TRUST_PROXY) {
+    const forwarded = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim();
+    if (forwarded) return forwarded;
+  }
   return String(req.socket.remoteAddress || 'unknown');
 }
 
@@ -666,7 +676,28 @@ async function handlePasswordResetRequest(req, res, db) {
       expiresAt: minutesFromNow(PASSWORD_RESET_MINUTES)
     });
   }
-  const payload = { ok: true, message: 'If this email exists, a password reset can be completed with the provided reset token.' };
+  if (created && PASSWORD_RESET_EMAIL_CONFIGURED) {
+    const resetUrl = new URL('/access.html', PUBLIC_WEB_ORIGIN);
+    resetUrl.searchParams.set('reset', token);
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${RESEND_API_KEY}`,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: PASSWORD_RESET_FROM,
+        to: [email],
+        subject: 'Reset your LearningAI password',
+        text: `Open this secure link within ${PASSWORD_RESET_MINUTES} minutes to choose a new LearningAI password:\n\n${resetUrl}`,
+        html: `<p>Open this secure link within ${PASSWORD_RESET_MINUTES} minutes to choose a new LearningAI password:</p><p><a href="${resetUrl}">Choose a new password</a></p><p>If you did not request this, you can ignore this email.</p>`
+      })
+    });
+    if (!response.ok) {
+      console.error('Password reset email could not be sent:', response.status);
+    }
+  }
+  const payload = { ok: true, message: 'If this email has a LearningAI account, a password reset email will arrive shortly.' };
   if (created && process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_RESET_TOKEN_RETURN === 'true') payload.resetToken = token;
   return sendJson(res, 200, payload, { req });
 }
@@ -1279,7 +1310,7 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
     dbReady = false;
     console.error('Database initialization failed:', error);
   });
-  return http.createServer(async (req, res) => {
+  const server = http.createServer(async (req, res) => {
     let url;
     try {
       url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
@@ -1288,7 +1319,7 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
       if (req.method === 'POST' && url.pathname === '/api/minutes') {
         await ready.catch(() => {});
         if (!dbReady) {
-          return sendJson(res, 503, { ok: false, error: 'db_not_ready', dbStatus: 'error', detail: dbInitError?.message || 'database initialization failed' }, { req });
+          return sendJson(res, 503, { ok: false, error: 'db_not_ready', dbStatus: 'error', detail: process.env.NODE_ENV === 'production' ? 'database initialization failed' : (dbInitError?.message || 'database initialization failed') }, { req });
         }
         return handleV1Minutes(req, res, database);
       }
@@ -1296,9 +1327,16 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
 
       if (req.method === 'GET' && url.pathname === '/') { res.writeHead(302, { location: '/admin' }); return res.end(); }
       if (req.method === 'GET' && (url.pathname === '/health' || url.pathname === '/api/health')) {
-        if (!dbReady) return sendJson(res, 503, { ok: false, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', dbStatus: 'error', error: dbInitError?.message || 'db_not_ready' }, { req });
+        if (!dbReady) return sendJson(res, 503, { ok: false, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', dbStatus: 'error', error: process.env.NODE_ENV === 'production' ? 'db_not_ready' : (dbInitError?.message || 'db_not_ready') }, { req });
         const health = await database.health();
-        return sendJson(res, 200, { ok: true, buildSha: BUILD_SHA, buildTime: BUILD_TIME, env: process.env.NODE_ENV || 'development', ...health }, { req });
+        return sendJson(res, 200, {
+          ok: true,
+          buildSha: BUILD_SHA,
+          buildTime: BUILD_TIME,
+          env: process.env.NODE_ENV || 'development',
+          passwordResetEmailConfigured: PASSWORD_RESET_EMAIL_CONFIGURED,
+          ...health
+        }, { req });
       }
       if ((req.method === 'GET' || req.method === 'HEAD') && url.pathname === '/admin') {
         res.writeHead(302, { location: process.env.ADMIN_CONSOLE_URL || 'https://learningai4you.com/backend-console.html' });
@@ -1513,6 +1551,13 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const body = await readJsonBody(req);
         if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_progress' }, { req });
+        const lessonNumber = Number(String(body.lessonId).replace('chapter-', ''));
+        if (lessonNumber > 1) {
+          const state = await database.stateForUser(session.user.id);
+          const previousId = `chapter-${lessonNumber - 1}`;
+          const previousComplete = (state.progress || []).some(row => row.lessonId === previousId && row.completedAt);
+          if (!previousComplete) return sendJson(res, 409, { ok: false, error: 'lesson_locked', previousLessonId: previousId }, { req });
+        }
         await database.saveProgress(session.user.id, body);
         return sendJson(res, 200, { ok: true }, { req });
       }
@@ -1622,6 +1667,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
       return sendJson(res, 500, { ok: false, error: message }, { req });
     }
   });
+  server.closeDatabase = async () => {
+    await ready.catch(() => {});
+    if (database?.close) await database.close();
+  };
+  return server;
 }
 
 export { hashPassword, isSafeName, nameKey, normalizeName, summarize };
@@ -1631,4 +1681,23 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   server.listen(PORT, '0.0.0.0', () => {
     console.log(`Learning AI backend listening on 0.0.0.0:${PORT}`);
   });
+  let shuttingDown = false;
+  const shutdown = signal => {
+    if (shuttingDown) return;
+    shuttingDown = true;
+    console.log(`${signal} received; closing Learning AI backend`);
+    const force = setTimeout(() => process.exit(1), 10_000);
+    force.unref();
+    server.close(async () => {
+      try {
+        await server.closeDatabase?.();
+        process.exit(0);
+      } catch (error) {
+        console.error('Backend shutdown failed:', error);
+        process.exit(1);
+      }
+    });
+  };
+  process.once('SIGTERM', () => shutdown('SIGTERM'));
+  process.once('SIGINT', () => shutdown('SIGINT'));
 }

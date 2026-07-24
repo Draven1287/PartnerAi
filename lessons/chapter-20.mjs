@@ -6,92 +6,143 @@ export default {
   "num": 20,
   "arc": "Trust & Everyday AI",
   "title": "Models, Tools, and Agents",
-  "coreQuestion": "What's the difference between an AI answering from memory, reaching for a tool, and running as an agent?",
-  "blurb": "One assistant, three modes — learn to spot which one you're in.",
-  "minutes": 9,
+  "coreQuestion": "What separates a model output, a tool call, and an agentic workflow — and where does human approval belong before a system acts?",
+  "blurb": "Read the trace, permissions, and side effects instead of trusting a label or a polished list of steps.",
+  "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Three replies, three ways",
-      "scenario": "You ask your assistant three things in one chat. First, why bread rises — it answers instantly. Second, today's weather in Lisbon — it pauses, then pastes a link. Third, 'find a soup recipe and turn it into a shopping list' — it works through a few steps and shows its work. Same assistant, three different modes.",
-      "prompt": "Before you read on: which of those three replies could the AI give with no internet at all — just from what it already learned?"
+      "title": "A plan is not proof of an action",
+      "scenario": "An assistant says: 'I searched three sites, chose a route, and booked it.' The reply contains a neat list of steps. But there is no source trace, permission request, booking confirmation, or account change. It may have described actions without performing any.",
+      "prompt": "Before you read on: what evidence would separate words about an action from a tool actually running or an agentic workflow changing something?"
     },
     {
       "kind": "reveal",
-      "title": "Model, tool, agent",
-      "body": "Three parts, no mystery. A MODEL is the piece that predicts an answer from patterns it learned across huge amounts of human writing — it guesses the words most likely to fit. A TOOL is an outside ability the model can call: the live web, a calculator, your files. An AGENT is that same model given a goal, some tools, and permission to take several steps on its own to reach it. A handy shorthand is brain → reach → run — but that's a comparison, not the real machinery. The 'brain' isn't a mind that knows things; it's a pattern-predictor. 'Reaching' isn't curiosity; it's the program running other software and pasting the result back. An 'agent' isn't deciding what it wants; it's following YOUR goal, one predicted step at a time. Knowing which mode you're in tells you how much to trust the answer and how much to watch it — because in every mode, the model can still make things up.",
-      "mistake": "Assuming the AI does everything inside its own head, so every answer is equally trustworthy.",
-      "good": "Ask yourself which mode produced the answer — memory, a live tool, or a chain of steps — and check accordingly."
+      "title": "Output, operation, workflow",
+      "body": "A MODEL produces an output from the information supplied to it and patterns learned during development. A TOOL is an outside operation the surrounding software can call — such as search, calculation, file reading, or calendar access. An AGENTIC WORKFLOW is an orchestrated loop that pursues a goal across steps: it chooses or is assigned a next action, calls tools, reads results, keeps state, and may continue until a stop condition. These are not three sealed boxes. An agentic system normally includes a model and tools, while an ordinary assistant may quietly use a tool for one answer. The useful questions are observable: What input was supplied? Which operation actually ran? What permission or data crossed a boundary? What side effect occurred? Where did a human approve, stop, or undo it?",
+      "mistake": "Calling any long answer an agent, or assuming a web link proves that a live tool ran.",
+      "good": "Inspect the execution trace, permissions, outputs, and side effects; if the interface does not expose them, say the mode is not established."
     },
     {
       "kind": "classify",
-      "title": "Which mode does each question need?",
-      "prompt": "Sort each request by what the assistant would have to do to answer it well.",
+      "title": "What does the evidence establish?",
+      "prompt": "Classify each built-in trace. Use 'cannot tell' when the output does not prove what happened behind it.",
       "buckets": [
-        "Model only (from memory)",
-        "Needs a live tool"
+        "Model output only",
+        "Tool-assisted operation",
+        "Agentic workflow",
+        "Cannot tell from this evidence"
       ],
       "items": [
         {
-          "text": "Explain why a rainbow forms.",
+          "text": "Input: 'Explain why bread rises.' Output: a general explanation; no tool event or fresh data is shown.",
+          "answer": 3
+        },
+        {
+          "text": "Runtime record: tools are disabled for this turn; the supplied prompt and model output are the only recorded events.",
           "answer": 0
         },
         {
-          "text": "What is the weather in Lisbon right now?",
+          "text": "Trace: calculator(1487 × 23) → 34,201; the reply cites that returned value.",
           "answer": 1
         },
         {
-          "text": "How does compound interest work?",
-          "answer": 0
+          "text": "Trace: search current bus routes → compare arrival times → ask for approval → add the chosen trip to a draft itinerary; no booking occurs.",
+          "answer": 2
         },
         {
-          "text": "What's today's exchange rate for $100 to euros?",
+          "text": "The reply says 'I checked the live web' but shows no tool event, source, timestamp, or result.",
+          "answer": 3
+        },
+        {
+          "text": "A current weather result includes a logged weather-service call and retrieval time.",
           "answer": 1
         },
         {
-          "text": "Explain what cholesterol is.",
-          "answer": 0
-        },
-        {
-          "text": "What songs are trending today?",
-          "answer": 1
+          "text": "A seven-step plan describes how someone could organize files, but no file access or action trace exists.",
+          "answer": 3
         }
       ],
-      "reveal": "Stable ideas that haven't changed in years live in the model's learned patterns — no lookup needed. Anything that changes by the day forces the assistant to reach for a live tool and bring back something it couldn't know on its own."
+      "reveal": "Length, confidence, and first-person verbs are not execution evidence. A tool event shows an outside operation. An agentic trace shows goal-directed orchestration across operations, state, and stop conditions. A real system can hide these details, so 'cannot tell' is often the honest answer."
+    },
+    {
+      "kind": "workflowChain",
+      "title": "Put approval before the side effect",
+      "goal": "A system may compare public bus routes and prepare an itinerary, but it must not buy anything, message anyone, or use private location history. Put the safe action boundary in order.",
+      "correct": [
+        "State the goal and the allowed public information",
+        "List forbidden data and actions: private history, messages, purchases, account changes, and sharing",
+        "Let the system gather and compare public route information while exposing its sources and tool trace",
+        "Pause on a draft and ask the person to inspect the route, time, and consequences",
+        "Only the person chooses whether to copy the approved plan; no external side effect is required for practice"
+      ],
+      "choices": [
+        "Pause on a draft and ask the person to inspect the route, time, and consequences",
+        "Let the system gather and compare public route information while exposing its sources and tool trace",
+        "State the goal and the allowed public information",
+        "Only the person chooses whether to copy the approved plan; no external side effect is required for practice",
+        "List forbidden data and actions: private history, messages, purchases, account changes, and sharing"
+      ],
+      "note": "More autonomy means more checkpoints, not more automatic trust. A side effect is any change outside the answer: sending, buying, deleting, publishing, booking, moving money, editing an account, or exposing data."
     },
     {
       "kind": "tryLive",
-      "title": "Run the three-message test",
-      "prompt": "Send these three, one at a time, in the same chat:\n\n1. \"Explain [a stable idea, like why bread rises] to me in three sentences.\"\n\n2. \"What is [something that changes today, like today's weather in your city] right now? Use the web and show me the source link.\"\n\n3. \"Goal: [a small 2–4 step goal, like: find one well-reviewed soup recipe online, then turn its ingredient list into a shopping list grouped by aisle]. Take whatever steps you need, then show me the final result and a short list of the steps you took.\"",
-      "note": "After the replies come back, write one sentence on the difference you felt between the three. Health tip: use these to LEARN — for advice on your own body, talk to a real doctor or nurse."
+      "title": "Optional: inspect a harmless trace",
+      "prompt": "If an external assistant exposes tool activity, use a harmless public task: ask for one current public fact, then a two-step comparison that ends in a draft. Record the input, tool event, returned data, next step, approval point, and whether any side effect occurred. If no trace is exposed, use the built-in bus-route trace above and mark the live mode 'not established.'",
+      "note": "Do not connect accounts, private files, precise location, messages, purchases, contacts, or another person's data. The full skill can be completed with the built-in trace."
     },
     {
-      "kind": "reveal",
-      "title": "How to tell them apart",
-      "body": "Brain (model only): answers straight from learned patterns, no live lookup, usually no fresh source link. Reach (tool): goes out for current information and brings back something a model couldn't know on its own — usually with a cited live link. Run (agent): takes several self-directed steps toward your goal and shows them. Important: an agent reply normally uses a tool too, so it often includes a link as well. The link is NOT what makes it an agent — the giveaway is the chain of steps it took on its own. The tells aren't perfect: a model can sometimes answer a 'today' question from stale memory with no link (sounds current, isn't), and a tool reply can forget to cite its source.",
-      "mistake": "Deciding it must be an agent just because the reply included a web link.",
-      "good": "Look for the chain of self-directed steps for 'agent' — and if a 'today' answer has no source link, ask again and tell it to use the web and cite the link."
+      "kind": "toolkitSave",
+      "title": "Save an action-boundary check",
+      "cardType": "Model, tool, or agentic workflow",
+      "fields": [
+        {
+          "key": "trace",
+          "label": "What the trace actually shows",
+          "placeholder": "model output / tool event / multi-step orchestration / not established"
+        },
+        {
+          "key": "permission",
+          "label": "Data or permission boundary",
+          "placeholder": "e.g. public routes only; no location history or account access"
+        },
+        {
+          "key": "effect",
+          "label": "Possible side effect",
+          "placeholder": "e.g. draft only; no booking, message, purchase, or account change"
+        },
+        {
+          "key": "approval",
+          "label": "Human approval point",
+          "placeholder": "e.g. inspect the route before copying the plan"
+        }
+      ]
     },
     {
       "kind": "exitCheck",
-      "title": "Can you name the mode?",
-      "question": "You asked: 'Find a 30-minute chicken recipe online and build a grocery list from it.' The assistant searched, picked a recipe, pulled the ingredients, grouped them by aisle, and listed the steps it took — including a link to the recipe. Which layer did it use, and how can you tell?",
+      "title": "Read what happened, not what it claimed",
+      "question": "An assistant returns a current recipe link, groups ingredients by aisle, and says it 'completed several agent steps.' What would justify calling the process agentic?",
       "options": [
         {
-          "text": "Tool only — because there's a web link in the reply.",
-          "ok": false,
-          "feedback": "A link shows it reached for a tool, but a link alone isn't the tell for an agent. Look at what else it did."
-        },
-        {
-          "text": "Agent — because it took several self-directed steps toward your goal and showed the chain, not just one lookup.",
+          "text": "An execution trace shows a goal-directed loop across search and transformation, the data returned at each step, its stop condition, and the human approval boundary before any side effect.",
           "ok": true,
-          "feedback": "Exactly. The chain of steps toward your goal is the giveaway. Agents usually use tools too, so the link is a side effect, not the signal."
+          "feedback": "Yes. The trace, state, stop condition, and action boundary establish the workflow — not the assistant's label."
         },
         {
-          "text": "Model only — because recipes are a stable idea it learned from patterns.",
+          "text": "The answer contains a link and more than one bullet point.",
           "ok": false,
-          "feedback": "A specific live recipe and a fresh link can't come from memory alone — and the multi-step work rules out model-only."
+          "feedback": "A link may show tool use and bullets may be generated text. Neither proves goal-directed orchestration."
+        },
+        {
+          "text": "The assistant calls itself an agent and writes its steps in the first person.",
+          "ok": false,
+          "feedback": "Self-description is still generated output. Inspect tool events, permissions, state, and side effects."
+        },
+        {
+          "text": "The recipe task is complicated enough that only an agent could answer it.",
+          "ok": false,
+          "feedback": "Task complexity does not prove execution mode. A model can describe a process without running it."
         }
       ]
     }

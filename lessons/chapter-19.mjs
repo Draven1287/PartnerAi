@@ -6,112 +6,140 @@ export default {
   "num": 19,
   "arc": "Trust & Everyday AI",
   "title": "Context and Memory",
-  "coreQuestion": "When my AI \"remembers\" something, which of the three different kinds of memory is actually at work — and where do I view and clear it?",
-  "blurb": "Three different things get called \"memory.\" Learn to tell them apart on your own tool.",
-  "minutes": 10,
+  "coreQuestion": "When an AI seems to remember, what is active context, chat history, saved memory, retained service data, or training use — and what evidence can I actually inspect?",
+  "blurb": "Separate five things that products often blur together so a visible Memory screen never becomes a false privacy promise.",
+  "minutes": 11,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Does it remember you?",
-      "scenario": "You tell your AI early in a chat that your houseplant is named Gerald. Ten messages later it recalls Gerald perfectly. A friend says, 'See, it's learning everything about you forever.' You open a brand-new chat the next day and ask about Gerald — and it has no idea who Gerald is.",
-      "prompt": "Before you read on: how can it remember Gerald ten messages later, but forget him in a fresh chat the next day? Is that the same 'memory' or two different things?"
+      "title": "Remembered here does not mean erased elsewhere",
+      "scenario": "You give an assistant the harmless invented fact 'my houseplant is named Gerald.' It recalls Gerald later in the same chat. A new chat forgets. The old chat still appears in History, while a Memory screen shows nothing saved.",
+      "prompt": "Before you read on: what has this test proved — and what questions about storage, review, deletion, or future training are still unanswered?"
     },
     {
       "kind": "reveal",
-      "title": "Three different things called 'memory'",
-      "body": "Under the hood, AI predicts the most likely next words from patterns in human writing. It has no diary of you. But three separate mechanisms all get sloppily called 'memory,' and they are NOT the same. (1) The context window: everything in the CURRENT chat. Large, but finite — that's how it recalled Gerald ten messages later. (2) Persistent memory: facts many tools now save ACROSS separate chats. You can open Settings and view or clear these. (3) Training: how the model was built long ago — this happened before you ever showed up, and your live chat does NOT retrain it. Two opposite myths die here. Myth one: 'It forgets everything the second I close the tab.' Often false now — many 2026 tools remember you across chats. Myth two: 'It's secretly learning from everything I type, right now, forever.' Also false — live typing is not training. One caution: a fresh chat saying 'no, I don't recall' does NOT prove your tool lacks memory. It may simply not have judged a trivial houseplant name worth saving. The Settings / Memory screen is the only definitive source of truth.",
-      "mistake": "Concluding 'my AI has no memory across chats' just because a fresh chat forgot one small fact.",
-      "good": "Open the tool's Settings → Memory / Personalization screen and read what is actually saved there. That screen is the real answer."
+      "title": "Five different data paths",
+      "body": "Products use similar words for different systems. (1) Active context is information supplied to the model for the current response, often from earlier messages in the same chat. (2) Chat history or service logs are records the provider may retain; whether you can see a chat does not reveal every operational or safety log. (3) Saved or persistent memory is selected information a product may reuse across chats for personalization. (4) Retention and human review describe how long service data may remain, who may access it under policy, and what deletion does or does not cover. (5) Training or improvement use is whether eligible data may later help build or evaluate future systems. None of these is proven by a fresh-chat test alone. A Memory screen can show a personalization control; it cannot by itself establish every log, backup, administrator rule, legal hold, review process, or training choice.",
+      "mistake": "Treating 'it forgot in a new chat' or 'Memory is empty' as proof that no service data exists anywhere.",
+      "good": "Check the user-facing controls, current provider policy, and — for school or work accounts — the organization's rules. Then share only what you can afford to have retained."
     },
     {
       "kind": "classify",
-      "title": "Which kind of memory is this?",
-      "prompt": "Sort each behavior into the mechanism actually responsible.",
+      "title": "Name the data path",
+      "prompt": "Sort each example by the mechanism it most directly describes. Real products label and combine these differently; the point is to keep the questions separate.",
       "buckets": [
-        "Context window (this chat only)",
-        "Persistent memory or Training (across chats / built-in)"
+        "Active context",
+        "History or service logs",
+        "Saved memory",
+        "Retention or human review",
+        "Training or improvement use"
       ],
       "items": [
         {
-          "text": "It recalls the plant name Gerald you mentioned 10 messages ago in THIS chat.",
+          "text": "The assistant uses a detail from ten messages earlier to answer now.",
           "answer": 0
         },
         {
-          "text": "In a brand-new chat, it greets you by name because you saved that in Settings.",
+          "text": "Yesterday's conversation still appears in the product's chat list.",
           "answer": 1
         },
         {
-          "text": "It knows general facts about the world it was built with, long before you arrived.",
-          "answer": 1
+          "text": "A personalization control stores your preferred response format for future chats.",
+          "answer": 2
         },
         {
-          "text": "It summarizes a document you pasted higher up in the SAME conversation.",
-          "answer": 0
+          "text": "A policy explains how long deleted chats may remain in backups or safety systems and when authorized reviewers may access them.",
+          "answer": 3
         },
         {
-          "text": "You clear the 'Memory' list in Settings and it stops bringing up your old projects.",
-          "answer": 1
+          "text": "A data control says whether eligible conversations may be used to improve future models.",
+          "answer": 4
         },
         {
-          "text": "It loses track of an early detail once a very long single chat runs past its limit.",
-          "answer": 0
+          "text": "A school account's administrator sets a different retention rule from a personal account.",
+          "answer": 3
         }
       ],
-      "reveal": "Anything tied to THIS conversation is the context window (finite, resets when the chat ends). Anything that survives into a new chat is either persistent memory (view/clear it in Settings) or training (baked in before you arrived). Your live typing never retrains the model."
+      "reveal": "The categories answer different questions: what the model can use now, what records exist, what personalization returns later, how service data is retained or reviewed, and whether eligible data may improve future systems. One control may affect several paths, but never assume it answers all five."
+    },
+    {
+      "kind": "workflowChain",
+      "title": "Make a claim the evidence can support",
+      "goal": "You want to know what happens to a harmless chat after you delete it. Put the investigation in order.",
+      "correct": [
+        "Name the exact question: visible history, saved memory, retention, human review, or training use",
+        "Inspect the relevant product control and record exactly what it says — no broader",
+        "Read the current provider policy for retention, deletion, review, and improvement use",
+        "If it is a school or work account, check the organization's administrator or data policy too",
+        "State what is established, what remains unknown, and choose a paste rule that is safe under the uncertainty"
+      ],
+      "choices": [
+        "Read the current provider policy for retention, deletion, review, and improvement use",
+        "State what is established, what remains unknown, and choose a paste rule that is safe under the uncertainty",
+        "Name the exact question: visible history, saved memory, retention, human review, or training use",
+        "If it is a school or work account, check the organization's administrator or data policy too",
+        "Inspect the relevant product control and record exactly what it says — no broader"
+      ],
+      "note": "If no memory control exists, that establishes only that you cannot manage saved personalization there. It does not prove that no chat record, service log, retention period, review process, or training rule exists."
     },
     {
       "kind": "tryLive",
-      "title": "Run the recall test yourself",
-      "prompt": "Earlier in this chat I told you that my houseplant is named Gerald. Without me repeating it, tell it back to me now. Then explain, in plain words, the difference between three things: what you can remember inside this single conversation, what you might save and reuse across separate chats with me, and what you do not learn from me at all because it was set during your training.",
-      "note": "First, actually plant the fact: send 'My houseplant is named Gerald,' chat about anything else for a few messages, THEN paste this. Keep the planted fact harmless — never a password, address, or account number. After it answers, open your tool's Settings and look for 'Memory' or 'Personalization' to see what, if anything, is really saved across chats."
+      "title": "Optional: view, clear, and confirm safely",
+      "prompt": "Use only the invented fact 'my houseplant is named Gerald.' Test whether it remains in the current chat. Then inspect — without changing anything you need — where this product shows chat history, saved memory or personalization, data-use controls, and links to its policy. Write one sentence for what each screen establishes and one thing it does not establish.",
+      "note": "This optional step leaves LearningAI. Do not enter a real name, address, password, account number, private message, health detail, school or workplace secret, or another person's information. You may instead use the five built-in examples above."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your monthly privacy move",
-      "cardType": "Memory privacy check",
+      "title": "Save a memory-and-retention check",
+      "cardType": "Data-path check",
       "fields": [
         {
-          "key": "tool",
-          "label": "My AI tool",
-          "placeholder": "e.g. the assistant I use most days"
+          "key": "question",
+          "label": "Which data path am I asking about?",
+          "placeholder": "context / history or logs / saved memory / retention or review / training use"
         },
         {
-          "key": "screen",
-          "label": "Where its memory settings live",
-          "placeholder": "e.g. Settings → Personalization → Memory"
+          "key": "control",
+          "label": "What the visible control actually establishes",
+          "placeholder": "e.g. saved personalization is off; this does not describe every retained log"
         },
         {
-          "key": "keeps",
-          "label": "Does it keep facts across chats?",
-          "placeholder": "yes / no — based on the Settings screen, not a fresh-chat reply"
+          "key": "policy",
+          "label": "Provider or organization policy to check",
+          "placeholder": "e.g. retention, deletion, authorized review, and model-improvement terms"
         },
         {
           "key": "rule",
-          "label": "My paste rule",
-          "placeholder": "Never paste passwords, full account numbers, or others' private details — anything typed can be stored"
+          "label": "My safe paste rule",
+          "placeholder": "If retention would cause harm, I do not enter it"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Label your real tool",
-      "question": "You run the full test on a NEW fact ('my favorite tea is peppermint'): you plant it and it recalls it in one chat, then a fresh chat says it doesn't remember. What correctly settles whether your tool keeps things across chats?",
+      "title": "Transfer the data-path check",
+      "question": "A school account hides chat history after 30 days and has no visible Memory switch. What can you responsibly conclude about the learner's data?",
       "options": [
         {
-          "text": "The fresh chat said no, so my tool has no cross-chat memory. Done.",
-          "ok": false,
-          "feedback": "A 'no' can just mean the tool didn't judge a trivial fact worth saving. The fresh-chat reply is not proof."
-        },
-        {
-          "text": "Open my tool's Settings → Memory / Personalization and read what's actually saved there — that screen is the source of truth.",
+          "text": "Only the visible-history behavior and absence of that control are established. I still need the provider and school policies to understand logs, retention, authorized review, deletion, and model-improvement use.",
           "ok": true,
-          "feedback": "Exactly. The Settings/Memory screen is definitive. That's also where you clear what you don't want kept — a good monthly habit, since anything you type can be stored or reviewed."
+          "feedback": "Exactly. You matched the claim to the evidence and kept visible history, controls, service records, and policy-defined uses separate."
         },
         {
-          "text": "It recalled the tea in the first chat, so it must be retraining on everything I type.",
+          "text": "Every copy is automatically deleted after 30 days because the history is no longer visible.",
           "ok": false,
-          "feedback": "That was the context window at work within one chat — not training. Your live typing never retrains the model."
+          "feedback": "A visibility limit does not by itself prove deletion from service logs, backups, or other policy-defined systems."
+        },
+        {
+          "text": "The missing Memory switch proves the account cannot retain any information in any form.",
+          "ok": false,
+          "feedback": "A missing personalization control does not establish what records, retention, review, or organization rules exist."
+        },
+        {
+          "text": "The policy is all that matters, so I do not need to inspect the actual account controls.",
+          "ok": false,
+          "feedback": "You need both: policy describes the service rules, while controls show choices or saved items for this account."
         }
       ]
     }

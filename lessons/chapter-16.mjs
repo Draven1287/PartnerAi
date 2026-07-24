@@ -39,6 +39,26 @@ export default {
       "note": "A paywall or login wall is not proof it's fake — 'I can't open it' is not the same as 'it doesn't exist.' Try another route to reach it before you judge. If any of the three checks fails, the claim is NOT proven — and you just caught it before trusting it."
     },
     {
+      "kind": "verify",
+      "title": "Judge a built-in source trail",
+      "claim": "A community pool allows anyone under 16 to enter alone after 6 p.m.",
+      "steps": [
+        "Identify the exact permission claim and who could be affected",
+        "Choose the pool's current official policy rather than another AI answer",
+        "Check the location, age rule, date, and exceptions",
+        "Record Verified, Doesn't match, or Not found",
+        "Do not act until the responsible adult or venue confirms uncertainty"
+      ],
+      "note": "This built-in trail is enough to practice. It avoids using real names, locations, or a minor's schedule."
+    },
+    {
+      "kind": "reveal",
+      "title": "Optional outside check: protect the question",
+      "body": "If you continue with an outside assistant, data leaves LearningAI. Use a public, low-stakes claim. Do not share a real person's name, age, schedule, health detail, account number, or private message. The independent source—not the chatbot—earns the verdict.",
+      "mistake": "Including personal details to make a public fact easier to check.",
+      "good": "Ask only for the public claim and inspect the responsible source yourself."
+    },
+    {
       "kind": "tryLive",
       "title": "Ask for the source AND the exact sentence",
       "prompt": "Answer this factual question: [question]. Then give me the single best source for your answer, the exact sentence from that source that supports it, and a link or the title, author, and date. Keep it to [number] source(s). I am going to open it and check that it really says this, so do not invent anything — if you are not sure a real source exists, tell me that instead.",

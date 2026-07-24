@@ -64,6 +64,26 @@ export default {
       "reveal": "Change ONE thing per reply. Then you can see exactly what each nudge did — and if you don't like the result, you know which reply to undo. Piling on five changes at once hides which one actually mattered."
     },
     {
+      "kind": "workflowChain",
+      "title": "Steer one variable and keep the consequence visible",
+      "goal": "Improve a message draft without losing your voice or changing five things at once.",
+      "correct": [
+        "Name the one part that is not working",
+        "Protect the parts that already fit",
+        "Request one observable change",
+        "Compare the revision with the original goal",
+        "Rewrite and approve the final message yourself"
+      ],
+      "choices": [
+        "Protect the parts that already fit",
+        "Rewrite and approve the final message yourself",
+        "Name the one part that is not working",
+        "Compare the revision with the original goal",
+        "Request one observable change"
+      ],
+      "note": "If you test a follow-up outside LearningAI, use an invented draft or remove names, private messages, account details, and identifying information first."
+    },
+    {
       "kind": "tryLive",
       "title": "Send one nudge",
       "prompt": "That's close, but [what's off about it]. Keep the rest the same and just [the one change you want].",

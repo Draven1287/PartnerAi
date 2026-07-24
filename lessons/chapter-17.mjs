@@ -6,117 +6,137 @@ export default {
   "num": 17,
   "arc": "Trust & Everyday AI",
   "title": "AI Is Already in Your Apps",
-  "coreQuestion": "Where is AI already working quietly inside the apps I use every day, and how much should I trust each one?",
-  "blurb": "You already use AI many times a day without noticing. Learn to spot it and decide how far to trust it.",
-  "minutes": 8,
+  "coreQuestion": "Where might learned systems be shaping what an app shows or suggests, and what evidence should change how much I trust the feature?",
+  "blurb": "Notice quiet AI features, inspect what the product actually says they do, and match your checking to the consequence.",
+  "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "You already used AI today",
-      "scenario": "Before breakfast you typed a text and the keyboard guessed your next word. You searched your photos for 'dog' and it found them. A search gave you a little summary at the top. That's three times you used AI before you ever opened a chatbot on purpose.",
-      "prompt": "Before you read on: name one app on your phone that you'd swear has 'no AI in it.' Hold that guess. By the end you may change your mind."
+      "title": "The feature did not announce itself",
+      "scenario": "A photo app groups similar faces, an inbox offers a reply, and a search page writes a summary. Each may use a different learned system — vision, language, ranking, or generation — and the exact feature can vary by product, version, account, and organization.",
+      "prompt": "Before you read on: which matters more for deciding whether to rely on one of these features — whether it has the label 'AI,' or what happens if its output is wrong?"
     },
     {
       "kind": "classify",
-      "title": "Which of these is AI?",
-      "prompt": "Sort each phone feature: is it AI (a model that learned patterns from examples and predicts what fits), or not?",
+      "title": "Notice the evidence, not the buzzword",
+      "prompt": "Sort each clue by what it can honestly establish. These are built-in examples, so you do not need a particular phone or app.",
       "buckets": [
-        "That's AI",
-        "Not AI"
+        "Evidence about this feature",
+        "Only a guess or broad clue"
       ],
       "items": [
         {
-          "text": "Your keyboard suggesting the next word as you type",
+          "text": "The product's help page says photo search uses image-recognition models and explains how to correct a match.",
           "answer": 0
         },
         {
-          "text": "Photo search finding pictures when you type 'beach'",
-          "answer": 0
-        },
-        {
-          "text": "The calculator app adding 7 + 5",
+          "text": "An assistant says the feature 'probably uses AI somewhere.'",
           "answer": 1
         },
         {
-          "text": "'Suggested replies' offered under an email",
+          "text": "A setting names the feature, shows whether it is on, and links to its data controls.",
           "answer": 0
         },
         {
-          "text": "The flashlight toggle turning the light on",
+          "text": "The result appeared quickly and looked futuristic.",
           "answer": 1
         },
         {
-          "text": "The AI summary at the top of a web search",
+          "text": "Your school or workplace documentation says the feature is disabled or configured differently on its accounts.",
           "answer": 0
+        },
+        {
+          "text": "A friend uses the same app and assumes every account behaves the same way.",
+          "answer": 1
         }
       ],
-      "reveal": "The AI features all share one move: a model learned patterns from huge amounts of examples, then predicts what fits next — a word, a matching photo, a reply, a summary. The calculator and flashlight just follow fixed rules a person wrote; nothing was learned or predicted."
+      "reveal": "A label, animation, or confident guess does not tell you how a specific feature works. Product help, visible controls, and organization policy are stronger evidence. Even then, focus on the decision in front of you: what the feature does, what data it touches, and what a mistake would cost."
     },
     {
       "kind": "reveal",
-      "title": "Same core move, different jobs",
-      "body": "AI isn't only the chatbot you open on purpose. It's woven into apps you already had before you heard the word — doing small jobs in the background. Here's an honest note so your mental model stays accurate: when people say these features run on 'the same recipe,' that's a family resemblance, not one shared brain (flag it as an analogy). What's really happening: a vision model reads your photos, a speech model hears your voice, a language model writes the reply — each its own learned model. But they all share the same core move: learn patterns from examples, then predict what fits. And in 2026 these assistants can browse the web, use tools, and remember across chats — yet they can still sound confident and be wrong (a 'hallucination'). So the skill isn't starting to use AI; it's recognizing it and deciding how far to trust each one.",
-      "mistake": "Assuming 'AI = the chatbot,' so you never question the summary, reply, or result an app quietly hands you.",
-      "good": "Notice the AI, then match your trust to the task: a typo fix — trust it; a reply to your boss — read it first; a fact that matters — verify it, because it can be confidently wrong."
+      "title": "A family of systems, not one hidden brain",
+      "body": "AI inside everyday apps is not one recipe copied everywhere. A ranking system orders results, a vision system matches image patterns, a speech system turns sound into text, and a generative system produces new words or images. Some features combine learned models with fixed rules or human review. You do not need to identify every component before acting. You need enough evidence to answer four practical questions: What job is the feature doing? What data can it use? Can I turn it off, correct it, or recover from an error? What changes if it is wrong?",
+      "mistake": "Treating 'AI' as a single yes-or-no label, then trusting or rejecting every feature the same way.",
+      "good": "Inspect the actual feature and its controls, then increase checking as the consequence rises."
+    },
+    {
+      "kind": "workflowChain",
+      "title": "Inspect before you rely",
+      "goal": "A calendar app suggests a meeting time, but choosing badly could make you miss an appointment. Put the app-awareness check in order.",
+      "correct": [
+        "Name the output you may rely on: the suggested meeting time",
+        "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess",
+        "Check what information the feature used and whether the suggestion can be corrected or disabled",
+        "Compare the suggestion with the original calendar details because a mistake has a real consequence",
+        "If it is wrong, correct the event and adjust or turn off the feature before the next use"
+      ],
+      "choices": [
+        "Compare the suggestion with the original calendar details because a mistake has a real consequence",
+        "Name the output you may rely on: the suggested meeting time",
+        "If it is wrong, correct the event and adjust or turn off the feature before the next use",
+        "Check what information the feature used and whether the suggestion can be corrected or disabled",
+        "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess"
+      ],
+      "note": "For a low-consequence feature, this check can take seconds. For health, money, school, work, safety, or another person's information, slow down and use an authoritative source."
     },
     {
       "kind": "tryLive",
-      "title": "Map the AI hiding in YOUR apps",
-      "prompt": "I'm a beginner learning to notice AI in apps I already use. The apps and devices I use most are [list your real apps/devices]. For each one, tell me where AI is probably already working in the background, what small job it's doing, and — in one line each — whether I should trust that feature as-is or always double-check it before relying on it. Keep it plain, no jargon.",
-      "note": "Fill the blank with your actual apps, e.g. 'an iPhone, Gmail, Google Search, WhatsApp, and the Photos app.' You only need app names — no account names, passwords, or personal details."
+      "title": "Optional: inspect one documented feature",
+      "prompt": "Choose one ordinary feature you can safely inspect — or use this built-in example: 'an email app offers a suggested reply.' Find the product's own label, help text, or setting. Record: what job it claims to do, what control you have, one possible false positive, and how you would recover if it were wrong.",
+      "note": "You do not need to list your real apps or devices. Do not share account names, device IDs, contacts, messages, photos, school or workplace details, or location history. If documentation is unavailable, write 'not established' rather than asking an assistant to invent an explanation."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save a Trust-Level card",
-      "cardType": "Everyday-AI trust check",
+      "title": "Save an Everyday-AI check",
+      "cardType": "Everyday-AI feature check",
       "fields": [
         {
           "key": "feature",
-          "label": "The AI feature",
-          "placeholder": "e.g. Photos search that finds 'dog'"
+          "label": "Feature and job",
+          "placeholder": "e.g. Calendar suggests a meeting time"
         },
         {
-          "key": "job",
-          "label": "The small job it's doing",
-          "placeholder": "e.g. matching my typed word to what's in the picture"
+          "key": "evidence",
+          "label": "What establishes how it works",
+          "placeholder": "e.g. product help page, setting, or organization policy"
         },
         {
-          "key": "trust",
-          "label": "Trust as-is or check first?",
-          "placeholder": "e.g. Trust it — worst case I just re-search"
+          "key": "consequence",
+          "label": "What a mistake would change",
+          "placeholder": "e.g. I could miss the appointment"
         },
         {
-          "key": "reason",
-          "label": "Why (the real reason)",
-          "placeholder": "e.g. Low stakes; a wrong match costs me nothing"
+          "key": "control",
+          "label": "Correction, opt-out, or recovery",
+          "placeholder": "e.g. compare with the invitation, correct it, then disable suggestions"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Do it on a fresh app",
-      "question": "Open ONE app you did NOT use during this lesson, point to one AI feature, use it once on something new, and finish: 'This feature does ___, and for this task I'd ___ because ___.' Which answer shows you've actually done the skill?",
+      "title": "Choose the trustworthy inspection",
+      "question": "A writing app silently rewrites a sentence in a message to your teacher. Which response shows the full skill?",
       "options": [
         {
-          "text": "'Photos search finds pictures by what's in them; for finding my niece's birthday photos I'd trust it because a wrong match costs me nothing and I can just look.'",
+          "text": "I identify the rewrite feature, inspect its setting or help page, reread the changed sentence because the consequence matters, and undo or disable it if it changes my meaning.",
           "ok": true,
-          "feedback": "Yes — you named the feature, the job it does, and a real reason for your trust level, on a fresh example. That's the whole skill."
+          "feedback": "Yes. You used observable evidence, matched checking to the consequence, and kept a correction path."
         },
         {
-          "text": "'I think most apps probably have some AI in them somewhere these days.'",
+          "text": "It looks like AI, so I assume it is unsafe and never use the app again.",
           "ok": false,
-          "feedback": "Too vague. Point to ONE feature, use it once, and give the job plus a real reason for your trust level."
+          "feedback": "The label alone does not settle the decision. Inspect the feature, its controls, and the consequence of a mistake."
         },
         {
-          "text": "'AI is the chatbot, so this app doesn't really have any.'",
+          "text": "I ask another AI whether this app uses AI and trust whatever it says.",
           "ok": false,
-          "feedback": "That's the misconception this lesson fixes. Keyboards, photo search, suggested replies, and search summaries are all AI doing quiet background jobs."
+          "feedback": "That adds another guess. Use the product's documentation, visible controls, and any school or workplace policy."
         },
         {
-          "text": "'The summary sounded confident, so I forwarded it to a friend as fact without checking.'",
+          "text": "Grammar changes are usually low stakes, so I send it without rereading.",
           "ok": false,
-          "feedback": "Confident isn't the same as correct — these can hallucinate. For a fact that matters, verify before you rely on it."
+          "feedback": "The consequence depends on this message, not the feature category. A changed meaning sent to a teacher is worth checking."
         }
       ]
     }

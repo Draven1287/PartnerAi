@@ -47,7 +47,7 @@ const evidenceChecks = [
   ['chapter-43', /ask the teacher or your manager BEFORE you submit/i, 'school and workplace policy check'],
   ['chapter-46', /least access/i, 'agent permission boundary'],
   ['chapter-47', /SAFETY LIMIT/i, 'capstone stop-sign'],
-  ['chapter-48', /a real person, not the AI/i, 'human transfer evidence']
+  ['chapter-48', /writing.*private recording.*simulation.*willing listener/i, 'equivalent teach-back evidence']
 ];
 
 for (const [id, pattern, label] of evidenceChecks) {

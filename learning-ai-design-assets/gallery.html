@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gallery and Contact · LearningAI</title>
+  <style>
+    :root{color-scheme:light;--ink:#171816;--muted:#5f655f;--gold:#92723a;--mineral:#3f7f8d;--coral:#b86655;--line:rgba(45,49,45,.14);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}html[data-motion="reduced"],html[data-motion="none"]{scroll-behavior:auto}body{margin:0;color:var(--ink);background:#efeee9 url("./learning-ai-paper-light-v1.png") center top/cover fixed no-repeat;overflow-x:hidden}
+    .nav-stage{position:fixed;inset:0 0 auto;height:118px;z-index:20;pointer-events:none;overflow:visible}.nav-shell{width:min(1040px,calc(100vw - 36px));margin:18px auto 0;pointer-events:auto}.nav-glass{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;min-height:60px;padding:7px 8px 7px 13px;border:1px solid rgba(255,255,255,.78);border-radius:22px;background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.045) 48%,rgba(214,219,216,.13));box-shadow:inset 0 1px 1px white,inset 0 -1px 1px rgba(45,46,42,.2),0 18px 45px rgba(38,36,30,.16);backdrop-filter:blur(18px) saturate(1.5);-webkit-backdrop-filter:blur(18px) saturate(1.5)}
+    .brand{display:inline-flex;align-items:center;gap:8px;padding-right:10px;color:var(--ink);font-size:14px;font-weight:720;text-decoration:none;white-space:nowrap}.mark{position:relative;width:27px;height:27px;border:1px solid rgba(35,35,30,.17);border-radius:9px;background:rgba(255,255,255,.45);box-shadow:inset 0 1px 0 white}.mark:before,.mark:after{content:"";position:absolute;inset:6px;border:1.4px solid var(--gold);border-radius:50%}.mark:after{inset:10px 5px;border-left:0;border-right:0;border-radius:0}
+    nav{display:flex;justify-content:center;align-items:center;min-width:0}nav a,.settings{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 8px;border-radius:14px;color:#343834;font-size:11.5px;font-weight:610;text-decoration:none;white-space:nowrap}nav a[aria-current="page"]{background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px rgba(48,48,40,.07),0 3px 12px rgba(46,41,30,.08);font-weight:740}.settings{width:38px;padding:0;margin-left:5px;border:1px solid rgba(255,255,255,.82);background:rgba(255,255,255,.34)}.settings svg{width:17px;height:17px}.welcome{padding-left:7px;white-space:nowrap}.greeting{padding:9px;font-size:11px;font-weight:620}
+    main{width:min(1180px,calc(100vw - 36px));margin:118px auto 120px}.glass{border:1px solid rgba(255,255,255,.82);background:linear-gradient(145deg,rgba(255,255,255,.47),rgba(255,255,255,.13) 62%,rgba(218,226,223,.19));box-shadow:inset 0 1px 1px rgba(255,255,255,.94),0 22px 65px rgba(45,41,30,.085);backdrop-filter:blur(18px) saturate(1.15);-webkit-backdrop-filter:blur(18px) saturate(1.15)}
+    .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.43fr);gap:40px;align-items:end;padding:clamp(42px,6vw,72px);border-radius:36px}.eyebrow{margin:0 0 18px;color:#765f32;font-size:11px;font-weight:760;letter-spacing:.18em;text-transform:uppercase}.hero h1{max-width:820px;margin:0;font-size:clamp(48px,7vw,92px);font-weight:540;letter-spacing:-.064em;line-height:.94}.lead{max-width:730px;margin:26px 0 0;color:#4f5651;font-size:clamp(18px,1.9vw,24px);line-height:1.5;letter-spacing:-.018em}.hero-note{padding:24px;border-left:1px solid rgba(56,61,56,.16);color:#4f5651;font-size:14px;line-height:1.55}.hero-note strong{display:block;margin-bottom:9px;color:var(--ink);font-size:18px}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin:68px 6px 22px}.section-head p{margin:0 0 7px;color:#765f32;font-size:10.5px;font-weight:760;letter-spacing:.18em;text-transform:uppercase}.section-head h2{margin:0;font-size:clamp(34px,4.2vw,56px);font-weight:550;letter-spacing:-.052em}.section-head>span{max-width:400px;color:var(--muted);font-size:14px;line-height:1.5;text-align:right}
+    .feature{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr);gap:36px;padding:clamp(32px,5vw,58px);border-radius:32px}.palette{display:flex;height:12px;margin-bottom:28px;border-radius:99px;overflow:hidden}.palette i{flex:1}.tag{color:#785f2f;font-size:10.5px;font-weight:760;letter-spacing:.16em;text-transform:uppercase}.feature h3{margin:12px 0 15px;font-size:clamp(30px,4vw,50px);font-weight:560;letter-spacing:-.05em;line-height:1}.feature p{color:#555c56;font-size:16px;line-height:1.6}.built{padding-top:18px;border-top:1px solid var(--line);font-size:13px!important}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-self:stretch;border:1px solid rgba(44,48,43,.12);border-radius:24px;overflow:hidden;background:rgba(255,255,255,.23)}.stat{min-height:112px;padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line)}.stat:nth-child(2n){border-right:0}.stat:nth-last-child(-n+2){border-bottom:0}.stat strong{display:block;font-size:25px;font-weight:570;letter-spacing:-.04em}.stat span{display:block;margin-top:5px;color:var(--muted);font-size:11.5px;line-height:1.35}
+    .gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.gallery-card{min-height:280px;padding:30px;border-radius:27px;display:flex;flex-direction:column}.gallery-card .number{color:var(--mineral);font-size:11px;font-weight:760;letter-spacing:.16em}.gallery-card h3{margin:24px 0 12px;font-size:25px;letter-spacing:-.04em}.gallery-card p{margin:0;color:#555c56;line-height:1.58}.gallery-card a{margin-top:auto;padding-top:28px;color:var(--ink);font-weight:720;text-decoration:none}.invite{border-style:dashed}.invite .plus{display:grid;place-items:center;width:52px;height:52px;border-radius:17px;background:linear-gradient(145deg,rgba(77,135,146,.18),rgba(255,255,255,.45));color:#2c7180;font-size:30px}
+    .contact{margin-top:72px;padding:clamp(34px,5vw,62px);border-radius:34px;scroll-margin-top:112px}.contact-grid{display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:48px}.contact h2{margin:0;font-size:clamp(38px,5vw,66px);font-weight:550;letter-spacing:-.058em;line-height:.98}.contact-copy{margin:22px 0;color:#525954;font-size:17px;line-height:1.6}.privacy-note{padding:16px 18px;border-left:3px solid var(--mineral);background:rgba(255,255,255,.28);color:#505752;font-size:13px;line-height:1.5}.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.topic{min-height:105px;padding:17px;border:1px solid rgba(54,59,54,.13);border-radius:18px;background:rgba(255,255,255,.26);color:var(--ink);font:inherit;text-align:left;cursor:pointer}.topic:hover,.topic[aria-pressed="true"]{border-color:color-mix(in oklab,var(--mineral) 55%,#fff);background:rgba(255,255,255,.57);box-shadow:0 8px 22px rgba(45,41,30,.08)}.topic strong{display:block;font-size:15px}.topic span{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.4}.message-preview{margin-top:14px;padding:18px;border:1px solid rgba(54,59,54,.12);border-radius:18px;background:rgba(255,255,255,.22)}.message-preview span{display:block;color:#775f31;font-size:10px;font-weight:760;letter-spacing:.16em;text-transform:uppercase}.message-preview strong{display:block;margin-top:8px;font-size:15px}.message-preview p{margin:8px 0 0;color:var(--muted);font-size:12px;line-height:1.45;white-space:pre-line}.direct-email{margin:15px 0 0;color:#4e554f;font-size:13px;line-height:1.5}.direct-email a{color:var(--ink);font-weight:760}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;border:1px solid rgba(49,54,49,.17);border-radius:16px;background:rgba(255,255,255,.43);color:var(--ink);font:inherit;font-size:14px;font-weight:720;text-decoration:none;cursor:pointer}.button.primary{border-color:#24312d;background:#24312d;color:#fff}.status{min-height:22px;margin:12px 0 0;color:#3a6f72;font-size:12px;font-weight:650}
+    .publication{display:grid;grid-template-columns:.72fr 1.28fr;gap:34px;margin:18px 0 0;padding:30px;border-radius:28px}.publication h3{margin:0;font-size:30px;font-weight:570;letter-spacing:-.04em}.publication ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:0;padding:0;list-style:none;counter-reset:step}.publication li{color:#4f5650;font-size:13px;line-height:1.55;counter-increment:step}.publication li:before{content:"0" counter(step);display:block;margin-bottom:8px;color:var(--mineral);font-size:11px;font-weight:800;letter-spacing:.15em}.policy{grid-column:1/-1;margin:0;padding-top:22px;border-top:1px solid var(--line);color:#4f5650;font-size:13px;line-height:1.6}.policy strong{color:var(--ink)}
+    .comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}.comparison div{padding:18px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.25)}.comparison strong{display:block;color:var(--mineral);font-size:10px;letter-spacing:.14em;text-transform:uppercase}.comparison p{margin:8px 0 0;font-size:13px;line-height:1.5}.comparison-note{grid-column:1/-1;margin:0!important;color:var(--muted);font-size:11px!important}.stats .stat-help{grid-column:1/-1;margin:0!important;padding:15px 20px;border-top:1px solid var(--line);font-size:12px!important;line-height:1.5!important}
+    footer{display:flex;justify-content:space-between;gap:20px;padding:30px 8px 0;color:var(--muted);font-size:12px}footer a{color:inherit}
+    @media(max-width:900px){.hero,.feature,.contact-grid,.publication{grid-template-columns:1fr}.publication ol{grid-template-columns:1fr}.hero-note{border-left:0;border-top:1px solid var(--line);padding:22px 0 0}.gallery-grid{grid-template-columns:1fr 1fr}.section-head{align-items:start;flex-direction:column}.section-head>span{text-align:left}.feature{gap:24px}}
+    @media(max-width:680px){.nav-shell{width:calc(100vw - 20px);margin-top:10px}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto;min-height:56px;padding:6px 7px}.brand span:last-child,.welcome{display:none}nav{justify-content:flex-start;overflow-x:auto}nav a{flex:0 0 auto;padding-inline:7px}.settings{grid-column:3}main{width:calc(100vw - 20px);margin-top:92px}.hero{padding:34px 26px;border-radius:28px}.gallery-grid,.topics,.comparison{grid-template-columns:1fr}.feature,.contact{padding:28px;border-radius:27px}.stats{grid-template-columns:1fr}.stat{border-right:0}.stat:nth-last-child(2){border-bottom:1px solid var(--line)}footer{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html:not([data-motion="standard"]){scroll-behavior:auto}}
+  </style>
+  <link rel="stylesheet" href="./glass-finish.css">
+  <link rel="stylesheet" href="./theme.css?v=teen-game-5">
+  <script src="./theme.js?v=teen-game-5"></script>
+</head>
+<body>
+  <div class="nav-stage"><header class="nav-shell" id="navShell"><div class="nav-glass">
+    <a class="brand" href="./stage-1-navigation-proof.html" aria-label="LearningAI dashboard"><span class="mark" aria-hidden="true"></span><span>LearningAI</span></a>
+    <nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./lessons.html">Lessons</a><a href="./progress.html">Progress</a><a href="./focus.html">Focus</a></nav>
+    <div class="welcome"><span class="greeting">Welcome back, Learner</span></div>
+    <a class="settings" href="./settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1v-4a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v.09a1.7 1.7 0 0 0 1.4 1.51 1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1v4a1.7 1.7 0 0 0-.6 1Z"/></svg></a>
+  </div></header></div>
+
+  <main>
+    <section class="hero glass">
+      <div><p class="eyebrow">Gallery</p><h1>What people build when they stay in control.</h1><p class="lead">Real work, honest process, and enough evidence for the next learner to understand what happened—not a wall of unexplained trophies.</p></div>
+      <div class="hero-note"><strong>Built by learners</strong>Every entry should show the human decision, where AI helped, what was checked, and what someone would change next time.</div>
+    </section>
+
+    <div class="section-head"><div><p>Featured</p><h2>Aarav’s small language model</h2></div><span>The original V2 gallery project, restored as the first example instead of pretending a community already exists.</span></div>
+    <article class="feature glass">
+      <div>
+        <div class="palette" aria-hidden="true"><i style="background:#23202b"></i><i style="background:#7356bb"></i><i style="background:#3a3450"></i><i style="background:#b9a8ff"></i></div>
+        <div class="tag">Featured · Aarav Shah · Founder of LearningAI</div>
+        <h3>A small LLM, trained on a MacBook Air</h3>
+        <p><strong>In plain language:</strong> Aarav started with a small existing AI model and practiced one narrow task with it—turning ordinary questions into shorter, SQL-formatted responses. He compared the model before and after so the change was visible.</p>
+        <p class="built"><strong>Built with:</strong> Llama 3.2 1B · Hugging Face dataset · LoRA fine-tuning · MacBook Air M3</p>
+        <p><strong>What it means:</strong> a teenager can investigate how model behavior changes using an ordinary laptop, careful evidence, and a narrow goal.</p>
+        <div class="comparison" aria-label="Recorded before and after comparison">
+          <div><strong>Before training</strong><p>The prompt “Show me all students in 10th grade” produced a chatty 72-token markdown explanation.</p></div>
+          <div><strong>After training</strong><p>The same prompt produced a shorter 39-token SQL response intended to be ready for a database.</p></div>
+          <p class="comparison-note">Recorded result summary—not the raw model transcript. This one comparison does not prove general SQL accuracy; every important query still needs testing.</p>
+        </div>
+        <p><a class="button" href="./projects.html#featured-title">Open the project overview →</a></p>
+      </div>
+      <div class="stats" aria-label="Project results">
+        <div class="stat"><strong>3.18 → 1.18</strong><span>training loss</span></div><div class="stat"><strong>300</strong><span>iterations</span></div>
+        <div class="stat"><strong>~4 min</strong><span>training time</span></div><div class="stat"><strong>1.44 GB</strong><span>peak memory</span></div>
+        <div class="stat"><strong>0.228%</strong><span>parameters trained</span></div><div class="stat"><strong>$0</strong><span>additional cloud compute spend</span></div>
+        <p class="stat-help"><strong>How to read this:</strong> “loss” is the model’s training-error score, “iterations” are practice rounds, and “parameters trained” is the tiny portion of the model adjusted in this experiment.</p>
+      </div>
+    </article>
+    <p style="margin:12px 8px 0;color:var(--muted);font-size:12px;line-height:1.5">Evidence note: these figures come from Aarav’s recorded local training run. The linked project page explains the dataset, method, hardware, and before/after output; they are not independent laboratory results.</p>
+
+    <div class="section-head"><div><p>From the community</p><h2>The next space is intentionally open</h2></div><span><strong>Current status:</strong> 1 founder example · community submissions not yet published. No fake profiles, projects, or results.</span></div>
+    <section class="gallery-grid" aria-label="Community gallery">
+      <article class="gallery-card glass invite"><div class="plus" aria-hidden="true">+</div><h3>Your project could be next</h3><p>Finish a project, document your process, and send it in. You choose the name or nickname displayed with it.</p><a href="#contact">Submit a project →</a></article>
+      <article class="gallery-card glass"><span class="number">01 · SHOW THE PROCESS</span><h3>What good entries include</h3><p>The goal, the human choices, what AI contributed, evidence or screenshots, one mistake, and the lesson learned.</p><a href="./projects.html">Choose a project →</a></article>
+      <article class="gallery-card glass"><span class="number">02 · PROTECT PRIVACY</span><h3>Share the work, not private information</h3><p>Remove names, school details, private messages, addresses, faces, credentials, and information belonging to another person.</p><a href="./about.html#privacy">Read the privacy commitment →</a></article>
+    </section>
+
+    <section class="publication glass" aria-labelledby="publicationTitle">
+      <div><p class="eyebrow">How publication works</p><h3 id="publicationTitle">You stay in control of your work.</h3></div>
+      <ol>
+        <li><strong>Prepare.</strong> Include the goal, your decisions, evidence, one mistake, and what you learned. Remove faces, location data, school details, and private information.</li>
+        <li><strong>Email for review.</strong> Sending a project is only a request for review. It does not give LearningAI permission to publish it.</li>
+        <li><strong>Approve separately.</strong> If the project is selected, LearningAI asks again what may appear and which name or nickname to display before anything is published.</li>
+      </ol>
+      <p class="policy"><strong>You keep ownership.</strong> Your email address is never shown in the Gallery. A nickname is the default for learners under 18. No under-18 project may be published until LearningAI receives and privately records a separate guardian approval for the exact publication preview. Until that process is complete, the work remains unpublished. You may ask to change or remove a published entry at any time. Selection is based on clear evidence and a useful learning story—not grades, popularity, or polish. <a href="./submission-policy.html">Read the full submission and deletion policy →</a></p>
+    </section>
+
+    <section class="contact glass" id="contact" aria-labelledby="contactTitle">
+      <div class="contact-grid">
+        <div>
+          <p class="eyebrow">Contact Aarav</p>
+          <h2 id="contactTitle">Projects, questions, and concerns.</h2>
+          <p class="contact-copy">Choose why you are writing. LearningAI prepares a useful subject line and starter message, then opens your email app.</p>
+          <p class="direct-email"><strong>LearningAI project email:</strong><br><a id="directEmail" href="mailto:learningai4youprojects@duck.com">learningai4youprojects@duck.com</a><br>Duck.com hides Aarav’s destination inbox address. Ordinary email still reveals your sender address and message to the email providers and recipient.</p>
+          <p class="privacy-note"><strong>Before sending:</strong> do not include passwords, private school records, health information, home addresses, faces, image location metadata, or another person’s private information. A parent, guardian, or teacher can help younger learners review a submission.</p>
+        </div>
+        <div>
+          <div class="topics" role="group" aria-label="Reason for contacting LearningAI">
+            <button class="topic" type="button" data-topic="project" aria-pressed="true"><strong>Submit a project</strong><span>Share work for possible inclusion in the Gallery.</span></button>
+            <button class="topic" type="button" data-topic="question" aria-pressed="false"><strong>Project question</strong><span>Ask about materials, steps, or how to begin.</span></button>
+            <button class="topic" type="button" data-topic="course" aria-pressed="false"><strong>Lesson or site concern</strong><span>Report something confusing, incorrect, inaccessible, or broken.</span></button>
+            <button class="topic" type="button" data-topic="privacy" aria-pressed="false"><strong>Privacy or account concern</strong><span>Ask about access, correction, deletion, or safety.</span></button>
+          </div>
+          <div class="message-preview" aria-live="polite"><span>Prepared email preview</span><strong id="subjectPreview">LearningAI project submission</strong><p id="bodyPreview"></p></div>
+          <div class="actions"><a class="button primary" id="emailButton" href="#">Open email app</a><button class="button" id="copyMessage" type="button">Copy prepared message</button><button class="button" id="copyEmail" type="button">Copy email address</button></div>
+          <p class="direct-email">Add screenshots or links after the email app opens. If it does not open, copy the address, open your usual email service, and paste the address into a new message. Submissions are reviewed manually, so no response time is promised. Rejected or withdrawn submissions are deleted within 30 days of the decision or withdrawal request. Incomplete submissions are closed on a stated date and deleted within 30 days after closure. You may ask for deletion at any time. Do not send sensitive information. Privacy, correction, and deletion requests may require identity verification before a change is made. <a href="./submission-policy.html">Read the full submission and deletion policy.</a></p>
+          <p class="status" id="contactStatus" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+    <footer><span>LearningAI · built first for teenagers and open to everyone</span><span><a href="./about.html#privacy">Privacy</a> · <a href="#contact">Contact</a></span></footer>
+  </main>
+
+  <script src="./nav-behavior.js?v=nav-5"></script>
+  <script>
+    (() => {
+      const email=['learningai4youprojects','duck.com'].join('@');
+      const templates={
+        project:{subject:'LearningAI project submission',body:'Hi Aarav,\n\nI would like to submit a project for review by the LearningAI Gallery. I understand this email does not give permission to publish it.\n\nProject title:\nWhat I made:\nWhat AI helped with:\nWhat I decided or checked myself:\nWhat did not work at first:\nLink or screenshots (with private information removed):\nName or nickname I might want displayed:\nAge range: under 18 / 18+\nI own this work or have permission to share it: yes / no\nIf I am under 18, I understand a guardian must separately approve the exact publication preview: yes / no / not applicable\n\nPlease contact me separately before publishing anything.\n'},
+        question:{subject:'LearningAI project question',body:'Hi Aarav,\n\nI have a question about a LearningAI project.\n\nProject name:\nWhat I am trying to make:\nWhere I am stuck:\nWhat I have already tried:\n\nMy question is:\n'},
+        course:{subject:'LearningAI lesson or site concern',body:'Hi Aarav,\n\nI found something in LearningAI that may need attention.\n\nPage or lesson:\nWhat happened:\nWhat I expected:\nDevice and browser (if relevant):\nWhy this matters to me:\n'},
+        privacy:{subject:'LearningAI privacy or account concern',body:'Hi Aarav,\n\nI have a privacy, account, access, correction, or deletion concern.\n\nPlease do not send sensitive information in this email. Describe the request without including passwords, health information, school records, or another person’s private information.\n\nMy request:\n'}
+      };
+      const subject=document.querySelector('#subjectPreview');
+      const bodyPreview=document.querySelector('#bodyPreview');
+      const emailButton=document.querySelector('#emailButton');
+      const status=document.querySelector('#contactStatus');
+      let active='project';
+      const update=()=>{
+        const template=templates[active];
+        subject.textContent=template.subject;
+        bodyPreview.textContent=template.body;
+        emailButton.href=`mailto:${email}?subject=${encodeURIComponent(template.subject)}&body=${encodeURIComponent(template.body)}`;
+      };
+      document.querySelectorAll('.topic').forEach(button=>button.addEventListener('click',()=>{
+        active=button.dataset.topic;
+        document.querySelectorAll('.topic').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));
+        update();
+      }));
+      document.querySelector('#copyEmail').addEventListener('click',async()=>{
+        try{await navigator.clipboard.writeText(email);status.textContent='Email address copied.'}
+        catch{status.textContent=`Email: ${email}`}
+      });
+      document.querySelector('#copyMessage').addEventListener('click',async()=>{
+        const template=templates[active];
+        const prepared=`To: ${email}\nSubject: ${template.subject}\n\n${template.body}`;
+        try{await navigator.clipboard.writeText(prepared);status.textContent='Prepared email copied. Paste it into any email service.'}
+        catch{status.textContent='Your browser blocked copying. Open the email app or select the preview text above.'}
+      });
+      update();
+    })();
+  </script>
+</body>
+</html>

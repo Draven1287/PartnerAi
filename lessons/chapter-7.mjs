@@ -61,6 +61,26 @@ export default {
       "reveal": "Narrow, personal topics — your town, your hobby, your job — are exactly where the AI is most tempted to invent, and where YOU can spot the slip instantly because you already know the truth. Broad or generic topics are harder to catch: either you can't tell, or it's easy to get right."
     },
     {
+      "kind": "workflowChain",
+      "title": "Set up a fair, safe hallucination test",
+      "goal": "Test a claim you can check without exposing anyone's private information.",
+      "correct": [
+        "Choose a public, low-stakes topic you know well",
+        "Remove names and personal details the test does not need",
+        "Ask for specific claims rather than a vague impression",
+        "Mark the one detail that most needs checking",
+        "Choose an independent place to verify it"
+      ],
+      "choices": [
+        "Choose an independent place to verify it",
+        "Ask for specific claims rather than a vague impression",
+        "Remove names and personal details the test does not need",
+        "Mark the one detail that most needs checking",
+        "Choose a public, low-stakes topic you know well"
+      ],
+      "note": "If you continue in an outside assistant, data leaves LearningAI. Use public facts or an invented topic—never a private story, another person's information, or an account detail."
+    },
+    {
       "kind": "tryLive",
       "title": "Catch one yourself",
       "prompt": "Tell me everything you know about [a topic you personally know very well], including any specific dates, names, or numbers. Be detailed.",

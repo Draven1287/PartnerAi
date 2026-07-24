@@ -15,12 +15,12 @@ export default {
       "kind": "coldOpen",
       "title": "The project that's been sitting heavy",
       "scenario": "There's a project you keep not-starting. A family reunion. A move. A thesis. A big essay. It feels too big to even begin, so it just sits there getting heavier every week you look at it.",
-      "prompt": "Before you read on: do you actually need the whole plan figured out in your head before you're allowed to ask for help? What if you could think out loud, messy and half-formed, and let the plan take shape with the AI?"
+      "prompt": "Choose the first decision the plan must protect: deadline, cost, another person's availability, safety, or your energy. Which constraint can move, and which one cannot?"
     },
     {
       "kind": "reveal",
       "title": "AI cuts the mountain into stairs — you decide where they lead",
-      "body": "Overwhelm is usually a planning problem, not a you problem. Hand a big goal to an AI assistant and it can break it into phases fast. Here's the real mechanism: it isn't 'planning' the way you do — there's no calendar in its head, no memory of your kitchen or your boss. It learned patterns from huge amounts of text about how projects like yours usually get broken down, and it's predicting a sensible-looking breakdown. ('Cutting a mountain into stairs' is imagery, not a claim about how it thinks.) Modern assistants can hold context across a chat and even look things up — but they still don't know YOUR private real-world facts, so they fill the gaps with a confident guess. That's exactly why the cutting, reordering, and checkpoints are your job. One privacy note: keep your brain-dump to things you'd be fine sharing — skip real names, addresses, and account numbers.",
+      "body": "Overwhelm is often a planning problem, not a personal failure. An AI can generate a familiar project breakdown quickly, but it does not know your calendar, budget, energy, tools, permissions, or the people affected. It fills missing details with plausible guesses. You therefore choose the constraints, cut unnecessary phases, reorder the work, and add human approval before spending, booking, publishing, or involving someone else. Before an outside assistant sees the project, replace names with roles, round amounts, generalize locations, and remove addresses, account numbers, schedules, private messages, and another person's information. Data entered there leaves LearningAI.",
       "mistake": "Treating the AI's plan as finished truth and just following it, as if it knew your real situation.",
       "good": "Treating yourself as the editor, not the audience: you supply the real-world facts it can only guess at, then cut and reorder."
     },
@@ -28,7 +28,7 @@ export default {
       "kind": "tryLive",
       "title": "Run the plan prompt on a real project",
       "prompt": "Help me plan [the big project]. Here's my real situation: [deadline / what I already have / what's blocking or scaring me]. Break it into [4–6] phases, and for each phase give me the very first small step. Then suggest one good checkpoint where I should pause and re-decide before continuing. Ask me one question if something important is missing — don't guess it.",
-      "note": "Worked example: 'Help me plan organizing a 30-person family reunion. Here's my real situation: it's in 3 months, I have the guest list but no venue, and I'm scared the cost will spiral. Break it into 5 phases, and for each phase give me the very first small step. Then suggest one good checkpoint where I should pause and re-decide before continuing. Ask me one question if something important is missing — don't guess it.' Pick a project that's been sitting heavy on you and use YOUR honest facts — the realer they are, the more usable the plan."
+      "note": "Worked example: 'Help me plan a medium-sized family gathering in about three months. I have a rough guest count but no venue, and cost is the hard limit. Use five phases and add an approval checkpoint before any booking.' Use relevant but non-identifying facts; a community event, room reorganization, repair, move, creative build, or family plan all work. The assistant proposes; you approve every commitment."
     },
     {
       "kind": "workflowChain",
@@ -39,7 +39,7 @@ export default {
         "Run the prompt and let the AI break the goal into phases with a first step for each",
         "Cross out one phase you don't actually need",
         "Drag one step earlier or later — because you know your life better than the AI does",
-        "Add one checkpoint where you'll pause and re-decide before charging on",
+        "Add one checkpoint where you or the affected person approves before money, booking, publishing, or irreversible action",
         "Circle the single first step and write down when today you'll do it"
       ],
       "note": "The cutting and reordering are the whole point. The AI predicts a generic breakdown; you're the one who knows the real-world facts it can't see."
@@ -82,19 +82,19 @@ export default {
           "feedback": "That's ownership. The plan lives in your head now, not just on the screen — and you know why you're starting there."
         },
         {
-          "text": "The AI produced a clean 5-phase plan with a step for each phase",
+          "text": "I cut one phase and chose a first step, but left the booking checkpoint after money would already be spent",
           "ok": false,
-          "feedback": "That's the AI's generic breakdown — a confident guess from patterns. You own it only once you've cut, reordered, and can say the first step and why yourself."
+          "feedback": "You edited the plan, but the checkpoint arrives after the irreversible consequence. Move approval before spending or booking."
         },
         {
-          "text": "You followed every phase in the exact order the AI gave them",
+          "text": "I reordered the phases to fit my week but did not ask an affected person whether the new timing works",
           "ok": false,
-          "feedback": "Following the AI's order unedited means you skipped the editing that makes it fit your real life. Cut one phase, move one step, add a checkpoint."
+          "feedback": "The timing may fit you but still fail the people affected. Ask for their input before locking the schedule."
         },
         {
-          "text": "You re-read the AI's answer to remember what came first",
+          "text": "I can name the first step and reason, but the reason depends on a cost estimate I have not checked",
           "ok": false,
-          "feedback": "If you have to re-read it to know your first step, the plan isn't yours yet. Aim to name the step and the reason without looking."
+          "feedback": "Your reasoning is clear, but it rests on an unchecked cost. Confirm that load-bearing fact before committing."
         }
       ]
     }

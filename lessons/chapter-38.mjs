@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "Understand, don't decide",
-      "body": "For high-stakes questions, use AI to understand and prepare — not to diagnose or decide. It can translate unfamiliar language, organize your symptoms or questions, and help you prepare for a conversation with a qualified professional.\n\nThe boundary is simple: the AI has not examined you, does not know your complete history, and cannot run a test. A smooth answer can still be wrong. Never start, stop, or change medication or treatment because an AI suggested it. Ask the clinician or pharmacist who is accountable for your care.\n\nDo not use AI for emergencies. For urgent symptoms such as chest pain, trouble breathing, or a serious reaction to medicine, contact local emergency services. If you feel unsafe or at risk of hurting yourself or someone else, contact a trusted person, emergency services, or a crisis line. In the United States and its territories, call or text 988.",
+      "body": "For high-stakes questions, use AI to understand and prepare — not to diagnose or decide. It can translate unfamiliar language and help prepare general questions for a qualified professional.\n\nThe boundary is simple: the AI has not examined you, does not know your complete history, and cannot run a test. A smooth answer can still be wrong. Never start, stop, or change medication or treatment because an AI suggested it. Ask the clinician or pharmacist who is accountable for your care.\n\nProtect privacy before using any outside assistant: do not paste your name, date of birth, medical-record number, prescription label, test result, photo, full symptom history, or another person's health information. Data entered there leaves LearningAI. Practice with a made-up or broad question instead.\n\nDo not use AI for emergencies. For urgent symptoms such as chest pain, trouble breathing, or a serious reaction to medicine, contact local emergency services. If you feel unsafe or at risk of hurting yourself or someone else, contact a trusted person, emergency services, or a crisis line. In the United States and its territories, call or text 988.",
       "mistake": "Self-diagnosing: asking the AI what's wrong with you and what to take, then acting on its word because it sounded certain.",
       "good": "Ask the AI to explain the basics in plain words and build you a list of questions to bring to a real professional — then decide nothing on the AI alone."
     },
@@ -63,8 +63,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Turn AI into a prep sheet",
-      "prompt": "I want to understand, not get a diagnosis or a decision. Explain [my health or important question] in plain words a beginner can follow. Clearly mark which parts only a qualified [professional] should decide, and tell me if any of this depends on recent information you should double-check on the live web. Then write me a short, specific list of questions I should ask my [professional] at my next appointment.",
-      "note": "Fill the blanks with one real question you actually have. Example: 'why my doctor wants to recheck my blood pressure in a month' and 'doctor'. [professional] could also be pharmacist, nurse, dentist — or for non-health questions, lawyer or financial advisor. Read the plain-words explanation out loud to check you understood it. You're leaving with a prep sheet, not a verdict."
+      "prompt": "I want general education and questions to ask, not a diagnosis or decision. Using this made-up or broad situation — [general question with identifying details removed] — explain the general idea in plain words. Mark what only a qualified [professional] can decide, identify uncertainty, and write three questions a person could ask that professional. Do not recommend a medicine, dose, diagnosis, or treatment.",
+      "note": "Use a made-up or broad question such as 'why a clinician might recheck blood pressure later' — not your private history or a document from your account. A professional could be a doctor, pharmacist, nurse, dentist, lawyer, or financial adviser. Read the explanation back in your own words, circle one question for a real professional, and leave with a prep sheet rather than a verdict."
     },
     {
       "kind": "toolkitSave",
@@ -104,14 +104,14 @@ export default {
           "feedback": "That's the Explorer level closed. You used AI to get smarter and stay in charge — understanding, preparing, and leaving the decision to a qualified human."
         },
         {
-          "text": "The AI gave a clear diagnosis and a treatment, so I'll just follow it — it sounded confident and complete.",
+          "text": "I used a broad, redacted question and prepared three good questions, but also planned to change a dose before speaking with a professional.",
           "ok": false,
           "feedback": "Confident and complete is exactly how a hallucination reads. The AI can't examine you and may be smoothly wrong. Use its answer to prepare questions, and let a professional decide."
         },
         {
-          "text": "I read the answer back word-for-word off the screen and copied its advice into a text to a friend.",
+          "text": "I can explain the general idea and named a professional, but pasted my full test result into the assistant to make the questions more specific.",
           "ok": false,
-          "feedback": "Reading it back verbatim isn't understanding, and passing on unverified AI advice spreads the risk. Say it in your own words, circle what to ask a real person, and flag what you won't act on yet."
+          "feedback": "The preparation was useful, but exposing a full test result crossed the privacy boundary. Use a broad question and bring the actual document directly to the professional."
         }
       ]
     }

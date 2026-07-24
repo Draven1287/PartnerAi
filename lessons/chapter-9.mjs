@@ -1,112 +1,155 @@
-// Lesson 9 — The Scary Words Explained
+// Lesson 9 — Pause Before You Allow It
 // Arc: How It Works
 // Ported from Core 50 (auto-generated, then reviewed). Edit here, then run tools/build-lessons.mjs
 export default {
   "id": "chapter-9",
   "num": 9,
   "arc": "How It Works",
-  "title": "The Scary Words Explained",
-  "coreQuestion": "Which words on an AI screen are just routine, and which few actually mean \"slow down\" or \"leave\"?",
-  "blurb": "Sign in, Free trial, Upgrade — most of it is harmless. Learn the two words that mean pause and the one phrase that means go.",
-  "minutes": 6,
+  "title": "Pause Before You Allow It",
+  "coreQuestion": "Before I sign in, upload, download, grant access, pay, post, or let an AI act, what should I check?",
+  "blurb": "Safety is not one magic browser word. Check the destination, data, access, commitment, and way back before you allow a consequential action.",
+  "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Same screen, different reactions",
-      "scenario": "You open an AI assistant for the first time. You see buttons and words everywhere: Sign in, Start free trial, Get Plus, New chat, Settings. Your stomach tightens. It feels like one wrong click will hack you or charge your card.",
-      "prompt": "Before you read on: of the words you see on a normal AI screen, how many do you think actually mean danger? Guess a number, then see if you're right."
-    },
-    {
-      "kind": "classify",
-      "title": "Routine to see, or slow down?",
-      "prompt": "Sort each word by what it really means. 'Routine — keep going' is for words that are normal and harmless to SEE (even money words). 'Slow down' is only for the moment you'd actually TYPE a secret.",
-      "buckets": [
-        "Routine — keep going",
-        "Slow down"
-      ],
-      "items": [
-        {
-          "text": "Sign in / Log in",
-          "answer": 0
-        },
-        {
-          "text": "Free trial",
-          "answer": 0
-        },
-        {
-          "text": "Get Plus / Upgrade",
-          "answer": 0
-        },
-        {
-          "text": "Enter your password",
-          "answer": 1
-        },
-        {
-          "text": "Payment / card number",
-          "answer": 1
-        },
-        {
-          "text": "New chat",
-          "answer": 0
-        }
-      ],
-      "reveal": "Almost everything is routine to SEE — even money words like Free trial and Upgrade. You only ever slow down at the exact moment you'd type a secret: a password or a payment number. Everything else, you keep going."
+      "title": "The button is not the decision",
+      "scenario": "A link opens a polished AI study tool. It asks you to 'Continue with Google,' allow access to your Drive, install a helper download, and start a trial. The page uses HTTPS and looks professional. None of that, by itself, proves who operates it or what will happen after you approve.",
+      "prompt": "Before selecting anything, name two consequences you would want to understand. What could the service receive, change, download, charge, send, or keep?"
     },
     {
       "kind": "reveal",
-      "title": "What the words really mean",
-      "body": "Sign in just lets the site remember you next time. (That's a comparison — like a library card. What's really happening: the site keeps a record tied to your account so it can load your past chats. You usually don't even have to sign in to try it.) Free trial means the paid version free for a while, then it may start charging unless you cancel — so read the small print and note the end date, but seeing it is normal. Get Plus / Upgrade is just an invitation to pay; you can ignore it. The only two words that mean pause are 'password' and 'payment' — fine on the right page, but always your cue to check you're on the real site before you type. And one phrase means leave: 'Not secure.' It usually appears in the browser address bar at the top, not the page itself. On a real AI site you normally won't see it at all. If you do, stop — you may be on a fake page. Close it and reopen your assistant fresh.",
-      "mistake": "Seeing 'Free trial' or 'Get Plus' and panicking that you're about to be hacked or charged, so you close a perfectly safe page.",
-      "good": "You decide whether to continue: read money words calmly, and only pause at the actual moment you'd type a password or payment number — checking the web address at the top is the real site before you type."
+      "title": "Check the consequence, not a trigger word",
+      "body": "A secure-looking page can still be deceptive, and an unfamiliar warning can appear on a legitimate service. Do not reduce safety to 'password and payment mean pause' or 'Not secure means leave.' Instead, pause before any action that shares data, grants access, downloads software, creates a commitment, publishes or sends something, or may be difficult to undo.\n\nUse seven checks:\n1. Identity — who is asking?\n2. Destination — what exact app, domain, account, or recipient will receive the action?\n3. Data — what information will be uploaded, retained, or exposed?\n4. Permissions — what can the service view, create, change, or send, and for how long?\n5. Downloads and commitments — will this install software, start a renewal, charge money, publish content, or contact someone?\n6. Reversibility — can you undo it, revoke access, cancel, recover, or remove the data?\n7. Independent route — can you close the link and reopen the service through a known app, saved bookmark, official provider page, or trusted contact?",
+      "mistake": "Trusting a page because it looks official, uses HTTPS, or avoids a short list of alarming words.",
+      "good": "Pause before consequence, inspect what will happen, and verify the service through a route the request did not control."
     },
     {
-      "kind": "tryLive",
-      "title": "Ask the AI about a word that worried you",
-      "prompt": "I'm new to AI and I saw the words [the words that worried you] on this website. In plain, simple terms, what do they mean, do they cost money, and is it safe for me to keep using this?",
-      "note": "Fill the bracket with whatever you actually saw, word-for-word. Example: 'Start your free trial' — a good reply explains it's the paid version free for a limited time that may charge you later, so it's safe to read but a money word to watch. To be safe, type the assistant's address yourself instead of clicking a link someone sent you."
+      "kind": "classify",
+      "title": "Read, or pause before allowing?",
+      "prompt": "Sort each action. 'Read or navigate' does not grant new access or create a commitment. 'Pause before allowing' changes data, access, software, money, communication, or recovery options.",
+      "buckets": [
+        "Read or navigate",
+        "Pause before allowing"
+      ],
+      "items": [
+        {
+          "text": "Open the Help page inside an app you reached through your own bookmark.",
+          "answer": 0
+        },
+        {
+          "text": "Allow an AI extension to read and change data on every website you visit.",
+          "answer": 1
+        },
+        {
+          "text": "Upload a school document containing names and private feedback.",
+          "answer": 1
+        },
+        {
+          "text": "Read the price and renewal terms without starting the trial.",
+          "answer": 0
+        },
+        {
+          "text": "Download and open a 'required AI helper' from a link in an unexpected message.",
+          "answer": 1
+        },
+        {
+          "text": "Approve 'Continue with Google' when the service requests Drive, contacts, and email access.",
+          "answer": 1
+        },
+        {
+          "text": "Let an agent send the drafted email automatically.",
+          "answer": 1
+        },
+        {
+          "text": "View account settings to learn where connected apps can be revoked.",
+          "answer": 0
+        }
+      ],
+      "reveal": "The pause happens before you grant, upload, install, pay, publish, send, or commit — not merely when a particular word appears. Reading a screen is different from approving its consequence."
+    },
+    {
+      "kind": "workflowChain",
+      "title": "Verify without using the path that asked",
+      "goal": "Evaluate an unexpected link that claims your AI account needs urgent permission to avoid being locked.",
+      "correct": [
+        "Stop before signing in, downloading, or approving access",
+        "Identify the claimed provider and inspect the exact destination",
+        "List the data, permissions, downloads, and commitments being requested",
+        "Check whether each consequence is necessary and reversible",
+        "Close the link and navigate independently through a known app, bookmark, or official page",
+        "Use the provider's official support or a trusted person if uncertainty remains",
+        "Revoke access, change credentials, or report the request if something was already approved"
+      ],
+      "choices": [
+        "List the data, permissions, downloads, and commitments being requested",
+        "Use the provider's official support or a trusted person if uncertainty remains",
+        "Stop before signing in, downloading, or approving access",
+        "Revoke access, change credentials, or report the request if something was already approved",
+        "Identify the claimed provider and inspect the exact destination",
+        "Close the link and navigate independently through a known app, bookmark, or official page",
+        "Check whether each consequence is necessary and reversible"
+      ],
+      "note": "Do not use the suspicious link's phone number, reply address, QR code, or support button to verify itself. Independent navigation breaks the requester's control of the route."
+    },
+    {
+      "kind": "compare",
+      "title": "HTTPS is protection in transit, not proof of identity",
+      "weak": "The page has a lock icon and looks official, so every permission it asks for is safe.",
+      "strong": "A protected connection can still lead to the wrong service. I will verify the exact provider and destination, inspect requested access and commitments, and reopen the account independently before approving anything.",
+      "why": "Connection security helps protect data while it travels. It does not prove that the recipient deserves the data, that a download is safe, or that the requested permission is necessary."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your screen-word rule card",
-      "cardType": "Screen-Word Decoder",
+      "title": "Optionally save your pause-before-allowing check",
+      "cardType": "Permission and commitment check",
       "fields": [
         {
-          "key": "routine",
-          "label": "Routine — keep going",
-          "placeholder": "Sign in, Free trial, Get Plus, New chat, Settings, History — normal to SEE"
+          "key": "identity",
+          "label": "Identity and destination",
+          "placeholder": "Who is asking, and what exact app, domain, account, or recipient will receive it?"
         },
         {
-          "key": "slowdown",
-          "label": "Slow down (only when typing)",
-          "placeholder": "Password, Payment / card number — check the web address is the real site first"
+          "key": "dataAccess",
+          "label": "Data and permissions",
+          "placeholder": "What can it view, keep, create, change, upload, or send?"
         },
         {
-          "key": "leave",
-          "label": "Leave the page",
-          "placeholder": "'Not secure' in the address bar — close it and reopen your assistant fresh"
+          "key": "commitment",
+          "label": "Download or commitment",
+          "placeholder": "Will it install, renew, charge, publish, message, or act?"
+        },
+        {
+          "key": "recovery",
+          "label": "Reversibility and independent route",
+          "placeholder": "How can I undo it, revoke it, and reopen the real service without this link?"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Label a brand-new word",
-      "question": "Find a word or button you haven't discussed yet — try 'History,' 'Upgrade,' or 'Settings.' Which label is correct, and can you name the one phrase that means leave?",
+      "title": "Choose the safe next move",
+      "question": "A convincing message says your AI account will close in ten minutes unless you use its link, sign in, install a browser helper, and grant access to your files. The linked page uses HTTPS. What should you do?",
       "options": [
         {
-          "text": "'Upgrade' is 'routine — keep going' (it's just an invitation to pay, safe to see) — and the leave-phrase is 'not secure.'",
+          "text": "Stop. Do not use the link, sign in, install, or grant access. Open the provider independently, check the account there, and use official support; if I already approved something, revoke it and secure the account.",
           "ok": true,
-          "feedback": "Exactly. Money words are routine to SEE; you only slow down when you'd actually type a password or payment. And 'not secure' in the address bar means leave."
+          "feedback": "Correct. You checked identity and destination, refused unnecessary access and downloads, broke the urgent route, and kept a recovery plan."
         },
         {
-          "text": "'Upgrade' is 'slow down' because it mentions paying.",
+          "text": "Continue because HTTPS and professional design prove the service is legitimate.",
           "ok": false,
-          "feedback": "Not quite — seeing a money word is routine. You only slow down at the moment you'd type a secret (password or payment), not just because 'pay' appears on screen."
+          "feedback": "HTTPS protects a connection; it does not prove who deserves your credentials, files, or device access."
         },
         {
-          "text": "Every official-looking word means I'm about to be hacked or charged.",
+          "text": "Only pause when the page asks for a card number; file access and downloads are routine.",
           "ok": false,
-          "feedback": "That's the myth this lesson fixes. Most words are ordinary. Only 'password' and 'payment' mean pause, and only 'not secure' means leave."
+          "feedback": "Permissions, uploads, downloads, messages, and account access can be as consequential as a payment. Pause before allowing any of them."
+        },
+        {
+          "text": "Ask the same linked page's chatbot whether the link is safe, then follow its answer.",
+          "ok": false,
+          "feedback": "A request cannot verify itself. Close it and use an independent route you already trust."
         }
       ]
     }

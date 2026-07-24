@@ -57,6 +57,26 @@ export default {
       "reveal": "The AI happily does the drafting and the looking-up — the middle. But the goal (warm, like me), the method (short, mention the cookies), and the final check (is this actually what I wanted?) never left your hands. Those are the three ends you hold."
     },
     {
+      "kind": "workflowChain",
+      "title": "Mark the handoff points",
+      "goal": "Use AI to prepare a community-event flyer while keeping the responsible decisions human.",
+      "correct": [
+        "A person defines the audience and purpose",
+        "A person removes private contact details that are not needed",
+        "AI produces several draft structures",
+        "A person verifies dates, rules, and accessibility information",
+        "The organizer selects, edits, and approves what is published"
+      ],
+      "choices": [
+        "A person verifies dates, rules, and accessibility information",
+        "AI produces several draft structures",
+        "The organizer selects, edits, and approves what is published",
+        "A person removes private contact details that are not needed",
+        "A person defines the audience and purpose"
+      ],
+      "note": "If an outside assistant helps with the draft, data leaves LearningAI. Use public event facts only; do not paste attendee lists, private phone numbers, or internal messages."
+    },
+    {
       "kind": "tryLive",
       "title": "Run one real task — keep the three jobs",
       "prompt": "Pick a small real thing you're doing right now. First write three lines: 'My goal is ___,' 'My method is ___,' 'I'll check it by ___.' THEN send this:\n\n\"Help me in the middle of this — do not decide it for me: [task]. My goal is [goal]. I'd like it done this way: [method]. Give me a draft I can review, then list 2–3 things I should double-check before I trust it.\"",

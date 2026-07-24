@@ -20,11 +20,21 @@ body.v2-onboarding .progress-bar { display: none; }
 .nav-cta { cursor: pointer; border: 0; font: inherit; }
 
 /* ---- V2 palette direction ----
-   Base stays V1 calm: paper, ink, white surfaces, soft borders.
-   Primary action uses blue. Teal, violet, green, and amber are reserved for
-   arcs, states, and progress so the UI does not collapse into one hue.
+   Onyx, graphite, and warm ivory form the default environment. Signal red is
+   reserved for action, focus, and progress; semantic colors remain functional.
 */
 :root {
+  --bg: #0b0d10;
+  --surface: #14171c;
+  --surface-2: #1b1f26;
+  --border: #30343c;
+  --text: #f1ede4;
+  --text-dim: #a9adb4;
+  --text-faint: #777c85;
+  --accent: #d84a3d;
+  --accent-dim: #bd3b30;
+  --accent-soft: #3a211f;
+  --on-accent: #ffffff;
   --v2-blue: #2563eb;
   --v2-teal: #0891b2;
   --v2-violet: #7c3aed;
@@ -269,15 +279,19 @@ body.v2-onboarding .progress-bar { display: none; }
 /* ---- Hidden V2 account gate ---- */
 .auth-view { align-items: center; display: grid; max-width: 1320px; min-height: calc(100vh - 150px); padding: clamp(1.5rem, 4vw, 3.5rem); }
 .auth-shell {
-  border: 1px solid var(--border);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--text) 15%, transparent);
+  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.34);
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
   min-height: min(680px, calc(100vh - 150px));
   width: 100%;
 }
 .auth-intro {
-  background: #10141c;
-  color: #f4f3ee;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(216, 74, 61, 0.12), transparent 32%),
+    linear-gradient(145deg, #11151b 0%, #0d1015 58%, #090b0e 100%);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -286,10 +300,12 @@ body.v2-onboarding .progress-bar { display: none; }
 }
 .auth-intro::before { background: var(--accent); content: ""; height: 3px; left: 0; position: absolute; top: 0; width: 84px; }
 .auth-intro h2 { color: inherit; font-size: clamp(3rem, 4.5vw, 5rem); font-weight: 500; letter-spacing: -0.055em; line-height: 0.92; margin: auto 0 1.5rem; max-width: 8ch; }
-.auth-intro p { color: #b8bdc5; font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.55; max-width: 34rem; }
-.auth-proof { border-top: 1px solid #343a43; display: grid; font-family: var(--font-evidence); font-size: 0.68rem; gap: 0.75rem; grid-template-columns: repeat(3, 1fr); letter-spacing: 0.1em; margin-top: 3rem; padding-top: 1rem; text-transform: uppercase; }
+.auth-intro p { color: var(--text-dim); font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.55; max-width: 34rem; }
+.auth-proof { border-top: 1px solid var(--border); color: var(--text-dim); display: grid; font-family: var(--font-evidence); font-size: 0.68rem; gap: 0.75rem; grid-template-columns: repeat(3, 1fr); letter-spacing: 0.1em; margin-top: 3rem; padding-top: 1rem; text-transform: uppercase; }
 .auth-card {
-  background: var(--surface);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 45%),
+    var(--surface);
   align-content: center;
   border: 0;
   border-radius: 0;
@@ -301,8 +317,8 @@ body.v2-onboarding .progress-bar { display: none; }
 }
 .auth-card h1 { font-size: clamp(3rem, 4.3vw, 4.5rem); font-weight: 500; letter-spacing: -0.055em; line-height: 0.95; margin-bottom: 0.45rem; }
 .auth-card .lead { font-size: clamp(1rem, 1.4vw, 1.2rem); margin-bottom: 0.75rem; max-width: 34rem; }
-.auth-card .pr-field input { background: transparent; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; min-height: 48px; padding-inline: 0; }
-.auth-card .pr-field input:focus { border-bottom-color: var(--accent); box-shadow: none; outline: 0; }
+.auth-card .pr-field input { background: transparent; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; caret-color: var(--accent); min-height: 52px; padding-inline: 0; }
+.auth-card .pr-field input:focus { border-bottom-color: var(--accent); box-shadow: 0 1px 0 var(--accent); outline: 0; }
 .auth-card .row-gap { margin-top: 0.8rem; }
 .auth-privacy { color: var(--text-dim); font-size: 0.8rem; line-height: 1.55; margin: 0.5rem 0 0; max-width: 36rem; }
 .account-bar {
@@ -711,11 +727,15 @@ body.v2-onboarding .progress-bar { display: none; }
   --editorial-ink: #15191f;
   --editorial-paper: #f1f0eb;
   --editorial-rule: color-mix(in srgb, var(--text) 22%, transparent);
+  --font-display: "Iowan Old Style", "Baskerville", "Times New Roman", serif;
   --font-editorial: "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-evidence: "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
+  background:
+    radial-gradient(circle at 82% -10%, rgba(216, 74, 61, 0.08), transparent 30rem),
+    var(--bg);
   font-family: var(--font-editorial);
   letter-spacing: -0.005em;
 }
@@ -790,6 +810,7 @@ body {
 }
 .dashboard-primary { display: flex; flex-direction: column; justify-content: center; }
 .dashboard-primary h1 {
+  font-family: var(--font-display);
   font-size: clamp(3.2rem, 7vw, 7.5rem);
   font-weight: 500;
   letter-spacing: -0.065em;
@@ -800,15 +821,15 @@ body {
 }
 .dashboard-primary .lead { font-size: clamp(1rem, 1.4vw, 1.25rem); line-height: 1.55; max-width: 52ch; }
 .dashboard-panel {
-  background: #111821;
-  color: #f5f3ec;
+  background: var(--surface-2);
+  color: var(--text);
   margin: 2rem 0 2rem clamp(1.5rem, 4vw, 4rem);
   padding: clamp(1.5rem, 3vw, 2.8rem);
   position: relative;
 }
 .dashboard-panel::before { background: var(--accent); content: ""; height: 2px; left: 0; position: absolute; top: 0; width: 22%; }
 .dashboard-panel .tagline,
-.dashboard-panel .muted { color: #c7c9c8; }
+.dashboard-panel .muted { color: var(--text-dim); }
 
 .dashboard-stats {
   border-bottom: 1px solid var(--editorial-rule);
@@ -891,6 +912,7 @@ body {
 }
 .lesson-heading-copy { grid-row: 1 / span 2; min-width: 0; }
 .lesson-h1 { font-size: clamp(3rem, 5vw, 5.5rem); font-weight: 500; letter-spacing: -0.065em; line-height: 0.92; max-width: 13ch; }
+.lesson-h1 { font-family: var(--font-display); }
 .core-q { font-size: clamp(1.05rem, 1.5vw, 1.3rem); margin-top: 0.8rem; max-width: 52ch; }
 .lesson-outcome {
   border-bottom: 1px solid var(--editorial-rule);
@@ -952,6 +974,7 @@ body {
 }
 .lesson-card::before { background: var(--accent); content: ""; height: 2px; left: 0; position: absolute; top: 0; width: 84px; }
 .lesson-card h2 { font-size: clamp(2rem, 4vw, 4.5rem); font-weight: 500; letter-spacing: -0.05em; line-height: 0.98; margin: 1.5rem 0 2rem; max-width: 14ch; }
+.lesson-card h2 { font-family: var(--font-display); }
 .lesson-prose { font-size: 1.02rem; line-height: 1.72; max-width: 68ch; }
 .lesson-prose p { margin: 0 0 1.15rem; white-space: pre-line; }
 .lesson-prose p:last-child { margin-bottom: 0; }
@@ -990,6 +1013,7 @@ body {
   padding: clamp(4rem, 9vw, 8rem) 0 clamp(2.5rem, 5vw, 4rem);
 }
 .access-hero h1 {
+  font-family: var(--font-display);
   font-size: clamp(3.5rem, 9vw, 8rem);
   font-weight: 500;
   letter-spacing: -0.065em;
@@ -1017,12 +1041,31 @@ body {
 .access-offer:last-child { border-right: 0; padding-right: 0; }
 .access-offer.featured { background: var(--text); color: var(--bg); padding-right: clamp(1.2rem, 3vw, 2.8rem); }
 .access-offer h2 { font-size: clamp(2rem, 4vw, 3.5rem); font-weight: 500; letter-spacing: -0.05em; line-height: 1; margin: 1rem 0 1.5rem; }
+.access-offer h2 { font-family: var(--font-display); }
+
+.auth-intro h2,
+.auth-card h1 { font-family: var(--font-display); }
+
+::selection { background: var(--accent); color: #fff; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.step-feedback:not(:empty) {
+  border-left: 2px solid var(--accent);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.65rem 0 0.65rem 0.9rem;
+}
 .access-offer p { line-height: 1.65; }
 .access-lesson-list { font-family: var(--font-evidence); font-size: 0.72rem; letter-spacing: 0.04em; }
 .access-promise { border-bottom: 1px solid currentColor; border-top: 1px solid currentColor; display: grid; gap: 0.35rem; margin: 2rem 0; padding: 1rem 0; }
 .access-promise span { color: color-mix(in srgb, currentColor 72%, transparent); font-size: 0.86rem; }
 .access-offer.featured .btn-primary { background: var(--bg); border-color: var(--bg); color: var(--text); }
-.access-boundary { background: #111821; color: #f5f3ec; margin-top: clamp(3rem, 6vw, 6rem); max-width: 68ch; padding: clamp(1.5rem, 4vw, 3rem); }
+.access-boundary { background: var(--surface-2); color: var(--text); margin-top: clamp(3rem, 6vw, 6rem); max-width: 68ch; padding: clamp(1.5rem, 4vw, 3rem); }
 .access-boundary p { font-size: clamp(1.1rem, 2vw, 1.45rem); }
 
 @keyframes editorial-enter {

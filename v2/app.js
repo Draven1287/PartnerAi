@@ -23,6 +23,8 @@
 (function () {
   const PRODUCT_VERSION = String(window.LEARNING_AI_PRODUCT_VERSION || 'V2').toUpperCase();
   const PRODUCT_PATH = String(window.LEARNING_AI_PRODUCT_PATH || '/v2/');
+  const SAMPLE_FIRST_FLOW = window.LEARNING_AI_ONBOARDING_FLOW === 'sample-first';
+  const SAMPLE_LESSON_ID = 'chapter-1';
   let LESSONS = Array.isArray(window.LESSONS) ? window.LESSONS : [];
   let ARCS = window.V2_ARCS ? Object.values(window.V2_ARCS) : [];
   const KEY = {
@@ -31,7 +33,12 @@
     toolkit: 'learningai-toolkit',
     assessment: 'learningai-v2-assessment',
     diagnosticDraft: 'learningai-v2-diagnostic-draft',
-    palette: 'learningai-v2-palette'
+    palette: 'learningai-v2-palette',
+    guestProgress: 'learningai-v3-guest-progress',
+    guestStepProgress: 'learningai-v3-guest-step-progress',
+    guestToolkit: 'learningai-v3-guest-toolkit',
+    guestInteractions: 'learningai-v3-guest-interactions',
+    guestOwner: 'learningai-v3-guest-owner'
   };
   const api = window.LearningAIV2Api || null;
   let authChecked = !api;
@@ -42,8 +49,9 @@
 
   // step kinds that REQUIRE completion before Next unlocks. Toolkit saving is intentionally optional.
   const GATED = new Set(['classify', 'exitCheck', 'promptRepair', 'biasSpot', 'agentDesign', 'workflowChain', 'tryLive', 'verify']);
-  // arc colors for the mosaic (one hue per arc)
-  const ARC_COLORS = ['#2563eb', '#0891b2', '#7c3aed', '#dc2626', '#ea580c', '#16a34a', '#a21caf', '#0f766e', '#b45309', '#475569'];
+  // Arc position is communicated by label, number, and shape. Keep color
+  // restrained so progress reads as one continuous journey, not ten products.
+  const ARC_COLORS = ['#343941', '#3b4048', '#42474f', '#494e56', '#50555d', '#595d64', '#62666c', '#6b6f75', '#777a80', '#85888d'];
   const AGE_RANGES = [
     ['', 'Choose age range'],
     ['13-15', '13-15'],
@@ -55,7 +63,7 @@
     ['prefer-not', 'Prefer not to say']
   ];
   const V2_PALETTES = [
-    { id: 'editorial-control', name: 'Editorial Control', bg: '#f1f0eb', surface: '#faf9f5', surface2: '#e6e5df', border: '#c9c8c1', text: '#15191f', textDim: '#5d636a', accent: '#b42318', accentSoft: '#f3d9d5' },
+    { id: 'editorial-control', name: 'Onyx Editorial', bg: '#0b0d10', surface: '#14171c', surface2: '#1b1f26', border: '#30343c', text: '#f1ede4', textDim: '#a9adb4', accent: '#d84a3d', accentSoft: '#3a211f' },
     { id: 'clear-blue', name: 'Clear Blue', bg: '#f7f9fc', surface: '#ffffff', surface2: '#eef4f8', border: '#dbe3ea', text: '#121826', textDim: '#4b5870', accent: '#2563eb', accentSoft: '#dbeafe' },
     { id: 'teal-studio', name: 'Teal Studio', bg: '#f2fbfb', surface: '#ffffff', surface2: '#e2f3f2', border: '#c7dfdf', text: '#102026', textDim: '#45606a', accent: '#0f8b8d', accentSoft: '#d6f3f0' },
     { id: 'ink-coral', name: 'Ink Coral', bg: '#fbf7f4', surface: '#ffffff', surface2: '#f5e7df', border: '#e2d3ca', text: '#171821', textDim: '#5d5965', accent: '#e0523f', accentSoft: '#ffe1dc' },
@@ -177,29 +185,57 @@
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
   function readJson(k, fb) { try { const v = JSON.parse(get(k) || 'null'); return v == null ? fb : v; } catch (e) { return fb; } }
-  function readProgress() { return readJson(KEY.progress, { completed: {} }); }
-  function saveProgress(p) { return set(KEY.progress, JSON.stringify({ completed: p.completed || {}, savedAt: new Date().toISOString() })); }
-  function readToolkit() { const t = readJson(KEY.toolkit, []); return Array.isArray(t) ? t : []; }
-  function saveToolkit(c) { return set(KEY.toolkit, JSON.stringify(c.slice(0, 50))); }
-  function readPendingToolkit() { const t = readJson('learningai-v2-pending-toolkit', []); return Array.isArray(t) ? t : []; }
-  function savePendingToolkit(c) { return set('learningai-v2-pending-toolkit', JSON.stringify(c.slice(0, 50))); }
-  function readPendingProgress() { const t = readJson('learningai-v2-pending-progress', []); return Array.isArray(t) ? t : []; }
-  function savePendingProgress(c) { return set('learningai-v2-pending-progress', JSON.stringify(c.slice(0, 100))); }
-  function readStepProgress() { const s = readJson('learningai-v2-step-progress', {}); return s && typeof s === 'object' ? s : {}; }
+  function accountScopedKey(base) {
+    if (!SAMPLE_FIRST_FLOW || !currentUser) return base;
+    return `${base}:${encodeURIComponent(currentUserKey())}`;
+  }
+  function progressStorageKey() {
+    return SAMPLE_FIRST_FLOW && !currentUser ? KEY.guestProgress : accountScopedKey(KEY.progress);
+  }
+  function stepProgressStorageKey() {
+    return SAMPLE_FIRST_FLOW && !currentUser ? KEY.guestStepProgress : accountScopedKey('learningai-v2-step-progress');
+  }
+  function toolkitStorageKey() {
+    return SAMPLE_FIRST_FLOW && !currentUser ? KEY.guestToolkit : accountScopedKey(KEY.toolkit);
+  }
+  function readProgress() { return readJson(progressStorageKey(), { completed: {} }); }
+  function saveProgress(p) { return set(progressStorageKey(), JSON.stringify({ completed: p.completed || {}, savedAt: new Date().toISOString() })); }
+  function readToolkit() { const t = readJson(toolkitStorageKey(), []); return Array.isArray(t) ? t : []; }
+  function saveToolkit(c) { return set(toolkitStorageKey(), JSON.stringify(c.slice(0, 50))); }
+  function pendingToolkitStorageKey() { return accountScopedKey('learningai-v2-pending-toolkit'); }
+  function pendingProgressStorageKey() { return accountScopedKey('learningai-v2-pending-progress'); }
+  function assessmentStorageKey() { return accountScopedKey(KEY.assessment); }
+  function diagnosticDraftStorageKey() { return accountScopedKey(KEY.diagnosticDraft); }
+  function pendingAssessmentStorageKey() { return accountScopedKey('learningai-v2-pending-assessment'); }
+  function activityConsentStorageKey() { return accountScopedKey('learningai-v2-activity-consent'); }
+  function readActivityConsent() {
+    return Boolean(currentUser && readJson(activityConsentStorageKey(), {})?.shareLearningActivity);
+  }
+  function readPendingToolkit() { const t = readJson(pendingToolkitStorageKey(), []); return Array.isArray(t) ? t : []; }
+  function savePendingToolkit(c) { return set(pendingToolkitStorageKey(), JSON.stringify(c.slice(0, 50))); }
+  function readPendingProgress() { const t = readJson(pendingProgressStorageKey(), []); return Array.isArray(t) ? t : []; }
+  function savePendingProgress(c) { return set(pendingProgressStorageKey(), JSON.stringify(c.slice(0, 100))); }
+  function readStepProgress() { const s = readJson(stepProgressStorageKey(), {}); return s && typeof s === 'object' ? s : {}; }
   function maxStepReached(id) { const v = readStepProgress()[id]; return Number.isInteger(v) && v > 0 ? v : 0; }
   function recordStepReached(id, idx) {
     const sp = readStepProgress();
     if ((Number.isInteger(sp[id]) ? sp[id] : 0) >= idx) return;
     sp[id] = idx;
-    set('learningai-v2-step-progress', JSON.stringify(sp));
+    set(stepProgressStorageKey(), JSON.stringify(sp));
   }
   function currentUserKey() { return currentUser?.id || currentUser?.email || 'unknown'; }
   function importedUserKey() { return `learningai-v2-imported:${currentUserKey()}`; }
-  function lessonNoteKey(lessonId) { return `learningai-v2-lesson-notes:${lessonId}`; }
+  function lessonNoteKey(lessonId) {
+    return SAMPLE_FIRST_FLOW && !currentUser
+      ? `learningai-v3-guest-lesson-notes:${lessonId}`
+      : accountScopedKey(`learningai-v2-lesson-notes:${lessonId}`);
+  }
   function saveToolkitCard(card, { queue = true } = {}) {
     const cards = readToolkit().filter(existing => existing.id !== card.id);
     saveToolkit([{ ...card, updatedAt: new Date().toISOString() }, ...cards]);
-    if (queue) savePendingToolkit([card, ...readPendingToolkit().filter(existing => existing.id !== card.id)]);
+    if (queue && !(SAMPLE_FIRST_FLOW && !currentUser)) {
+      savePendingToolkit([card, ...readPendingToolkit().filter(existing => existing.id !== card.id)]);
+    }
   }
   function isCompleteV2Assessment(assessment) {
     const responses = Array.isArray(assessment?.responses) ? assessment.responses : [];
@@ -208,24 +244,33 @@
   }
   function saveAssessmentLocal(assessment) {
     if (!isCompleteV2Assessment(assessment)) return false;
-    set(KEY.assessment, JSON.stringify(assessment));
-    set('modelwise-gauge', JSON.stringify(assessment));
+    set(assessmentStorageKey(), JSON.stringify(assessment));
+    if (!SAMPLE_FIRST_FLOW) set('modelwise-gauge', JSON.stringify(assessment));
     return true;
   }
   function clearV2LocalSession() {
     try {
-      localStorage.removeItem(KEY.assessment);
-      localStorage.removeItem('modelwise-gauge');
-      localStorage.removeItem(KEY.diagnosticDraft);
-      localStorage.removeItem('learningai-v2-pending-progress');
-      localStorage.removeItem('learningai-v2-pending-toolkit');
-      localStorage.removeItem('learningai-v2-pending-assessment');
+      const progressKey = progressStorageKey();
+      const toolkitKey = toolkitStorageKey();
+      const stepKey = stepProgressStorageKey();
+      const pendingProgressKey = pendingProgressStorageKey();
+      const pendingToolkitKey = pendingToolkitStorageKey();
+      localStorage.removeItem(assessmentStorageKey());
+      if (!SAMPLE_FIRST_FLOW) localStorage.removeItem('modelwise-gauge');
+      localStorage.removeItem(diagnosticDraftStorageKey());
+      localStorage.removeItem(pendingProgressKey);
+      localStorage.removeItem(pendingToolkitKey);
+      localStorage.removeItem(pendingAssessmentStorageKey());
       // Per-learner state must not leak to the next account on a shared
       // computer (school machines): step unlocks, notes, last-complete.
-      localStorage.removeItem('learningai-v2-step-progress');
+      localStorage.removeItem(stepKey);
       localStorage.removeItem('learningai-v2-last-complete');
+      if (SAMPLE_FIRST_FLOW && currentUser) {
+        localStorage.removeItem(progressKey);
+        localStorage.removeItem(toolkitKey);
+      }
       Object.keys(localStorage)
-        .filter(k => k.startsWith('learningai-v2-lesson-notes:'))
+        .filter(k => k.startsWith('learningai-v2-lesson-notes:') && (!SAMPLE_FIRST_FLOW || k.endsWith(`:${encodeURIComponent(currentUserKey())}`)))
         .forEach(k => localStorage.removeItem(k));
     } catch (e) {}
   }
@@ -314,6 +359,7 @@
 
   async function saveProgressToBackend(progress) {
     if (!api || !currentUser) {
+      if (SAMPLE_FIRST_FLOW && !currentUser) return false;
       queueProgressSave(progress);
       return false;
     }
@@ -359,9 +405,9 @@
     b.dataset.fontScale = s.fontScale || 'normal';
     b.dataset.fontFamily = s.fontFamily || 'system';
     if (s.theme === 'dark') {
-      t.setProperty('--bg', '#0f1726'); t.setProperty('--surface', '#1b2637'); t.setProperty('--surface-2', '#243247');
-      t.setProperty('--border', '#33445c'); t.setProperty('--text', s.textColor || '#f4f7fb'); t.setProperty('--text-dim', '#a7b1c2'); t.setProperty('--text-faint', '#778397');
-      t.setProperty('--accent', s.accentColor || '#ff8178'); t.setProperty('--accent-soft', '#40201d');
+      t.setProperty('--bg', '#0b0d10'); t.setProperty('--surface', '#14171c'); t.setProperty('--surface-2', '#1b1f26');
+      t.setProperty('--border', '#30343c'); t.setProperty('--text', s.textColor || '#f1ede4'); t.setProperty('--text-dim', '#a9adb4'); t.setProperty('--text-faint', '#777c85');
+      t.setProperty('--accent', s.accentColor || '#d84a3d'); t.setProperty('--accent-soft', '#3a211f');
       b.style.colorScheme = 'dark';
     } else if (s.theme === 'light') {
       t.setProperty('--bg', '#f7f9fc'); t.setProperty('--surface', '#ffffff'); t.setProperty('--surface-2', '#eef4f8');
@@ -379,7 +425,8 @@
       t.setProperty('--accent', s.accentColor || '#0037a6'); t.setProperty('--accent-soft', '#dce8ff');
       b.style.colorScheme = 'light';
     } else {
-      b.style.colorScheme = 'light dark';
+      b.dataset.theme = 'dark';
+      b.style.colorScheme = 'dark';
     }
     if (s.accentColor) t.setProperty('--accent', s.accentColor);
   }
@@ -391,6 +438,125 @@
     if (error === 'email_exists') return 'That email already has an account. Choose Sign in and use the password you created earlier.';
     if (error === 'rate_limited') return 'Too many attempts. Wait a few minutes, then try again.';
     return error || 'Could not complete that request.';
+  }
+
+  function guestSampleProgress() {
+    return readJson(KEY.guestProgress, { completed: {} });
+  }
+
+  function guestSampleIsComplete() {
+    return Boolean(guestSampleProgress()?.completed?.[SAMPLE_LESSON_ID]?.completedAt);
+  }
+
+  function guestSampleOwnerMatchesCurrentUser() {
+    const owner = get(KEY.guestOwner);
+    return Boolean(owner && currentUser && owner === currentUserKey());
+  }
+
+  function clearGuestSample() {
+    try {
+      localStorage.removeItem(KEY.guestProgress);
+      localStorage.removeItem(KEY.guestStepProgress);
+      localStorage.removeItem(KEY.guestToolkit);
+      localStorage.removeItem(KEY.guestInteractions);
+      localStorage.removeItem(KEY.guestOwner);
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('learningai-v3-guest-lesson-notes:'))
+        .forEach(key => localStorage.removeItem(key));
+    } catch (e) {}
+  }
+
+  async function transferGuestSampleToCurrentUser() {
+    if (!SAMPLE_FIRST_FLOW || !currentUser || !guestSampleIsComplete() || !guestSampleOwnerMatchesCurrentUser()) return false;
+    const guestCompletion = guestSampleProgress().completed[SAMPLE_LESSON_ID];
+    const guestCards = readJson(KEY.guestToolkit, []);
+    const guestInteractions = readJson(KEY.guestInteractions, []);
+    const accountProgress = readProgress();
+    const accountCards = readToolkit();
+    accountProgress.completed = {
+      ...(accountProgress.completed || {}),
+      [SAMPLE_LESSON_ID]: accountProgress.completed?.[SAMPLE_LESSON_ID] || guestCompletion
+    };
+    saveProgress(accountProgress);
+    const guestCardList = Array.isArray(guestCards) ? guestCards : [];
+    const accountCardList = Array.isArray(accountCards) ? accountCards : [];
+    const mergedCards = [...accountCardList];
+    for (const guestCard of guestCardList) {
+      const accountCard = mergedCards.find(card => card.id === guestCard.id);
+      const guestTime = Date.parse(guestCard.updatedAt || guestCard.createdAt || 0) || 0;
+      const accountTime = Date.parse(accountCard?.updatedAt || accountCard?.createdAt || 0) || 0;
+      if (!accountCard) mergedCards.push(guestCard);
+      else if (guestTime > accountTime) mergedCards[mergedCards.indexOf(accountCard)] = guestCard;
+    }
+    saveToolkit(mergedCards);
+
+    const progressResult = await api.saveProgress({
+      lessonId: SAMPLE_LESSON_ID,
+      completed: true,
+      currentStep: 999
+    }).catch(() => ({ ok: false }));
+    if (!progressResult.ok) {
+      queueProgressSave({ lessonId: SAMPLE_LESSON_ID, completed: true, currentStep: 999 });
+    }
+
+    const unsyncedCards = [];
+    for (const card of guestCardList) {
+      const accountCard = accountCardList.find(existing => existing.id === card.id);
+      const guestTime = Date.parse(card.updatedAt || card.createdAt || 0) || 0;
+      const accountTime = Date.parse(accountCard?.updatedAt || accountCard?.createdAt || 0) || 0;
+      if (accountCard && accountTime >= guestTime) continue;
+      const saved = await api.saveToolkit({
+        id: card.id,
+        cardType: card.type,
+        lessonId: card.lessonId,
+        payload: { fields: card.fields, fieldLabels: card.fieldLabels || {} }
+      }).catch(() => ({ ok: false }));
+      if (!saved.ok) unsyncedCards.push(card);
+    }
+    if (unsyncedCards.length) {
+      savePendingToolkit([
+        ...unsyncedCards,
+        ...readPendingToolkit().filter(card => !unsyncedCards.some(guestCard => guestCard.id === card.id))
+      ]);
+    }
+
+    set(KEY.guestToolkit, JSON.stringify(unsyncedCards));
+
+    const unsyncedInteractions = [];
+    for (const interaction of Array.isArray(guestInteractions) ? guestInteractions : []) {
+      const payload = {
+        ...(interaction.payload || {}),
+        __clientTransferId: interaction.clientTransferId || `${interaction.lessonId}:${interaction.stepIndex}:${interaction.stepKind}`
+      };
+      let saved;
+      if (interaction.stepKind === 'exitCheck' && api.submitQuizAnswer) {
+        saved = await api.submitQuizAnswer({
+          lessonId: interaction.lessonId,
+          stepIndex: interaction.stepIndex,
+          quizKey: interaction.stepTitle || 'exit-check',
+          answer: payload,
+          correct: interaction.correct,
+          feedback: payload.feedback || ''
+        }).catch(() => ({ ok: false }));
+      } else {
+        saved = await api.saveInteraction({ ...interaction, payload }).catch(() => ({ ok: false }));
+      }
+      if (saved.ok && GATED.has(interaction.stepKind) && interaction.stepKind !== 'exitCheck' && payload.completed === true && api.completeActivity) {
+        saved = await api.completeActivity({
+          lessonId: interaction.lessonId,
+          stepIndex: interaction.stepIndex,
+          activityKind: interaction.stepKind,
+          activityKey: interaction.stepTitle || interaction.stepKind,
+          payload
+        }).catch(() => ({ ok: false }));
+      }
+      if (!saved.ok) unsyncedInteractions.push(interaction);
+    }
+    set(KEY.guestInteractions, JSON.stringify(unsyncedInteractions));
+
+    const fullySaved = progressResult.ok && !unsyncedCards.length && !unsyncedInteractions.length;
+    if (fullySaved) clearGuestSample();
+    return fullySaved;
   }
 
   function activePalette() {
@@ -471,16 +637,27 @@
   function updateTopProgress() { if (progressBarFill) progressBarFill.style.width = `${Math.round(doneCount() / LESSONS.length * 100)}%`; }
 
   function recordInteraction(step, payload) {
-    if (!api || !currentLessonId) return;
+    if (!currentLessonId) return;
     const stepIndex = currentLessonStepIndex;
     const correct = typeof payload?.correct === 'boolean' ? payload.correct : null;
-    api.saveInteraction({
+    const interaction = {
       lessonId: currentLessonId,
       stepIndex,
       stepKind: step.kind,
+      stepTitle: step.title || step.question || step.cardType || step.kind,
       payload,
       correct
-    }).catch(() => {});
+    };
+    if (SAMPLE_FIRST_FLOW && !currentUser) {
+      const saved = readJson(KEY.guestInteractions, []);
+      const interactions = Array.isArray(saved) ? saved : [];
+      const key = `${interaction.lessonId}:${interaction.stepIndex}:${interaction.stepKind}`;
+      const next = interactions.filter(item => `${item.lessonId}:${item.stepIndex}:${item.stepKind}` !== key);
+      next.push({ ...interaction, clientTransferId: key });
+      set(KEY.guestInteractions, JSON.stringify(next.slice(-100)));
+      return;
+    }
+    if (!api) return;
     if (step.kind === 'exitCheck' && api.submitQuizAnswer) {
       api.submitQuizAnswer({
         lessonId: currentLessonId,
@@ -490,6 +667,8 @@
         correct,
         feedback: payload?.feedback || ''
       }).catch(() => {});
+    } else {
+      api.saveInteraction(interaction).catch(() => {});
     }
     // Only count an activity as completed when the renderer says the whole
     // step is done — not on every click (wrong picks included).
@@ -799,11 +978,20 @@
           if (!any) { fb.textContent = 'Fill in at least one field first.'; return; }
           const cardId = 'card-' + Date.now();
           saveToolkitCard({ id: cardId, type: s.cardType, lessonId: currentLessonId, fields, fieldLabels: labels, createdAt: new Date().toISOString() }, { queue: false });
-          fb.textContent = 'Saved locally. Syncing...';
-          const synced = api ? await api.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => ({ ok: false })) : { ok: false, skipped: true };
-          if (!synced.ok) savePendingToolkit([readToolkit().find(card => card.id === cardId), ...readPendingToolkit().filter(card => card.id !== cardId)].filter(Boolean));
+          const isGuestSample = SAMPLE_FIRST_FLOW && !currentUser;
+          fb.textContent = isGuestSample ? 'Saved on this device.' : 'Saved locally. Syncing...';
+          const synced = api && currentUser
+            ? await api.saveToolkit({ id: cardId, cardType: s.cardType, lessonId: currentLessonId, payload: { fields, fieldLabels: labels } }).catch(() => ({ ok: false }))
+            : { ok: false, skipped: true };
+          if (!isGuestSample && !synced.ok) {
+            savePendingToolkit([readToolkit().find(card => card.id === cardId), ...readPendingToolkit().filter(card => card.id !== cardId)].filter(Boolean));
+          }
           recordInteraction(s, { fields, synced: !!synced.ok });
-          fb.textContent = synced.ok ? 'Saved to Saved Notes.' : 'Saved locally. It is queued to sync after the backend is available.';
+          fb.textContent = isGuestSample
+            ? 'Saved on this device. If you create an account after the lesson, this will move into Saved Notes.'
+            : synced.ok
+              ? 'Saved to Saved Notes.'
+              : 'Saved locally. It is queued to sync after the backend is available.';
         }
       }, 'Save to Saved Notes');
       return card([tag('Optional save'), h('h2', null, s.title),
@@ -860,19 +1048,41 @@
   let currentLessonStepIndex = 0;
 
   function viewAuthGate() {
+    const sampleFinished = SAMPLE_FIRST_FLOW && guestSampleIsComplete();
     const message = h('p', { class: 'step-feedback', id: 'auth-message', 'aria-live': 'polite' }, '');
+    const passwordInput = h('input', { name: 'password', type: 'password', autocomplete: sampleFinished ? 'new-password' : 'current-password', required: 'true', minlength: '8' });
+    const selectAuthMode = mode => passwordInput.setAttribute('autocomplete', mode === 'signup' ? 'new-password' : 'current-password');
     const form = h('form', { class: 'auth-card' }, [
       h('div', { class: 'tagline' }, 'Your learning record'),
-      h('h1', null, 'Continue your learning'),
-      h('p', { class: 'lead' }, 'Sign in to return to your lessons, progress painting, and Saved Notes.'),
+      h('h1', null, sampleFinished ? 'Save lesson one and unlock the course' : 'Continue your learning'),
+      h('p', { class: 'lead' }, sampleFinished
+        ? 'Create your account, answer six short starting questions, and the complete Learning AI site will open.'
+        : 'Sign in to return to your lessons, progress, and Saved Notes.'),
       h('label', { class: 'pr-field' }, [h('span', null, 'Email'), h('input', { name: 'email', type: 'email', autocomplete: 'email', required: 'true' })]),
-      h('label', { class: 'pr-field' }, [h('span', null, 'Password'), h('input', { name: 'password', type: 'password', autocomplete: 'current-password', required: 'true', minlength: '8' })]),
+      h('label', { class: 'pr-field' }, [h('span', null, 'Password'), passwordInput]),
       h('label', { class: 'pr-field' }, [h('span', null, 'Display name · new accounts only'), h('input', { name: 'displayName', type: 'text', autocomplete: 'name', maxlength: '40', placeholder: 'How should we address you?' })]),
-      h('div', { class: 'row-gap' }, [
-        h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'login' }, 'Sign in'),
-        h('button', { class: 'btn btn-ghost', type: 'submit', 'data-mode': 'signup' }, 'Create a new account')
+      sampleFinished ? h('label', { class: 'sample-owner-confirmation' }, [
+        h('input', { name: 'ownsSample', type: 'checkbox', value: 'yes' }),
+        h('span', null, 'I completed this sample lesson on this device. Add its completion, answers, and optional notes to my account.')
+      ]) : null,
+      h('div', { class: 'row-gap' }, sampleFinished ? [
+        h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'signup', onclick: () => selectAuthMode('signup') }, 'Create account and continue'),
+        h('button', { class: 'btn btn-ghost', type: 'submit', 'data-mode': 'login', onclick: () => selectAuthMode('login') }, 'I already have an account'),
+        h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => {
+          clearGuestSample();
+          location.hash = '#/';
+          render();
+        } }, 'This is not my lesson—start over')
+      ] : [
+        h('button', { class: 'btn btn-primary', type: 'submit', 'data-mode': 'login' }, 'Sign in')
       ]),
-      h('p', { class: 'auth-privacy' }, 'New here? Add a display name, then choose Create a new account. Your email is used only for your account and progress.'),
+      h('p', { class: 'auth-privacy' }, sampleFinished
+        ? 'This device’s sample is added only after you confirm it is yours. New or existing accounts keep their own saved progress.'
+        : 'New learners begin with the free first lesson before creating an account.'),
+      h('p', { class: 'auth-privacy' }, [
+        'Forgot your password? ',
+        h('a', { href: 'mailto:learningai4youprojects@duck.com?subject=LearningAI%20account%20help' }, 'Contact Learning AI account help')
+      ]),
       message
     ]);
     form.addEventListener('submit', async event => {
@@ -886,6 +1096,11 @@
         message.textContent = 'Add your display name before creating an account.';
         return;
       }
+      if (sampleFinished && data.ownsSample !== 'yes') {
+        buttons.forEach(button => { button.disabled = false; });
+        message.textContent = 'Confirm that you completed this sample before adding it to your account.';
+        return;
+      }
       message.textContent = mode === 'signup' ? 'Creating account...' : 'Signing in...';
       const result = mode === 'signup' ? await api.signup(data) : await api.login(data);
       buttons.forEach(button => { button.disabled = false; });
@@ -894,34 +1109,98 @@
         return;
       }
       currentUser = result.user;
+      if (SAMPLE_FIRST_FLOW && sampleFinished && data.ownsSample === 'yes') {
+        set(KEY.guestOwner, currentUserKey());
+      }
       if (mode === 'signup') {
         serverState = null;
         clearV2LocalSession();
+        if (SAMPLE_FIRST_FLOW) {
+          try {
+            localStorage.removeItem(KEY.progress);
+            localStorage.removeItem(KEY.toolkit);
+          } catch (e) {}
+        }
       }
-      await hydrateFromServer({ importLocal: mode !== 'signup' });
-      location.hash = '#/';
+      await hydrateFromServer({ importLocal: false });
+      if (mode === 'signup' || guestSampleOwnerMatchesCurrentUser()) {
+        await transferGuestSampleToCurrentUser();
+      }
+      location.hash = SAMPLE_FIRST_FLOW && !hasAssessment() ? '#/questionnaire' : '#/';
       render();
     });
     const introduction = h('section', { class: 'auth-intro' }, [
       h('div', { class: 'tagline' }, 'Learning AI'),
-      h('h2', null, 'Keep your judgment. Expand what you can do.'),
-      h('p', null, 'Fifty guided lessons for understanding, questioning, and directing AI—without handing over control.'),
+      h('h2', null, sampleFinished ? 'Your first capability is complete.' : 'Keep your judgment. Expand what you can do.'),
+      h('p', null, sampleFinished
+        ? 'Your completion, interaction answers, and optional notes belong to you. Create an account to keep them and continue from any device.'
+        : 'Fifty guided lessons for understanding, questioning, and directing AI—without handing over control.'),
       h('div', { class: 'auth-proof' }, [
-        h('span', null, '10 arcs'),
-        h('span', null, '50 lessons'),
-        h('span', null, 'Your evidence')
+        h('span', null, sampleFinished ? 'Lesson 1 complete' : '10 arcs'),
+        h('span', null, '50 free lessons'),
+        h('span', null, 'Saved progress')
       ])
     ]);
     return h('div', { class: 'container view auth-view' }, [h('div', { class: 'auth-shell' }, [introduction, form])]);
   }
 
+  function viewGuestWelcome() {
+    const lesson = playableLesson(SAMPLE_LESSON_ID);
+    const serviceNotice = backendUnavailable
+      ? h('div', { class: 'callout callout-bad', role: 'status' }, [
+          h('strong', null, 'Account service is temporarily unavailable.'),
+          h('p', null, 'You can still try lesson one, but you cannot create an account, submit the starting questions, or unlock the full course until the service is back.')
+        ])
+      : null;
+    return h('div', { class: 'container view v3-guest-welcome' }, [
+      h('section', { class: 'dashboard-hero v3-sample-hero' }, [
+        h('div', { class: 'dashboard-primary' }, [
+          h('div', { class: 'tagline' }, 'Learning AI · Your first lesson is free'),
+          h('h1', null, 'Try the course before creating an account.'),
+          h('p', { class: 'lead' }, 'Start with one guided lesson. You will make predictions, inspect what the system is doing, and decide when its answer deserves your trust.'),
+          h('div', { class: 'v3-onboarding-sequence', 'aria-label': 'How access works' }, [
+            h('span', { class: 'active' }, '1 · Free lesson'),
+            h('span', null, '2 · Create account'),
+            h('span', null, '3 · Starting questions'),
+            h('span', null, '4 · Full access')
+          ]),
+          serviceNotice,
+          h('div', { class: 'row-gap' }, [
+            h('a', { class: 'btn btn-primary', href: `#/lesson/${SAMPLE_LESSON_ID}/0` },
+              backendUnavailable ? 'Try lesson one while offline' : lesson ? `Start: ${lesson.title}` : 'Start lesson one'),
+            h('a', { class: 'btn btn-ghost', href: '#/signin' }, 'Already have an account? Sign in')
+          ]),
+          h('p', { class: 'muted' }, 'No credit card. All 50 lessons are free. You create an account only after finishing the sample lesson.')
+        ]),
+        h('aside', { class: 'dashboard-panel v3-sample-panel' }, [
+          h('div', { class: 'tagline' }, 'What happens in lesson one'),
+          h('h2', null, lesson?.coreQuestion || 'What is AI actually doing?'),
+          h('p', null, lesson?.blurb || 'Build a useful first mental model through interaction, not a lecture.'),
+          h('dl', { class: 'v3-sample-facts' }, [
+            h('div', null, [h('dt', null, 'Time'), h('dd', null, `${lesson?.minutes || 8} minutes`)]),
+            h('div', null, [h('dt', null, 'Format'), h('dd', null, 'Guided and interactive')]),
+            h('div', null, [h('dt', null, 'Account'), h('dd', null, 'Not required yet')])
+          ])
+        ])
+      ])
+    ]);
+  }
+
   function viewApiUnavailable() {
+    const status = h('p', { class: 'step-feedback', role: 'status', 'aria-live': 'polite' },
+      guestSampleIsComplete() ? 'Lesson one is still saved on this device.' : '');
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
         h('div', { class: 'tagline' }, 'Learning AI'),
-        h('h1', null, `${PRODUCT_VERSION} accounts are unavailable right now`),
-        h('p', { class: 'lead' }, 'This preview needs the Learning AI backend before it can show the course.'),
-        h('p', { class: 'muted' }, `For local testing, start the Learning AI backend and reload ${PRODUCT_VERSION}.`)
+        h('h1', null, 'Accounts are temporarily unavailable'),
+        h('p', { class: 'lead' }, guestSampleIsComplete()
+          ? 'Your completed first lesson is still saved on this device. Try again when the account service is available.'
+          : 'The account service could not be reached. Your course has not been changed.'),
+        h('div', { class: 'row-gap' }, [
+          h('button', { class: 'btn btn-primary', type: 'button', onclick: () => window.location.reload() }, 'Try again'),
+          h('a', { class: 'btn btn-ghost', href: '#/' }, 'Return to course introduction')
+        ]),
+        status
       ])
     ]);
   }
@@ -932,27 +1211,31 @@
     await syncPendingProgress();
     await syncPendingToolkit();
     // Retry a questionnaire that couldn't be uploaded when it was finished.
-    const pendingAssessment = currentUser ? readJson('learningai-v2-pending-assessment', null) : null;
+    const pendingAssessment = currentUser ? readJson(pendingAssessmentStorageKey(), null) : null;
     if (pendingAssessment) {
       const saved = await api.saveAssessment(pendingAssessment).catch(() => ({ ok: false }));
-      if (saved.ok) { try { localStorage.removeItem('learningai-v2-pending-assessment'); } catch (e) {} }
+      if (saved.ok) { try { localStorage.removeItem(pendingAssessmentStorageKey()); } catch (e) {} }
     }
     await loadCurriculumFromBackend();
     let state = await api.state();
-    const shouldImportLocal = shouldImportBrowserData && currentUser && !get('learningai-v2-imported-ever') && !get(importedUserKey());
+    const shouldImportLocal = !SAMPLE_FIRST_FLOW && shouldImportBrowserData && currentUser && !get(importedUserKey());
     if (shouldImportLocal) {
       const imported = await api.importLocal({ progress: readProgress(), toolkit: readToolkit() }).catch(() => ({ ok: false }));
       if (imported.ok) {
         const importedAt = new Date().toISOString();
         set(importedUserKey(), importedAt);
-        set('learningai-v2-imported-ever', importedAt);
         state = await api.state();
       }
       // On import failure, still apply the state we already fetched; the
       // import retries on the next sign-in because the flag stays unset.
     }
     if (state.ok) applyServerState(state.state);
-    api.saveVisit({ path: location.hash || '#/', referrer: document.referrer || '' }).catch(() => {});
+    if (guestSampleOwnerMatchesCurrentUser()) {
+      await transferGuestSampleToCurrentUser();
+    }
+    if (readActivityConsent()) {
+      api.saveVisit({ path: location.hash || '#/' }).catch(() => {});
+    }
   }
 
   function accountBar() {
@@ -962,10 +1245,21 @@
       h('span', null, `Signed in as ${currentUser.displayName || currentUser.email}`),
       h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, questionnaireLabel),
       h('button', { class: 'btn btn-ghost', onclick: async () => {
+        await syncPendingProgress();
+        await syncPendingToolkit();
+        const pendingAssessment = readJson(pendingAssessmentStorageKey(), null);
+        if (pendingAssessment) {
+          const saved = await api.saveAssessment(pendingAssessment).catch(() => ({ ok: false }));
+          if (saved.ok) localStorage.removeItem(pendingAssessmentStorageKey());
+        }
+        if (readPendingProgress().length || readPendingToolkit().length || readJson(pendingAssessmentStorageKey(), null)) {
+          window.alert('Some recent learning is still waiting to save. Check your connection and try signing out again so nothing is lost.');
+          return;
+        }
         await api.logout();
+        clearV2LocalSession();
         currentUser = null;
         serverState = null;
-        clearV2LocalSession();
         location.hash = '#/';
         render();
       } }, 'Sign out')
@@ -978,8 +1272,8 @@
     }
     const candidates = [
       serverState?.assessment,
-      readJson(KEY.assessment, null),
-      readJson('modelwise-gauge', null)
+      readJson(assessmentStorageKey(), null),
+      SAMPLE_FIRST_FLOW ? null : readJson('modelwise-gauge', null)
     ];
     return candidates.find(isCompleteV2Assessment) || null;
   }
@@ -996,7 +1290,9 @@
 
   function updateShellChrome(routeParts) {
     const onDiagnostic = routeParts?.[0] === 'diagnostic' || routeParts?.[0] === 'questionnaire';
-    const ready = authChecked && (!api || (currentUser && !onDiagnostic));
+    const ready = SAMPLE_FIRST_FLOW
+      ? authChecked && Boolean(currentUser) && hasAssessment() && !onDiagnostic
+      : authChecked && (!api || (currentUser && !onDiagnostic));
     setShellVisible(Boolean(ready));
     document.querySelectorAll('.nav-links a').forEach(link => {
       const href = link.getAttribute('href') || '';
@@ -1019,7 +1315,7 @@
   }
 
   function viewDiagnostic() {
-    const draft = readJson(KEY.diagnosticDraft, { index: 0, answers: {}, notes: {} });
+    const draft = readJson(diagnosticDraftStorageKey(), { index: 0, answers: {}, notes: {} });
     draft.answers = draft.answers || {};
     draft.notes = draft.notes || {};
     draft.profile = draft.profile || {};
@@ -1029,7 +1325,7 @@
     const message = h('p', { class: 'step-feedback', 'aria-live': 'polite' }, '');
 
     function saveDraft(nextDraft) {
-      set(KEY.diagnosticDraft, JSON.stringify(nextDraft));
+      set(diagnosticDraftStorageKey(), JSON.stringify(nextDraft));
     }
 
     function selectedAnswer() {
@@ -1148,20 +1444,30 @@
       const assessment = buildAssessment();
       message.textContent = 'Saving your starting point...';
       if (api && currentUser) {
-        const saved = await api.saveAssessment(assessment).catch(() => ({ ok: false }));
-        // Never trap the learner at the gate: on failure keep the answers
-        // locally and retry the upload on the next session sync.
-        if (!saved.ok) set('learningai-v2-pending-assessment', JSON.stringify(assessment));
+        const saved = await api.saveAssessment(assessment).catch(() => ({ ok: false, error: 'network_error' }));
+        if (!saved.ok) {
+          const savedOnDevice = set(pendingAssessmentStorageKey(), JSON.stringify(assessment));
+          if (SAMPLE_FIRST_FLOW) {
+            message.textContent = savedOnDevice
+              ? `Not saved to your account yet (${friendlyError(saved)}). Your answers remain on this device; keep this page open and choose Finish again.`
+              : `Your answers could not be saved to your account or this device (${friendlyError(saved)}). Keep this page open and choose Finish again.`;
+            return;
+          }
+        }
       }
       saveAssessmentLocal(assessment);
       serverState = { ...(serverState || {}), assessment };
-      localStorage.removeItem(KEY.diagnosticDraft);
+      localStorage.removeItem(diagnosticDraftStorageKey());
       location.hash = '#/';
       render();
     } }, 'Finish and open dashboard');
 
-    const returnLink = h('p', { class: 'questionnaire-return' }, h('a', { href: '#/' },
-      hasAssessment() ? 'Take me back to my dashboard' : 'Skip for now and open the dashboard'));
+    const returnLink = h('p', { class: 'questionnaire-return' },
+      hasAssessment()
+        ? h('a', { href: '#/' }, 'Take me back to my dashboard')
+        : SAMPLE_FIRST_FLOW
+          ? 'Complete all six categories to open your dashboard and the rest of Learning AI.'
+          : h('a', { href: '#/' }, 'Skip for now and open the dashboard'));
 
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
@@ -1170,6 +1476,13 @@
           h('div', null, progressFill)
         ]),
         h('h1', null, 'Set your starting point'),
+        SAMPLE_FIRST_FLOW && !hasAssessment()
+          ? h('div', { class: 'callout diagnostic-disclosure' }, [
+              h('strong', null, 'Why these six questions are required'),
+              h('p', null, 'Your answers set your starting level, focus area, and lesson recommendation. We ask for an age range—not a birth date—so guidance can fit the learner. Your answers are saved to your Learning AI account and may be reviewed by Learning AI administrators to support and improve the course.'),
+              h('a', { href: '../privacy.html' }, 'Read the privacy details')
+            ])
+          : null,
         h('div', { class: 'gauge-kicker' }, question.category),
         h('h2', null, question.title),
         h('p', { class: 'lead' }, question.copy),
@@ -1366,7 +1679,8 @@
 
     const back = idx > 0
       ? h('a', { class: 'btn btn-ghost', href: `#/lesson/${id}/${idx - 1}` }, '← Back')
-      : h('a', { class: 'btn btn-ghost', href: '#/lessons' }, '← All lessons');
+      : h('a', { class: 'btn btn-ghost', href: SAMPLE_FIRST_FLOW && !currentUser ? '#/' : '#/lessons' },
+          SAMPLE_FIRST_FLOW && !currentUser ? '← About the course' : '← All lessons');
 
     const renderer = steps[step.kind] || steps.reveal;
     body = renderer(step, ctx);
@@ -1443,9 +1757,16 @@
   }
 
   function viewSettings() {
-    const settings = readJson(KEY.settings, {}) || {};
+    const settings = { ...(readJson(KEY.settings, {}) || {}), shareLearningActivity: readActivityConsent() };
     function savePatch(patch) {
-      set(KEY.settings, JSON.stringify({ ...settings, ...patch, savedAt: new Date().toISOString() }));
+      if (Object.prototype.hasOwnProperty.call(patch, 'shareLearningActivity')) {
+        set(activityConsentStorageKey(), JSON.stringify({
+          shareLearningActivity: Boolean(patch.shareLearningActivity),
+          savedAt: new Date().toISOString()
+        }));
+      } else {
+        set(KEY.settings, JSON.stringify({ ...settings, ...patch, savedAt: new Date().toISOString() }));
+      }
       applyAppearance();
       render();
     }
@@ -1501,9 +1822,9 @@
         deletionMessage.textContent = apiErrorText(result.error);
         return;
       }
+      clearV2LocalSession();
       currentUser = null;
       serverState = null;
-      clearV2LocalSession();
       location.hash = '#/';
       render();
     } }, [
@@ -1558,18 +1879,39 @@
           h('p', { class: 'muted' }, settings.reduceMotion ? 'Reduced motion is on. All information and feedback remain available.' : 'Full motion is on. Your device-level reduced-motion preference is still respected.')
         ]),
         h('article', { class: 'dashboard-section v2-settings-card' }, [
+          h('h2', null, 'Share learning activity'),
+          h('p', null, 'Choose whether Learning AI may record active learning minutes plus the current lesson or page. This helps us understand which parts hold attention. It is off unless you turn it on.'),
+          h('div', { class: 'seg-row' }, [
+            h('button', {
+              class: 'btn btn-ghost',
+              'aria-pressed': settings.shareLearningActivity ? 'true' : 'false',
+              onclick: () => savePatch({ shareLearningActivity: true })
+            }, 'Share activity'),
+            h('button', {
+              class: 'btn btn-ghost',
+              'aria-pressed': settings.shareLearningActivity ? 'false' : 'true',
+              onclick: () => savePatch({ shareLearningActivity: false })
+            }, 'Keep activity private')
+          ]),
+          h('p', { class: 'muted' }, settings.shareLearningActivity
+            ? 'Sharing is on. You can turn it off at any time.'
+            : 'Sharing is off. Learning AI is not recording your active minutes or page visits.')
+        ]),
+        h('article', { class: 'dashboard-section v2-settings-card' }, [
           h('h2', null, 'Starting point'),
-          h('p', null, 'The optional questionnaire personalizes your suggested starting point. You can skip it and begin with lesson 1 at any time.'),
+          h('p', null, SAMPLE_FIRST_FLOW
+            ? 'The six-category starting questionnaire is required once after lesson 1. It sets your starting level, focus area, and lesson recommendation. You can retake it whenever your experience changes.'
+            : 'The optional questionnaire personalizes your suggested starting point. You can skip it and begin with lesson 1 at any time.'),
           h('div', { class: 'row-gap' }, [
             h('a', { class: 'btn btn-primary', href: '#/questionnaire' }, hasAssessment() ? 'Retake questionnaire' : 'Take questionnaire'),
             h('button', { class: 'btn btn-ghost', onclick: () => {
-              localStorage.removeItem(KEY.assessment);
+              localStorage.removeItem(assessmentStorageKey());
               localStorage.removeItem('modelwise-gauge');
-              localStorage.removeItem(KEY.diagnosticDraft);
+              localStorage.removeItem(diagnosticDraftStorageKey());
               serverState = { ...(serverState || {}), assessment: null };
               location.hash = '#/questionnaire';
               render();
-            } }, 'Clear local result')
+            } }, SAMPLE_FIRST_FLOW ? 'Clear and retake' : 'Clear local result')
           ])
         ]),
         h('article', { class: 'dashboard-section v2-settings-card callout-bad' }, [
@@ -1763,6 +2105,28 @@
       ]));
       return;
     }
+    if (SAMPLE_FIRST_FLOW && !currentUser) {
+      const onSampleLesson = parts[0] === 'lesson' && parts[1] === SAMPLE_LESSON_ID;
+      const onSampleDone = parts[0] === 'done' && parts[1] === SAMPLE_LESSON_ID;
+      const onSignIn = parts[0] === 'signin' || parts[0] === 'access';
+      let guestNode;
+      if (onSampleLesson) {
+        guestNode = viewLesson(SAMPLE_LESSON_ID, parseInt(parts[2] || '0', 10) || 0);
+      } else if (onSampleDone && guestSampleIsComplete()) {
+        guestNode = (!api || backendUnavailable) ? viewApiUnavailable() : viewAuthGate();
+      } else if (onSignIn) {
+        guestNode = (!api || backendUnavailable) ? viewApiUnavailable() : viewAuthGate();
+      } else {
+        guestNode = viewGuestWelcome();
+      }
+      app.innerHTML = '';
+      app.appendChild(guestNode);
+      updateShellChrome(parts);
+      updateTopProgress();
+      trackPageView();
+      window.scrollTo(0, 0);
+      return;
+    }
     if (!api) {
       updateShellChrome(parts);
       app.innerHTML = '';
@@ -1786,8 +2150,11 @@
     }
     if (parts[0] !== 'lesson' && parts[0] !== 'done') currentLessonId = null;
     let node;
-    // The questionnaire personalizes a starting point but never blocks the course.
-    if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
+    // In the launch journey, the completed questionnaire is the final access
+    // gate after account creation. Returning accounts that have not finished
+    // it resume here before the rest of the product becomes available.
+    if (SAMPLE_FIRST_FLOW && currentUser && !hasAssessment()) node = viewDiagnostic();
+    else if (parts[0] === 'diagnostic' || parts[0] === 'questionnaire') node = viewDiagnostic();
     else if (parts.length === 0) node = viewDashboard();
     else if (parts[0] === 'lessons') node = viewLessonsCatalog();
     else if (parts[0] === 'access') node = viewAccess();
@@ -1821,6 +2188,7 @@
   let activeSeconds = 0;
   setInterval(() => {
     if (document.visibilityState !== 'visible' || !currentUser || !api?.saveMinutes) return;
+    if (!readActivityConsent()) return;
     activeSeconds += 15;
     if (activeSeconds >= 60) {
       activeSeconds -= 60;

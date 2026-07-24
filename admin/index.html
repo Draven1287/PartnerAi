@@ -395,7 +395,7 @@ class Component extends DCLogic {
       this.el('td',null, this.el('div',{className:'who'}, this.el('span',{className:'ava',style:{background:u.isTest?'#6d28d9':this.LVL[u.level]}}, this.initials(u.name)),
         this.el('div',null, this.el('div',{className:'nm'},u.name, u.isTest?this.el('span',{className:'test-tag'},'TEST'):null), this.el('div',{className:'em'},u.email)))),
       this.el('td',null, this.el('span',{className:'lvl '+u.level}, u.level)),
-      this.el('td',null, this.el('div',{className:'lprog'}, this.el('div',{className:'track'}, this.el('div',{className:'fill',style:{width:(u.lesson/30*100)+'%'}})), this.el('span',{className:'n'}, u.lesson+'/30'))),
+      this.el('td',null, this.el('div',{className:'lprog'}, this.el('div',{className:'track'}, this.el('div',{className:'fill',style:{width:(u.lesson/50*100)+'%'}})), this.el('span',{className:'n'}, u.lesson+'/50'))),
       this.el('td',{className:'num'}, u.visits),
       this.el('td',{className:'num seen'+(u.cold?' cold':'')}, u.last),
       this.el('td',{className:'act'}, this.el('button',{className:'del-btn',title:'Delete this user',onClick:(e)=>this.deleteUser(u,e)},'Delete')));
@@ -409,7 +409,7 @@ class Component extends DCLogic {
   detail(){
     const u = this.LEARNERS.find(x=>x.id===this.state.selected) || this.LEARNERS[0];
     if(!u) return this.el('div',{className:'empty'},'No learners yet. Records appear here as people sign up.');
-    const cells = [['Email',u.email,true],['Display name',u.name,false],['Age range',u.age,false],['Diagnostic level',u.level,false],['Score',u.score+' / 100',false],['Current lesson',u.lesson+' of 30',false],['Total visits',String(u.visits),false],['Active days',String(u.days),false],['Last seen',u.last,false]];
+    const cells = [['Email',u.email,true],['Display name',u.name,false],['Age range',u.age,false],['Diagnostic level',u.level,false],['Score',u.score+' / 100',false],['Current lesson',u.lesson+' of 50',false],['Total visits',String(u.visits),false],['Active days',String(u.days),false],['Last seen',u.last,false]];
     const h = this.el('div',{className:'panel-h'}, this.el('h2',null,u.name, u.isTest?this.el('span',{className:'test-tag'},'TEST'):null), this.el('span',{className:'meta'},'full learner record'));
     const grid = this.el('div',{className:'detail-grid side'}, cells.map(([l,v,m],i)=> this.el('div',{key:i,className:'dcell'}, this.el('div',{className:'l'},l), this.el('div',{className:'v'+(m?' mono':'')},v))));
     const del = this.el('div',{style:{padding:'4px 22px 18px'}}, this.el('button',{className:'del-btn lg',onClick:(e)=>this.deleteUser(u,e)},'Delete this user'));
@@ -555,7 +555,7 @@ class Component extends DCLogic {
       this.el('tbody',null, this.LEARNERS.slice(0,5).map(u=> this.el('tr',{key:u.id,onClick:()=>{this.setState({selected:u.id});this.go('learners');}},
         this.el('td',null, this.el('div',{className:'who'}, this.el('span',{className:'ava',style:{background:this.LVL[u.level]}}, this.initials(u.name)), this.el('div',null, this.el('div',{className:'nm'},u.name), this.el('div',{className:'em'},u.email)))),
         this.el('td',null, this.el('span',{className:'lvl '+u.level}, u.level)),
-        this.el('td',{className:'num'}, u.lesson+'/30'))))));
+        this.el('td',{className:'num'}, u.lesson+'/50'))))));
     const total = this.LEVELS.Foundation+this.LEVELS.Explorer+this.LEVELS.Builder;
     const miniLevels = this.el('div',{className:'dist'}, Object.entries(this.LEVELS).map(([k,c])=>{
       const pct = total?Math.round(c/total*100):0;

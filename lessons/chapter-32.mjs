@@ -21,7 +21,7 @@ export default {
       "kind": "reveal",
       "title": "What's really happening when AI sounds warm",
       "body": "Supportive language is a pattern the AI learned from human writing. It can help you name an everyday feeling, turn a tangle of thoughts into words, or prepare what you want to tell someone. The response may feel warm, but the system does not feel warmth toward you.\n\nKeep the boundary visible: stored facts are not care, availability is not friendship, and a fluent reply is not professional responsibility. Use AI to prepare for human connection, not replace it. A useful session should end with a clearer next step toward a real person when one is needed.\n\nThis lesson is only for ordinary, low-stakes feelings. If you feel unsafe, hopeless, or at risk of hurting yourself or someone else, stop using the AI and contact a trusted person, local emergency services, or a crisis line. In the United States and its territories, call or text 988.",
-      "mistake": "Leaning on a chatbot as your friend or counselor — treating its calm words as care. Child-safety researchers (Common Sense Media with Stanford Medicine, 2025) rate using a chatbot as a friend or therapist an UNACCEPTABLE risk for anyone under 18, and it's a thin substitute for real people at any age.",
+      "mistake": "Leaning on a chatbot as a friend or counselor and treating calm language as care, professional judgment, or a safety plan.",
       "good": "Use AI as a warm-up to find words for a small feeling — then take those words to a real person who actually cares about you."
     },
     {
@@ -57,10 +57,17 @@ export default {
       "reveal": "Small, everyday feelings are fine as a light warm-up. Anything that feels unsafe, hopeless, or dangerous is a STOP-using-AI moment: go to a trusted person or a crisis line right now (US: call or text 988). AI cannot keep you safe — a person can."
     },
     {
-      "kind": "tryLive",
-      "title": "Ask AI to help you find words — nothing more",
-      "prompt": "I'm feeling [rough description of the feeling], and I can't quite put it into words. Please offer me 3 or 4 plain words or short phrases that might describe what I'm feeling, and ask me one gentle question to help me think. Do NOT give advice or pretend to be my friend or counselor — just help me find words. [one line about the situation, optional]",
-      "note": "Pick a small, everyday feeling from this week — flat after a long day, nervous about a talk, annoyed at someone. Keep it light; nothing raw. Worked example: 'I'm feeling kind of heavy and tired but not exactly sad, and I can't quite put it into words. Please offer me 3 or 4 plain words or short phrases that might describe what I'm feeling, and ask me one gentle question to help me think. Do not give advice or pretend to be my friend or counselor — just help me find words. It started after a long week with no real breaks.' Then do the real work: cross out words that don't fit, circle the one or two that do."
+      "kind": "workflowChain",
+      "title": "Build the safe support handoff",
+      "goal": "An invented person says a chatbot's supportive words are not enough and they need actual help. Put the response in order without diagnosing or grading their feelings.",
+      "correct": [
+        "Do not ask for more personal details or try to score how serious the feeling is",
+        "State the boundary: AI cannot provide care, professional responsibility, or physical safety",
+        "Move toward a trusted person, qualified professional, local crisis service, or emergency service as the situation requires",
+        "Use direct, simple words to ask for help; do not make the person prove they deserve support",
+        "Stay with the human support route instead of returning to the chatbot for reassurance"
+      ],
+      "note": "This is a built-in safety exercise. It asks for no disclosure and gives no counseling. If this resembles a real immediate danger, contact local emergency services or crisis support now (US and territories: call or text 988)."
     },
     {
       "kind": "toolkitSave",
@@ -68,9 +75,9 @@ export default {
       "cardType": "My Real-Person Card",
       "fields": [
         {
-          "key": "person",
-          "label": "One real person I'd turn to",
-          "placeholder": "e.g. my sister, a friend, my counselor, my GP"
+          "key": "supportType",
+          "label": "One kind of real support available to me",
+          "placeholder": "e.g. trusted adult, friend, counselor, doctor, local support service"
         },
         {
           "key": "how",
@@ -87,22 +94,22 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Did you do the skill?",
-      "question": "On a NEW feeling you didn't use in the example, you ran the prompt. To have really got this, what do you do next?",
+      "question": "Fresh scenario: a classmate says an AI chat has become their main support and tonight they feel unsafe. Which response respects their agency and moves toward real help?",
       "options": [
         {
-          "text": "Say which word it offered actually fits and which missed, write the name of one real person you'd turn to if this got bigger, and finish: 'The AI helped me by ___, but it cannot ___ for me.'",
+          "text": "Take them seriously without demanding details, say the AI cannot keep them safe, and help them contact a trusted adult, crisis service, or emergency service now.",
           "ok": true,
-          "feedback": "That's it. You used AI to find words, judged them yourself, and named the human who actually matters. The AI was the warm-up; the person is the point."
+          "feedback": "Yes. You did not diagnose or interrogate them; you moved from generated words to accountable human support."
         },
         {
-          "text": "Keep chatting with the AI about the feeling until you feel better, treating it like a friend who gets you.",
+          "text": "Ask the AI for a list of coping ideas first, then contact someone if none of them work.",
           "ok": false,
-          "feedback": "That's the misconception this lesson fixes. The AI predicts supportive words from patterns — it doesn't care about you and can't keep you safe. Take your words to a real person."
+          "feedback": "Feeling unsafe is already the point to involve human support. Do not make safety depend on whether generated ideas work first."
         },
         {
-          "text": "Ask the AI to be your ongoing counselor so you always have someone to talk to.",
+          "text": "Ask how serious the situation is, collect the full story, and decide whether they really need outside help.",
           "ok": false,
-          "feedback": "No — a chatbot is not a counselor, and for under-18s that's rated an unacceptable risk (Common Sense Media + Stanford, 2025). For anything serious, defer to a real professional or trusted person; in crisis, call or text 988 (US)."
+          "feedback": "Do not grade or investigate a disclosure before helping. Treat the safety signal seriously and connect them to accountable support."
         }
       ]
     }

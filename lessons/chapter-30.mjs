@@ -61,10 +61,17 @@ export default {
       "reveal": "The 'AI is fine' items are low-stakes and reversible. The others are high-stakes or need a licensed professional — a doctor or pharmacist for the medication, a tenant or legal advisor for the lease. And the last one is not an AI moment at all: reach a real person you trust, your local emergency number, or a crisis line (in the US, 988) right away. An AI is not a friend or a therapist, even when it sounds caring."
     },
     {
-      "kind": "tryLive",
-      "title": "Make the AI name its own limits",
-      "prompt": "Here's a decision I'm facing: [your decision]. Help me think it through — but FIRST, tell me honestly whether this is something I should also run past a qualified human, WHO that person would be, and which parts of this you genuinely can't be trusted to decide alone. Then give me a list of questions to take to that person.",
-      "note": "Try it with a real weighted choice, e.g. 'whether to sign this 12-month lease with an early-break clause.' A good answer helps you draft questions and spot red flags — but tells you the final call and the legal fine print belong with a person you trust, not the chat. Other ready fills: 'whether to stop a medication because of a side effect,' 'whether this job offer's contract is fair.'"
+      "kind": "workflowChain",
+      "title": "Build the stop-and-handoff move",
+      "goal": "A made-up worker is unsure whether an injury means they should return to a physical shift tomorrow. Put the safe response in order without collecting medical details.",
+      "correct": [
+        "Name the stakes: health, safety, income, and a decision that could cause harm",
+        "Stop before asking AI for a diagnosis or a final return-to-work decision",
+        "Choose the accountable human: a clinician, workplace safety contact, or another appropriate professional",
+        "Use AI only to draft neutral questions or organize already-safe information, without names or private health details",
+        "Take those questions to the human and keep the final decision with the qualified people involved"
+      ],
+      "note": "This built-in scenario is enough; no personal disclosure or external AI is required. If a real situation is urgent or unsafe, contact a trusted person, relevant professional, or emergency service now."
     },
     {
       "kind": "toolkitSave",
@@ -104,14 +111,14 @@ export default {
           "feedback": "That's the skill: sort it, name the human, and hold onto the part that's yours. If you can do all three on a fresh example without looking back, your stop-list is working."
         },
         {
-          "text": "Ask the AI to make the final decision, since it searches the live web and remembers our past chats.",
+          "text": "Use AI to organize the options, then make the final call myself because I understand my situation best.",
           "ok": false,
-          "feedback": "Capable is not accountable. Browsing and memory don't make AI the right thing to DECIDE a weighty call — it can inform you, but a human decides."
+          "feedback": "Keeping agency matters, but some decisions also need qualified accountability. Use AI to prepare, then involve the right human before deciding."
         },
         {
-          "text": "If AI can produce an answer for it, use AI — that's what the tool is for.",
+          "text": "Ask three AI systems, compare their advice, and act if most of them agree.",
           "ok": false,
-          "feedback": "That's the exact misconception this lesson fixes. Being able to produce an answer isn't the same as being the right thing to rely on."
+          "feedback": "A majority of models is not professional accountability or independent evidence. High-stakes choices still need the right person."
         }
       ]
     }

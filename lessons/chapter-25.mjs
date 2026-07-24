@@ -47,8 +47,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run it on a real question",
-      "prompt": "Answer this using only the information I provide. Give me: (1) a concise answer, (2) the assumptions you used, (3) the evidence, source, or arithmetic behind each important claim, (4) what is uncertain, and (5) one way I can check the result independently: [your question and its real numbers or facts]",
-      "note": "Choose a question with parts you can actually inspect. Example: \"A $137 dinner is split among three people, but one person only had the $18 appetizer. Tax and tip total $31. How much does each person owe if the other food was shared equally?\" Include enough context that the assistant does not have to guess."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use invented or redacted numbers; do not enter account numbers, receipts with names, addresses, or another person's private information. Answer using only the information I provide. Give me: (1) a concise answer, (2) assumptions, (3) evidence or arithmetic for important claims, (4) uncertainty, and (5) one independent check: [question and safe facts]",
+      "note": "Choose something inspectable: compare two made-up phone plans, divide an invented dinner bill, estimate paint, or check a game score. Include enough context to avoid guessing, then verify the most consequential calculation yourself."
     },
     {
       "kind": "toolkitSave",

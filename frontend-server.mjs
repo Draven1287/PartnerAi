@@ -8,7 +8,18 @@ const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
 const API_ORIGIN = String(process.env.API_INTERNAL_URL || '').replace(/\/$/, '');
 const CANONICAL_HOST = String(process.env.CANONICAL_HOST || '').trim().toLowerCase();
-const BLOCKED_PREFIXES = ['/coolify-backend/', '/tools/', '/docs/', '/reviews/', '/backend/cloudflare/'];
+const BLOCKED_PREFIXES = ['/coolify-backend/', '/tools/', '/docs/', '/reviews/', '/backend/', '/.git/', '/node_modules/'];
+const BLOCKED_EXACT = new Set([
+  '/.dockerignore',
+  '/Dockerfile',
+  '/Dockerfile.frontend',
+  '/frontend-server.mjs',
+  '/interactive-desktop-review.html',
+  '/learning-ai-design-assets/interactive-desktop-review.html',
+  '/package-lock.json',
+  '/package.json',
+  '/railway.toml'
+]);
 const MIME = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -41,8 +52,13 @@ function headers(pathname) {
 }
 
 function safeFile(pathname) {
-  if (pathname.includes('\0') || BLOCKED_PREFIXES.some(prefix => pathname.startsWith(prefix))) return null;
-  const decoded = decodeURIComponent(pathname);
+  if (pathname.includes('\0') || BLOCKED_EXACT.has(pathname) || BLOCKED_PREFIXES.some(prefix => pathname.startsWith(prefix))) return null;
+  let decoded;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    return null;
+  }
   const relative = normalize(decoded).replace(/^[/\\]+/, '');
   const absolute = resolve(join(ROOT, relative));
   if (!absolute.startsWith(resolve(ROOT) + '/')) return null;
@@ -50,16 +66,23 @@ function safeFile(pathname) {
 }
 
 const server = http.createServer((request, response) => {
-  const url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  let url;
+  try {
+    url = new URL(request.url || '/', `http://${request.headers.host || 'localhost'}`);
+  } catch {
+    response.writeHead(400, { 'content-type': 'text/plain; charset=utf-8', ...headers('/') });
+    response.end('Bad request');
+    return;
+  }
   const requestHost = String(request.headers.host || '').split(':')[0].toLowerCase();
+  if (url.pathname === '/health') {
+    response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', ...headers(url.pathname) });
+    response.end(JSON.stringify({ ok: true, service: 'learning-ai-frontend', apiProxyConfigured: Boolean(API_ORIGIN) }));
+    return;
+  }
   if (CANONICAL_HOST && requestHost && requestHost !== CANONICAL_HOST) {
     response.writeHead(308, { location: `https://${CANONICAL_HOST}${url.pathname}${url.search}`, ...headers(url.pathname) });
     response.end();
-    return;
-  }
-  if (url.pathname === '/health') {
-    response.writeHead(200, { 'content-type': 'application/json; charset=utf-8', ...headers(url.pathname) });
-    response.end(JSON.stringify({ ok: true, service: 'learning-ai-frontend' }));
     return;
   }
   if (url.pathname === '/api' || url.pathname.startsWith('/api/')) {
@@ -75,6 +98,7 @@ const server = http.createServer((request, response) => {
       headers: {
         ...request.headers,
         host: target.host,
+        'x-forwarded-for': String(request.socket.remoteAddress || ''),
         'x-forwarded-host': request.headers.host || '',
         'x-forwarded-proto': 'https'
       }
@@ -90,20 +114,30 @@ const server = http.createServer((request, response) => {
     request.pipe(upstream);
     return;
   }
-  if (url.pathname === '/') {
-    response.writeHead(302, { location: '/v2/', ...headers(url.pathname) });
-    response.end();
-    return;
-  }
   if (!['GET', 'HEAD'].includes(request.method || 'GET')) {
     response.writeHead(405, { allow: 'GET, HEAD', ...headers(url.pathname) });
     response.end('Method not allowed');
     return;
   }
 
-  let pathname = url.pathname;
+  if (url.pathname === '/learning-ai-design-assets') {
+    response.writeHead(308, { location: `/learning-ai-design-assets/${url.search}`, ...headers(url.pathname) });
+    response.end();
+    return;
+  }
+
+  let pathname = url.pathname === '/' ? '/learning-ai-design-assets/index.html' : url.pathname;
   if (pathname.endsWith('/')) pathname += 'index.html';
-  const file = safeFile(pathname);
+  let file = null;
+  if (!pathname.startsWith('/learning-ai-design-assets/') && !pathname.startsWith('/v2/') && !pathname.startsWith('/v3/')) {
+    const designPath = `/learning-ai-design-assets${pathname}`;
+    const designFile = safeFile(designPath);
+    if (designFile && existsSync(designFile) && statSync(designFile).isFile()) {
+      pathname = designPath;
+      file = designFile;
+    }
+  }
+  if (!file) file = safeFile(pathname);
   if (!file || !existsSync(file) || !statSync(file).isFile()) {
     response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8', ...headers(pathname) });
     response.end('Not found');

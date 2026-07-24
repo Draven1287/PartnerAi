@@ -14,8 +14,8 @@ export default {
     {
       "kind": "coldOpen",
       "title": "The $89 deal that wasn't",
-      "scenario": "You ask AI for the best carry-on suitcase under $120. It comes back fast and confident: \"The Cabin Pro is your best pick — currently $89, on sale.\" That's under budget and sounds perfect. Your thumb hovers over Buy.",
-      "prompt": "Before you tap Buy — where did that $89 actually come from, and what's the one thing you'd want to check first?"
+      "scenario": "You ask AI for the best carry-on under $120. It recommends one at $89, but the cheaper option has no return policy and the sturdier one costs $18 more. Your thumb hovers over Buy.",
+      "prompt": "Choose your decision rule before looking again: lowest verified total, easiest return, durability, or no purchase yet. Which tradeoff matters most, and which claim could change your choice?"
     },
     {
       "kind": "reveal",
@@ -64,7 +64,7 @@ export default {
       "kind": "tryLive",
       "title": "Run it on a real decision",
       "prompt": "Help me decide on [the real purchase, trip, or plan]. My budget is [amount, with currency] and what matters most to me is [priority]. Compare [number] options with honest trade-offs for my situation. Then list exactly what I should verify myself before I commit, and name the real website where I'd confirm each one. If you can check current info online, say so and tell me the date of what you found.",
-      "note": "Pick something you're actually deciding right now — a purchase, a trip, a plan. Fill the blanks with real values (e.g. 'a carry-on suitcase for weekend flights,' '$120 total,' 'lightweight enough for budget-airline overhead bins,' '3'). Keep it generic: share a budget and a priority, never your card number, account number, or income. When it names a price, don't stop here — go open that real page."
+      "note": "A made-up or low-stakes decision works. Keep it generic: share a rounded budget and a priority, never your card number, account number, exact income, booking code, home address, or travel dates. Data entered into an outside assistant leaves LearningAI. When it names a price or policy, open the provider's real page yourself before spending."
     },
     {
       "kind": "workflowChain",
@@ -81,6 +81,15 @@ export default {
       "note": "The verify step is not optional — it's the whole point. AI narrows the field; the real site confirms the number. For anything binding like a loan, insurance policy, or contract, run the final terms past a qualified professional, not the AI."
     },
     {
+      "kind": "toolkitSave",
+      "title": "Save your decision check",
+      "cardType": "Compare and verify",
+      "fields": [
+        { "key": "tradeoff", "label": "The tradeoff I care about", "placeholder": "Price, time, quality, risk, or flexibility" },
+        { "key": "source", "label": "Where I verify the deciding claim", "placeholder": "The official seller, provider, timetable, or policy" }
+      ]
+    },
+    {
       "kind": "exitCheck",
       "title": "Did you actually check?",
       "question": "Take a brand-new decision you did NOT use above — say, which of two streaming plans to keep, or the cheapest train home next month. Run the prompt, then open the real source for ONE price or claim and confirm it. What lets you say you passed?",
@@ -91,19 +100,19 @@ export default {
           "feedback": "That's the skill. You didn't guess — you opened the source that takes your money and compared it to what AI said. Match or gap, now you know."
         },
         {
-          "text": "The AI sounded confident and its price seemed reasonable, so I'm satisfied it's right",
+          "text": "I verified the listed price on the store page, but not shipping, return fees, or whether the item fits my priority",
           "ok": false,
-          "feedback": "Confidence isn't a price check. A stale or misread number can sound just as sure. Open the actual page and read it yourself."
+          "feedback": "The sticker price is checked, but total cost and the constraint that matters to you are still open. Verify the terms that could change the decision."
         },
         {
-          "text": "I checked a 'best deals' blog that listed a similar price",
+          "text": "I opened the provider page and confirmed the total, but the page was for different dates or a different model",
           "ok": false,
-          "feedback": "A blog isn't where you pay. Verify on the store's or booking site's own page — the source that would actually charge you."
+          "feedback": "You opened an authoritative page, but for the wrong product or dates. Match the exact item, dates, and terms before treating the number as verified."
         },
         {
-          "text": "I picked my top option out loud but didn't open any real site",
+          "text": "I confirmed two options on their real pages, but chose the cheaper one without deciding whether the weaker return policy was acceptable",
           "ok": false,
-          "feedback": "Naming a favorite is the easy half. Checking the price on the real source is the skill — you have to actually open it."
+          "feedback": "Both prices are verified, but your decision rule is unfinished. Decide whether the weaker return terms are worth the saving before paying."
         }
       ]
     }

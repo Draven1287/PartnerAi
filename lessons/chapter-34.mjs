@@ -14,13 +14,13 @@ export default {
     {
       "kind": "coldOpen",
       "title": "The test is Friday",
-      "scenario": "You have a quiz Friday on the causes of World War I. You open an AI assistant and type: 'Explain the causes of World War I.' It writes three tidy paragraphs. You read them, nod, and close the tab feeling ready.",
-      "prompt": "Before you read on: come Friday, will you be able to recall those causes from memory? Or did you just watch the AI know them for you?"
+      "scenario": "You need to remember something that matters tomorrow: the steps for a first shift, the chords for a song, the rules for a permit test, or facts for a quiz. An AI gives you a tidy explanation. You read it, nod, and close the tab feeling ready.",
+      "prompt": "Which consequence would expose the gap: explaining it without the screen, doing the steps in order, or recognizing the answer only after someone shows it to you? Choose the proof that fits your task."
     },
     {
       "kind": "reveal",
       "title": "You do the knowing; it does the testing",
-      "body": "An AI assistant is not a teacher who knows your subject. It learned patterns from huge amounts of human writing and predicts the most likely next words. That is the real mechanism. It makes AI brilliant at generating questions and spotting where you stumble — and it means it can state a wrong fact with total confidence, or even mark a right answer wrong. Learning happens when YOU do the recall. So use it as a quizmaster: it asks, you answer in your own words, it marks you and names your gaps — it never hands you answers up front. And it is not always right, so you stay the judge.",
+      "body": "An AI assistant is not a teacher who knows your subject. It learned patterns from huge amounts of human writing and predicts likely language. That makes it useful for generating practice questions and possible feedback — and means it can state a wrong fact confidently or mark a right answer wrong. Learning happens when YOU retrieve, perform, or explain the skill. Use the assistant as a practice partner: it asks, you answer first, and you decide whether its feedback matches a trusted source or demonstration. Before using an outside assistant, remove real names, school or workplace details, account information, private messages, and another person's information. Data entered there leaves LearningAI. A made-up or public topic works for this lesson.",
       "mistake": "Ask it to explain the topic, read the clean summary, and mistake recognizing the answer for being able to recall it.",
       "good": "Ask it to quiz you one question at a time and wait; answer from memory first; let it mark you and reveal what you missed."
     },
@@ -67,7 +67,7 @@ export default {
       "kind": "tryLive",
       "title": "Run your own quizmaster",
       "prompt": "Be my study quizmaster for [specific topic], at the level of [the test, class, or skill]. Ask me one question at a time and wait for my answer before saying anything. After each answer, tell me if I'm right, explain only what I got wrong, and don't reveal the answer before I try. After [number] questions, list the gaps you noticed so I know what to restudy. Do not write my answers for me.",
-      "note": "Pick something you genuinely have to learn this week. Keep [specific topic] narrow — 'the causes of World War I,' not 'history' — so the questions stay sharp. Answer each one out loud or in writing BEFORE it responds. Try to get at least three wrong honestly (don't peek) so you can watch it find your gaps. Think of it like a flashcard partner who reads you a card and waits — but underneath it's predicting plausible questions and feedback, so when an answer sounds strange, check it instead of trusting it. AI is a study tool, not a teacher who knows your subject — you stay the judge."
+      "note": "Use a narrow public or invented topic first — a game rule, a recipe method, a safety checklist, a song structure, or a course topic — with no personal data. Answer aloud or in writing BEFORE it responds. Choose one feedback claim to check against a manual, official page, instructor material, or a trusted demonstration. Do not use the assistant's second answer as proof of its first."
     },
     {
       "kind": "toolkitSave",
@@ -94,20 +94,20 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Prove the recall was yours",
-      "question": "Run a SECOND round on a DIFFERENT topic you actually need. Answer at least three questions in your own words before peeking. Then, without looking at the screen, name one specific thing you got wrong earlier and explain why the right answer is right. Which outcome shows you actually learned it?",
+      "question": "On a fresh practical topic, answer three questions before seeing feedback and independently check one load-bearing claim. Which result is the strongest evidence that the learning is yours?",
       "options": [
         {
-          "text": "I can say the corrected point aloud from memory and explain why it's right",
+          "text": "I can explain or perform the corrected point without the screen, and the source or demonstration I checked supports it",
           "ok": true,
           "feedback": "That's the win — if you can teach that one point back from memory, the recall was yours, not the machine's."
         },
         {
-          "text": "I re-read the AI's feedback on screen and it made sense",
+          "text": "I can recognize the correction when I reread it, but I cannot produce it without the screen yet",
           "ok": false,
           "feedback": "That's recognizing, not remembering. Close the screen and try to say it from memory — that's the real test."
         },
         {
-          "text": "The AI told me I got everything right, so I'm done",
+          "text": "I recalled every answer, but I did not check whether the assistant's answer key was accurate",
           "ok": false,
           "feedback": "It can mark a wrong answer right. Recall it yourself and spot-check anything that sounds off — you stay the judge."
         }

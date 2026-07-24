@@ -5,9 +5,10 @@ import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
-const MIGRATION_VERSION = 6;
+const MIGRATION_VERSION = 7;
 const CONTENT_VERSION = 'v2-2026-07-17';
 const FREE_LESSON_NUMS = [1, 7, 11, 16, 21, 26, 31, 36, 41, 46];
+const COURSE_LESSON_COUNT = 50;
 
 const LESSONS = [
   ['chapter-1', 1, 'Orientation', 'Why AI matters - and why you stay in charge'],
@@ -148,7 +149,10 @@ export function createDb(options = {}) {
     ...poolConfig,
     ssl: String(process.env.DATABASE_SSL || '').toLowerCase() === 'true' ? { rejectUnauthorized: false } : undefined,
     max: Number(process.env.PG_POOL_MAX || 10),
-    idleTimeoutMillis: 30_000
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS || 10_000),
+    statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS || 15_000),
+    query_timeout: Number(process.env.PG_QUERY_TIMEOUT_MS || 20_000)
   });
 
   async function query(text, params = []) {
@@ -185,6 +189,7 @@ export function createDb(options = {}) {
     if (version < 4) await migrateV4();
     if (version < 5) await migrateV5();
     if (version < 6) await migrateV6();
+    if (version < 7) await migrateV7();
     await seedLessons();
     await seedAdmin();
     await importLegacyJsonStore();
@@ -647,6 +652,18 @@ export function createDb(options = {}) {
     await query('INSERT INTO schema_migrations(version) VALUES (6) ON CONFLICT DO NOTHING');
   }
 
+  async function migrateV7() {
+    await query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS interaction_transfer_id_unique
+        ON interaction_answers(user_id, lesson_id, step_index, (answer_json->>'__clientTransferId'))
+        WHERE answer_json ? '__clientTransferId';
+      CREATE UNIQUE INDEX IF NOT EXISTS quiz_transfer_id_unique
+        ON quiz_submissions(user_id, lesson_id, step_index, (answer_json->>'__clientTransferId'))
+        WHERE answer_json ? '__clientTransferId';
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (7) ON CONFLICT DO NOTHING');
+  }
+
   async function seedLessons() {
     const lessons = loadStaticLessons();
     await query(`INSERT INTO curriculum_tracks(id, title, description, sort_order, status)
@@ -1033,9 +1050,18 @@ export function createDb(options = {}) {
   async function saveInteraction(userId, { lessonId, stepIndex = 0, stepKind = '', payload = {}, correct = null }) {
     const lesson = String(lessonId || '').trim();
     const step = Math.max(0, Number(stepIndex) || 0);
+    const clientTransferId = String(payload?.__clientTransferId || '').slice(0, 200);
+    if (clientTransferId) {
+      const existing = await query(`SELECT 1 FROM interaction_answers
+        WHERE user_id = $1 AND lesson_id = $2 AND step_index = $3
+          AND answer_json->>'__clientTransferId' = $4
+        LIMIT 1`, [userId, lesson, step, clientTransferId]);
+      if (existing.rowCount) return;
+    }
     const count = await query('SELECT count(*)::int AS count FROM interaction_answers WHERE user_id = $1 AND lesson_id = $2 AND step_index = $3', [userId, lesson, step]);
     await query(`INSERT INTO interaction_answers(user_id, lesson_id, step_index, interaction_kind, answer_json, correct, attempt_number)
-      VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)`, [
+      VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7)
+      ON CONFLICT DO NOTHING`, [
       userId,
       lesson,
       step,
@@ -1053,8 +1079,17 @@ export function createDb(options = {}) {
   async function saveQuizAnswer(userId, { lessonId, stepIndex = 0, quizKey = '', answer = {}, correct = null, feedback = '' }) {
     const lesson = String(lessonId || '').trim();
     const step = Math.max(0, Number(stepIndex) || 0);
+    const clientTransferId = String(answer?.__clientTransferId || '').slice(0, 200);
+    if (clientTransferId) {
+      const existing = await query(`SELECT 1 FROM quiz_submissions
+        WHERE user_id = $1 AND lesson_id = $2 AND step_index = $3
+          AND answer_json->>'__clientTransferId' = $4
+        LIMIT 1`, [userId, lesson, step, clientTransferId]);
+      if (existing.rowCount) return;
+    }
     await query(`INSERT INTO quiz_submissions(user_id, lesson_id, step_index, quiz_key, answer_json, correct, feedback)
-      VALUES ($1, $2, $3, NULLIF($4, ''), $5::jsonb, $6, NULLIF($7, ''))`, [
+      VALUES ($1, $2, $3, NULLIF($4, ''), $5::jsonb, $6, NULLIF($7, ''))
+      ON CONFLICT DO NOTHING`, [
       userId,
       lesson,
       step,
@@ -1684,7 +1719,7 @@ export function createDb(options = {}) {
       activeDays: row.active_days,
       startedLessons: row.started_lessons,
       completedLessons: row.completed_lessons,
-      completionPercent: Math.round((row.completed_lessons / 30) * 100),
+      completionPercent: Math.round((row.completed_lessons / COURSE_LESSON_COUNT) * 100),
       interactions: row.interactions,
       toolkitCards: row.toolkit_cards,
       savedNoteCount: row.saved_note_count,

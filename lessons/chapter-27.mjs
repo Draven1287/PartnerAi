@@ -59,8 +59,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Ask who's missing — then fix it",
-      "prompt": "Give me a balanced view on [topic where people differ]. Then tell me: whose perspectives or groups are underrepresented in that answer, and rewrite it to include at least 2 viewpoints you left out the first time. For each added voice, say in one line what it changes.",
-      "note": "Pick a real question with more than one honest side — a debate, a 'best way to...', or advice aimed at a group (curfews, phones in school, best way to save money, health advice for someone living alone). The gap between version one and version two IS the bias. Remember: the AI is grading its own blind spot, so check its list — you may spot a left-out group it missed."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public or invented scenario; do not include names, private stories, health details, or claims about a real person. Give me a practical view on [topic where people differ]. List the resources and life conditions your answer assumes. Add at least two perspectives those assumptions leave out, and say what each changes.",
+      "note": "Try public transport, phone rules, saving money with irregular income, or learning a skill without paid tools. Do not ask the AI to speak as a real community member. Treat its missing-voices list as a starting hypothesis and check it against real people or authoritative research when the decision matters."
     },
     {
       "kind": "toolkitSave",
@@ -95,19 +95,19 @@ export default {
           "feedback": "Yes. You've done the skill when you can point to the specific person the tidy answer forgot — and get them back into the conversation."
         },
         {
-          "text": "The rewrite sounded balanced and used calm, neutral language throughout.",
+          "text": "The rewrite added two groups, but their needs were described only by the AI and I did not check whether the assumptions were accurate.",
           "ok": false,
-          "feedback": "That's the trap from the start of the lesson: a smooth tone is not proof of a fair picture. Name who was actually missing."
+          "feedback": "Adding groups improves coverage, but it can also invent stereotypes. For a consequential decision, check the assumptions with people affected or reliable evidence."
         },
         {
-          "text": "The AI gave a confident answer, so you trusted its 'who's missing' list as complete.",
+          "text": "I named one missing group and added a generic sentence saying the choice may be harder for them.",
           "ok": false,
-          "feedback": "The AI is critiquing its own blind spot — treat its list as a strong start you check. You may spot a group it didn't."
+          "feedback": "Naming a group is only the start. Identify the concrete barrier or changed requirement without reducing people to a stereotype."
         },
         {
-          "text": "You read version one, agreed it seemed fair, and skipped asking who was left out.",
+          "text": "I made every option identical so no group could be disadvantaged.",
           "ok": false,
-          "feedback": "That skips the whole skill. The point is to surface the voice the tidy answer quietly dropped."
+          "feedback": "Identical options can ignore unequal constraints. Fairness may require different ways to reach the same goal."
         }
       ]
     }

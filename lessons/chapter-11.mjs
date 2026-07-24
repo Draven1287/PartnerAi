@@ -57,6 +57,26 @@ export default {
       "good": "Handing it a real task with a detail or two ('text my neighbor — we're friendly but not close, so warm and not pushy') so its prediction actually fits your situation."
     },
     {
+      "kind": "workflowChain",
+      "title": "Turn a real need into a bounded task",
+      "goal": "Use AI to help with one ordinary task without asking it to own the outcome.",
+      "correct": [
+        "Name the useful outcome in one sentence",
+        "Remove private information the task does not need",
+        "Choose one small part AI can help produce",
+        "Decide how you will judge or test the result",
+        "Do the final real-world action yourself"
+      ],
+      "choices": [
+        "Do the final real-world action yourself",
+        "Choose one small part AI can help produce",
+        "Name the useful outcome in one sentence",
+        "Decide how you will judge or test the result",
+        "Remove private information the task does not need"
+      ],
+      "note": "If you try an outside assistant, use a low-stakes task and remove names, schedules, addresses, account details, and private messages before sending."
+    },
+    {
       "kind": "tryLive",
       "title": "Write your real ask",
       "prompt": "I need help with one small real task: [the task — the actual small thing, in your own words]. Here's my situation: [a detail or two about me — tone, who it's for, what I have]. Please [what you want — write it / list it / explain it / give me 3 short options], kept short and in plain language. If you need one thing from me to do it well, ask me first.",

@@ -1,0 +1,527 @@
+/* Claude Design refinement: give each medal enough space to read as a crafted object. */
+.sound-choice span {
+  display: grid;
+  gap: 2px;
+}
+
+.sound-choice small {
+  color: #7c837f;
+  font-size: 9px;
+}
+
+.focus-recommendation {
+  position: relative;
+  max-width: 390px;
+  margin-top: 25px;
+  padding: 17px 19px 17px 22px;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--medal-gold) 32%, rgba(43, 49, 46, .12));
+  border-radius: 18px;
+  background: linear-gradient(125deg, rgba(255, 255, 255, .52), rgba(237, 222, 180, .22));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .92), 0 12px 26px rgba(64, 53, 30, .07);
+}
+
+.focus-recommendation::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--lime), var(--cyan));
+}
+
+.focus-recommendation > span {
+  display: block;
+  color: #6e623e;
+  font-size: 8px;
+  font-weight: 820;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.focus-recommendation > strong {
+  display: block;
+  margin-top: 5px;
+  color: #17201d;
+  font-size: 24px;
+  font-weight: 680;
+  letter-spacing: -.04em;
+}
+
+.focus-recommendation > p {
+  margin: 5px 0 0;
+  color: #59625e;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.time-planner{max-width:430px}
+.planner-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px}
+.planner-heading label{color:#3f4743;font-size:12px;font-weight:760}
+.planner-heading output{color:#1d2421;font-size:22px;font-weight:720;letter-spacing:-.04em}
+.time-planner input[type="range"]{width:100%;height:9px;margin-top:16px;appearance:none;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--lime) 38%,var(--medal-gold) 68%,var(--coral));box-shadow:inset 0 1px 2px rgba(18,24,22,.28)}
+.time-planner input[type="range"]::-webkit-slider-thumb{width:30px;height:30px;appearance:none;border:2px solid white;border-radius:50%;background:#202825;box-shadow:0 6px 16px rgba(26,32,29,.25);cursor:grab}
+.time-planner input[type="range"]:focus-visible{outline:3px solid color-mix(in oklab,var(--cyan) 58%,white);outline-offset:5px}
+.planner-scale{display:flex;justify-content:space-between;margin-top:10px;color:#6c746f;font-size:9px;font-weight:680}
+.time-estimate{display:grid;gap:4px;margin-top:17px;padding:15px 17px;border:1px solid rgba(255,255,255,.74);border-radius:16px;background:rgba(255,255,255,.25);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+.time-estimate strong{color:#202825;font-size:13px}
+.time-estimate span{color:#616965;font-size:10px;line-height:1.45}
+
+.medal-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.medal {
+  padding: 25px 18px 22px;
+  border: 1px solid rgba(255, 255, 255, .76);
+  border-radius: 27px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .12));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .92), inset 0 -1px rgba(37, 43, 40, .1), 0 16px 35px rgba(39, 44, 41, .07);
+  touch-action: pan-y;
+}
+
+.medal-coin {
+  width: 158px;
+  height: 158px;
+  margin-bottom: 19px;
+  filter: drop-shadow(0 18px 17px color-mix(in oklab, var(--medal) 28%, transparent));
+}
+
+.medal-face {
+  border-width: 9px;
+  box-shadow: inset 5px 6px 11px rgba(255, 255, 255, .66), inset -9px -12px 16px rgba(13, 18, 16, .3), inset 0 0 0 2px rgba(255, 255, 255, .38), 0 0 0 1px rgba(35, 41, 38, .15);
+}
+
+.medal-front::before {
+  content: "";
+  position: absolute;
+  inset: 17%;
+  border: 7px solid rgba(255, 255, 255, .36);
+  border-top-color: rgba(255, 255, 255, .78);
+  border-right-color: rgba(24, 30, 27, .18);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3), 0 3px 7px rgba(30, 36, 33, .12);
+}
+
+.medal-front::after {
+  inset: 12px;
+}
+
+.medal-front i {
+  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 0) rotate(-23deg);
+  transition: transform 180ms ease-out;
+}
+
+.medal-front b {
+  font-size: 42px;
+}
+
+.medal-front small {
+  font-size: 9px;
+}
+
+.medal-back {
+  background: repeating-linear-gradient(94deg, rgba(255, 255, 255, .07) 0 1px, transparent 1px 3px), radial-gradient(circle at 32% 24%, #fafbfa, #bdc2c0 23%, #777e7b 67%, #3d4340);
+}
+
+.medal-back::after {
+  inset: 13px;
+}
+
+.medal-back em {
+  font-size: 10px;
+}
+
+.medal-back span {
+  max-width: 104px;
+  font-size: 8px;
+}
+
+.medal > strong {
+  font-size: 15px;
+  letter-spacing: -.02em;
+}
+
+.medal > small {
+  font-size: 11px;
+}
+
+.medal:not(.earned) {
+  filter: saturate(.82);
+  opacity: .9;
+}
+
+.medal .medal-back,
+.medal[aria-pressed="true"] .medal-front {
+  visibility: visible;
+}
+
+@media (max-width: 960px) {
+  .medal-grid {
+    grid-template-columns: repeat(2, minmax(100px, 1fr));
+    row-gap: 16px;
+  }
+}
+
+@media (max-width: 820px) {
+  .medal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .medal {
+    padding: 18px 8px;
+    border-radius: 22px;
+  }
+
+  .medal-coin {
+    width: min(126px, 36vw);
+    height: min(126px, 36vw);
+    margin-bottom: 14px;
+  }
+
+  .medal-front b {
+    font-size: 34px;
+  }
+
+  .medal > strong {
+    font-size: 13px;
+  }
+
+  .medal > small {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medal {
+    touch-action: auto;
+  }
+
+  .medal-front i {
+    transform: rotate(-23deg);
+    transition: none;
+  }
+}
+
+/* A real two-sided medal: continuous drag, metal thickness, and face snapping. */
+.medal {
+  touch-action: none;
+}
+
+.medal .medal-coin {
+  transform: rotateX(var(--rotate-x, 7deg)) rotateY(var(--rotate-y, -8deg));
+  transition: transform 520ms cubic-bezier(.2,.86,.22,1);
+  will-change: transform;
+}
+
+.medal.is-turning .medal-coin {
+  transition: none;
+}
+
+.medal .medal-coin::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 7px solid color-mix(in oklab, var(--medal) 48%, #7f8784);
+  border-radius: 50%;
+  background: linear-gradient(115deg, #f9faf9 0 5%, #7a817e 18%, #d9dddb 42%, #4f5653 72%, #eef0ef 100%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.62), 0 1px 2px rgba(0,0,0,.32);
+  transform: translateZ(-7px);
+}
+
+.medal .medal-front {
+  transform: translateZ(6px);
+}
+
+.medal .medal-back {
+  transform: rotateY(180deg) translateZ(6px);
+}
+
+.medal .medal-face {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medal .medal-coin,
+  .medal.is-turning .medal-coin {
+    transition: none;
+  }
+}
+
+/* Original LearningAI achievement rings: activity-inspired, not copied artwork. */
+.medal {
+  --ring-a: #ff5368;
+  --ring-b: #ff9651;
+  --ring-c: #f43c9a;
+  --ring-progress: .035turn;
+}
+
+.medal-face.medal-front {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 7px solid color-mix(in oklab, var(--medal) 48%, #b8c0bd);
+  background:
+    radial-gradient(circle at 48% 44%, rgba(15, 21, 22, .7) 0 32%, transparent 33%),
+    radial-gradient(circle at 34% 24%, #435052 0, #172124 34%, #090f11 74%, #030607 100%);
+  box-shadow:
+    inset 3px 4px 5px rgba(255, 255, 255, .5),
+    inset -6px -8px 11px rgba(0, 0, 0, .72),
+    inset 0 0 0 1px rgba(255, 255, 255, .28),
+    0 0 0 1px rgba(12, 18, 17, .35);
+}
+
+.medal-front::before {
+  content: "";
+  position: absolute;
+  z-index: 8;
+  inset: -14% 15% 58% -12%;
+  border: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: linear-gradient(158deg, rgba(255, 255, 255, .52), rgba(255, 255, 255, .08) 48%, transparent 70%);
+  box-shadow: none;
+  filter: blur(3px);
+  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 30px) rotate(-9deg);
+  transition: transform 180ms ease-out;
+}
+
+.medal-front::after {
+  content: "";
+  position: absolute;
+  z-index: 7;
+  inset: 5px;
+  border: 1px solid rgba(255, 255, 255, .42);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25), inset 0 0 14px rgba(255, 255, 255, .09);
+  pointer-events: none;
+}
+
+.activity-rings {
+  position: absolute;
+  z-index: 2;
+  inset: 12px;
+  transform-style: preserve-3d;
+  transform: translateZ(9px);
+}
+
+.medal-front .activity-ring {
+  --ring-color: var(--ring-a);
+  --ring-thickness: 17px;
+  position: absolute;
+  display: block;
+  width: auto;
+  height: auto;
+  inset: 0;
+  top: auto;
+  left: auto;
+  border-radius: 50%;
+  background:
+    conic-gradient(
+      from -90deg,
+      color-mix(in oklab, var(--ring-color) 72%, white) 0,
+      var(--ring-color) var(--ring-progress),
+      color-mix(in oklab, var(--ring-color) 46%, #1a2325) var(--ring-progress),
+      color-mix(in oklab, var(--ring-color) 30%, #0d1315) 1turn
+    );
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-thickness)), #000 calc(100% - var(--ring-thickness) + 1px) calc(100% - 2px), transparent calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-thickness)), #000 calc(100% - var(--ring-thickness) + 1px) calc(100% - 2px), transparent calc(100% - 1px));
+  box-shadow: none;
+  filter:
+    drop-shadow(0 3px 1px color-mix(in oklab, var(--ring-color) 42%, #000))
+    drop-shadow(0 7px 7px rgba(0, 0, 0, .46))
+    drop-shadow(0 -1px 1px rgba(255, 255, 255, .55));
+  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 11px) rotate(-8deg);
+  transition: transform 180ms ease-out, filter 280ms ease, opacity 280ms ease;
+}
+
+.medal-front .ring-middle {
+  --ring-color: var(--ring-b);
+  --ring-thickness: 13px;
+  inset: 14%;
+  filter:
+    drop-shadow(0 3px 1px color-mix(in oklab, var(--ring-color) 40%, #000))
+    drop-shadow(0 6px 6px rgba(0, 0, 0, .42))
+    drop-shadow(0 -1px 1px rgba(255, 255, 255, .5));
+  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 17px) rotate(8deg);
+}
+
+.medal-front .ring-inner {
+  --ring-color: var(--ring-c);
+  --ring-thickness: 10px;
+  inset: 28%;
+  filter:
+    drop-shadow(0 2px 1px color-mix(in oklab, var(--ring-color) 36%, #000))
+    drop-shadow(0 4px 4px rgba(0, 0, 0, .4))
+    drop-shadow(0 -1px 1px rgba(255, 255, 255, .48));
+  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 23px) rotate(-10deg);
+}
+
+.medal-core {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-content: center;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 25%, #263134, #0c1315 65%, #020506);
+  box-shadow: inset 1px 2px 3px rgba(255, 255, 255, .19), inset -3px -4px 6px rgba(0, 0, 0, .8), 0 7px 13px rgba(0, 0, 0, .54);
+  transform: translateZ(31px);
+}
+
+.medal-front .medal-core b {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 670;
+  line-height: .85;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, .62);
+}
+
+.medal-front .medal-core small {
+  margin-top: 2px;
+  color: rgba(255, 255, 255, .72);
+  font-size: 4.5px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.medal-core::after {
+  content: "LOCKED";
+  position: absolute;
+  top: calc(100% + 15px);
+  left: 50%;
+  min-width: 47px;
+  padding: 3px 7px;
+  border: 1px solid rgba(255, 255, 255, .18);
+  border-radius: 999px;
+  background: rgba(3, 7, 8, .72);
+  color: rgba(255, 255, 255, .68);
+  font-size: 5.5px;
+  font-weight: 800;
+  letter-spacing: .15em;
+  transform: translateX(-50%);
+}
+
+.medal.earned .medal-core::after {
+  content: "EARNED";
+  border-color: color-mix(in oklab, var(--ring-a) 48%, transparent);
+  color: color-mix(in oklab, var(--ring-a) 74%, white);
+}
+
+.medal:not(.earned) {
+  filter: none;
+  opacity: 1;
+}
+
+.medal:not(.earned) .activity-ring {
+  opacity: .88;
+  filter: saturate(.84) brightness(.82) drop-shadow(0 5px 5px rgba(0, 0, 0, .38));
+}
+
+.medal.earned .medal-coin {
+  filter: drop-shadow(0 18px 18px color-mix(in oklab, var(--ring-a) 36%, transparent));
+}
+
+.medal.coral { --ring-a: #ff5068; --ring-b: #ff934d; --ring-c: #f23698; }
+.medal.lime { --ring-a: #a5e83b; --ring-b: #f0d94a; --ring-c: #20d6a0; }
+.medal.cyan { --ring-a: #26dbe4; --ring-b: #3e8cff; --ring-c: #45e9af; }
+.medal.blue { --ring-a: #388fff; --ring-b: #6762f5; --ring-c: #2ad5e0; }
+.medal.violet { --ring-a: #a967f2; --ring-b: #ff5f91; --ring-c: #6371ff; }
+.medal.gold { --ring-a: #efbf42; --ring-b: #ff7d4c; --ring-c: #a8df40; }
+
+@media (max-width: 820px) {
+  .activity-rings { inset: 9px; }
+  .medal-front .activity-ring { --ring-thickness: 14px; }
+  .medal-front .ring-middle { --ring-thickness: 11px; }
+  .medal-front .ring-inner { --ring-thickness: 8px; }
+  .medal-core { width: 30px; height: 30px; }
+  .medal-front .medal-core b { font-size: 14px; }
+  .medal-core::after { top: calc(100% + 12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .medal-front::before,
+  .medal-front .activity-ring {
+    transform: none;
+    transition: none;
+  }
+}
+
+/*
+ * Badge rotation reliability
+ *
+ * The first badge implementation used --tilt-x/--tilt-y and changed the coin
+ * transform whenever aria-pressed became true. The current interaction uses
+ * --rotate-x/--rotate-y continuously. Keeping both made the half-turn jump to
+ * a second pose and allowed translated ring layers to show through the back in
+ * WebKit. Geometry now has one source of truth, while aria-pressed remains a
+ * semantic front/back state only.
+ */
+.medal[aria-pressed="true"] .medal-coin {
+  transform: rotateX(var(--rotate-x, 5deg)) rotateY(var(--rotate-y, 180deg)) !important;
+}
+
+.medal .medal-face {
+  isolation: isolate;
+  transform-style: preserve-3d;
+}
+
+.medal .medal-coin{
+  transform:rotateX(var(--rotate-x,7deg)) rotateY(var(--rotate-y,-8deg)) !important;
+}
+
+.medal .activity-rings,
+.medal .medal-core {
+  transform: none;
+}
+
+.medal-front .activity-ring {
+  transform: translate(var(--shine-x, 0), var(--shine-y, 0)) rotate(-8deg);
+}
+
+.medal-front .ring-middle {
+  transform: translate(var(--shine-x, 0), var(--shine-y, 0)) rotate(8deg);
+}
+
+.medal-front .ring-inner {
+  transform: translate(var(--shine-x, 0), var(--shine-y, 0)) rotate(-10deg);
+}
+
+html[data-motion="none"] .medal .medal-coin {
+  transition: none;
+  /*
+   * theme.css intentionally disables all transforms with !important when
+   * motion is off. A medal still needs an instantaneous front/back state
+   * change so its visual state matches aria-pressed; only the animation is
+   * removed.
+   */
+  transform: none !important;
+}
+
+html[data-motion="none"] .medal[aria-pressed="true"] .medal-coin {
+  transform: none !important;
+}
+
+/*
+ * "No motion" removes animation, not the two-sided geometry. The global
+ * accessibility rule clears transforms from every descendant. In that mode we
+ * swap the two faces instantly instead of performing a half-turn; this keeps
+ * both labels readable and prevents WebKit from exposing a mirrored front.
+ */
+html[data-motion="none"] .medal .medal-front,
+html[data-motion="none"] .medal[aria-pressed="true"] .medal-back {
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+html[data-motion="none"] .medal .medal-back,
+html[data-motion="none"] .medal[aria-pressed="true"] .medal-front {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  transform: none !important;
+}

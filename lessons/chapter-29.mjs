@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "\"Looks real\" stopped being evidence",
-      "body": "Here is the mechanism, not magic: image and video AI learned patterns from huge amounts of real media, and it produces new media that fits those patterns — the same way a text AI predicts the next word. It predicts what a convincing photo or clip would look like. That's why a photo, a voice, a news clip, even a five-star review can all be AI-made in 2026. The old test — \"if it looks and sounds real, it's real\" — no longer works. Its twin, \"I can always spot the fake,\" is worse: you can't reliably spot it anymore, and being sure you can is exactly what gets people fooled. The fix: assume anything online COULD be AI-made, and decide how much to trust it by who shared it and whether a second source confirms it — never by how convincing it looks.",
+      "body": "Image, audio, and video generators learn patterns from large collections of media and can produce convincing new material. A polished photo, familiar voice, news-style clip, or five-star review can therefore be synthetic, edited, or taken out of context. Appearance alone is weak evidence. Decide how much to trust a consequential claim by tracing the original publisher, checking what evidence it provides, and finding independent confirmation.",
       "mistake": "Trusting a post because the details are perfect and it feels authentic — treating \"looks real\" as proof.",
       "good": "Treating every post as possibly AI-made, then checking the source and looking for a second, independent confirmation before you believe or share."
     },
@@ -75,8 +75,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run it on your own example",
-      "prompt": "Here's something I saw online: [paste it or describe it plainly]. Walk me through whether it could be AI-made, then help me check whether it's trustworthy using two things: [who shared it — the account or outlet, and whether they're accountable] and whether a [second independent source] confirms it. Don't tell me it's real just because it looks real.",
-      "note": "Pick ONE thing you genuinely saw in the last few days — an image, post, headline, or short clip. Example fills: \"a video of a politician saying something shocking\"; \"an account I'd never heard of, made last month, with 12 followers\"; \"I checked a major news site and a fact-check page — neither mentions it, so I'm treating it as unconfirmed.\" If it's about money, health, or an urgent request forwarded by a friend, also call that friend on a number you already have before you believe or share it."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public post or describe it without usernames, private messages, faces of private people, or location details. Help me evaluate this claim: [plain description]. Separate (1) who published it and whether they are accountable, (2) what a second independent source says, and (3) what remains unconfirmed. Do not judge truth from appearance or an AI label.",
+      "note": "Choose a public headline, advertisement, or widely shared claim—not a private group-chat post. Open the original publisher and an independent source yourself. If the content asks for money, private information, or urgent action, stop and verify the sender through a route you already trust."
     },
     {
       "kind": "toolkitSave",
@@ -116,19 +116,19 @@ export default {
           "feedback": "Yes. Your reason is about source and verification, and you gave a clear verdict — exactly the check."
         },
         {
-          "text": "\"It's real — the detail is perfect and it looks completely convincing.\"",
+          "text": "\"Probably real: a known outlet reposted it, although I have not found the original report yet.\"",
           "ok": false,
-          "feedback": "\"Looks real\" stopped being evidence. AI can make convincing media from patterns. Check the source and a second source instead."
+          "feedback": "A known outlet is useful evidence, but a repost can still be wrong or stripped of context. Keep the verdict provisional until you open the underlying report or confirmation."
         },
         {
-          "text": "\"It's fine — there's no AI label or watermark on it.\"",
+          "text": "\"Unconfirmed, but safe to share if I label it 'might be true.'\"",
           "ok": false,
-          "feedback": "A label's absence proves nothing — labels are inconsistent and watermarks can be stripped. The trust check is your test, not the label."
+          "feedback": "A warning label does not undo the spread or harm. If the consequential claim is unconfirmed, pause sharing."
         },
         {
-          "text": "\"I'll trust it — it made me so angry it has to be true.\"",
+          "text": "\"Two accounts repeat it, so that counts as two independent sources.\"",
           "ok": false,
-          "feedback": "Content built to spike emotion is built to skip your judgment. That's a reason to slow down, not to believe."
+          "feedback": "Two accounts may copy the same original claim. Independence means separate reporting or evidence, not repetition."
         }
       ]
     }
