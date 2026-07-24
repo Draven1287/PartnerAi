@@ -9,6 +9,56 @@ const required = [
   'Dockerfile.frontend',
   'railway.toml',
   'frontend-server.mjs',
+  'learning-ai-design-assets/index.html',
+  'learning-ai-design-assets/stage-1-navigation-proof.html',
+  'learning-ai-design-assets/lesson-one.html',
+  'learning-ai-design-assets/access.html',
+  'learning-ai-design-assets/onboarding.html',
+  'learning-ai-design-assets/lessons.html',
+  'learning-ai-design-assets/lesson.html',
+  'learning-ai-design-assets/progress.html',
+  'learning-ai-design-assets/focus.html',
+  'learning-ai-design-assets/projects.html',
+  'learning-ai-design-assets/gallery.html',
+  'learning-ai-design-assets/notes.html',
+  'learning-ai-design-assets/about.html',
+  'learning-ai-design-assets/adults.html',
+  'learning-ai-design-assets/settings.html',
+  'learning-ai-design-assets/submission-policy.html',
+  'learning-ai-design-assets/learning-api.js',
+  'learning-ai-design-assets/course-state.js',
+  'learning-ai-design-assets/theme.js',
+  'learning-ai-design-assets/theme.css',
+  'learning-ai-design-assets/arc-rail.js',
+  'learning-ai-design-assets/nav-behavior.js',
+  'learning-ai-design-assets/glass-finish.css',
+  'learning-ai-design-assets/dashboard.css',
+  'learning-ai-design-assets/dashboard-panels.js',
+  'learning-ai-design-assets/draggable-glass.js',
+  'learning-ai-design-assets/learning-rhythm.js',
+  'learning-ai-design-assets/focus-mini.css',
+  'learning-ai-design-assets/focus-mini.js',
+  'learning-ai-design-assets/focus-refinement.css',
+  'learning-ai-design-assets/focus.css',
+  'learning-ai-design-assets/focus.js',
+  'learning-ai-design-assets/project-guides.js',
+  'learning-ai-design-assets/achievement-vault.js',
+  'learning-ai-design-assets/achievement-vault.css',
+  'learning-ai-design-assets/learning-ai-paper-light-v1.png',
+  'learning-ai-design-assets/badges/learningai-small-milestone-pins-concept-v1.png',
+  'learning-ai-design-assets/badges/learningai-small-milestone-pin-backs-concept-v1.png',
+  ...Array.from({ length: 10 }, (_, index) => `learning-ai-design-assets/badges/arc-${String(index + 1).padStart(2, '0')}-${[
+    'first-signal',
+    'pattern-seeker',
+    'better-questions',
+    'truth-check',
+    'context-keeper',
+    'human-judgment',
+    'privacy-boundary',
+    'workflow-builder',
+    'agent-director',
+    'control-remains-yours'
+  ][index]}-front-back-v1.png`),
   'v3/index.html',
   'v3/v3.css',
   'v3/v3.js',
@@ -47,6 +97,16 @@ for (const path of required) {
   assert.equal(tracked.has(path), true, `${path} is not Git-tracked and would be missing from Railway`);
 }
 
+if (process.env.RELEASE_REQUIRE_COMMITTED === '1') {
+  const committed = new Set(execFileSync('git', ['ls-tree', '-r', '--name-only', 'HEAD'], {
+    cwd: root,
+    encoding: 'utf8'
+  }).split('\n').filter(Boolean));
+  for (const path of required) {
+    assert.equal(committed.has(path), true, `${path} is not committed in HEAD and cannot be deployed by Railway`);
+  }
+}
+
 const ignoreCheck = spawnSync('git', ['check-ignore', '--no-index', ...required], {
   cwd: root,
   encoding: 'utf8'
@@ -70,8 +130,14 @@ const frontend = read('frontend-server.mjs');
 assert.ok(frontend.includes("process.env.API_INTERNAL_URL"), 'Frontend must proxy to the Railway private backend');
 assert.ok(frontend.includes("process.env.CANONICAL_HOST"), 'Frontend must support the bare-domain canonical redirect');
 assert.ok(frontend.includes("url.pathname === '/api' || url.pathname.startsWith('/api/')"));
-assert.ok(frontend.includes("url.pathname === '/'"));
-assert.ok(frontend.includes("location: '/v2/'"), 'Initial Railway cutover must preserve V2 at the public root');
+assert.ok(
+  frontend.includes("url.pathname === '/' ? '/learning-ai-design-assets/index.html'"),
+  'The approved LearningAI redesign must be served at the public root'
+);
+assert.ok(
+  frontend.includes("`/learning-ai-design-assets${pathname}`"),
+  'Root-relative redesign routes must resolve inside the deployable design package'
+);
 assert.ok(frontend.includes('response.writeHead(308'), 'Canonical-host redirect must be permanent and path-preserving');
 
 for (const path of [
@@ -82,9 +148,24 @@ for (const path of [
   'v2/v2-api.js',
   'coolify-backend/server.mjs',
   'coolify-backend/db.mjs'
+  ,...required.filter(path => path.startsWith('learning-ai-design-assets/') && path.endsWith('.js'))
 ]) {
   execFileSync(process.execPath, ['--check', path], { cwd: root, stdio: 'pipe' });
 }
 
+for (const path of required.filter(path => path.endsWith('.html'))) {
+  const html = read(path);
+  for (const match of html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)) {
+    const attributes = match[1] || '';
+    const type = attributes.match(/\btype=["']([^"']+)["']/i)?.[1] || 'text/javascript';
+    if (!['text/javascript', 'application/javascript', 'module'].includes(type)) continue;
+    try {
+      Function(match[2]);
+    } catch (error) {
+      throw new Error(`${path} contains invalid inline JavaScript: ${error.message}`);
+    }
+  }
+}
+
 console.log(`Railway release-package checks passed: ${required.length} required files`);
-console.log('V2 remains the root route; V3 remains available only at /v3/ until owner approval.');
+console.log('The approved LearningAI redesign is the root route; V2 remains available at /v2/ as a rollback path.');

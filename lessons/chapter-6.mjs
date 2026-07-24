@@ -6,108 +6,137 @@ export default {
   "num": 6,
   "arc": "How It Works",
   "title": "How It Creates",
-  "coreQuestion": "How can one AI tool write, draw, and speak — and what is it actually doing when it \"makes\" a picture?",
-  "blurb": "The same next-piece engine that finishes sentences can also build a brand-new image or voice — piece by piece.",
-  "minutes": 9,
+  "coreQuestion": "When an AI product writes, draws, or speaks, what is it generating — and what can I actually know about where the result came from?",
+  "blurb": "Text, image, and audio systems create in different ways. Learn to separate generation from retrieval and check consent and provenance before you share.",
+  "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "More than a chatbox",
-      "scenario": "You ask your assistant for a picture of a cat wearing a tiny astronaut helmet, floating over a bowl of cereal. A few seconds later, there it is — an image nobody has ever made before. You didn't search for it. The AI built it.",
-      "prompt": "Before you read on: where do you think that picture came from — did the AI find it somewhere online, or make it from scratch? What makes you think so?"
+      "title": "Generated, retrieved, or both?",
+      "scenario": "You ask an assistant for a poster of a glass city under two moons. It returns a polished image. The result looks original, but the product could have generated it, retrieved an existing image, combined tools, or used a workflow you cannot see.",
+      "prompt": "Before you read on: what evidence would you need before claiming the image was generated rather than found? Name one thing the image itself cannot prove."
     },
     {
       "kind": "reveal",
-      "title": "Same engine, new kind of piece",
-      "body": "In earlier lessons you saw the core idea: AI learned patterns from huge amounts of human-made data, then predicts what comes next. That engine doesn't only finish sentences. It can also predict each piece of a picture, or each piece of a sound — which is why one tool can write, draw, and speak. This is generative AI: software that CREATES new content instead of looking it up. You'll hear people say 'the AI imagines your picture.' That's a comparison, not the truth — flag it as an analogy. What's really happening: it learned visual patterns from enormous numbers of images and predicts a whole new picture, piece by piece, until it matches your words. No imagining, no searching a photo library. (2026 note: assistants can also browse the web and use other tools to get a job done — but a generated image is built, not found.)",
-      "mistake": "Assuming 'text in, text out' is all AI does — treating it as only a chatbot you type to and read back.",
-      "good": "Seeing text, images, and voice as three kinds of the SAME predict-the-next-piece engine, all of which you can try today."
+      "title": "Different media, different systems",
+      "body": "Generative AI is a family of systems that produces new content from learned patterns. A text model commonly predicts units of text called tokens. Many image systems begin with noise or an internal representation and repeatedly adjust it toward patterns connected to the prompt. Speech systems can turn text into acoustic patterns, while a separate speech-recognition system may turn your voice into text.\n\nA single assistant may quietly route your request among several models, search tools, files, or other services. So 'one next-piece engine does everything' is a useful first analogy, not a complete technical description. The finished result also cannot prove its own history: a novel-looking image might be generated, retrieved, edited, or assembled by a hybrid tool. Check the product's source labels, content credentials, links, or activity record when origin matters.",
+      "mistake": "Assuming that a surprising result proves the assistant generated every part of it from scratch.",
+      "good": "Ask what system or tool produced the result, what source information is available, and what still needs human checking."
     },
     {
       "kind": "classify",
-      "title": "Made or found?",
-      "prompt": "For each result, decide: did the AI CREATE it piece by piece, or FIND it that already existed?",
+      "title": "What does the evidence support?",
+      "prompt": "Sort each result by the strongest conclusion the evidence supports. Do not guess from appearance alone.",
       "buckets": [
-        "AI created it",
-        "AI found it"
+        "Generation is documented",
+        "Retrieval is documented",
+        "Origin is still unclear"
       ],
       "items": [
         {
-          "text": "A watercolor of a cat in an astronaut helmet floating over cereal",
+          "text": "The product's activity record says 'image generated' and provides content credentials for this result.",
           "answer": 0
         },
         {
-          "text": "A teapot shaped like a hedgehog, rendered as a pencil sketch",
-          "answer": 0
-        },
-        {
-          "text": "A photo of the actual Eiffel Tower pulled from a news article on the web",
+          "text": "The assistant gives a direct source link to a museum photograph and says it retrieved that exact image.",
           "answer": 1
         },
         {
-          "text": "A calm friendly voice reading a sentence you just typed",
-          "answer": 0
+          "text": "A strange picture appears with no source, tool label, or creation record.",
+          "answer": 2
         },
         {
-          "text": "A Wikipedia paragraph the assistant looked up and quoted to you",
+          "text": "A quoted paragraph includes a working link to the original article and matches it word for word.",
           "answer": 1
+        },
+        {
+          "text": "A voice clip sounds like a real person, but there is no label explaining whether it was recorded, cloned, or synthesized.",
+          "answer": 2
         }
       ],
-      "reveal": "Created things didn't exist until you asked — the AI predicted them piece by piece. Found things already existed somewhere and were retrieved. Generative AI does the first kind; browsing and search do the second."
+      "reveal": "Appearance is not provenance. A creation record or content credential can support a generation claim; a source link can support retrieval; missing evidence means the honest answer is 'origin unclear.' Even provenance tools can be incomplete, so consequential uses still need verification."
     },
     {
-      "kind": "tryLive",
-      "title": "Make something new",
-      "prompt": "Create an image of [subject], in a [style] style, with [one detail]. Make it something that probably doesn't already exist.",
-      "note": "Fill the blanks with a MADE-UP subject — never a real person, and don't upload someone's photo. Example: 'a cat wearing a tiny astronaut helmet, in a watercolor painting style, floating above a bowl of cereal.' Look near the message box for an image or 'create image' button; if you don't see one, just type the request as a sentence — most 2026 assistants make the image right in the chat. Prefer sound? Try: 'Read this sentence aloud in a calm, friendly voice: Good morning — today is going to be a good day.'"
+      "kind": "workflowChain",
+      "title": "Create without taking someone else's identity",
+      "goal": "Plan a poster concept while respecting consent, authorship, and the audience's right to know what they are seeing.",
+      "correct": [
+        "Choose an invented subject or material you have permission to use",
+        "Describe visual qualities instead of copying a living artist or real person's identity",
+        "Decide the audience, purpose, and limits",
+        "Keep the prompt, tool label, and available provenance with the result",
+        "Inspect for harmful similarity, false claims, and private details",
+        "Label generated or substantially edited media when that context matters"
+      ],
+      "choices": [
+        "Inspect for harmful similarity, false claims, and private details",
+        "Choose an invented subject or material you have permission to use",
+        "Label generated or substantially edited media when that context matters",
+        "Keep the prompt, tool label, and available provenance with the result",
+        "Describe visual qualities instead of copying a living artist or real person's identity",
+        "Decide the audience, purpose, and limits"
+      ],
+      "note": "You do not need an image generator to complete this lesson. The plan and provenance decisions you make here are the required evidence. If you use an outside tool, do not upload a real person's photo, private material, or work you lack permission to use."
+    },
+    {
+      "kind": "compare",
+      "title": "A no-generator practice path",
+      "weak": "Make a poster in the style of a living artist. It probably counts as original because my subject is new.",
+      "strong": "Plan a poster about night travel using deep blue, high contrast, wide empty space, and hand-cut geometric shapes. Use an invented subject, keep a record of the tool and prompt, check for close resemblance, and label generated media when sharing could confuse it with evidence.",
+      "why": "The stronger plan describes qualities you can direct without borrowing a person's identity. It also keeps provenance, consent, and audience context in the workflow. You can analyze and improve this plan entirely inside LearningAI."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your image recipe",
-      "cardType": "Image prompt recipe",
+      "title": "Optionally save your creation-and-origin card",
+      "cardType": "Creation and provenance plan",
       "fields": [
         {
           "key": "subject",
-          "label": "Subject (made-up, not a real person)",
-          "placeholder": "a teapot shaped like a hedgehog"
+          "label": "Invented subject or permitted material",
+          "placeholder": "a glass city under two moons"
         },
         {
-          "key": "style",
-          "label": "Style",
-          "placeholder": "watercolor, cartoon, photo-realistic, pencil sketch"
+          "key": "qualities",
+          "label": "Visual or audio qualities — not a person's identity",
+          "placeholder": "deep blue, quiet, geometric, wide empty space"
         },
         {
-          "key": "detail",
-          "label": "One detail that makes it yours",
-          "placeholder": "sitting on a stack of old books"
+          "key": "origin",
+          "label": "How I will record or check origin",
+          "placeholder": "keep the prompt and tool label; look for sources or content credentials"
         },
         {
-          "key": "novelty",
-          "label": "Novelty line",
-          "placeholder": "Make it something that probably doesn't already exist."
+          "key": "share",
+          "label": "Consent, similarity, and labeling check",
+          "placeholder": "use permitted material, inspect resemblance, label generated media when needed"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Do it on a fresh subject",
-      "question": "Generate a picture (or a spoken clip) on a BRAND-NEW subject you haven't used yet. Which one-sentence reason best shows you understand what just happened?",
+      "title": "Make the claim the evidence supports",
+      "question": "An assistant returns a convincing image for a made-up subject, but gives no source, tool label, or content credential. What is the most accurate conclusion?",
       "options": [
         {
-          "text": "This is a good sign the AI created it, because a made-up subject like this almost certainly doesn't exist online — so it had to build the picture piece by piece to match my words.",
+          "text": "The origin is unclear. I can describe the result, but I need provenance or source evidence before claiming it was generated or found.",
           "ok": true,
-          "feedback": "Right. A novel subject can't be 'found,' so a matching result is evidence the AI predicted a whole new image, not retrieved one."
+          "feedback": "Right. Novelty and appearance do not prove origin. You kept the claim inside the available evidence."
         },
         {
-          "text": "The AI clearly searched an image library and found the closest match to my description.",
+          "text": "It must be fully generated because the subject probably did not exist before.",
           "ok": false,
-          "feedback": "Not for a generated image. It learned visual patterns and predicts a new picture piece by piece — it isn't browsing a photo library."
+          "feedback": "A novel subject is not proof. The product could retrieve, edit, compose, or route through several tools. Check provenance instead of guessing."
         },
         {
-          "text": "It proves the AI can truly imagine, like a person daydreaming a scene.",
+          "text": "It must be a retrieved photograph because AI cannot make images or voices.",
           "ok": false,
-          "feedback": "'Imagine' is an analogy, not the mechanism. There's no imagining — just next-piece prediction from learned patterns until it matches your words."
+          "feedback": "AI systems can generate images and synthesize audio. The problem is not whether generation exists; it is that this result has not shown its origin."
+        },
+        {
+          "text": "If it looks good, the origin and consent questions no longer matter.",
+          "ok": false,
+          "feedback": "Quality does not answer who or what was used, whether permission existed, or how an audience may interpret the result."
         }
       ]
     }

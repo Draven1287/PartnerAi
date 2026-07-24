@@ -18,9 +18,11 @@ const js = read('v3/v3.js');
 const app = read('v2/app.js');
 const frontendServer = read('frontend-server.mjs');
 const privacy = read('privacy.html');
+const database = read('coolify-backend/db.mjs');
 
 assert.ok(html.includes('window.LEARNING_AI_PRODUCT_VERSION = \'V3\''), 'V3 must identify itself to the shared engine');
 assert.ok(html.includes('window.LEARNING_AI_FULL_FREE_ACCESS = true'), 'V3 must explicitly enable full-free access');
+assert.ok(html.includes("window.LEARNING_AI_ONBOARDING_FLOW = 'sample-first'"), 'V3 must enable the sample-first launch journey');
 assert.ok(html.includes('https://learningai4you.com/v3/'), 'V3 canonical URL must use the bare domain');
 assert.ok(!html.includes('https://www.learningai4you.com'), 'V3 must not declare www as canonical');
 assert.ok(html.includes('name="robots" content="noindex, nofollow"'), 'Preview must stay hidden from search until launch approval');
@@ -28,6 +30,28 @@ assert.ok(html.includes('../v2/v2-api.js') && html.includes('../v2/lessons.js') 
 
 assert.ok(app.includes("h('h1', null, 'All 50 lessons. Free.')"), 'V3 free-access view is missing');
 assert.ok(app.includes('No lesson is locked behind payment.'), 'V3 must state the free-access boundary clearly');
+assert.ok(app.includes("const SAMPLE_LESSON_ID = 'chapter-1'"), 'The launch journey must use lesson one as its sample');
+assert.ok(app.includes('Try the course before creating an account.'), 'The guest sample entry screen is missing');
+assert.ok(app.includes('Save lesson one and unlock the course'), 'The post-sample account gate is missing');
+assert.ok(app.includes("location.hash = SAMPLE_FIRST_FLOW && !hasAssessment() ? '#/questionnaire' : '#/'"), 'Account creation must lead to the questionnaire');
+assert.ok(app.includes('SAMPLE_FIRST_FLOW && currentUser && !hasAssessment()'), 'The questionnaire must gate full-site access');
+assert.ok(app.includes('Complete all six categories to open your dashboard'), 'The required questionnaire boundary must be explained');
+assert.ok(app.includes('await transferGuestSampleToCurrentUser()'), 'Guest lesson completion must transfer into the new account');
+assert.ok(app.includes("guestToolkit: 'learningai-v3-guest-toolkit'") && app.includes("guestInteractions: 'learningai-v3-guest-interactions'"), 'Guest notes and interaction answers must use isolated storage');
+assert.ok(app.includes("guestOwner: 'learningai-v3-guest-owner'") && app.includes('guestSampleOwnerMatchesCurrentUser()'), 'Guest work must be bound to the account that claimed it');
+assert.ok(app.includes('accountScopedKey(KEY.progress)') && app.includes('accountScopedKey(KEY.toolkit)'), 'Signed-in V3 progress and notes must be isolated per account');
+assert.ok(app.includes("accountScopedKey('learningai-v2-pending-assessment')") && app.includes('diagnosticDraftStorageKey()'), 'Questionnaire drafts and retries must be isolated per account');
+assert.ok(app.includes("accountScopedKey('learningai-v2-activity-consent')") && app.includes('readActivityConsent()'), 'Learning-activity consent must be isolated per account');
+assert.ok(app.includes('const shouldImportLocal = !SAMPLE_FIRST_FLOW && shouldImportBrowserData'), 'V3 must not import unowned legacy browser data');
+assert.ok(app.includes('I completed this sample lesson on this device.'), 'A learner must confirm ownership before importing a shared-device sample');
+assert.ok(app.includes('if (fullySaved) clearGuestSample()'), 'Guest recovery data must remain until its backend transfer succeeds');
+assert.ok(app.includes('if (guestSampleOwnerMatchesCurrentUser()) {') && app.includes('await transferGuestSampleToCurrentUser();'), 'A failed guest transfer must retry during normal account hydration');
+assert.ok(app.includes('if (SAMPLE_FIRST_FLOW) {') && app.includes('Not saved to your account yet'), 'The launch questionnaire must wait for a successful account save');
+assert.ok(app.includes('Why these six questions are required'), 'The required questionnaire must explain why its answers are collected');
+assert.ok(app.includes('Account service is temporarily unavailable.'), 'Guests must see a backend outage before starting the sample lesson');
+assert.ok(privacy.includes('requires an account and a six-category starting questionnaire'), 'Privacy must describe the real launch gate');
+assert.ok(privacy.includes('selected age range') && privacy.includes('questionnaire answers'), 'Privacy must name the questionnaire data saved to the account');
+assert.ok(app.includes('shareLearningActivity') && privacy.includes('Learning-activity sharing is off'), 'Signed-in activity tracking must be opt-in and disclosed');
 assert.ok(!app.includes('One fair purchase') && !app.includes('future subscription'), 'The obsolete payment-cycle branch must be removed, not hidden');
 assert.ok(app.includes('PRODUCT_PATH + hash.replace'), 'Analytics must use the active product path');
 assert.ok(app.includes("savePatch({ theme: 'sepia' })"), 'Settings must provide a functional sepia theme');
@@ -39,6 +63,7 @@ assert.ok(!app.includes("['under-13', 'Under 13']"), 'The 13+ product must not i
 assert.ok(app.includes('Learning AI is designed for ages 13+.'), 'The age-range control must state the 13+ scope');
 assert.ok(privacy.includes('For learners ages 13–17'), 'Privacy guidance must address the intended minor audience');
 assert.ok(privacy.includes('This course does not contain a live AI chatbot.'), 'Privacy guidance must distinguish this course from outside AI services');
+assert.ok(database.includes('const MIGRATION_VERSION = 7') && database.includes('interaction_transfer_id_unique') && database.includes('quiz_transfer_id_unique'), 'Guest-answer retries need database-enforced idempotency');
 const exitSuccessCall = "e.target.classList.add('right'); fb.textContent = '✓ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: true, feedback: o.feedback }); ctx.unlock();";
 assert.equal(app.split(exitSuccessCall).length - 1, 1, 'A correct exit check must be recorded exactly once');
 assert.ok(frontendServer.includes("const CANONICAL_HOST = String(process.env.CANONICAL_HOST"), 'Frontend must accept an explicit canonical host');

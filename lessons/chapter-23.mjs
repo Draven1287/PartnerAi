@@ -7,7 +7,7 @@ export default {
   "arc": "Prompting Craft",
   "title": "Show, Don't Tell",
   "coreQuestion": "Why does pasting one example of the style you want beat describing that style in words?",
-  "blurb": "Stop describing the style you want. Paste one real sample and say \"more like this.\"",
+  "blurb": "Choose a safe sample that represents the style you want, then compare the result and decide what still needs your voice.",
   "minutes": 9,
   "resources": [],
   "steps": [
@@ -45,8 +45,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run the one-shot prompt",
-      "prompt": "Here is an example of the style I want:\n[paste one real example - a caption you liked, a sentence, a list shaped the right way]\nNow write [the new thing you need] in that same style. Match the tone, length, and shape, not the topic.",
-      "note": "Keep the pasted example short. Try it once with only a word-description of the style, then again with the pasted example - put the two answers side by side. The example-driven one is almost always closer."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use an example you wrote yourself or an invented sample. Do not paste a friend's private message, personal data, or a long copyrighted passage. Here is my safe example:\n[short self-written sample]\nNow write [the new thing] with a similar tone, length, and shape without copying phrases or pretending to be a real person.",
+      "note": "Compare a words-only request with the safe-example request. Judge tone, rhythm, and structure separately. If it copies phrases, repair the prompt: 'Keep the structure, but use completely new wording.'"
     },
     {
       "kind": "toolkitSave",
@@ -73,22 +73,22 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Prove it on a fresh style",
-      "question": "Pick a style you did NOT use above - paste one text a friend sent that you found funny, then ask the AI to write a DIFFERENT message (say, a dinner invite) in that same voice. What tells you you've passed?",
+      "question": "Fresh scenario: you wrote a two-line playful event caption and want an original caption for a different event with the same pacing. Which result shows responsible style transfer?",
       "options": [
         {
-          "text": "The new message clearly matches the example's tone or shape - visibly closer than a words-only description got you.",
+          "text": "The new caption has similar pacing and energy, uses new wording, fits the new event, and does not pretend to be another person.",
           "ok": true,
-          "feedback": "Yes. The test is doing the skill: a new item, different topic, same voice as your one example. If it misses, paste a second example and notice whether two beat one."
+          "feedback": "Yes. You transferred observable features without copying phrases or impersonating someone."
         },
         {
-          "text": "The AI used the exact same words and topic as the friend's text.",
+          "text": "The new caption keeps the opener and closing phrase exactly, but changes the middle and fits the new event.",
           "ok": false,
-          "feedback": "No - you want the same tone and shape on a DIFFERENT topic, not a copy of the original text."
+          "feedback": "It fits the new task, but repeating signature phrases is copying rather than learning the broader pattern. Ask for fresh wording."
         },
         {
-          "text": "You wrote a longer, more detailed word-description of the funny voice.",
+          "text": "The new caption sounds generally playful, but you cannot name which feature came from the example.",
           "ok": false,
-          "feedback": "That's the move we're replacing. The whole point is to show one example instead of describing it in more words."
+          "feedback": "The output may be usable, but it does not show controlled transfer. Name the pacing, structure, or tone you meant to carry over."
         }
       ]
     }

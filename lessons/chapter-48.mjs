@@ -6,21 +6,21 @@ export default {
   "num": 48,
   "arc": "Becoming a Builder",
   "title": "Teach Someone Else",
-  "coreQuestion": "How do I know I truly understand something about AI?",
-  "blurb": "The hardest test of understanding: explain one AI idea to a real person, out loud.",
+  "coreQuestion": "How do I know I can explain an AI idea clearly, accurately, and in my own words?",
+  "blurb": "Teach one idea by writing, private recording, simulation, or an optional willing listener — the evidence standard stays the same.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The test you can't fake",
-      "scenario": "You've learned a lot in this course. But here's a question: could you explain any of it to your dad, your roommate, or a nervous friend in under two minutes, out loud, with no jargon? Not read it back. Explain it so they get it.",
-      "prompt": "Before you read on: which ONE thing you learned would you most want a real friend to know about AI? Say it in a single sentence, right now."
+      "title": "The explanation you can defend",
+      "scenario": "You've learned a lot in this course. But could you explain one idea in under two minutes, with no jargon, then answer a reasonable challenge? You can prove that privately in writing, in a recording only you keep, with a simulated learner, or with a willing person. Another person's availability is never the test.",
+      "prompt": "Before you read on: which ONE thing you learned would you most want someone to understand about AI? Write or say it in a single sentence, right now."
     },
     {
       "kind": "reveal",
       "title": "If you can teach it, you own it",
-      "body": "Teaching is the hardest test of understanding you can pass. You don't need to be an expert to do it. You only need to be one step ahead of the person in front of you, and after this course, you are. The thing you're teaching about is a tool that learned patterns from huge amounts of human writing and predicts what words come next. That's the honest core mechanism. Teach THAT, not a put-down and not magic.",
+      "body": "Teach-back can reveal whether you understand, and four equivalent routes count: (1) write a short explanation and answer a simulated challenge, (2) make a private voice or video recording that you do not upload, (3) explain to a fictional learner in a built-in simulation, or (4) teach a willing person. In every route, state one accurate idea, one limitation, one checked example, and one choice the learner keeps. If you involve a person, ask first, make stopping easy, use a made-up example, and never enter their identity or response into an outside assistant. Correction is useful evidence, not failure.",
       "mistake": "Telling yourself: 'I'm still a beginner, so I'm not qualified to teach anyone anything yet.' Or teaching a caricature: 'it just autocompletes' (sells short how capable it is) or 'it thinks like a person' (it doesn't).",
       "good": "Pick one true idea and explain it plainly to someone one step behind you: 'AI predicts the most likely next words from patterns in human writing, so it can sound completely sure and still be wrong. Double-check anything that matters.'"
     },
@@ -58,48 +58,58 @@ export default {
     },
     {
       "kind": "tryLive",
-      "title": "Boil it down, then rehearse",
-      "prompt": "Help me teach [the one thing I learned] to [who I'm teaching, in their words] in under 2 minutes. Give me: (1) a dead-simple explanation in plain words with no jargon, (2) one tiny example they can try themselves right now, and (3) an honest one-line caution if there is one. Then act as [that same person] and ask me the single question they'd most likely throw back, so I can practice my answer before I teach them for real.",
-      "note": "Fill the blanks with a real person. Example: [the one thing] = 'AI guesses the next word from patterns, so it can be confident and wrong'; [who I'm teaching] = 'my dad, 64, who thinks AI is either magic or a scam and gets impatient with tech.' Heads up: when the AI plays your 'student,' that's a role-play, a comparison. What's really happening is it's predicting the kind of question a person like that usually asks. Useful for rehearsal, but the REAL human later is the whole point."
+      "title": "Choose a teach-back route",
+      "prompt": "I will prove my understanding using [private writing / a private recording I keep on my device / a simulated learner / an optional willing listener]. The one AI idea is: [idea]. Help me plan a two-minute explanation with (1) plain words, (2) one invented example, (3) one honest limitation, and (4) one choice the learner keeps. Then give me one skeptical but fair challenge. I will answer it in my own words and correct my explanation if needed.",
+      "note": "All four routes meet the same requirement. No live person, upload, account, or outside assistant is required. If you record yourself, keep it private and delete it when you are done if you prefer. If you choose a listener, ask permission and never record or paste their response."
     },
     {
       "kind": "workflowChain",
-      "title": "From idea to a real person",
-      "goal": "Teach one real, live person one AI idea before you close this lesson.",
+      "title": "From idea to defensible explanation",
+      "goal": "Teach one AI idea through the private, simulated, or optional live route that works for you.",
       "correct": [
         "Pick the ONE thing you'd most want a friend to know (one idea, not five).",
-        "Name the actual person you'll teach and how they think about AI.",
-        "Use the prompt to boil it down to a 2-minute plain-language explanation with one tiny try-it example.",
-        "Rehearse on the AI playing your 'student' and answer the question it throws back.",
-        "Teach the real human, out loud, in person, on a call, or by text.",
-        "Write down the real question they actually asked you."
+        "Choose an equivalent route: private writing, private recording, simulated learner, or optional willing listener.",
+        "Explain it in plain language with one invented example, one limitation, and one choice the learner keeps.",
+        "Answer one skeptical but fair challenge in your own words.",
+        "Correct anything unclear or inaccurate, then give the explanation one more time.",
+        "Save only the idea you clarified and the correction — never another person's identity or private response."
       ],
-      "note": "The AI 'student' is just a rehearsal partner. Step 5 is the point: a real person, not the AI."
+      "note": "The evidence is the same in every route: an accurate explanation, a limitation, an answered challenge, and a correction when needed. Social access and confidence are not course requirements."
+    },
+    {
+      "kind": "toolkitSave",
+      "title": "Save your two-minute teaching plan",
+      "cardType": "Teach-back plan",
+      "fields": [
+        { "key": "idea", "label": "The one accurate idea", "placeholder": "One thing the listener should understand" },
+        { "key": "limit", "label": "The limitation I will name", "placeholder": "Where the AI can be wrong or needs checking" },
+        { "key": "choice", "label": "The choice the listener keeps", "placeholder": "What they decide, verify, or refuse to share" }
+      ]
     },
     {
       "kind": "exitCheck",
-      "title": "Did a real human engage?",
-      "question": "You've taught your idea. How do you know you passed the toughest test in the course?",
+      "title": "Can your explanation survive a question?",
+      "question": "Which result is strong evidence of understanding without making another person's participation a requirement?",
       "options": [
         {
-          "text": "A real, live person asked me a question I did NOT rehearse an answer for, and I can write that question down.",
+          "text": "Using a private written, recorded, simulated, or willing-listener route, I stated the idea and limitation, answered a fair challenge with a checked example, and corrected one unclear part without storing anyone else's identity.",
           "ok": true,
-          "feedback": "Yes. An unrehearsed question from a real human is proof someone actually engaged with your idea. Bonus if they tried your tiny example, or can now repeat the idea in their own words. That's ownership."
+          "feedback": "Yes. The route can be private or social; the evidence is your accurate explanation, checked example, response to challenge, and correction."
         },
         {
-          "text": "The AI 'student' asked me a great question and I answered it well.",
+          "text": "A simulated learner rated my explanation as clear, so I skipped checking the factual core.",
           "ok": false,
-          "feedback": "That's rehearsal, not the test. The AI predicts the question a person like that usually asks. You still need to teach a real, live human before you close this lesson."
+          "feedback": "A clarity rating is not a fact-check. Simulation is a valid route, but you still must verify the core idea and answer the challenge in your own words."
         },
         {
-          "text": "I could explain it perfectly in my head without saying it out loud.",
+          "text": "I copied a polished explanation without answering a challenge or revising any part myself.",
           "ok": false,
-          "feedback": "Explaining it in your head is easy to fake. The test is teaching it out loud to a real person and having them engage back."
+          "feedback": "Polish is not ownership. Answer one fair challenge and revise the explanation in your own words."
         },
         {
-          "text": "I read my explanation aloud to myself twice.",
+          "text": "I taught an accurate idea, but used the person's private situation as the example without asking permission.",
           "ok": false,
-          "feedback": "Reading it back isn't teaching. You need a real person one step behind you who asks you something you didn't plan for."
+          "feedback": "The explanation may be accurate, but the method crossed a privacy and consent boundary. Use an invented example and ask permission first."
         }
       ]
     }

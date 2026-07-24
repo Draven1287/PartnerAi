@@ -7,27 +7,27 @@ export default {
   "arc": "Becoming a Builder",
   "title": "Agents and Permissions",
   "coreQuestion": "When AI can act for you, how do you stay in charge of what it's allowed to see and do?",
-  "blurb": "Give an agent the smallest access it needs, a stop-sign before anything it can't undo — and keep watching.",
+  "blurb": "Practice least privilege in a fixed capability-matrix exercise: technical controls first, prompt promises second, and no real accounts required.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "\"I can clean up your files for you\"",
-      "scenario": "An agent offers to tidy your computer. An agent isn't just a chatbot that answers — it takes several steps toward a goal on its own: it can plan, browse the live web, use tools, and act, checking itself as it goes. In 2026, real assistants genuinely do this. So this offer is helpful — or one wrong move from deleting a folder you wanted to keep.",
+      "scenario": "A fictional agent offers to tidy a practice folder. Unlike a chatbot that only answers, an agent can take several steps and use tools. This exercise shows five possible powers. Your job is not to trust its promise; it is to decide which powers a real system should technically allow.",
       "prompt": "Before you read on: the real question isn't \"is this agent smart?\" It's \"what can it actually reach?\" What would you want to know it CAN'T touch before you let it start?"
     },
     {
       "kind": "agentDesign",
-      "title": "Which powers does this agent actually need?",
-      "goal": "You want an agent to tidy and rename the photos in one folder called 'Trip 2026' so you can find them later. Give it the smallest access that still gets the job done — pick the tools it needs and reject the ones that reach too far.",
+      "title": "Set the capability matrix",
+      "goal": "In a fixed simulation, an agent may organize six invented files inside a practice folder called 'Demo Trip.' Select the smallest technical capabilities that allow reversible renaming and grouping. No real folder is connected.",
       "tools": [
         {
-          "name": "Read the file names inside the 'Trip 2026' folder",
+          "name": "Read the six invented filenames inside 'Demo Trip'",
           "useful": true
         },
         {
-          "name": "Rename files and make new subfolders inside that folder",
+          "name": "Preview reversible renames and proposed subfolders inside 'Demo Trip'",
           "useful": true
         },
         {
@@ -39,58 +39,78 @@ export default {
           "useful": false
         },
         {
-          "name": "Move files out of 'Trip 2026' to somewhere else",
+          "name": "Move files out of 'Demo Trip' to somewhere else",
           "useful": false
         }
       ],
-      "note": "Least access: grant only what the task needs. Deleting and moving are irreversible — those belong on the ask-first list, not handed over up front. Reading your whole computer is scope it never needed."
+      "note": "This is a capability matrix, not a prompt. Least privilege means the system cannot perform powers you did not select. The practice agent never receives real folder, photo, email, or account access."
     },
     {
       "kind": "reveal",
       "title": "Least access + a stop-sign you can see",
-      "body": "Before handing an agent any task, ask three questions: What can it SEE? What can it CHANGE? What must it NEVER do without asking me first? Write those as three lines and paste them at the top of the task. That's the rule: least access, plus review before anything irreversible. People picture this like a leash on a strong, eager dog — but that's a comparison, and here's what's really happening: there's no dog and no obedience. The \"leash\" is just words you wrote at the top of the prompt. The agent follows them because they're instructions, not because it's locked in — and the wording isn't guaranteed to hold every time. Your real safety is that you stay watching the steps as they happen, and you can stop it. And note: even in 2026, agents that browse and use tools still make mistakes and still make things up — watching is not optional.",
+      "body": "Before handing an agent a task, decide what it may SEE, what it may CHANGE, and what requires ASK-FIRST approval. Written instructions help, but they are not a permission lock. Use actual app or operating-system permissions when available, start with a dry run on invented files, keep a visible action log, and require human approval before sending, posting, spending, deleting, overwriting, moving, or sharing. Privacy rule: do not connect an outside agent to real accounts, messages, contacts, photos, or files just to complete this lesson; data and access can leave LearningAI. If you cannot see or revoke a permission, do not grant it.",
       "mistake": "Giving the agent full access and hoping it behaves, then walking away while it runs.",
-      "good": "Writing three lines — SEE, CHANGE, ASK-FIRST — pasting them at the top of the task, and staying at the screen to watch each step."
+      "good": "Limiting the real capability scope, previewing changes in a sandbox, requiring approval, keeping a log, and refusing the run when those controls are unavailable."
     },
     {
-      "kind": "tryLive",
-      "title": "Hand over a real task with written limits",
-      "prompt": "Act as an agent for this task: [the task, e.g. tidy and rename the photos in one folder so I can find them later]. Follow these limits exactly.\nYou may SEE: [the smallest scope that still works, e.g. only the folder named 'Trip 2026' — nothing else on my computer].\nYou may CHANGE: [what it can edit or create, e.g. rename files and make new subfolders; don't change what's inside any photo].\nYou must ASK ME FIRST before: [the irreversible or sensitive actions, e.g. deleting any file, or moving files out of that folder].\nWork in steps. Before each step, tell me what you're about to do. If a step needs anything outside these limits, stop and ask me instead of doing it. If I type 'Pause,' stop immediately and wait for new instructions.",
-      "note": "Fill the brackets for a task you'd really hand over. Then, partway through, type \"Pause — change of plan\" and redirect it. Watch two things: does it stop at your ask-first line, and does it obey the Pause?"
+      "kind": "classify",
+      "title": "Control or promise?",
+      "prompt": "Sort each protection. A technical control prevents or blocks an action. A prompt promise only asks the model to behave and cannot prove the action is impossible.",
+      "buckets": [
+        "Technical control or observable evidence",
+        "Prompt promise only"
+      ],
+      "items": [
+        { "text": "A real sandbox exposes only six invented filenames and has no connection to the rest of the device", "answer": 0 },
+        { "text": "The instruction says, 'Please do not look anywhere else'", "answer": 1 },
+        { "text": "Rename actions appear in a preview log and cannot apply until a person approves", "answer": 0 },
+        { "text": "The agent says, 'I promise I will pause before deleting'", "answer": 1 },
+        { "text": "Delete is absent from a product's enforced capability matrix and its sandbox has a tested reset", "answer": 0 }
+      ],
+      "reveal": "Prompts can communicate intent, but they are not technical permissions. Strong evidence comes from scoped capabilities, a visible preview or log, a human approval gate, revocation, and rollback. If a product cannot show those controls, use the simulation and do not give it real access."
     },
     {
       "kind": "workflowChain",
-      "title": "The order that keeps you in charge",
-      "goal": "Safely hand a folder-tidying task to an agent and stay in control the whole way through.",
+      "title": "Design the order that keeps you in charge",
+      "goal": "Plan a contained 'Demo Trip' run without pretending this lesson has access to a real agent, log, pause button, or filesystem.",
       "correct": [
-        "Ask the three questions: what can it SEE, CHANGE, and never do without asking?",
-        "Write those as three lines and paste them at the top of the task",
-        "Run the task and watch each step it announces",
-        "When it hits an ask-first action, confirm it stops and waits for you",
-        "Partway through, type 'Pause' and redirect it to test that you can steer",
-        "If it slipped past either check, tighten the wording and rerun"
+        "Inspect the capability matrix and select only read-in-sandbox and preview-rename powers",
+        "Reject delete, whole-device reading, and moving anything outside the invented folder",
+        "Write the controls a real product would need before use: dry-run preview, action log, approval gate, Pause, revocation, and rollback",
+        "Check the real product interface and documentation for those controls instead of assuming the prompt creates them",
+        "If any required control or evidence is missing, keep the task as a paper design and do not connect a real account or folder"
       ],
-      "note": "The limits come BEFORE you run, not after something goes wrong. These written rules are best-effort, not a locked gate — an agent can occasionally slip past one, which is exactly why watching and the Pause come last and never leave."
+      "note": "The capability-matrix and planning exercise are the complete required practice. They teach what to demand from a real product; they do not claim that LearningAI executed or verified those controls."
+    },
+    {
+      "kind": "toolkitSave",
+      "title": "Save your permission boundary",
+      "cardType": "Agent permission plan",
+      "fields": [
+        { "key": "see", "label": "The smallest thing it may see", "placeholder": "Only the practice folder or invented drafts" },
+        { "key": "change", "label": "The smallest thing it may change", "placeholder": "Only reversible edits inside the sandbox" },
+        { "key": "ask", "label": "Actions that always require approval", "placeholder": "Send, post, buy, delete, move, or share" }
+      ]
     },
     {
       "kind": "exitCheck",
       "title": "Prove it on a fresh task",
-      "question": "Take a task you haven't used yet — \"draft replies to three emails in my drafts folder\" — and hand it to an agent. What makes you PASS?",
+      "question": "For a different proposed task — drafting replies to three made-up messages without sending — which setup is safe enough to test in a real sandbox?",
       "options": [
         {
-          "text": "You write fresh SEE / CHANGE / ASK-FIRST limits (SEE: only those three drafts; CHANGE: write reply text; ASK FIRST: sending any email or opening any other message), the agent stops at your ask-first line, AND it halts and changes course when you type 'Pause.'",
+          "text": "The product can enforce access to only three invented drafts, preview draft-only changes in a visible log, technically block sending pending approval, pause the run, revoke access, and reset the sandbox.",
           "ok": true,
-          "feedback": "That's it — you set the limits in writing before it ran, and you proved you can stop and steer it mid-run. If it sailed past either check, tighten the wording and rerun until both hold, and keep watching the steps."
+          "feedback": "That setup has the enforceable scope, observable record, human stop, revocation, and rollback the task needs. Prompt wording alone would not create those controls."
         },
         {
-          "text": "The agent finished all three replies quickly and didn't bother you with any questions.",
+          "text": "The replies are accurate and the agent says it followed the prompt, but there is no visible permission scope or action log.",
           "ok": false,
-          "feedback": "Speed with no stops is the warning sign, not the win. If it never paused at an ask-first line, your limits weren't holding — tighten them and check that it stops before anything you can't undo."
+          "feedback": "Accurate output is not permission evidence. Without visible scope and a log, you cannot confirm what it reached or changed. Keep it in the sandbox and tighten real permissions."
         },
         {
-          "text": "You gave it full access to your whole inbox so it wouldn't get stuck, and trusted it to behave.",
+          "text": "You gave temporary full inbox access because the prompt clearly said not to send anything.",
           "ok": false,
-          "feedback": "That's the exact misconception to drop. You never have to hand over the keys to everything — set the smallest scope in writing first, and stay watching."
+          "feedback": "A prompt promise does not reduce technical access. Keep the task in the fixed simulation unless the product can enforce least privilege, approval, logging, revocation, and rollback."
         }
       ]
     }

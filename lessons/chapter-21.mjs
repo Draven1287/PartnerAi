@@ -27,9 +27,10 @@ export default {
     {
       "kind": "classify",
       "title": "Which dial is this?",
-      "prompt": "Each phrase turns one dial. Sort it: is it changing the ROLE (tone/emphasis) or the FORMAT (shape on the page)?",
+      "prompt": "Each phrase turns one dial. Sort it by what it changes: role, audience, or format.",
       "buckets": [
         "Role",
+        "Audience",
         "Format"
       ],
       "items": [
@@ -39,7 +40,7 @@ export default {
         },
         {
           "text": "as a numbered checklist",
-          "answer": 1
+          "answer": 2
         },
         {
           "text": "reply as a calm HR person",
@@ -47,18 +48,22 @@ export default {
         },
         {
           "text": "in the form of a do / don't list",
-          "answer": 1
+          "answer": 2
         },
         {
-          "text": "answer as a hype sports coach",
-          "answer": 0
+          "text": "for a first-time renter who does not know the vocabulary",
+          "answer": 1
         },
         {
           "text": "give it to me as a short table",
+          "answer": 2
+        },
+        {
+          "text": "for someone repairing a bike with basic tools",
           "answer": 1
         }
       ],
-      "reveal": "Role changes the voice and what gets emphasized; format changes the shape on the page. They're independent — you can pair a strict examiner's voice with a checklist, or a hype coach's voice with a table."
+      "reveal": "Role changes voice and emphasis. Audience changes assumed knowledge and examples. Format changes the shape on the page. You can combine them, but test one change at a time when you want to know what helped."
     },
     {
       "kind": "compare",
@@ -70,8 +75,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Combine all three on purpose",
-      "prompt": "Answer as a [role], written for [audience], in the form of a [format]: [your question].\n\nWorked example, ready to paste: Answer as a patient driving instructor, written for someone who has never driven, in the form of a numbered checklist: how do I parallel park?",
-      "note": "Now that you've felt each dial alone, turning all three together is a choice, not a guess. Safety note: for real health, money, or legal questions, treat the answer as a starting point and check with a qualified person before you act."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a harmless or invented question; do not paste names, private messages, health details, account information, or another person's data. Answer as a [role], written for [audience], in the form of a [format]: [your question].",
+      "note": "Try a public, low-stakes task such as explaining a game rule, comparing repair steps, or writing an invented event notice. For real health, money, or legal questions, take the facts to a qualified person before acting."
     },
     {
       "kind": "toolkitSave",

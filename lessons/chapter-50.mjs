@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "A kit, not a pile of tricks",
-      "body": "Everything you built across this course isn't a pile of separate tricks — it's a kit. And a kit is only real when it lives on one page you can open and use on a task you've never seen before. Your four pieces: (1) your one-sentence RULE for staying in charge, (2) your PROMPT LIBRARY, the patterns you kept, (3) your WORKFLOW, your saved way of working, and (4) your BOUNDARIES, the lines you won't cross. One thing hasn't changed since lesson one: today's assistants browse the web, use tools, and remember across chats — but they still predict the most likely next words from patterns in human writing, and they still invent confident-sounding things. That's exactly why your boundaries stay in the kit: AI helps you prepare, but for health, money, or safety decisions a real professional decides — and AI is not a friend or a therapist. If you're ever in crisis, reach a person, not a chatbot (in the US, call or text 988).",
+      "body": "Everything you built is a personal operating system, not a pile of tricks. Keep six pieces on one page: your rule, reusable prompts, workflow, privacy and permission boundaries, human-approval stops, and evidence or disclosure record. Before an outside assistant sees the page, remove names, private examples, account details, confidential material, and another person's information; data entered there leaves LearningAI. Test on invented material first. AI may prepare or draft, but you approve anything sent, posted, spent, deleted, or used to affect a person. Verify claims with independent sources and disclose AI help when a reader, collaborator, customer, teacher, or policy reasonably needs to know. Health, money, legal, and safety decisions stay with an accountable professional. In a crisis, reach a person or local emergency support, not a chatbot.",
       "mistake": "Closing the course and trusting your memory to hold fifty lessons' worth of moves.",
       "good": "Gathering your four pieces onto one saved page, then running it on a real task the same day."
     },
@@ -63,8 +63,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Assemble it, then get tested",
-      "prompt": "Help me assemble my personal AI toolkit, then test it. Here are my four pieces. My one-sentence rule: [your rule]. My prompt library: [your saved prompts]. My personal workflow: [your workflow steps]. My boundaries: [your lines]. First, organize these into one clean, labeled page I can keep and reuse. Then give me ONE realistic task I have not done before — about [an area of my life] — that forces me to use at least three of these tools together. Don't solve it for me; hand me the task and tell me which three tools it should exercise.",
-      "note": "Fill every bracket with your own words — if a piece feels thin, jot a quick version now instead of skipping it. Example area: 'my schoolwork,' 'my job,' 'planning a family trip,' 'sorting my mail and bills.'"
+      "prompt": "Help me organize this redacted personal AI operating system: rule [rule]; reusable prompts [prompts]; workflow [steps]; privacy and permission limits [limits]; human-approval stops [stops]; evidence and disclosure record [record]. Do not add permissions or private examples. Then give me one invented task in [a broad area] that uses at least three pieces. Do not solve it. Ask me to name the consequence, permission boundary, approver, evidence, and disclosure before I begin.",
+      "note": "Use your own words but remove all identifying or confidential details. Broad areas include a community event, repair, game, creative project, household plan, shift task, or study task. Test with invented data. The assistant can organize the page and pose a challenge; your decisions and recorded evidence are the proof."
     },
     {
       "kind": "toolkitSave",
@@ -104,24 +104,24 @@ export default {
       "question": "You ran the AI-handed task using your tools. Which result means you've actually passed — not just answered a quiz?",
       "options": [
         {
-          "text": "I completed the new task using at least three of my own tools at once, and I can name them — 'I used my rule, my draft-and-critique workflow, and my no-private-info boundary.'",
+          "text": "I completed a fresh invented task using at least three pieces, and can show the permission boundary, human approval point, independently checked evidence, and any disclosure the real version would need.",
           "ok": true,
           "feedback": "That's graduation. You didn't recall a fact — you did the skill on a task you'd never seen, with your own kit. Now pick your next track: Business & Work, School & Study, Creative, Everyday Life, or Builder / Maker. Take one first step in it."
         },
         {
-          "text": "I read my toolkit page over carefully and it looks complete.",
+          "text": "I tested three prompts and the outputs were consistent, but did not define what the tool may access or who approves an external action.",
           "ok": false,
-          "feedback": "A tidy page isn't the finish line. The kit is only real once you run it on a genuinely new task and can point to the three tools you used."
+          "feedback": "Consistent output does not show safe operation. Add least access, a named human approver, and a record of what happened on a fresh test."
         },
         {
-          "text": "I asked the AI to grade my toolkit and it said it looked great.",
+          "text": "I asked the AI to audit the toolkit and accepted its report because it included citations and a high confidence score.",
           "ok": false,
-          "feedback": "The AI's praise is just predicted next words — it can't verify you used the tools. The proof is you doing the task and naming the three tools yourself."
+          "feedback": "An AI-generated audit can suggest checks, but its confidence and citations are not the evidence. Open sources and test the operating controls yourself."
         },
         {
-          "text": "I memorized the names of my four pieces so I can list them.",
+          "text": "I solved the task and verified one claim, but would let the workflow post or send the result automatically next time.",
           "ok": false,
-          "feedback": "Naming the parts is trivia. Passing is performance: solve a new task using three tools together, then say which three."
+          "feedback": "Verification is strong, but automatic posting removes the approval boundary. Keep a human stop before any external action."
         }
       ]
     }

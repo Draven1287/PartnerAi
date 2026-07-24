@@ -64,6 +64,20 @@ export default {
       "why": "Same AI, same engine. The strong prompt just narrowed what it had to predict. Every part you added removed a whole cloud of answers that were about someone else."
     },
     {
+      "kind": "promptRepair",
+      "title": "Repair a vague request without oversharing",
+      "weak": "Make this better. Here is the whole private message thread and everybody's names.",
+      "fields": ["goal", "needed context", "constraints", "format"],
+      "strong": "Help me [goal]. The non-private context you need is [needed context]. Keep these limits: [constraints]. Return it as [format]. Do not invent missing facts; ask one question if needed."
+    },
+    {
+      "kind": "reveal",
+      "title": "Optional outside test: send only what the task needs",
+      "body": "If you choose to test your repaired prompt in an outside assistant, the data leaves LearningAI. Replace real names, schools, workplaces, account details, health information, exact locations, and private messages with invented placeholders. The built-in repair above is the required evidence; outside use is optional.",
+      "mistake": "Adding sensitive detail because more context sounds automatically better.",
+      "good": "Add relevant context, not personal exposure."
+    },
+    {
       "kind": "tryLive",
       "title": "Rebuild your own, one part at a time",
       "prompt": "Goal: [what you want to achieve, stated as a doing]. Context: [who you are and your situation]. Constraints: [your limits and must-haves]. Format: [the shape you want the answer in]. Write the answer, then tell me in one line which part of my request shaped it most.",

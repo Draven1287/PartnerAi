@@ -28,6 +28,10 @@ CORS_ORIGINS=https://<frontend-generated-domain>,https://learningai4you.com,http
 ADMIN_CORS_ORIGINS=https://<frontend-generated-domain>,https://learningai4you.com,https://www.learningai4you.com
 BUILD_SHA=${{RAILWAY_GIT_COMMIT_SHA}}
 ENFORCE_COURSE_ACCESS=false
+TRUST_PROXY=1
+PUBLIC_WEB_ORIGIN=https://learningai4you.com
+RESEND_API_KEY=<Railway secret>
+PASSWORD_RESET_FROM=LearningAI <account@learningai4you.com>
 ```
 
 Keep `ENFORCE_COURSE_ACCESS=false` until signed checkout, webhook, duplicate-event, refund, and entitlement-restoration tests pass.
@@ -55,9 +59,12 @@ domain, or the redirect could send visitors to a TLS error.
 ## Release order
 
 1. Deploy PostgreSQL.
-2. Deploy API and verify `/health` reports `ok: true` and healthy database state.
+2. Deploy API and verify `/health` reports `ok: true`, healthy database state,
+   and `passwordResetEmailConfigured: true`. Verify the sending domain in
+   Resend before using the `PASSWORD_RESET_FROM` address.
 3. Set the frontend's `API_INTERNAL_URL` to the backend's private Railway URL.
-4. Deploy frontend and verify `/health`, `/v2/`, signup, sign-in, curriculum, progress, and evidence writes.
+4. Deploy frontend and verify `/health`, `/v2/`, signup, sign-in, password
+   reset, curriculum, progress, and evidence writes.
 5. Verify `/api/health` through the frontend's generated domain.
 6. Run the launch audit at 390, 768, 1024, and 1440 widths.
 7. Attach both custom domains and update DNS. Repair bare-domain TLS first,
@@ -65,3 +72,13 @@ domain, or the redirect could send visitors to a TLS error.
    to the bare domain.
 8. Verify TLS, CORS, sessions, account separation, and rollback.
 9. Remove V2 `noindex` only after the custom domains pass.
+
+Before deploying, run the committed-release check:
+
+```bash
+RELEASE_REQUIRE_COMMITTED=1 node tools/check-railway-package.mjs
+```
+
+This stricter mode verifies that every required runtime file exists in `HEAD`,
+not only in the staging index. Railway cannot deploy local or merely staged
+files.

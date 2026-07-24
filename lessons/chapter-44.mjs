@@ -14,7 +14,7 @@ export default {
     {
       "kind": "coldOpen",
       "title": "The third time this week",
-      "scenario": "It's Thursday. For the third time this week you're typing out the same request to your AI: 'Take these meeting notes and pull out the action items, one per line, with who owns each and any deadline.' Same instructions, new notes, every single time. Your fingers are tired of it.",
+      "scenario": "For the third time this week you type the same request: turn a grocery plan, game-night log, repair checklist, shift handoff, or meeting notes into the same useful format. Same instructions, new material, every time.",
       "prompt": "Before you read on: what part of that request actually changes each time you send it? And what part stays exactly the same?"
     },
     {
@@ -52,7 +52,7 @@ export default {
     {
       "kind": "reveal",
       "title": "A workflow is a prompt you only write once",
-      "body": "A workflow is a recurring task written down once as numbered steps, with a single blank you fill in each run. Next time you don't re-explain everything — you swap the one detail that's different. Honest about the mechanism: the AI does NOT store or remember your workflow. It learned patterns from huge amounts of human writing and predicts the most likely next words, so each run it just re-reads the whole thing you paste. The saving and reusing happens on YOUR side — a reusable note you keep — which is exactly why pasting the same steps with a new input works every time. (Terms, plainly: a 'workflow' here is just saved numbered steps; an 'input slot' is the one blank you fill in.)",
+      "body": "A workflow is a recurring task written once as numbered steps with a clear input slot. Reuse saves effort, but repetition can also repeat a bad assumption or privacy mistake. Before an outside assistant sees an input, remove real names, addresses, schedules, contact details, account information, private messages, confidential documents, and another person's data. Data entered there leaves LearningAI; invented inputs work. Add an approval step before anything is sent, posted, booked, deleted, purchased, or used to judge a person. The assistant produces a draft result; you inspect and approve each run.",
       "mistake": "Retyping the full request from scratch every time, re-explaining the same instructions you've already explained ten times.",
       "good": "Write the fixed instructions once as numbered steps, mark the one changing detail as [INPUT], and reuse it — filling only that blank."
     },
@@ -65,8 +65,8 @@ export default {
         "Separate the part that NEVER changes (the steps) from the part that ALWAYS changes (the one input).",
         "Write the fixed part as numbered steps that would make sense for ANY input, not just today's.",
         "Mark the single changing detail clearly as [INPUT].",
-        "Run it once on a real input to check the steps work.",
-        "Run it AGAIN, unchanged, on a totally different input of the same kind to prove it's reusable."
+        "Run it once on a redacted or invented input and inspect the output against your good-enough rule.",
+        "Run it again on a different input, then add human approval before any external or irreversible action."
       ],
       "note": "The proof is the second run. If you only had to change the INPUT slot and both answers came back the same shape, you built a workflow, not just a prompt. If you found yourself rewriting a step, that step was secretly part of the input — move it into the slot."
     },
@@ -74,7 +74,7 @@ export default {
       "kind": "tryLive",
       "title": "Run your own workflow twice",
       "prompt": "This is a saved workflow I'll reuse. Follow these numbered steps every time, in order. Only the INPUT changes each run.\nSteps:\n1. [step 1 — what to do first]\n2. [step 2 — what to do next]\n3. [step 3 — how to format or finish]\nOutput format: [what the answer should look like]\nINPUT: [paste the one thing that changes this run]",
-      "note": "Fill the three steps with instructions that stay the same on every run (e.g. '1. Read the notes below. 2. Pull out every decision and to-do as a separate line. 3. Add who owns each and any deadline.'). Run it once on a real input. Then clear only the INPUT slot, drop in a completely different example of the same kind, and run the exact same thing again. If a doctor's or bank's email is your input, use AI only to understand the wording — confirm any real medical or money decision with the doctor or bank, not the AI."
+      "note": "Use redacted or invented inputs first. Replace names with roles and remove private or confidential details. Run it twice, compare both outputs with the same success rule, and add 'STOP FOR MY APPROVAL' before any send, post, booking, deletion, purchase, or decision about a person. For medical, money, legal, or safety material, use AI only to prepare questions and confirm decisions with an accountable professional."
     },
     {
       "kind": "toolkitSave",
@@ -114,12 +114,12 @@ export default {
           "feedback": "Yes. The second run on a fresh input is the proof. If you only swapped the INPUT and both answers came back the same shape, you built a workflow."
         },
         {
-          "text": "Ask the AI to remember the workflow so you never have to paste it again.",
+          "text": "Save the workflow in an assistant's memory and assume future inputs will stay inside the same privacy boundary.",
           "ok": false,
-          "feedback": "The AI doesn't store your workflow — it re-reads whatever you paste each run and predicts from patterns. The saving is on your side. Test it by running it again yourself."
+          "feedback": "Memory is not a privacy boundary. Save the workflow where you control it, review what the product retains, and redact each new input before reuse."
         },
         {
-          "text": "Rewrite the steps to fit Monday's notes more precisely.",
+          "text": "Rewrite several fixed steps for the second input but keep the same workflow name.",
           "ok": false,
           "feedback": "That makes it a one-off prompt again. Steps should work for ANY input of that kind. If a step only fits today, it was secretly part of the input — move it into the slot."
         },

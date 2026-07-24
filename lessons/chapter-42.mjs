@@ -14,13 +14,13 @@ export default {
     {
       "kind": "coldOpen",
       "title": "The end-of-year reviews",
-      "scenario": "Your manager asks you to write year-end reviews for your three teammates. It's a mix of stuff: gathering what each person actually did, writing warm wording, checking the tone is fair, and dropping it all into the company template. You open a chat with an AI to speed it up.",
+      "scenario": "A group project needs a fair summary of what three people contributed. The job mixes gathering evidence, drafting clear wording, deciding what is true and fair, and fitting it into a template. You open an AI assistant to speed it up.",
       "prompt": "Before you read on: which of those four parts would you be uneasy handing entirely to the AI, and why?"
     },
     {
       "kind": "reveal",
       "title": "Delegate the work, keep the judgment",
-      "body": "A common belief is that a skilled AI user delegates as much as possible. That's backwards. A skilled user PROTECTS the thinking that matters and delegates everything around it. Maxing out delegation is how people hand over decisions they'll regret. Here's the mechanism, not a personality flaw: today's AI learned patterns from huge amounts of human writing and predicts likely wording from those patterns. Even in 2026, when it can browse the live web and use tools, it still can't know what's genuinely true about your people or what you believe — and it still sometimes makes things up. So keep a part yourself (mark it M) if it needs to be TRUE about your real life, carries your VALUES, affects a RELATIONSHIP, or is something YOUR NAME is on. Delegate a part (mark it D) if it's typing, formatting, a rough first draft, sorting, summarizing, or listing options — work where you'll still read and approve the result.",
+      "body": "A skilled AI user does not maximize delegation; they protect the judgment that affects people. AI can draft, sort, or format, but it cannot know what truly happened, obtain consent, weigh a relationship, or accept responsibility for the result. Keep a part yourself when it must be true, carries your values, affects someone, requires permission, or goes out under your name. Delegate reversible labor only when you will inspect and approve it. Before an outside assistant sees any material, remove names, contact details, private messages, performance information, or another person's data. Data entered there leaves LearningAI.",
       "mistake": "Telling the AI 'write the full reviews for my three teammates' and pasting its answer straight into the template.",
       "good": "Letting the AI draft warm wording from YOUR notes, while you decide what's true and fair about each person — and keeping private details about named coworkers on your side."
     },
@@ -64,7 +64,7 @@ export default {
       "kind": "tryLive",
       "title": "Get the map of parts",
       "prompt": "Here's a task I need to do: [your task]. Break it into its separate parts. For each part, tell me whether I should hand it to you or do it myself, and flag any part where my own judgment, values, or knowledge of real people matters — explain why in one line. Don't do the task yet; just give me the map of parts.",
-      "note": "Use a real task with several moving pieces, not one tiny thing. When the map comes back, hand ONE D part to the AI for real now, and keep ONE M part to do yourself later. Keep private details about named people on your side — give the AI only the general wording to polish."
+      "note": "Use a real or invented task with several parts: planning a meal, community event, game night, shift handoff, repair, application, or group project. Give the assistant no identifying details. Hand it one reversible D part, keep one M part, and write who must approve before anything is sent, posted, booked, graded, or spent."
     },
     {
       "kind": "toolkitSave",
@@ -96,22 +96,22 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Prove it on a new task",
-      "question": "Pick a DIFFERENT task than the review one — say, choosing which colleges to apply to and writing the applications. You point to one part you'd delegate and one you'd keep. Which pairing shows you've got the skill?",
+      "question": "For a fresh task — choosing a training program, job, volunteer role, or major purchase and preparing the application or request — which delegation split keeps responsibility human?",
       "options": [
         {
-          "text": "Delegate: tidy and format the essay draft. Keep: what I genuinely claim about myself — my name is on it and it has to be true.",
+          "text": "Delegate: tidy and format my rough draft. Keep: the choice, every claim about me, and final approval before submission.",
           "ok": true,
           "feedback": "That's it. You delegated the labor and kept the part that must be true and carries your name — and you named the real reason."
         },
         {
-          "text": "Delegate: everything, so I finish fastest. Keep: nothing — a skilled user hands off as much as possible.",
+          "text": "Delegate: compare the opportunities and rank the fit. Keep: rewrite the winning application's wording in my voice and approve submission.",
           "ok": false,
-          "feedback": "That's the misconception this lesson fixes. Maxing out delegation hands over decisions you'll regret. Protect the parts that must be true or carry your name."
+          "feedback": "The final wording is yours, but the ranking decision was delegated. Keep the fit criteria and choice; let AI organize evidence or format your draft."
         },
         {
-          "text": "Keep: formatting the essay into the template. Delegate: deciding which schools fit me and what to say about myself.",
+          "text": "Delegate: draft claims from my notes. Keep: formatting, because the template carries my name.",
           "ok": false,
-          "feedback": "Backwards. Formatting is exactly the kind of labor to delegate; deciding what fits you and what's true about you is the judgment to keep."
+          "feedback": "Formatting is reversible labor. The claims about you require your evidence and approval; AI may help phrase only after you decide what is true."
         }
       ]
     }

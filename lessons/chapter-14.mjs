@@ -1,11 +1,11 @@
-// Lesson 14 — The one privacy rule
+// Lesson 14 — The One Privacy Rule
 // Arc: Talking to AI
 // Ported from Core 50 (auto-generated, then reviewed). Edit here, then run tools/build-lessons.mjs
 export default {
   "id": "chapter-14",
   "num": 14,
   "arc": "Talking to AI",
-  "title": "The one privacy rule",
+  "title": "The One Privacy Rule",
   "coreQuestion": "What's the one question to ask before you send a prompt, and what should you take out first?",
   "blurb": "Before you hit send, ask: \"Would I be okay if this were public?\" — then scrub what you wouldn't.",
   "minutes": 8,
@@ -14,7 +14,7 @@ export default {
     {
       "kind": "coldOpen",
       "title": "The postcard, not the diary",
-      "scenario": "You want help disputing a wrong charge, so you type: \"Help me dispute a charge on Visa 4012-8888-1881-0014 for $312 to Dan Reyes, who lives at 14 Oak St.\" It feels like a private chat window — just you and the AI. But your message can be stored on the company's servers, read by people who run the service, used to improve future versions, and — if memory is on — remembered and reused in your later chats.",
+      "scenario": "You want help disputing a wrong charge, so you start typing a full card number, a store employee's name, and a home address. It feels like a private chat window—just you and the AI. But those details would leave LearningAI and reach another company's system even though the writing task does not need them.",
       "prompt": "Before you read on: which parts of that message would you NOT want a stranger to read? Name them."
     },
     {
@@ -51,19 +51,19 @@ export default {
           "answer": 0
         }
       ],
-      "reveal": "A name or a rough amount is usually fine. The long number, the password, and another person's full name plus their private details are not yours to hand over — and no 'urgent' message ever changes that."
+      "reveal": "The abstract amount and request are enough. The account number, password, location, and another person's identifying details are unnecessary—and no urgent message changes that boundary."
     },
     {
       "kind": "reveal",
       "title": "The one public test",
-      "body": "The misconception: 'It's a private chat window, so anything I type stays between me and the AI.' Not quite. Your words leave your device and live on a company's servers, where you no longer fully control them. Picturing it as 'writing on a postcard, not whispering a secret' is a comparison — that is the analogy, not the mechanism. What is really happening: the text is transmitted, stored, and can be seen or reused by the company, and remembered across chats if memory is on. The rule that covers all of it: before you send a prompt, ask one question — 'Would I be okay if this were public?' — and take out anything you would not. Note on people, not just data: an AI is a tool, not a friend, therapist, or trusted person — do not treat the box as a safe place to dump secrets, and for anything serious defer to a real professional you trust.",
+      "body": "The misconception: 'It's a private chat window, so anything I type stays between me and the AI.' Not quite. Your prompt is transmitted to the service, but what happens after that varies by product, account type, settings, and current policy. It may be retained for a period, reviewed by authorized people for limited purposes, used to improve systems when eligible, or returned through a memory feature — but no single claim is true for every service. Check the controls and policy for the product you are actually using. The safest rule still works across those differences: before you send a prompt, ask 'Would I be okay if this were exposed beyond this moment?' and remove anything you would not. For a younger learner, details such as a home address and school name can reveal where you spend time, so replace both with general descriptions. An AI is a tool, not a friend, therapist, or trusted person; for anything serious, involve a real person or qualified professional you trust.",
       "mistake": "Pasting your real request with the card number, password, and a coworker's full name and address still in it, because the window 'feels' private.",
       "good": "You decide what leaves your device: run the public test first, then remove or blur every password, full number, and other person's private detail before you hit send."
     },
     {
       "kind": "promptRepair",
       "title": "Blur it before you send",
-      "weak": "Help me write a polite email disputing a wrong charge on Visa 4012-8888-1881-0014 for $312 to Dan Reyes, who lives at 14 Oak St.",
+      "weak": "Help me write a polite email disputing a wrong charge on [full card number] for $312 to [real person's name], who lives at [home address].",
       "fields": [
         "My card",
         "The amount",
@@ -72,10 +72,26 @@ export default {
       "strong": "Help me write a polite email disputing a wrong charge on [my card] for [the amount] to [the store]."
     },
     {
-      "kind": "tryLive",
-      "title": "Ask the AI to double-check you",
-      "prompt": "I want help with this, and I've taken out my private details on purpose: [your scrubbed request]. Before we start, scan it and tell me if anything still in here is something I shouldn't share with an AI — and if so, how to ask without it.",
-      "note": "Fill [your scrubbed request] with your real ask — but with every password, full number, and other person's private detail already removed or blurred (like [my card], [a relative], [the amount]). The AI becomes a second pair of eyes for anything you missed. Teens: also blur your home address and school name, and never paste a friend's secrets or photos. Seniors: never share a password or PIN, especially if a message claims it's urgent — if you're unsure, ask a person you trust to look first."
+      "kind": "workflowChain",
+      "title": "Run the privacy scan yourself",
+      "goal": "Turn an invented request into a version that is safe to send without relying on another assistant to catch the risk.",
+      "correct": [
+        "Circle every real name, precise location, school or workplace identifier, account detail, password, private message, image, and fact about another person",
+        "Delete anything the task does not need",
+        "Replace necessary context with broad stand-ins such as [a relative], [the amount], or [my card]",
+        "Read the new version as if it appeared in public and check what it could reveal or help someone infer",
+        "If exposure could still cause harm or embarrassment, do not send it; ask a trusted person or qualified professional through an appropriate private channel"
+      ],
+      "note": "This built-in scan completes the activity. An outside assistant is not required and should never be trusted as the final privacy judge."
+    },
+    {
+      "kind": "toolkitSave",
+      "title": "Save your public test",
+      "cardType": "Privacy boundary",
+      "fields": [
+        { "key": "remove", "label": "Details I remove before sending", "placeholder": "Names, passwords, locations, full numbers, private messages" },
+        { "key": "replacement", "label": "Safe replacements I can use", "placeholder": "[a relative], [the amount], [my card]" }
+      ]
     },
     {
       "kind": "exitCheck",
@@ -90,7 +106,7 @@ export default {
         {
           "text": "A version where you left the real details in because the chat feels private and it's faster.",
           "ok": false,
-          "feedback": "The window only feels private. Your words live on the company's servers and can be stored, seen, or reused — scrub first."
+          "feedback": "The window only feels private. Your prompt leaves your device, while storage, review, reuse, and memory depend on the service and its current settings and policy — scrub first."
         },
         {
           "text": "A version where you removed your own card number but kept a coworker's full name and home address.",

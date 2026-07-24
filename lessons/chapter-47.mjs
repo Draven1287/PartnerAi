@@ -6,9 +6,9 @@ export default {
   "num": 47,
   "arc": "Becoming a Builder",
   "title": "Build a Capstone",
-  "coreQuestion": "How do I turn everything I've learned into one small, real tool I'll actually reuse?",
-  "blurb": "Assemble one boring, useful tool you'd open again next Tuesday — need, steps, safety limit, and a test.",
-  "minutes": 15,
+  "coreQuestion": "How do I turn everything I've learned into one small, reusable tool without exposing real data or needing to code?",
+  "blurb": "Build in three saveable stages: design the workflow, test it safely, then keep evidence of what changed.",
+  "minutes": 35,
   "resources": [],
   "steps": [
     {
@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "A capstone is small on purpose",
-      "body": "A capstone is not a bigger prompt. It is one small tool that survives a second use. Build it from four parts:\n\nWORKFLOW — the numbered steps you want repeated.\nINPUT SLOT — the one marked place where new material goes.\nSAFETY LIMIT — the point where the system must stop and ask before sending, deleting, posting, sharing, or spending.\nTEST — a deliberately awkward example that exposes where the workflow breaks.\n\nStart with one boring recurring need. Run the workflow on a real example, then on the awkward one. Repair the worst failure and verify any facts in the result. If you must rewrite everything for the second example, you made a one-off answer, not a reusable tool.\n\nKeep high-stakes health, money, legal, safety, and relationship decisions with an accountable person. This capstone is a task tool, not a substitute for one.",
+      "body": "A capstone is not a bigger prompt. It is one small tool that survives a second use. Build it in three saveable stages; stopping after any stage is fine.\n\nSTAGE 1 — DESIGN (about 5–10 minutes): write the numbered workflow, one marked input slot, a good-enough bar, and the permission boundary.\nSTAGE 2 — TEST (about 10–15 minutes): use a representative invented or carefully redacted input, then one deliberately tricky invented input.\nSTAGE 3 — EVIDENCE (about 10 minutes): save a before/after sample, one failure-and-revision note, and one independently checked claim.\n\nA paper workflow, checklist, reusable text template, blank spreadsheet, or no-code mockup is a complete capstone; coding and an outside assistant are optional. Do not paste real names, addresses, messages, accounts, confidential material, or another person's data. If the tool affects other people, disclose AI's role when they reasonably need to know. Keep high-stakes decisions with an accountable person.",
       "mistake": "Deciding a real AI tool has to be huge and impressive, so you never build one — or you build it and just trust whatever it outputs.",
       "good": "Pick one boring recurring need, write it as a reusable workflow with one input slot, add a safety limit if it acts in the world, then test it and fact-check the result yourself."
     },
@@ -31,18 +31,18 @@ export default {
       "correct": [
         "Name the recurring need, the input you'll feed it, the output you want, and your 'good enough' bar",
         "Have the AI write it as a numbered workflow with ONE clearly marked input slot",
-        "Add a safety limit if it ever sends, deletes, posts, or shares — otherwise mark it text-only",
-        "Run the workflow on your real input",
+        "Write what it may see or change and add human approval before any external or irreversible action",
+        "Run the workflow on a representative invented or carefully redacted input and keep a before/after record",
         "Run it again on one deliberately tricky input and fix the worst break",
         "Fact-check the output against what you actually know, then name and save the tool"
       ],
-      "note": "The tricky-input test comes AFTER the tool runs cleanly on real input — you test the working thing, not a half-built one. Verification is the last step, never skipped."
+      "note": "Both tests use safe representative material: first a normal invented or redacted input, then an awkward invented input. You never need a real person's data to prove reuse. Save after each stage so the 35-minute build can be split across sessions."
     },
     {
       "kind": "tryLive",
       "title": "Build yours now",
-      "prompt": "I'm building my capstone tool. Work with me one stage at a time and pause after each stage so I can steer.\nThe real, recurring need: [your need].\nWhat I will put in each time: [the input].\nWhat I want back: [the output].\n'Good enough' means: [your bar].\nStage 1 — write this as a clean, reusable workflow with numbered steps and ONE clearly marked input slot.\nStage 2 — if this tool ever sends, deletes, posts, or shares anything, add this safety limit: [your stop-sign]. If it only produces text for me to read, say so and skip.\nStage 3 — run the workflow on my real input: [your real input].\nStage 4 — now run it on this deliberately tricky input: [your tricky input]. Tell me where it broke, then give me one fix and the improved version.\nFinally, flag anything in your output I should fact-check myself before I rely on it.",
-      "note": "Fill each bracket in your own words. Example need: 'Every Sunday I waste 30 minutes turning messy week notes into something I can study from.' Tricky input example: half-sentences with no headings, or a grocery list pasted in by mistake. If your tool only makes text to read, write 'Not needed — text only' for the stop-sign. Steer after every stage; stop only when it runs cleanly on something real."
+      "prompt": "I'm building a small capstone in three saveable stages. I may complete it as a paper workflow, checklist, reusable text template, blank spreadsheet, no-code mockup, or optional safely contained digital prototype.\nThe recurring need, described without private data: [your need].\nThe representative invented or redacted input: [safe sample].\nWhat I want back: [the output].\n'Good enough' means: [one observable bar].\nStage 1 — write the numbered workflow with ONE input slot, its permission boundary, and the human-approval stop. Pause so I can save or copy it.\nStage 2 — apply the same workflow to my safe sample, then to this awkward invented input: [tricky sample]. Identify the worst break and propose one revision. Pause again.\nStage 3 — help me make a small evidence record: before/after, failure, revision, result, and one claim I must independently check. Do not request an account connection, code installation, real message, original file, or another person's data.",
+      "note": "No outside assistant is required: you can write each stage directly in the lesson or on paper and compare it with the examples. If you choose an outside tool, use only invented or carefully redacted text in a disposable copy. Save the three stage outputs so your evidence does not depend on memory or one uninterrupted session."
     },
     {
       "kind": "toolkitSave",
@@ -73,6 +73,11 @@ export default {
           "key": "safetyLimit",
           "label": "Safety limit",
           "placeholder": "e.g. Ask before saving over a file or emailing anything — or 'text only'"
+        },
+        {
+          "key": "evidence",
+          "label": "Failure, revision, and checked result",
+          "placeholder": "What broke on the awkward input, what I changed, and what claim I checked"
         }
       ]
     },
@@ -82,19 +87,19 @@ export default {
       "question": "You built a capstone. What proves it's a real reusable tool and not a one-off answer?",
       "options": [
         {
-          "text": "You hand it a brand-new real input you've never run before and get a usable result WITHOUT rebuilding the workflow, you've verified one fact in the output yourself, and you can name in one sentence what YOU brought — the need, the judgment, the test case — that the AI couldn't supply.",
+          "text": "A fresh representative invented or redacted input works without rebuilding; the boundary and approval stop hold; I saved a before/after record plus one failure and revision; and I independently checked one claim.",
           "ok": true,
-          "feedback": "That's your graduation. It clears a fresh example, you checked one fact against what you know is true, and you named your own contribution."
+          "feedback": "That's your graduation. The capstone can be paper, text, spreadsheet, no-code, or safely contained code; reuse, test evidence, a repaired failure, and independent checking are what make it real."
         },
         {
-          "text": "It produced an impressive, polished answer for the one example you gave it.",
+          "text": "It produced polished results on two examples, but I did not record what it could access or where human approval happens.",
           "ok": false,
-          "feedback": "A great answer to one easy case is a one-off, not a tool. The test is a NEW input running through the saved workflow — plus your own verification."
+          "feedback": "Two outputs show some reuse, but the tool still lacks a safety contract. Define least access and a human-approval stop before calling it ready."
         },
         {
-          "text": "The output sounded confident and detailed, so you trusted it and moved on.",
+          "text": "The output matched my expected format, so I treated the format match as evidence that its facts were correct.",
           "ok": false,
-          "feedback": "Confident tone isn't evidence of truth — AI predicts likely-sounding words and can still hallucinate. You have to point to one fact you checked yourself."
+          "feedback": "Format consistency is not truth. Independently check a load-bearing claim and keep the evidence alongside the result."
         },
         {
           "text": "You rewrote the whole prompt from scratch to handle the new input.",

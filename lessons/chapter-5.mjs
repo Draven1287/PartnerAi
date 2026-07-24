@@ -1,98 +1,97 @@
-// Lesson 5 — How It Learns
+// Lesson 5 — Verify and Decide
 // Arc: First Contact
-// Ported from Core 50 (auto-generated, then reviewed). Edit here, then run tools/build-lessons.mjs
+// Rebuilt from the seven-persona teen review. Edit here, then run tools/build-lessons.mjs
 export default {
   "id": "chapter-5",
   "num": 5,
   "arc": "First Contact",
-  "title": "How It Learns",
-  "coreQuestion": "Where do the AI's answers come from — its training, or the live web?",
-  "blurb": "Most answers come from patterns it learned. But it can also go look things up live.",
-  "minutes": 9,
+  "title": "Verify and Decide",
+  "coreQuestion": "How do I choose what needs checking, find independent evidence, and make the final decision?",
+  "blurb": "Turn one plausible AI answer into a checked human decision using stakes, sources, and a clear boundary.",
+  "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "You ask about something brand new",
-      "scenario": "You type: \"What's the newest phone from the brand I follow?\" The AI answers instantly and sounds sure of itself. But wait — this phone came out last week. How could it possibly know? Or does it?",
-      "prompt": "Before you read on: where do you think the AI got that answer — from something it read a long time ago, or by checking the internet right now?"
-    },
-    {
-      "kind": "reveal",
-      "title": "Three words that explain everything",
-      "body": "The AI predicts the most likely next words from patterns in a huge pile of human writing it read during TRAINING — that's where most of its answers come from. Training stopped on a certain date (its TRAINING CUTOFF), so anything after that isn't baked in. But a modern assistant can also BROWSE: fetch fresh pages from the live web during your chat, when you ask. So two opposite beliefs are both wrong. It does NOT know everything, always up to date. And it is NOT frozen forever in the past. It remembers a lot from training, AND it can look things up live.",
-      "mistake": "Assuming its instant answer about last week's news is current, because it sounded confident.",
-      "good": "Noticing whether the answer came from training (may be stale) or from a live search (fresh), and asking it to search when the question is about something recent."
-    },
-    {
-      "kind": "compare",
-      "title": "Remembered vs. looked up",
-      "weak": "You: What's the newest phone from [brand]? — AI: \"As of my last update, the latest was…\" (hedges, gives no links). This came from training. It can be stale.",
-      "strong": "You: Search the web and show me your links. — AI: \"Searching… here's the current model, with sources\" [link] [link]. This was fetched live, just now.",
-      "why": "This is a comparison to help it click. What's really happening: the first answer came from patterns learned during training; the second came from pages the assistant fetched live. \"Remembered\" and \"looked up\" are our shorthand — the AI isn't recalling the way a person does. The tell is real, though: a hedge with no links means training; links and a \"searched\" note mean live web."
+      "title": "A confident answer can still send someone the wrong way",
+      "scenario": "An AI says a walk-in clinic closes at 8 p.m. and your cousin plans to leave at 7:20. The answer may come from old text, live search, or a mistaken summary. Asking the AI to sound more certain will not keep the doors open.",
+      "prompt": "What exact claim changes the decision, and where would you check it without asking the same model again?"
     },
     {
       "kind": "classify",
-      "title": "Training or web?",
-      "prompt": "For each question, decide: can the AI answer it well from training, or does it need to search the live web? Ask yourself — does the answer depend on something recent or always-changing?",
-      "buckets": [
-        "Training can handle it",
-        "Needs a live web search"
-      ],
+      "title": "Match the check to the consequence",
+      "prompt": "Decide how much independent checking each output needs. Not every typo deserves an investigation; not every high-stakes claim can ride on fluency.",
+      "buckets": ["Inspect and use", "Check independently", "Do not use AI as the decider"],
       "items": [
-        {
-          "text": "Explain how a rainbow forms.",
-          "answer": 0
-        },
-        {
-          "text": "What's the weather where I am tomorrow?",
-          "answer": 1
-        },
-        {
-          "text": "Who won the game last night?",
-          "answer": 1
-        },
-        {
-          "text": "What's the capital of France?",
-          "answer": 0
-        },
-        {
-          "text": "What's this year's application deadline for a program I want?",
-          "answer": 1
-        },
-        {
-          "text": "Summarize the plot of a classic novel.",
-          "answer": 0
-        }
+        { "text": "Three possible names for an invented comic character", "answer": 0 },
+        { "text": "Today's clinic hours", "answer": 1 },
+        { "text": "Whether a suspicious payment message is legitimate", "answer": 1 },
+        { "text": "Whether to stop prescribed medicine", "answer": 2 },
+        { "text": "A first draft of a casual event description", "answer": 0 },
+        { "text": "Whether another person deserves punishment based on a private accusation", "answer": 2 }
       ],
-      "reveal": "Recent or always-changing = search the web. Stable facts and general explanations = training is fine. Even in 2026, the assistant can browse, use tools, and remember across chats — but it can still get things wrong, so links matter."
+      "reveal": "Checking should rise with the cost of being wrong. For decisions involving health, safety, rights, or another person's future, AI can help form questions but should not be the decider."
     },
     {
-      "kind": "tryLive",
-      "title": "Feel the gap yourself",
-      "prompt": "Send these as TWO separate messages.\n\nMessage 1: \"Answer this from your own knowledge first, no searching: [a question about something that changes over time]. Tell me roughly how current your answer is and what I should double-check.\"\n\nMessage 2: \"Now search the web, answer it again, and show me your links.\"",
-      "note": "For the blank, pick something recent or always-changing so the two answers actually differ — e.g. \"Who is the current men's 100m world record holder?\" or \"What's the weather here tomorrow?\" Watch for the tell: message 1 hedges with no links (remembered); message 2 comes back with a \"searching\" note and sources (looked up). For anything about your health, double-check what it says with a real clinician — the AI is not a doctor."
+      "kind": "verify",
+      "title": "Build a verification trail",
+      "claim": "The clinic closes at 8 p.m. tonight.",
+      "steps": [
+        "Isolate the exact claim that changes the action",
+        "Choose a current independent source responsible for that information",
+        "Check the date, location, and exact wording",
+        "Record whether the claim is verified, contradicted, or still uncertain",
+        "Make the decision from the evidence and the consequence—not the AI's confidence"
+      ],
+      "note": "The clinic's official page or phone line is independent evidence. Asking the same chatbot 'are you sure?' is not."
+    },
+    {
+      "kind": "reveal",
+      "title": "Useful output, separate proof",
+      "body": "AI predicts a plausible response. Tools such as search can add current material, but links, quotes, and confident wording still need inspection. Verification means checking the claim against evidence outside the same generated answer. Decision means matching that evidence to the consequence and choosing what happens next.\n\nKeep private details out of outside tools: use a made-up scenario or remove names, account numbers, health details, addresses, and private messages before asking for help. You can complete this lesson with the built-in claim trail alone.",
+      "mistake": "Asking the same AI to repeat the answer, add citations, or sound cautious and treating that as independent confirmation.",
+      "good": "Identify the consequential claim, check a responsible source, name uncertainty honestly, and keep the decision with a person."
+    },
+    {
+      "kind": "workflowChain",
+      "title": "Decide after the check",
+      "goal": "Respond to a message claiming an overdue bill must be paid through a link within one hour.",
+      "correct": [
+        "Do not click the message link or share account details",
+        "Name the claim: the bill is real and urgent",
+        "Reach the company through a known official route",
+        "Compare the account information and deadline",
+        "Decide whether to pay, report, or ignore based on that evidence"
+      ],
+      "choices": [
+        "Compare the account information and deadline",
+        "Decide whether to pay, report, or ignore based on that evidence",
+        "Reach the company through a known official route",
+        "Do not click the message link or share account details",
+        "Name the claim: the bill is real and urgent"
+      ],
+      "note": "Urgency increases the need for an independent route. It does not lower it."
+    },
+    {
+      "kind": "toolkitSave",
+      "title": "Keep one verification trail",
+      "cardType": "Verify and decide",
+      "fields": [
+        { "key": "claim", "label": "The exact claim", "placeholder": "What changes the action?" },
+        { "key": "source", "label": "Independent source", "placeholder": "Who is responsible for this fact?" },
+        { "key": "verdict", "label": "Evidence verdict", "placeholder": "Verified, contradicted, or uncertain—and why" },
+        { "key": "decision", "label": "My decision", "placeholder": "What will happen next, and who owns it?" }
+      ]
     },
     {
       "kind": "exitCheck",
-      "title": "Call it on your own new question",
-      "question": "Invent a brand-new question of your own (not one from this lesson). Before running it, predict: \"training can handle this\" or \"this needs looking up\" — and say why. Then run it both ways. What proves you were right?",
+      "title": "Transfer the whole habit",
+      "question": "An AI says a weekend market allows sellers to arrive without registering. Your friend plans to drive two hours with handmade items. Which response shows the full skill?",
       "options": [
-        {
-          "text": "I predicted, then pointed to the evidence: links and a \"searched\" note for looked-up, or a hedge like \"as of my training\" with no links for remembered.",
-          "ok": true,
-          "feedback": "That's the whole skill. Calling it correctly on your own example, with the evidence in hand, is the win."
-        },
-        {
-          "text": "The AI sounded confident, so I trusted it was current.",
-          "ok": false,
-          "feedback": "Confidence isn't proof. A confident answer with no links may be stale training. Ask it to search and show links."
-        },
-        {
-          "text": "I picked a stable fact like a capital city, so both answers were identical.",
-          "ok": false,
-          "feedback": "Then you can't see the gap. Pick something recent or always-changing so remembered and looked-up actually differ."
-        }
+        { "text": "Identify registration as the consequential claim, check the market's current official rules or organizer, then decide whether the trip is worth making.", "ok": true, "feedback": "Yes. You matched the check to the consequence and kept the travel decision human." },
+        { "text": "Ask the AI for three more versions of the answer and trust the one repeated most often.", "ok": false, "feedback": "Repetition from the same system is not independent evidence. The organizer owns the current rule." },
+        { "text": "Go anyway because the answer included a specific arrival time and therefore probably came from a source.", "ok": false, "feedback": "Specificity can be predicted. Two hours of travel makes checking the current rule worthwhile." },
+        { "text": "Cancel immediately because an uncertain answer means the market is unsafe.", "ok": false, "feedback": "Uncertainty is a signal to check, not automatic proof that the opportunity is bad." }
       ]
     }
   ]

@@ -59,8 +59,8 @@ export default {
     {
       "kind": "tryLive",
       "title": "Run the teaching loop",
-      "prompt": "I want to actually understand [the topic], not just get the answer. Teach it to me in small steps. After each step, pause and ask me one quick question to check I followed — wait for my reply before going on. When we're done, ask me to explain the whole idea back in my own words, then tell me the one part I got wrong or left out and help me fix it. Assume I'm a [your starting level].",
-      "note": "Pick one topic you recently got an answer to but couldn't re-explain. Fill [the topic] with a single idea (e.g. 'how credit-card interest adds up month to month') and [your starting level] with where to pitch it (e.g. 'complete beginner — I know what a credit card is but nothing about interest'). Read one step, answer its check honestly, and at the end type the idea back WITHOUT scrolling up. The moment it corrects your version is the moment you actually learn it. It can still state something wrong confidently, so stay the judge."
+      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public, low-stakes topic and do not paste private schoolwork, names, grades, account details, or another person's information. I want to understand [topic], not just get an answer. Teach one small step, pause for my reply, and continue only after I try. At the end, ask me to explain it back, flag one gap, and give me a way to verify the important fact outside this chat.",
+      "note": "Try a phone setting, card-game rule, bike adjustment, cooking technique, or basic money concept using invented numbers. Explain it back without scrolling. A correction from AI is not automatically true—verify a consequential claim with instructions, a calculator, or a trustworthy independent source."
     },
     {
       "kind": "toolkitSave",

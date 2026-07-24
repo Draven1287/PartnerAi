@@ -9,3 +9,14 @@ backend/cloudflare/.dev.vars
 !**/.env.example
 *.pem
 *.key
+learning-ai-design-assets/**/*-preview.png
+learning-ai-design-assets/interactive-desktop-review.html
+learning-ai-design-assets/full-site-mobile
+learning-ai-design-assets/audience-research
+learning-ai-design-assets/previews
+learning-ai-design-assets/research
+learning-ai-design-assets/review-captures
+learning-ai-design-assets/review-shots
+learning-ai-design-assets/reviews
+learning-ai-design-assets/tools
+learning-ai-design-assets/*.md

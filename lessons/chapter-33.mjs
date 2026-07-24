@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "The reach is built in — and you can re-train it",
-      "body": "Here's the honest part of how these tools work. AI assistants predict what comes next from patterns they learned from human writing, and they reply instantly, any hour, on any half-formed thought. In 2026 they also browse the web, use tools, and remember across chats — and they still make things up. That speed is genuinely useful, but it also makes 'just ask it' the easiest button in your day, so your hand learns to reach before your brain decides. People often say AI is 'addictive like a slot machine.' Flag that as a comparison, not a fact about the machine: AI is not trying to hook you and does not want anything. What's really happening is simpler — anything that gives a fast reward trains a habit, and a habit can be re-trained. You're not weak; you're human, and habits are changeable. One more thing: this lesson is about focus, not a hard time. If your reaching is tied to feeling low, anxious, or alone, that's worth a real person — a friend, family member, doctor, or a crisis line — not an app. AI is not a friend or a counselor.",
+      "body": "AI assistants respond quickly to half-formed thoughts, which can make asking the easiest next move. The model itself does not want your attention, but a product may still be designed for repeated use. Either way, a fast reward can train a habit. This is not a character flaw: you can redesign the moment by naming the trigger, doing one first move yourself, and setting a clear boundary for when the tool enters. This lesson is about focus, not mental-health diagnosis. If the reaching is tied to feeling unsafe, hopeless, or at risk of harm, stop using the app and contact human support.",
       "mistake": "Believing 'more AI use means I'm getting more done' — and letting every reach happen on autopilot.",
       "good": "Noticing the reach as it happens, and choosing whether this is a moment you actually want to open the tool."
     },
@@ -57,10 +57,17 @@ export default {
       "reveal": "The autopilot reaches share one tell: your hand moved before you decided. The real decisions all have a moment of choosing in front of them. Catching that moment is the whole skill."
     },
     {
-      "kind": "tryLive",
-      "title": "Ask AI for limits you actually control",
-      "prompt": "I keep reaching for AI on autopilot during [when this happens — e.g. studying in the evening]. The reach I want to break is [the autopilot moment — e.g. I open the chat the second a question pops into my head, before I've even tried to answer it myself]. Suggest 3 small, doable limits I could set, and for each one, one sign I'd notice that tells me it's working. Keep it to areas I control — no apps to buy.",
-      "note": "Fill the two blanks with your real time/place and your real reach, in your own words. Full worked example you can paste: 'I keep reaching for AI on autopilot during studying in the evening. The reach I want to break is I open the chat the second a question pops into my head, before I've even tried to answer it myself. Suggest 3 small, doable limits I could set, and for each one, one sign I'd notice that tells me it's working. Keep it to areas I control — no apps to buy.'"
+      "kind": "workflowChain",
+      "title": "Build a pause you control",
+      "goal": "You keep opening AI while repairing a bike, before checking the manual or trying the next step. Put a small, realistic pause plan in order.",
+      "correct": [
+        "Name the exact trigger: a step feels uncertain and the chat opens automatically",
+        "Choose a short first move you can do without AI: inspect the part, reread the manual, or write your best next step",
+        "Set the boundary for opening AI: only after the first move, and only for one defined question",
+        "Close the tool after the answer and make the final repair decision yourself",
+        "Watch one sign for a week: more first attempts happen before the chat opens"
+      ],
+      "note": "This is a design exercise, not a diagnosis or a punishment. Pick a boundary that protects attention and still lets you use the tool deliberately. No external AI or personal disclosure is required."
     },
     {
       "kind": "toolkitSave",
@@ -92,22 +99,22 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Do the skill on a fresh example",
-      "question": "Pick a DIFFERENT part of your life than the one you used in your prompt (if you used studying, try messaging or shopping). Which response shows you've actually got the skill?",
+      "question": "Fresh scenario: while planning meals, you open AI before checking what food is already at home. Which response shows a deliberate, testable boundary?",
       "options": [
         {
-          "text": "Out loud or on paper, name one autopilot reach that happens there, one limit you'd set against it, and one sign that would tell you it's working — a fresh three on a new example.",
+          "text": "Check what is already available, write a rough meal idea, then open AI for one defined gap; track whether first attempts happen before the chat opens.",
           "ok": true,
-          "feedback": "That's it. Producing a fresh reach + limit + sign on a new example — without copying the worked sample — is the skill. Doing it for real once today is the bonus."
+          "feedback": "That's the complete loop: trigger, first move, bounded use, and a visible sign of change."
         },
         {
-          "text": "Re-read the worked studying example and repeat it back word for word.",
+          "text": "Set a 25-minute timer for the whole task, then use AI whenever it feels useful inside that time.",
           "ok": false,
-          "feedback": "That's copying the sample, not doing the skill. Take a new area of your life and build a fresh three from scratch."
+          "feedback": "A timer can help focus, but it does not define when AI should enter or what thinking remains yours. Add a trigger and first move."
         },
         {
-          "text": "Decide the pull is too strong to change and just use AI less by willpower.",
+          "text": "Remove the AI app completely so the automatic reach cannot happen.",
           "ok": false,
-          "feedback": "The point is the opposite: habits are changeable. You're not fighting willpower — you name one reach, set one small limit you control, and watch for one sign."
+          "feedback": "Removal may be a valid personal choice, but it does not practice deliberate use. This lesson's skill is choosing a boundary you can explain and test."
         }
       ]
     }
