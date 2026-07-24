@@ -47,6 +47,21 @@ function createFakeDb() {
     minutes: 8,
     resources: [],
     steps: [{ stepId: 'chapter-1-step-1', stepIndex: 0, kind: 'reveal', gated: false, title: 'Start', payload: { title: 'Start', body: 'Begin.' } }]
+  }, {
+    id: 'chapter-2',
+    num: 2,
+    arc: 'Orientation',
+    title: 'Patterns and prediction',
+    moduleId: 'orientation',
+    levelId: 'foundation',
+    coreQuestion: 'How does prediction work?',
+    blurb: 'The next lesson.',
+    status: 'published',
+    stub: false,
+    sortOrder: 2,
+    minutes: 8,
+    resources: [],
+    steps: [{ stepId: 'chapter-2-step-1', stepIndex: 0, kind: 'reveal', gated: false, title: 'Continue', payload: { title: 'Continue', body: 'Continue.' } }]
   }];
   const admin = {
     id: 'admin-1',
@@ -187,7 +202,7 @@ function createFakeDb() {
     async stateForUser(userId) {
       return {
         user: publicUser(users.get(userId)),
-        assessment: null,
+        assessment: assessments.get(userId) || null,
         learnerState: null,
         progress: progress.filter(row => row.userId === userId).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: new Date().toISOString() })),
         toolkit: toolkit.filter(row => row.userId === userId).map(row => ({
@@ -634,6 +649,14 @@ async function runRouteChecks(db, label) {
     const learnerCookie = cookieHeader(signup.headers.get('set-cookie'));
     assert.ok(signup.body.csrfToken);
 
+    const earlyAssessment = await request('/api/v2/assessment', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': signup.body.csrfToken },
+      body: { ageRange: '13-15', responses: [] }
+    });
+    assert.equal(earlyAssessment.response.status, 409);
+    assert.equal(earlyAssessment.body.error, 'sample_lesson_required');
+
     const blocked = await request('/api/v2/progress', {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: learnerCookie },
@@ -711,16 +734,21 @@ async function runRouteChecks(db, label) {
     const curriculum = await request('/api/v2/curriculum', { headers: { cookie: learnerCookie } });
     assert.equal(curriculum.response.status, 200);
     assert.equal(curriculum.body.curriculum.tracks[0].id, 'core-ai-literacy');
+    assert.deepEqual(curriculum.body.curriculum.lessons.map(lesson => lesson.id), ['chapter-1']);
+    assert.equal(curriculum.body.launch.stage, 'questionnaire');
+    const lockedLesson = await request('/api/v2/lessons/chapter-2', { headers: { cookie: learnerCookie } });
+    assert.equal(lockedLesson.response.status, 403);
+    assert.equal(lockedLesson.body.error, 'questionnaire_required');
     const access = await request('/api/v2/access', { headers: { cookie: learnerCookie } });
     assert.equal(access.response.status, 200);
     assert.equal(access.body.access.model, 'learn-first-permanent-core');
     assert.equal(access.body.access.promises.subscriptionRequiredForCore, false);
 
-    const assessment = await request('/api/v2/assessment', {
+    const invalidAssessment = await request('/api/v2/assessment', {
       method: 'PUT',
       headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': learnerCsrf },
       body: {
-        ageRange: '14-17',
+        ageRange: '13-15',
         scorePercent: 72,
         level: 'foundation',
         responses: [
@@ -735,7 +763,35 @@ async function runRouteChecks(db, label) {
         ]
       }
     });
+    assert.equal(invalidAssessment.response.status, 400);
+    assert.equal(invalidAssessment.body.error, 'invalid_assessment');
+
+    const assessmentScores = [2, 1, 2, 3, 2, 1];
+    const assessmentResponses = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'].map((key, index) => ({
+      key,
+      questionKey: key,
+      category: key,
+      value: String(assessmentScores[index]),
+      selectedValue: String(assessmentScores[index]),
+      label: key === 'definition' ? 'Teaching' : `${key} answer`,
+      selectedLabel: key === 'definition' ? 'Teaching' : `${key} answer`,
+      score: assessmentScores[index]
+    }));
+    const assessment = await request('/api/v2/assessment', {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': learnerCsrf },
+      body: {
+        ageRange: '13-15',
+        responses: assessmentResponses
+      }
+    });
     assert.equal(assessment.response.status, 200);
+    const unlockedCurriculum = await request('/api/v2/curriculum', { headers: { cookie: learnerCookie } });
+    assert.equal(unlockedCurriculum.response.status, 200);
+    assert.equal(unlockedCurriculum.body.launch.stage, 'full');
+    assert.deepEqual(unlockedCurriculum.body.curriculum.lessons.map(lesson => lesson.id), ['chapter-1', 'chapter-2']);
+    const unlockedLesson = await request('/api/v2/lessons/chapter-2', { headers: { cookie: learnerCookie } });
+    assert.equal(unlockedLesson.response.status, 200);
 
     const toolkitCardId = `qa-card-${Date.now()}`;
     const toolkitSave = await request('/api/v2/toolkit', {

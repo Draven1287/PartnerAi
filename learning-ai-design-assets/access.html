@@ -43,14 +43,19 @@
       const pending=JSON.parse(localStorage.getItem('learningai-first-lesson-pending')||localStorage.getItem('learningai-first-lesson-complete')||'null')||{};
       const completedAt=pending.completedAt||new Date().toISOString();
       const user=result.user||{};
-      const saved=returning?{ok:true}:await window.LearningAIAPI.saveProgress({lessonId:'chapter-1',currentStep:6,completed:true});
+      const localSampleComplete=Boolean(pending.completedAt||pending.lessonId==='chapter-1'||pending.controlRule);
+      const existingState=returning&&!localSampleComplete?await window.LearningAIAPI.state():null;
+      const serverSampleComplete=Boolean(existingState?.state?.progress?.some(row=>row.lessonId==='chapter-1'&&row.completedAt));
+      if(!localSampleComplete&&!serverSampleComplete){
+        message.innerHTML='Complete the free first lesson before opening an account. <a href="./lesson-one.html">Start Lesson 1 →</a>';
+        return;
+      }
+      const saved=serverSampleComplete?{ok:true}:await window.LearningAIAPI.saveProgress({lessonId:'chapter-1',currentStep:6,completed:true});
       if(!saved.ok){displayNameField.hidden=true;form.elements.displayName.required=false;signIn.textContent='Sign in to finish saving';message.textContent=`Your account is ready, but Lesson 1 did not save yet. Choose “Sign in to finish saving.” ${window.LearningAIAPI.friendlyError(saved)}`;return}
       localStorage.setItem('learningai-prototype-account',JSON.stringify({id:user.id||'',email:user.email||data.email,displayName:user.displayName||data.displayName||'Learner',mode:'postgres',createdAt:new Date().toISOString()}));
-      if(!returning){
-        localStorage.setItem('learningai-first-lesson-complete',JSON.stringify({...pending,lessonId:'chapter-1',completedAt}));
-        localStorage.removeItem('learningai-first-lesson-pending');
-        window.LearningAICourseState?.complete('chapter-1',completedAt);
-      }
+      localStorage.setItem('learningai-first-lesson-complete',JSON.stringify({...pending,lessonId:'chapter-1',completedAt}));
+      localStorage.removeItem('learningai-first-lesson-pending');
+      window.LearningAICourseState?.complete('chapter-1',completedAt);
       const serverState=await window.LearningAIAPI.state();
       if(serverState.ok)window.LearningAIAPI.hydrateLocalState(serverState.state);
       message.textContent='';

@@ -9,6 +9,7 @@ const required = [
   'Dockerfile.frontend',
   'railway.toml',
   'frontend-server.mjs',
+  'tools/check-frontend-public-surface.mjs',
   'learning-ai-design-assets/index.html',
   'learning-ai-design-assets/stage-1-navigation-proof.html',
   'learning-ai-design-assets/lesson-one.html',
@@ -129,6 +130,8 @@ assert.ok(read('coolify-backend/railway.toml').includes('healthcheckPath = "/hea
 const frontend = read('frontend-server.mjs');
 assert.ok(frontend.includes("process.env.API_INTERNAL_URL"), 'Frontend must proxy to the Railway private backend');
 assert.ok(frontend.includes("process.env.CANONICAL_HOST"), 'Frontend must support the bare-domain canonical redirect');
+assert.ok(frontend.includes("const PUBLIC_PREFIXES = ['/learning-ai-design-assets/', '/v2/', '/v3/']"), 'Frontend must use an explicit public-root allowlist');
+assert.ok(frontend.includes('PUBLIC_EXTENSIONS.has(extension)'), 'Frontend must reject non-public file types');
 assert.ok(frontend.includes("url.pathname === '/api' || url.pathname.startsWith('/api/')"));
 assert.ok(
   frontend.includes("url.pathname === '/' ? '/learning-ai-design-assets/index.html'"),
@@ -139,6 +142,13 @@ assert.ok(
   'Root-relative redesign routes must resolve inside the deployable design package'
 );
 assert.ok(frontend.includes('response.writeHead(308'), 'Canonical-host redirect must be permanent and path-preserving');
+const gallery = read('learning-ai-design-assets/gallery.html');
+const submissionPolicy = read('learning-ai-design-assets/submission-policy.html');
+for (const [label, source] of [['Gallery', gallery], ['submission policy', submissionPolicy]]) {
+  assert.ok(source.includes('non-identifying pseudonym'), `${label} must require a non-identifying pseudonym for under-18 publication`);
+  assert.ok(source.includes('guardian'), `${label} must retain a separate guardian-approval safeguard`);
+}
+assert.ok(submissionPolicy.includes('A guardian cannot approve a real name or other personal identifier'), 'Guardian approval must not override the under-18 identity boundary');
 
 for (const path of [
   'frontend-server.mjs',

@@ -8,18 +8,9 @@ const ROOT = fileURLToPath(new URL('.', import.meta.url));
 const PORT = Number(process.env.PORT || 8080);
 const API_ORIGIN = String(process.env.API_INTERNAL_URL || '').replace(/\/$/, '');
 const CANONICAL_HOST = String(process.env.CANONICAL_HOST || '').trim().toLowerCase();
-const BLOCKED_PREFIXES = ['/coolify-backend/', '/tools/', '/docs/', '/reviews/', '/backend/', '/.git/', '/node_modules/'];
-const BLOCKED_EXACT = new Set([
-  '/.dockerignore',
-  '/Dockerfile',
-  '/Dockerfile.frontend',
-  '/frontend-server.mjs',
-  '/interactive-desktop-review.html',
-  '/learning-ai-design-assets/interactive-desktop-review.html',
-  '/package-lock.json',
-  '/package.json',
-  '/railway.toml'
-]);
+const PUBLIC_PREFIXES = ['/learning-ai-design-assets/', '/v2/', '/v3/'];
+const PUBLIC_EXACT = new Set(['/backend-config.js', '/privacy.html', '/robots.txt', '/styles.css']);
+const PUBLIC_EXTENSIONS = new Set(['.css', '.gif', '.html', '.ico', '.jpeg', '.jpg', '.js', '.png', '.svg', '.webp', '.woff', '.woff2']);
 const MIME = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -52,14 +43,18 @@ function headers(pathname) {
 }
 
 function safeFile(pathname) {
-  if (pathname.includes('\0') || BLOCKED_EXACT.has(pathname) || BLOCKED_PREFIXES.some(prefix => pathname.startsWith(prefix))) return null;
+  if (pathname.includes('\0')) return null;
   let decoded;
   try {
     decoded = decodeURIComponent(pathname);
   } catch {
     return null;
   }
-  const relative = normalize(decoded).replace(/^[/\\]+/, '');
+  const publicPath = `/${normalize(decoded).replace(/^[/\\]+/, '')}`;
+  const extension = extname(publicPath).toLowerCase();
+  if (!PUBLIC_EXACT.has(publicPath) && !PUBLIC_PREFIXES.some(prefix => publicPath.startsWith(prefix))) return null;
+  if (!PUBLIC_EXTENSIONS.has(extension)) return null;
+  const relative = publicPath.replace(/^[/\\]+/, '');
   const absolute = resolve(join(ROOT, relative));
   if (!absolute.startsWith(resolve(ROOT) + '/')) return null;
   return absolute;

@@ -53,6 +53,9 @@ const scrypt = promisify(scryptCallback);
 const LESSON_STATUSES = new Set(['draft', 'published', 'locked']);
 const LESSON_LEVELS = new Set(['foundation', 'explorer', 'builder']);
 const STEP_KINDS = new Set(['coldOpen', 'classify', 'reveal', 'compare', 'promptRepair', 'nextWord', 'tryLive', 'toolkitSave', 'exitCheck', 'verify', 'biasSpot', 'workflowChain', 'agentDesign', 'evalTest']);
+const SAMPLE_LESSON_ID = 'chapter-1';
+const ASSESSMENT_QUESTION_KEYS = ['definition', 'capability', 'limits', 'learning', 'impact', 'systems'];
+const ASSESSMENT_AGE_RANGES = new Set(['13-15', '16-18', '19-24', '25-34', '35-49', '50-plus', 'prefer-not']);
 
 if (process.env.NODE_ENV === 'production') {
   if (!process.env.DATABASE_URL && !process.env.POSTGRES_PASSWORD) throw new Error('DATABASE_URL or POSTGRES_PASSWORD is required in production');
@@ -97,6 +100,110 @@ function isSafeLessonId(lessonId) {
 
 function safeText(value, max) {
   return String(value || '').trim().replace(/\s+/g, ' ').slice(0, max);
+}
+
+function validateAssessment(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return null;
+  const ageRange = String(body.ageRange || '');
+  if (!ASSESSMENT_AGE_RANGES.has(ageRange)) return null;
+  const sourceResponses = Array.isArray(body.responses) ? body.responses : [];
+  const byKey = new Map();
+  for (const source of sourceResponses) {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) continue;
+    const key = String(source.key || source.questionKey || '');
+    if (!ASSESSMENT_QUESTION_KEYS.includes(key) || byKey.has(key)) continue;
+    const value = String(source.value ?? source.answer ?? source.selectedValue ?? '');
+    const score = value === 'unsure' ? 0 : Number(source.score ?? value);
+    if (!['0', '1', '2', '3', 'unsure'].includes(value) || !Number.isInteger(score) || score < 0 || score > 3) continue;
+    byKey.set(key, {
+      key,
+      questionKey: key,
+      category: safeText(source.category || key, 80),
+      value,
+      selectedValue: value,
+      label: safeText(source.label || source.answerLabel || source.selectedLabel || '', 500),
+      selectedLabel: safeText(source.selectedLabel || source.label || source.answerLabel || '', 500),
+      score,
+      freeText: safeText(source.freeText || '', 1000)
+    });
+  }
+  if (!ASSESSMENT_QUESTION_KEYS.every(key => byKey.has(key))) return null;
+  const responses = ASSESSMENT_QUESTION_KEYS.map(key => byKey.get(key));
+  const scoreRaw = responses.reduce((sum, response) => sum + response.score, 0);
+  const maxScore = ASSESSMENT_QUESTION_KEYS.length * 3;
+  const scorePercent = Math.round((scoreRaw / maxScore) * 100);
+  const level = scorePercent < 45 ? 'Foundation' : scorePercent < 75 ? 'Explorer' : 'Builder';
+  return {
+    ...body,
+    ageRange,
+    responses,
+    score: scorePercent,
+    scorePercent,
+    scoreRaw,
+    maxScore,
+    level,
+    route: level,
+    placementMethod: 'self-report',
+    completedAt: nowIso()
+  };
+}
+
+function isSampleComplete(state) {
+  return Array.isArray(state?.progress)
+    && state.progress.some(row => row?.lessonId === SAMPLE_LESSON_ID && row?.completedAt);
+}
+
+function hasCompleteAssessment(state) {
+  return Boolean(validateAssessment(state?.assessment));
+}
+
+async function launchAccessForUser(database, userId) {
+  const state = await database.stateForUser(userId);
+  const sampleComplete = isSampleComplete(state);
+  const questionnaireComplete = hasCompleteAssessment(state);
+  return {
+    state,
+    sampleComplete,
+    questionnaireComplete,
+    fullAccess: sampleComplete && questionnaireComplete,
+    stage: !sampleComplete ? 'sample_lesson' : !questionnaireComplete ? 'questionnaire' : 'full'
+  };
+}
+
+function sampleOnlyCurriculum(curriculum) {
+  const lessons = (curriculum?.lessons || []).filter(lesson => lesson.id === SAMPLE_LESSON_ID);
+  const lessonIds = new Set(lessons.map(lesson => lesson.id));
+  return {
+    ...curriculum,
+    tracks: (curriculum?.tracks || []).map(track => ({
+      ...track,
+      modules: (track.modules || []).filter(moduleId =>
+        (curriculum?.modules || []).some(module => module.id === moduleId && (module.lessons || []).some(lesson => lessonIds.has(typeof lesson === 'string' ? lesson : lesson?.id)))
+      )
+    })),
+    levels: (curriculum?.levels || []).map(level => ({
+      ...level,
+      lessons: (level.lessons || []).filter(lesson => lessonIds.has(typeof lesson === 'string' ? lesson : lesson?.id))
+    })).filter(level => level.lessons.length),
+    modules: (curriculum?.modules || []).map(module => ({
+      ...module,
+      lessons: (module.lessons || []).filter(lesson => lessonIds.has(typeof lesson === 'string' ? lesson : lesson?.id))
+    })).filter(module => module.lessons.length),
+    lessons
+  };
+}
+
+function sendLaunchLocked(res, req, access, error = 'questionnaire_required') {
+  return sendJson(res, 403, {
+    ok: false,
+    error,
+    launch: {
+      stage: access.stage,
+      sampleComplete: access.sampleComplete,
+      questionnaireComplete: access.questionnaireComplete,
+      fullAccess: access.fullAccess
+    }
+  }, { req });
 }
 
 function validateLessonPatch(body) {
@@ -1515,18 +1622,45 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
       if (req.method === 'GET' && url.pathname === '/api/v2/access') {
         const session = await requireUser(req, res, database);
         if (!session) return;
-        return sendJson(res, 200, { ok: true, access: await database.accessForUser(session.user.id) }, { req });
+        const launch = await launchAccessForUser(database, session.user.id);
+        const access = await database.accessForUser(session.user.id);
+        return sendJson(res, 200, {
+          ok: true,
+          access: {
+            ...access,
+            allowedLessonIds: launch.fullAccess ? access.allowedLessonIds : [SAMPLE_LESSON_ID],
+            launch: {
+              stage: launch.stage,
+              sampleComplete: launch.sampleComplete,
+              questionnaireComplete: launch.questionnaireComplete,
+              fullAccess: launch.fullAccess
+            }
+          }
+        }, { req });
       }
       if (req.method === 'GET' && url.pathname === '/api/v2/curriculum') {
         const session = await requireUser(req, res, database);
         if (!session) return;
-        return sendJson(res, 200, { ok: true, curriculum: await database.curriculum({ includeDrafts: false }) }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        const curriculum = await database.curriculum({ includeDrafts: false });
+        return sendJson(res, 200, {
+          ok: true,
+          curriculum: access.fullAccess ? curriculum : sampleOnlyCurriculum(curriculum),
+          launch: {
+            stage: access.stage,
+            sampleComplete: access.sampleComplete,
+            questionnaireComplete: access.questionnaireComplete,
+            fullAccess: access.fullAccess
+          }
+        }, { req });
       }
       if (req.method === 'GET' && url.pathname.startsWith('/api/v2/lessons/')) {
         const session = await requireUser(req, res, database);
         if (!session) return;
         const lessonId = decodeURIComponent(url.pathname.replace('/api/v2/lessons/', ''));
         if (!isSafeLessonId(lessonId)) return sendJson(res, 400, { ok: false, error: 'invalid_lesson_id' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         const lesson = await database.curriculumLesson(lessonId, { includeDrafts: false });
         return lesson ? sendJson(res, 200, { ok: true, lesson }, { req }) : sendJson(res, 404, { ok: false, error: 'lesson_not_found' }, { req });
       }
@@ -1535,7 +1669,20 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const body = await readJsonBody(req);
         if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-        await database.importLocal(session.user.id, body);
+        const access = await launchAccessForUser(database, session.user.id);
+        const completed = body?.progress?.completed || body?.completed || {};
+        const safeCompleted = access.fullAccess
+          ? completed
+          : { [SAMPLE_LESSON_ID]: completed[SAMPLE_LESSON_ID] };
+        const toolkit = Array.isArray(body?.toolkit)
+          ? body.toolkit.filter(card => access.fullAccess || card?.lessonId === SAMPLE_LESSON_ID)
+          : [];
+        await database.importLocal(session.user.id, {
+          ...body,
+          completed: safeCompleted,
+          progress: { ...(body.progress || {}), completed: safeCompleted },
+          toolkit
+        });
         return sendJson(res, 200, { ok: true }, { req });
       }
       if (req.method === 'PUT' && url.pathname === '/api/v2/assessment') {
@@ -1543,7 +1690,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const body = await readJsonBody(req);
         if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
-        await database.saveAssessment(session.user.id, body.assessment || body);
+        const access = await launchAccessForUser(database, session.user.id);
+        if (!access.sampleComplete) return sendJson(res, 409, { ok: false, error: 'sample_lesson_required' }, { req });
+        const assessment = validateAssessment(body.assessment || body);
+        if (!assessment) return sendJson(res, 400, { ok: false, error: 'invalid_assessment' }, { req });
+        await database.saveAssessment(session.user.id, assessment);
         return sendJson(res, 200, { ok: true }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/progress') {
@@ -1552,10 +1703,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const body = await readJsonBody(req);
         if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_progress' }, { req });
         const lessonNumber = Number(String(body.lessonId).replace('chapter-', ''));
+        const access = await launchAccessForUser(database, session.user.id);
+        if (body.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         if (lessonNumber > 1) {
-          const state = await database.stateForUser(session.user.id);
           const previousId = `chapter-${lessonNumber - 1}`;
-          const previousComplete = (state.progress || []).some(row => row.lessonId === previousId && row.completedAt);
+          const previousComplete = (access.state.progress || []).some(row => row.lessonId === previousId && row.completedAt);
           if (!previousComplete) return sendJson(res, 409, { ok: false, error: 'lesson_locked', previousLessonId: previousId }, { req });
         }
         await database.saveProgress(session.user.id, body);
@@ -1566,6 +1718,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const body = await readJsonBody(req);
         if (!body?.lessonId || !/^chapter-\d+$/.test(String(body.lessonId))) return sendJson(res, 400, { ok: false, error: 'invalid_interaction' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (body.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         await database.saveInteraction(session.user.id, body);
         return sendJson(res, 201, { ok: true }, { req });
       }
@@ -1575,6 +1729,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const quizAnswer = validateQuizAnswer(await readJsonBody(req));
         if (!quizAnswer) return sendJson(res, 400, { ok: false, error: 'invalid_quiz_answer' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (quizAnswer.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         await database.saveQuizAnswer(session.user.id, quizAnswer);
         return sendJson(res, 201, { ok: true }, { req });
       }
@@ -1584,6 +1740,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const activity = validateActivityCompletion(await readJsonBody(req));
         if (!activity) return sendJson(res, 400, { ok: false, error: 'invalid_activity_completion' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (activity.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         await database.completeActivity(session.user.id, activity);
         return sendJson(res, 201, { ok: true }, { req });
       }
@@ -1593,6 +1751,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const request = validateFeedbackRequest(await readJsonBody(req));
         if (!request) return sendJson(res, 400, { ok: false, error: 'invalid_feedback_request' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (request.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         return sendJson(res, 201, { ok: true, request: await database.createFeedbackRequest(session.user.id, request) }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/project-review') {
@@ -1601,6 +1761,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const review = validateProjectReview(await readJsonBody(req));
         if (!review) return sendJson(res, 400, { ok: false, error: 'invalid_project_review' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (!access.fullAccess) return sendLaunchLocked(res, req, access);
         return sendJson(res, 201, { ok: true, review: await database.createProjectReview(session.user.id, review) }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/tutor-sessions') {
@@ -1609,6 +1771,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const tutorSession = validateTutorSession(await readJsonBody(req));
         if (!tutorSession) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_session' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (!access.fullAccess) return sendLaunchLocked(res, req, access);
         return sendJson(res, 201, { ok: true, session: await database.createTutorSession(session.user.id, tutorSession) }, { req });
       }
       if (req.method === 'POST' && url.pathname.startsWith('/api/v2/tutor-sessions/') && url.pathname.endsWith('/messages')) {
@@ -1619,12 +1783,16 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!/^[0-9a-f-]{36}$/i.test(sessionId)) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_session_id' }, { req });
         const message = validateTutorMessage(await readJsonBody(req));
         if (!message) return sendJson(res, 400, { ok: false, error: 'invalid_tutor_message' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (!access.fullAccess) return sendLaunchLocked(res, req, access);
         const saved = await database.addTutorMessage(session.user.id, { sessionId, ...message });
         return saved ? sendJson(res, 201, { ok: true, message: saved }, { req }) : sendJson(res, 404, { ok: false, error: 'tutor_session_not_found' }, { req });
       }
       if (req.method === 'GET' && url.pathname === '/api/v2/insights') {
         const session = await requireUser(req, res, database);
         if (!session) return;
+        const access = await launchAccessForUser(database, session.user.id);
+        if (!access.fullAccess) return sendLaunchLocked(res, req, access);
         return sendJson(res, 200, { ok: true, insights: await database.progressInsights(session.user.id) }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/toolkit') {
@@ -1632,6 +1800,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!session) return;
         const body = await readJsonBody(req);
         if (!body?.cardType) return sendJson(res, 400, { ok: false, error: 'invalid_toolkit_card' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (body.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         const id = await database.saveToolkit(session.user.id, body);
         return sendJson(res, 201, { ok: true, id }, { req });
       }
@@ -1650,6 +1820,8 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
         const minutes = Number(body.minutes);
         if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) return sendJson(res, 400, { ok: false, error: 'invalid_minutes' }, { req });
+        const access = await launchAccessForUser(database, session.user.id);
+        if (body.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         await database.addMinutes({ userId: session.user.id, name: session.user.displayName, nameKey: nameKey(session.user.displayName), minutes, lessonId: body.lessonId || null, source: 'v2' });
         return sendJson(res, 201, { ok: true }, { req });
       }
