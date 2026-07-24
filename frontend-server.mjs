@@ -37,6 +37,7 @@ function headers(pathname) {
     'cross-origin-opener-policy': 'same-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     'referrer-policy': 'strict-origin-when-cross-origin',
+    'x-robots-tag': 'noindex, nofollow, noarchive, nosnippet',
     'x-content-type-options': 'nosniff',
     'x-frame-options': 'DENY'
   };

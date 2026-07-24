@@ -158,8 +158,8 @@ function checkBackendSurface() {
   if (v2Api.includes('deleteAccount(confirmation)') && db.includes('async function deleteUserAccount')) pass('self-service-account-deletion');
   else fail('self-service-account-deletion', 'learner settings must be able to permanently delete account data');
 
-  if (index.includes('index, follow') && !index.includes('noindex, nofollow')) pass('v2-public-indexing');
-  else warn('v2-public-indexing', 'V2 remains noindex until the public deployment and domain are verified');
+  if (index.includes('noindex, nofollow')) pass('v2-unadvertised-public-beta');
+  else fail('v2-unadvertised-public-beta', 'V2 must remain hidden from search during the unadvertised public beta');
 
   if (config.includes('window.location.origin') && frontendServer.includes('API_INTERNAL_URL') && frontendServer.includes("url.pathname.startsWith('/api/')")) {
     pass('production-api-config', 'same-origin proxy to Railway private API');

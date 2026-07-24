@@ -220,8 +220,8 @@ assertIncludes('v2/app.js', "step.kind === 'exitCheck'");
 assertIncludes('v2/app.js', 'workflowChain');
 assertIncludes('v2/app.js', 'learningai-v2-imported');
 assertMatches('v2/lessons.js', /["']id["']\s*:\s*["']chapter-25["']/, 'v2/lessons.js must include chapter-25');
-assertIncludes('v2/index.html', 'index, follow');
-assertNotIncludes('v2/index.html', 'noindex, nofollow');
+assertIncludes('v2/index.html', 'noindex, nofollow');
+assertNotIncludes('v2/index.html', 'index, follow');
 assertNotIncludes('v2/index.html', '../assessment.html');
 
 const publicHtml = ['index.html', 'my-path.html', 'course.html', 'assessment.html'];

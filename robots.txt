@@ -1,4 +1,2 @@
 User-agent: *
-Disallow: /coolify-backend/
-Disallow: /tools/
-Allow: /
+Disallow: /
