@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
 const port = 20_000 + (process.pid % 20_000);
@@ -45,10 +46,16 @@ try {
     '/v2/',
     '/v3/',
     '/styles.css',
-    '/privacy.html'
+    '/privacy.html',
+    '/robots.txt'
   ]) {
     assert.equal(await status(path), 200, `${path} must remain publicly available`);
   }
+  const accessPage = await readFile(new URL('../learning-ai-design-assets/access.html', import.meta.url), 'utf8');
+  assert.match(accessPage, /id="showPassword" type="button"/, 'password visibility control must be a touch-safe button');
+  assert.match(accessPage, /aria-controls="accountPassword" aria-pressed="false"/, 'password visibility control must expose accessible state');
+  assert.match(accessPage, /password\.type=willShow\?'text':'password'/, 'password visibility button must toggle the input type');
+  assert.match(accessPage, /showPassword\.textContent=willShow\?'Hide password':'Show password'/, 'password visibility button must explain its current action');
   for (const path of [
     '/HANDOFF.md',
     '/DESIGN-MIGRATION-PLAN.md',
