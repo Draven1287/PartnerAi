@@ -10,7 +10,7 @@ const API_ORIGIN = String(process.env.API_INTERNAL_URL || '').replace(/\/$/, '')
 const CANONICAL_HOST = String(process.env.CANONICAL_HOST || '').trim().toLowerCase();
 const PUBLIC_PREFIXES = ['/learning-ai-design-assets/', '/v2/', '/v3/'];
 const PUBLIC_EXACT = new Set(['/backend-config.js', '/privacy.html', '/robots.txt', '/styles.css']);
-const PUBLIC_EXTENSIONS = new Set(['.css', '.gif', '.html', '.ico', '.jpeg', '.jpg', '.js', '.png', '.svg', '.webp', '.woff', '.woff2']);
+const PUBLIC_EXTENSIONS = new Set(['.css', '.gif', '.html', '.ico', '.jpeg', '.jpg', '.js', '.png', '.svg', '.txt', '.webp', '.woff', '.woff2']);
 const MIME = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
