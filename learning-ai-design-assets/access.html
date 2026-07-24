@@ -37,6 +37,7 @@
     if(!returning&&!resetToken&&!localStorage.getItem('learningai-first-lesson-pending')&&!localStorage.getItem('learningai-first-lesson-complete'))location.replace(window.LearningAIReviewMode?'./lesson-one.html?review=1':'./lesson-one.html');
     if(returning){document.querySelector('#accessTitle').textContent='Welcome back';document.querySelector('.access-copy').textContent='Sign in to restore your completed lessons, questions, and saved progress.';displayNameField.hidden=true;form.elements.displayName.required=false;form.elements.password.autocomplete='current-password';createAccount.hidden=true;signIn.textContent='Sign in and restore my progress'}
     if(resetToken){document.querySelector('#accessTitle').textContent='Choose a new password';document.querySelector('.access-copy').textContent='Use at least 10 characters. After saving it, sign in with your new password.';document.querySelector('.access-form .access-eyebrow').textContent='Secure account recovery';emailField.hidden=true;form.elements.email.required=false;displayNameField.hidden=true;form.elements.displayName.required=false;form.elements.password.autocomplete='new-password';createAccount.hidden=false;createAccount.textContent='Save new password';signIn.hidden=true;forgotPassword.hidden=true}
+    let retryAccountSave=null;
     try{const lesson=JSON.parse(localStorage.getItem('learningai-first-lesson-pending')||'null');if(lesson?.controlRule)document.querySelector('#earnedRule').textContent=lesson.controlRule}catch{}
     async function finishAccount(result,data){
       if(!result.ok){message.textContent=window.LearningAIAPI.friendlyError(result);return}
@@ -51,7 +52,8 @@
         return;
       }
       const saved=serverSampleComplete?{ok:true}:await window.LearningAIAPI.saveProgress({lessonId:'chapter-1',currentStep:6,completed:true});
-      if(!saved.ok){displayNameField.hidden=true;form.elements.displayName.required=false;signIn.textContent='Sign in to finish saving';message.textContent=`Your account is ready, but Lesson 1 did not save yet. Choose “Sign in to finish saving.” ${window.LearningAIAPI.friendlyError(saved)}`;return}
+      if(!saved.ok){displayNameField.hidden=true;form.elements.displayName.required=false;retryAccountSave=()=>finishAccount({ok:true,user},data);signIn.textContent='Retry saving Lesson 1';message.textContent=`Your account is ready and you are still signed in, but Lesson 1 did not save yet. Choose “Retry saving Lesson 1.” ${window.LearningAIAPI.friendlyError(saved)}`;return}
+      retryAccountSave=null;signIn.textContent='Sign in';
       localStorage.setItem('learningai-prototype-account',JSON.stringify({id:user.id||'',email:user.email||data.email,displayName:user.displayName||data.displayName||'Learner',mode:'postgres',createdAt:new Date().toISOString()}));
       localStorage.setItem('learningai-first-lesson-complete',JSON.stringify({...pending,lessonId:'chapter-1',completedAt}));
       localStorage.removeItem('learningai-first-lesson-pending');
@@ -96,6 +98,7 @@
       await finishAccount(result,data);
     });
     signIn.addEventListener('click',async()=>{
+      if(retryAccountSave){message.textContent='Retrying Lesson 1 save…';await retryAccountSave();return}
       form.elements.displayName.required=false;
       displayNameField.hidden=true;
       form.elements.password.autocomplete='current-password';

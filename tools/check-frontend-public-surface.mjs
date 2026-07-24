@@ -60,9 +60,21 @@ try {
   assert.match(lessonPage, /answers are still saved as a draft on this device/, 'failed lesson saves must accurately preserve and describe the local draft');
   assert.match(lessonPage, /lesson is not marked complete until it saves to your account/, 'failed lesson saves must not claim completion');
   assert.doesNotMatch(lessonPage, /lesson is complete on this device, but the account copy did not save/i, 'failed lesson saves must not report a false local completion');
+  assert.match(lessonPage, /Saving your place/, 'lesson player must visibly sync intermediate step progress');
+  assert.match(lessonPage, /saveToolkit/, 'lesson notes must sync to the account without gating Next');
   const onboardingPage = await readFile(new URL('../learning-ai-design-assets/onboarding.html', import.meta.url), 'utf8');
   assert.match(onboardingPage, /theme\.js\?v=teen-game-4/, 'questionnaire page must load the shared onboarding controller');
   assert.match(accessPage, /Continue to the questions/, 'successful account creation must continue to the questionnaire');
+  assert.match(accessPage, /Retry saving Lesson 1/, 'a new account session must retry Lesson 1 without forcing another sign-in');
+  const apiClient = await readFile(new URL('../learning-ai-design-assets/learning-api.js', import.meta.url), 'utf8');
+  assert.match(apiClient, /queueMinutes/, 'focus minutes must have an offline-safe account sync queue');
+  assert.match(apiClient, /saveToolkit/, 'Saved Notes must use the account API');
+  assert.match(apiClient, /restoredFromAccountAt/, 'account hydration must restore cross-device learning state');
+  const themeController = await readFile(new URL('../learning-ai-design-assets/theme.js', import.meta.url), 'utf8');
+  assert.match(themeController, /reviewHost &&/, 'review mode must be restricted to local preview hosts');
+  const progressPage = await readFile(new URL('../learning-ai-design-assets/progress.html', import.meta.url), 'utf8');
+  assert.match(progressPage, /Continue learning/, 'progress must include an obvious resume action');
+  assert.match(progressPage, /document\.createElement\(available\?'a':'article'\)/, 'ready arcs must be actionable while locked arcs remain inert');
   for (const path of [
     '/HANDOFF.md',
     '/DESIGN-MIGRATION-PLAN.md',

@@ -1,5 +1,6 @@
 (() => {
-  const review = new URLSearchParams(location.search).get('review') === '1';
+  const reviewHost = ['127.0.0.1', 'localhost', '::1', '[::1]'].includes(location.hostname.toLowerCase());
+  const review = reviewHost && new URLSearchParams(location.search).get('review') === '1';
   window.LearningAIReviewMode = review;
   if (!review || window.__learningAIReviewStorageGuard) return;
   window.__learningAIReviewStorageGuard = true;
@@ -257,7 +258,7 @@
 
   function guardPrototypeRoute() {
     const params = new URLSearchParams(location.search);
-    const reviewMode = params.get('review') === '1';
+    const reviewMode = window.LearningAIReviewMode === true;
     if (reviewMode) {
       document.querySelectorAll('a[href^="./"]').forEach(link => {
         const url = new URL(link.href, location.href);
@@ -295,6 +296,7 @@
       const link = document.createElement('a');
       link.href = './adults.html';
       link.dataset.adultsLink = '';
+      link.setAttribute('role', 'menuitem');
       link.textContent = 'Adults';
       if (location.pathname.endsWith('/adults.html')) link.setAttribute('aria-current', 'page');
       menu.append(link);

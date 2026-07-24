@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 8787);
 const DATA_FILE = process.env.DATA_FILE || join(__dirname, 'data', 'minutes.json');
-const BUILD_SHA = process.env.BUILD_SHA || process.env.COOLIFY_GIT_COMMIT_SHA || 'local';
+const BUILD_SHA = process.env.BUILD_SHA || process.env.RAILWAY_GIT_COMMIT_SHA || process.env.COOLIFY_GIT_COMMIT_SHA || 'local';
 const BUILD_TIME = process.env.BUILD_TIME || new Date().toISOString();
 const SESSION_DAYS = 30;
 const COURSE_LESSON_COUNT = 50;
@@ -1820,10 +1820,22 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
         const minutes = Number(body.minutes);
         if (!Number.isFinite(minutes) || minutes < 1 || minutes > 300) return sendJson(res, 400, { ok: false, error: 'invalid_minutes' }, { req });
+        const clientSessionId = String(body.clientSessionId || '');
+        if (clientSessionId && !/^[A-Za-z0-9._:-]{8,120}$/.test(clientSessionId)) {
+          return sendJson(res, 400, { ok: false, error: 'invalid_client_session_id' }, { req });
+        }
         const access = await launchAccessForUser(database, session.user.id);
         if (body.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
-        await database.addMinutes({ userId: session.user.id, name: session.user.displayName, nameKey: nameKey(session.user.displayName), minutes, lessonId: body.lessonId || null, source: 'v2' });
-        return sendJson(res, 201, { ok: true }, { req });
+        const inserted = await database.addMinutes({
+          userId: session.user.id,
+          name: session.user.displayName,
+          nameKey: nameKey(session.user.displayName),
+          minutes,
+          lessonId: body.lessonId || null,
+          source: 'v2',
+          clientSessionId: clientSessionId || null
+        });
+        return sendJson(res, inserted === false ? 200 : 201, { ok: true, duplicate: inserted === false }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/visit') {
         const session = await requireUser(req, res, database, { csrf: true });

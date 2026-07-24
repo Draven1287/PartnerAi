@@ -190,6 +190,7 @@ export function createDb(options = {}) {
     if (version < 5) await migrateV5();
     if (version < 6) await migrateV6();
     if (version < 7) await migrateV7();
+    if (version < 8) await migrateV8();
     await seedLessons();
     await seedAdmin();
     await importLegacyJsonStore();
@@ -662,6 +663,17 @@ export function createDb(options = {}) {
         WHERE answer_json ? '__clientTransferId';
     `);
     await query('INSERT INTO schema_migrations(version) VALUES (7) ON CONFLICT DO NOTHING');
+  }
+
+  async function migrateV8() {
+    await query(`
+      ALTER TABLE learning_minutes
+        ADD COLUMN IF NOT EXISTS client_session_id text;
+      CREATE UNIQUE INDEX IF NOT EXISTS learning_minutes_client_session_unique
+        ON learning_minutes(user_id, client_session_id)
+        WHERE user_id IS NOT NULL AND client_session_id IS NOT NULL;
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (8) ON CONFLICT DO NOTHING');
   }
 
   async function seedLessons() {
@@ -1164,10 +1176,23 @@ export function createDb(options = {}) {
     return result.rowCount > 0;
   }
 
-  async function addMinutes({ userId = null, name, nameKey, minutes, lessonId = null, source = 'frontend' }) {
-    await query(`INSERT INTO learning_minutes(user_id, lesson_id, display_name, name_key, minutes, source)
-      VALUES ($1, NULLIF($2, ''), $3, $4, $5, $6)`, [userId, String(lessonId || ''), name, nameKey, Math.round(Number(minutes)), source]);
-    if (userId) await touchUser(userId);
+  async function addMinutes({ userId = null, name, nameKey, minutes, lessonId = null, source = 'frontend', clientSessionId = null }) {
+    const result = await query(`INSERT INTO learning_minutes(user_id, lesson_id, display_name, name_key, minutes, source, client_session_id)
+      VALUES ($1, NULLIF($2, ''), $3, $4, $5, $6, NULLIF($7, ''))
+      ON CONFLICT (user_id, client_session_id)
+        WHERE user_id IS NOT NULL AND client_session_id IS NOT NULL
+      DO NOTHING
+      RETURNING id`, [
+      userId,
+      String(lessonId || ''),
+      name,
+      nameKey,
+      Math.round(Number(minutes)),
+      source,
+      String(clientSessionId || '').slice(0, 120)
+    ]);
+    if (userId && result.rowCount) await touchUser(userId);
+    return result.rowCount > 0;
   }
 
   async function recordVisit(userId, { path = '/', referrer = '', durationSeconds = null }) {

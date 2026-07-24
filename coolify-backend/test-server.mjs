@@ -30,6 +30,7 @@ function createFakeDb() {
   const tutorSessions = [];
   const tutorMessages = [];
   const toolkit = [];
+  const minuteEntries = [];
   const assessments = new Map();
   const audits = [];
   const lessons = [{
@@ -75,7 +76,7 @@ function createFakeDb() {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
     async health() {
-      return { dbStatus: 'ok', migrationVersion: 5 };
+      return { dbStatus: 'ok', migrationVersion: 8 };
     },
     async createUser({ email, passwordHash, displayName }) {
       const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
@@ -213,7 +214,10 @@ function createFakeDb() {
           createdAt: row.createdAt,
           updatedAt: row.updatedAt || row.createdAt
         })),
-        minutes: { totalMinutes: 0, entries: 0 }
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === userId).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === userId).length
+        }
       };
     },
     async curriculum({ includeDrafts = true } = {}) {
@@ -444,7 +448,11 @@ function createFakeDb() {
       toolkit.splice(index, 1);
       return true;
     },
-    async addMinutes() {},
+    async addMinutes({ userId = null, minutes, clientSessionId = null, ...metadata }) {
+      if (userId && clientSessionId && minuteEntries.some(row => row.userId === userId && row.clientSessionId === clientSessionId)) return false;
+      minuteEntries.push({ userId, minutes: Math.round(Number(minutes)), clientSessionId, ...metadata });
+      return true;
+    },
     async recordVisit() {},
     async importLocal() {},
     async dashboardForUser(userId) {
@@ -459,7 +467,10 @@ function createFakeDb() {
         completedLessons,
         totalLessons: publishedLessons.length,
         completionPercent: publishedLessons.length ? Math.round((completedLessons / publishedLessons.length) * 100) : 0,
-        minutes: { totalMinutes: 0, entries: 0 },
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === userId).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === userId).length
+        },
         toolkitCount: toolkit.filter(row => row.userId === userId).length,
         quizSubmissions: quizSubmissions.filter(row => row.userId === userId).length,
         incorrectQuizSubmissions: quizSubmissions.filter(row => row.userId === userId && row.correct === false).length,
@@ -543,7 +554,10 @@ function createFakeDb() {
         learnerState: null,
         progress: progress.filter(row => row.userId === id).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: new Date().toISOString() })),
         toolkit: [],
-        minutes: { totalMinutes: 0, entries: 0 },
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === id).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === id).length
+        },
         visits: [],
         interactions: [],
         nameChangeStats: {
@@ -811,6 +825,28 @@ async function runRouteChecks(db, label) {
     assert.equal(stateWithToolkit.response.status, 200);
     assert.equal(stateWithToolkit.body.state.toolkit.some(card => card.id === toolkitCardId), true);
     learnerCsrf = stateWithToolkit.body.csrfToken;
+
+    const focusSessionId = `focus-${randomUUID()}`;
+    const focusMinutes = await request('/api/v2/minutes', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': learnerCsrf },
+      body: { minutes: 7, clientSessionId: focusSessionId }
+    });
+    assert.equal(focusMinutes.response.status, 201);
+    assert.equal(focusMinutes.body.duplicate, false);
+
+    const duplicateFocusMinutes = await request('/api/v2/minutes', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: learnerCookie, 'x-csrf-token': learnerCsrf },
+      body: { minutes: 7, clientSessionId: focusSessionId }
+    });
+    assert.equal(duplicateFocusMinutes.response.status, 200);
+    assert.equal(duplicateFocusMinutes.body.duplicate, true);
+
+    const stateWithMinutes = await request('/api/v2/state', { headers: { cookie: learnerCookie } });
+    assert.equal(stateWithMinutes.response.status, 200);
+    assert.deepEqual(stateWithMinutes.body.state.minutes, { totalMinutes: 7, entries: 1 });
+    learnerCsrf = stateWithMinutes.body.csrfToken;
 
     const toolkitDeleteBlocked = await request(`/api/v2/toolkit/${encodeURIComponent(toolkitCardId)}`, {
       method: 'DELETE',

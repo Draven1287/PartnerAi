@@ -23,6 +23,7 @@ export function createFakeDb(options = {}) {
   const activityCompletions = [];
   const assessments = new Map();
   const toolkit = [];
+  const minuteEntries = [];
   const visits = [];
   const interactions = [];
   const audits = [];
@@ -74,7 +75,7 @@ export function createFakeDb(options = {}) {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
     async health() {
-      return { dbStatus: 'ok', migrationVersion: 7 };
+      return { dbStatus: 'ok', migrationVersion: 8 };
     },
     async createUser({ email, passwordHash, displayName }) {
       const row = { id: `user-${users.size + 1}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
@@ -185,7 +186,10 @@ export function createFakeDb(options = {}) {
         learnerState: null,
         progress: progress.filter(row => row.userId === userId).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: row.updatedAt })),
         toolkit: toolkit.filter(row => row.userId === userId).map(row => ({ id: row.id, lessonId: row.lessonId, cardType: row.cardType, payload: row.payload, createdAt: row.createdAt })),
-        minutes: { totalMinutes: 0, entries: 0 }
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === userId).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === userId).length
+        }
       };
     },
     async curriculum({ includeDrafts = true } = {}) {
@@ -344,7 +348,11 @@ export function createFakeDb(options = {}) {
       toolkit.splice(index, 1);
       return true;
     },
-    async addMinutes() {},
+    async addMinutes({ userId = null, minutes, clientSessionId = null, ...metadata }) {
+      if (userId && clientSessionId && minuteEntries.some(row => row.userId === userId && row.clientSessionId === clientSessionId)) return false;
+      minuteEntries.push({ userId, minutes: Math.round(Number(minutes)), clientSessionId, ...metadata });
+      return true;
+    },
     async recordVisit(userId, visit) {
       visits.push({ userId, ...visit, createdAt: new Date().toISOString() });
     },
@@ -376,7 +384,10 @@ export function createFakeDb(options = {}) {
         completedLessons,
         totalLessons: publishedLessons.length,
         completionPercent: publishedLessons.length ? Math.round((completedLessons / publishedLessons.length) * 100) : 0,
-        minutes: { totalMinutes: 0, entries: 0 },
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === userId).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === userId).length
+        },
         toolkitCount: toolkit.filter(row => row.userId === userId).length,
         quizSubmissions: quizSubmissions.filter(row => row.userId === userId).length,
         incorrectQuizSubmissions: quizSubmissions.filter(row => row.userId === userId && row.correct === false).length,
@@ -510,7 +521,10 @@ export function createFakeDb(options = {}) {
         learnerState: null,
         progress: progress.filter(row => row.userId === id).map(row => ({ lessonId: row.lessonId, currentStep: row.currentStep, completedAt: row.completedAt, updatedAt: row.updatedAt })),
         toolkit: toolkit.filter(row => row.userId === id),
-        minutes: { totalMinutes: 0, entries: 0 },
+        minutes: {
+          totalMinutes: minuteEntries.filter(row => row.userId === id).reduce((sum, row) => sum + row.minutes, 0),
+          entries: minuteEntries.filter(row => row.userId === id).length
+        },
         visits: visits.filter(row => row.userId === id),
         interactions: interactions.filter(row => row.userId === id),
         nameChangeStats: {

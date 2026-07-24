@@ -75,6 +75,34 @@
     return result;
   }
 
+  const MINUTE_QUEUE_KEY = 'learningai-minute-sync-queue';
+  const readMinuteQueue = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(MINUTE_QUEUE_KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch {
+      return [];
+    }
+  };
+  async function flushMinuteQueue() {
+    const pending = readMinuteQueue();
+    if (!pending.length) return { ok: true, pending: 0 };
+    const remaining = [];
+    for (const entry of pending) {
+      const result = await request('/api/v2/minutes', { method: 'POST', body: entry });
+      if (!result.ok) remaining.push(entry);
+    }
+    localStorage.setItem(MINUTE_QUEUE_KEY, JSON.stringify(remaining.slice(-50)));
+    return { ok: remaining.length === 0, pending: remaining.length };
+  }
+  async function queueMinutes(entry) {
+    if (!entry?.clientSessionId || !Number.isFinite(Number(entry.minutes))) return { ok: false, error: 'invalid_minutes' };
+    const queue = readMinuteQueue();
+    if (!queue.some(item => item.clientSessionId === entry.clientSessionId)) queue.push(entry);
+    localStorage.setItem(MINUTE_QUEUE_KEY, JSON.stringify(queue.slice(-50)));
+    return flushMinuteQueue();
+  }
+
   const friendlyError = result => {
     const messages = {
       email_exists: 'That email already has an account. Choose Sign in instead.',
@@ -107,8 +135,21 @@
     }
     const completed = {};
     for (const row of Array.isArray(state.progress) ? state.progress : []) {
-      if (!row?.lessonId || !row.completedAt) continue;
-      completed[row.lessonId] = { completedAt: row.completedAt };
+      if (!row?.lessonId) continue;
+      if (row.completedAt) completed[row.lessonId] = { completedAt: row.completedAt };
+      const draftKey = `learningai-lesson-draft:${row.lessonId}`;
+      try {
+        const draft = JSON.parse(localStorage.getItem(draftKey) || '{}');
+        const serverStep = Math.max(0, Number(row.currentStep) || 0);
+        if (!row.completedAt && serverStep > (Number(draft.index) || 0)) {
+          localStorage.setItem(draftKey, JSON.stringify({
+            ...draft,
+            index: serverStep,
+            steps: draft.steps || {},
+            restoredFromAccountAt: new Date().toISOString()
+          }));
+        }
+      } catch {}
     }
     localStorage.setItem('learningai-progress', JSON.stringify({ completed, savedAt: new Date().toISOString() }));
     if (completed['chapter-1']) {
@@ -124,6 +165,52 @@
       localStorage.setItem('learningai-site-unlocked', 'true');
     } else {
       localStorage.removeItem('learningai-site-unlocked');
+    }
+    if (Array.isArray(state.toolkit)) {
+      let localCards = [];
+      try {
+        const stored = JSON.parse(localStorage.getItem('learningai-toolkit') || '[]');
+        localCards = Array.isArray(stored) ? stored : [];
+      } catch {}
+      const serverCards = state.toolkit.map(card => {
+        const fields = card.payload?.fields || card.payload || {};
+        const body = typeof fields?.body === 'string'
+          ? fields.body
+          : Array.isArray(fields)
+          ? fields.map(item => `${item.label || item.key || 'Note'}: ${item.value || ''}`).join('\n')
+          : Object.entries(fields).map(([key, value]) => `${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`).join('\n');
+        return {
+          id: String(card.id),
+          type: card.cardType || 'Lesson note',
+          title: card.title || card.cardType || 'Saved note',
+          body,
+          lessonId: card.lessonId || '',
+          createdAt: card.createdAt || card.updatedAt || new Date().toISOString(),
+          synced: true
+        };
+      });
+      const merged = new Map(localCards.map(card => [String(card.id), card]));
+      serverCards.forEach(card => merged.set(String(card.id), { ...merged.get(String(card.id)), ...card }));
+      localStorage.setItem('learningai-toolkit', JSON.stringify([...merged.values()].slice(0, 100)));
+    }
+    const serverMinutes = Math.max(0, Number(state.minutes?.totalMinutes) || 0);
+    if (serverMinutes) {
+      try {
+        const key = 'learningai-learning-rhythm-v1';
+        const rhythm = JSON.parse(localStorage.getItem(key) || '{}');
+        const serverSeconds = serverMinutes * 60;
+        const localSeconds = Math.max(0, Number(rhythm.totalSeconds) || 0);
+        const serverIsNewer = serverSeconds >= localSeconds && !rhythm.running;
+        localStorage.setItem(key, JSON.stringify({
+          ...rhythm,
+          totalSeconds: Math.max(localSeconds, serverSeconds),
+          lastSessionTotalSeconds: serverIsNewer
+            ? Math.max(Number(rhythm.lastSessionTotalSeconds) || 0, serverSeconds)
+            : rhythm.lastSessionTotalSeconds,
+          serverTotalMinutes: serverMinutes,
+          restoredFromAccountAt: new Date().toISOString()
+        }));
+      } catch {}
     }
     return true;
   }
@@ -142,6 +229,12 @@
     logout: () => request('/api/auth/logout', { method: 'POST' }),
     saveProgress: progress => request('/api/v2/progress', { method: 'POST', body: progress }),
     saveAssessment: assessment => request('/api/v2/assessment', { method: 'PUT', body: { assessment } }),
+    saveToolkit: card => request('/api/v2/toolkit', { method: 'POST', body: card }),
+    deleteToolkit: id => request(`/api/v2/toolkit/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    saveMinutes: entry => request('/api/v2/minutes', { method: 'POST', body: entry }),
+    queueMinutes,
+    flushMinuteQueue,
+    recordVisit: visit => request('/api/v2/visit', { method: 'POST', body: visit }),
     updateProfile: profile => request('/api/v2/profile', { method: 'PUT', body: profile }),
     deleteAccount: () => request('/api/v2/account', { method: 'DELETE', body: { confirmation: 'DELETE' } })
   };

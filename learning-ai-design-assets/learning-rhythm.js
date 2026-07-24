@@ -6,7 +6,7 @@
   const GOAL_SECONDS = 25 * 60;
   const today = new Date().toLocaleDateString('en-CA');
   const IDLE_LIMIT_SECONDS = 10 * 60;
-  const defaults = { date: today, secondsToday: 0, totalSeconds: 0, sessions: 0, goalDays: 0, goalRecordedFor: '', running: false, startedAt: 0, lastActivityAt: 0, pauseReason: '' };
+  const defaults = { date: today, secondsToday: 0, totalSeconds: 0, sessions: 0, lastSessionTotalSeconds: 0, activeServerSessionId: '', goalDays: 0, goalRecordedFor: '', running: false, startedAt: 0, lastActivityAt: 0, pauseReason: '' };
   let state;
 
   try { state = { ...defaults, ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') }; }
@@ -45,6 +45,17 @@
 
   function secondsToday() { return state.secondsToday + liveElapsed(); }
   function totalSeconds() { return state.totalSeconds + liveElapsed(); }
+  const newSessionId = () => crypto.randomUUID?.() || `focus-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  async function syncCompletedSession(sessionSeconds, clientSessionId) {
+    if (!clientSessionId || sessionSeconds < 60) return;
+    const result = await window.LearningAIAPI.queueMinutes({
+      minutes: Math.max(1, Math.round(sessionSeconds / 60)),
+      clientSessionId
+    });
+    feedback.textContent = result.ok
+      ? 'Session saved to your LearningAI account.'
+      : 'Session saved on this device. It will sync when the connection returns.';
+  }
 
   function commitElapsed() {
     if (!state.running) return;
@@ -130,6 +141,7 @@
       state.startedAt = 0;
       feedback.textContent = 'Paused. Your time is saved on this device.';
     } else {
+      state.activeServerSessionId ||= newSessionId();
       state.running = true;
       state.startedAt = Date.now();
       state.lastActivityAt = Date.now();
@@ -141,13 +153,23 @@
 
   finish?.addEventListener('click', () => {
     commitElapsed();
+    const sessionSeconds = totalSeconds() - Number(state.lastSessionTotalSeconds || 0);
+    const sessionId = state.activeServerSessionId || newSessionId();
+    if (sessionSeconds < 60) {
+      feedback.textContent = 'Learn for at least one minute before finishing a session.';
+      render();
+      return;
+    }
     state.running = false;
     state.startedAt = 0;
     state.sessions += 1;
+    state.lastSessionTotalSeconds = totalSeconds();
+    state.activeServerSessionId = '';
     recordGoalDay();
     save();
-    feedback.textContent = 'Session saved. Come back when you are ready.';
+    feedback.textContent = 'Session saved on this device. Syncing to your account…';
     render();
+    void syncCompletedSession(sessionSeconds, sessionId);
   });
 
   shelf.addEventListener('click', event => {
@@ -159,6 +181,7 @@
   ['pointerdown','keydown','wheel','touchstart'].forEach(type => document.addEventListener(type, recordActivity, {passive:true}));
 
   window.addEventListener('pagehide', save);
+  void window.LearningAIAPI.flushMinuteQueue();
   setInterval(render, 1000);
   render();
 })();
