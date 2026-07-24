@@ -229,7 +229,8 @@ for (const path of publicHtml) {
   assertNotIncludes(path, 'api/admin/leaderboard');
   assertNotIncludes(path, 'api/admin/agents');
 }
-assertIncludes('index.html', 'v2/index.html');
+assertIncludes('frontend-server.mjs', "url.pathname === '/' ? '/learning-ai-design-assets/index.html'");
+assertIncludes('learning-ai-design-assets/index.html', 'LearningAI');
 assertIncludes('course.html', 'v2/index.html');
 
 run(process.execPath, ['--check', 'coolify-backend/server.mjs']);
