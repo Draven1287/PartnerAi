@@ -103,6 +103,39 @@
     return flushMinuteQueue();
   }
 
+  /* A lesson finished while the account service is unreachable is real work.
+     Record it locally, queue the sync, and drain the queue whenever the API is
+     reachable again. Mirrors the minute queue above. */
+  const PROGRESS_QUEUE_KEY = 'learningai-progress-sync-queue';
+  const readProgressQueue = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(PROGRESS_QUEUE_KEY) || '[]');
+      return Array.isArray(value) ? value : [];
+    } catch {
+      return [];
+    }
+  };
+  async function flushProgressQueue() {
+    const pending = readProgressQueue();
+    if (!pending.length) return { ok: true, pending: 0 };
+    const remaining = [];
+    for (const entry of pending) {
+      const result = await request('/api/v2/progress', { method: 'POST', body: entry });
+      // A 401 means nobody is signed in yet; keep the entry for the next session.
+      if (!result.ok) remaining.push(entry);
+    }
+    localStorage.setItem(PROGRESS_QUEUE_KEY, JSON.stringify(remaining.slice(-100)));
+    return { ok: remaining.length === 0, pending: remaining.length };
+  }
+  async function queueProgress(entry) {
+    if (!entry?.lessonId) return { ok: false, error: 'invalid_progress' };
+    const queue = readProgressQueue().filter(item => item.lessonId !== entry.lessonId);
+    queue.push(entry);
+    localStorage.setItem(PROGRESS_QUEUE_KEY, JSON.stringify(queue.slice(-100)));
+    return flushProgressQueue();
+  }
+  const pendingProgressCount = () => readProgressQueue().length;
+
   const friendlyError = result => {
     const messages = {
       email_exists: 'That email already has an account. Choose Sign in instead.',
@@ -142,7 +175,13 @@
         createdAt: user.createdAt || user.created_at || ''
       }));
     }
-    const completed = {};
+    /* Start from what this device already knows. Rebuilding from server rows
+       alone erased any lesson completed while the account service was down. */
+    let completed = {};
+    try {
+      const stored = JSON.parse(localStorage.getItem('learningai-progress') || 'null');
+      if (stored && stored.completed && typeof stored.completed === 'object') completed = { ...stored.completed };
+    } catch {}
     for (const row of Array.isArray(state.progress) ? state.progress : []) {
       if (!row?.lessonId) continue;
       if (row.completedAt) completed[row.lessonId] = { completedAt: row.completedAt };
@@ -243,8 +282,19 @@
     saveMinutes: entry => request('/api/v2/minutes', { method: 'POST', body: entry }),
     queueMinutes,
     flushMinuteQueue,
+    queueProgress,
+    flushProgressQueue,
+    pendingProgressCount,
     recordVisit: visit => request('/api/v2/visit', { method: 'POST', body: visit }),
     updateProfile: profile => request('/api/v2/profile', { method: 'PUT', body: profile }),
     deleteAccount: () => request('/api/v2/account', { method: 'DELETE', body: { confirmation: 'DELETE' } })
   };
+
+  // Drain anything queued while the service was unreachable.
+  if (typeof window !== 'undefined') {
+    const drain = () => { flushProgressQueue().catch(() => {}); flushMinuteQueue().catch(() => {}); };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', drain, { once: true });
+    else drain();
+    window.addEventListener('online', drain);
+  }
 })();
