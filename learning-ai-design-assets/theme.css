@@ -325,3 +325,31 @@ html[data-theme="onyx"] .mobile-nav-menu a:hover,html[data-theme="onyx"] .mobile
   .nav-glass>nav a{padding:0 4px!important;font-size:11.5px!important}
   .nav-glass>.mobile-nav-menu{position:fixed;top:75px;right:56px}
 }
+
+/* ── Scrolling ────────────────────────────────────────────────────────────
+   macOS overlay scrollbars fade out, so there was no persistent indication of
+   how far down a page runs. Styling the scrollbar forces it to stay visible in
+   Chromium, and scrollbar-gutter reserves its width so content does not shift
+   when it appears. Motion settings are respected: "reduced" and "none" turn
+   smooth scrolling off. */
+html { scrollbar-gutter: stable; scrollbar-color: rgba(64,70,66,.42) transparent; }
+html[data-motion="standard"] { scroll-behavior: smooth; }
+html[data-motion="reduced"], html[data-motion="none"] { scroll-behavior: auto; }
+@media (prefers-reduced-motion: reduce) { html:not([data-motion="standard"]) { scroll-behavior: auto; } }
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(64,70,66,.34);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(46,52,48,.55); background-clip: content-box; }
+
+/* ── Motion polish ────────────────────────────────────────────────────────
+   Several interactive affordances changed state instantly while the element
+   around them eased, which is what read as jagged. Give them the same curve. */
+html[data-motion="standard"] .arc-jump button::after { transition: height 160ms ease, opacity 160ms ease, box-shadow 160ms ease; }
+html[data-motion="standard"] .unit-rail button,
+html[data-motion="standard"] .dashboard-unit-rail a { transition: transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease; }
+html[data-motion="standard"] .catalog { transition: min-height 260ms cubic-bezier(.2,.8,.2,1); }

@@ -207,7 +207,7 @@
     ['Teaching AI', './about.html#teaching']
   ]);
   const PRIMARY_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus'];
-  const MORE_ROUTES = ['Notes', 'Projects', 'Gallery', 'About', 'Teaching AI'];
+  const MORE_ROUTES = ['Projects', 'Gallery', 'Notes', 'About', 'Teaching AI'];
   const CURRENT_ROUTE = new Map([
     ['stage-1-navigation-proof.html', 'Dashboard'],
     ['progress.html', 'Progress'],
@@ -327,7 +327,8 @@
         ? 'Teaching AI'
         : CURRENT_ROUTE.get(file);
       if (MORE_ROUTES.includes(currentLabel) || currentLabel === 'Adults') {
-        button.textContent = currentLabel;
+        // Keep the visible label as "More" so it matches the accessible name and
+        // does not read as a sibling of the settings gear beside it.
         button.classList.add('is-current');
       }
       MORE_ROUTES.forEach(label => {
@@ -426,7 +427,17 @@
       const index = Math.max(0,Math.min(Number(draft.index)||0,QUESTIONS.length-1));
       const question = QUESTIONS[index];
       const answer = draft.answers[question.key] || '';
-      const questionOptions = [...question.options, ['unsure', 'I’m not sure yet.']];
+      /* The four graded options are authored weakest-to-strongest, so the
+         highest-scoring answer was always the fourth one. That rewards pattern
+         matching rather than honest self-placement. A fixed permutation per
+         question spreads the strongest answer across all four positions and is
+         stable across Back/Next and reloads, so nobody loses their place. The
+         stored value keeps its score regardless of where it is shown.
+         "Not sure" stays last: it is an escape hatch, not a graded choice. */
+      const OPTION_ORDERS = [[2,0,3,1],[1,3,0,2],[3,1,2,0],[0,2,1,3],[2,3,1,0],[1,0,3,2]];
+      const order = OPTION_ORDERS[index % OPTION_ORDERS.length];
+      const gradedOptions = order.map(position => question.options[position]).filter(Boolean);
+      const questionOptions = [...gradedOptions, ['unsure', 'I’m not sure yet.']];
       dialog.innerHTML = `<form method="dialog" class="audience-card diagnostic-card-prototype">
         <div class="diagnostic-meta"><p class="audience-eyebrow">Starting placement · not graded</p><span>Question ${index+1} of ${QUESTIONS.length}</span></div>
         <div class="diagnostic-progress-prototype" role="progressbar" aria-label="Starting questions" aria-valuemin="1" aria-valuemax="${QUESTIONS.length}" aria-valuenow="${index+1}" aria-valuetext="Question ${index+1} of ${QUESTIONS.length}"><i style="width:${((index+1)/QUESTIONS.length)*100}%"></i></div>
@@ -495,7 +506,11 @@
       return;
     }
     buildQuestionnaire(forceQuestionnairePreview);
-    window.LearningAIAudience = { age:savedAge, isAdult:()=>isAdult(savedAge()), reset(){ if(window.LearningAIReviewMode){ location.href='./onboarding.html?review=1'; return; } [AGE_KEY,ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key)); location.href='./onboarding.html'; } };
+    window.LearningAIAudience = { age:savedAge, isAdult:()=>isAdult(savedAge()), options:()=>AGE_OPTIONS.slice(),
+    /* Changing an age range is not a reason to retake six questions and lose a
+       recorded starting point. Update the age alone and re-sync the Adults route. */
+    setAge(value){ const allowed=AGE_OPTIONS.some(([option])=>option===value); if(!allowed) return false; localStorage.setItem(AGE_KEY,value); syncAdultsNavigation(value); return true; },
+    reset(){ if(window.LearningAIReviewMode){ location.href='./onboarding.html?review=1'; return; } [AGE_KEY,ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key)); location.href='./onboarding.html'; } };
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initializeAudience,{once:true}); else initializeAudience();
 })();
