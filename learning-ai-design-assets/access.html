@@ -91,6 +91,7 @@
       displayNameField.hidden=false;
       form.elements.displayName.required=true;
       form.elements.password.autocomplete='new-password';
+      form.elements.password.setAttribute('minlength','10');
       if(!form.reportValidity())return;
       const data=Object.fromEntries(new FormData(form));
       message.textContent='Creating your account…';
@@ -102,6 +103,12 @@
       form.elements.displayName.required=false;
       displayNameField.hidden=true;
       form.elements.password.autocomplete='current-password';
+      /* A minimum length is a rule for CHOOSING a password, not for typing an
+         existing one. Accounts created before the minimum rose to 10 have
+         shorter passwords, and enforcing it here silently blocked submission
+         and made a correct password look wrong. The server never applied a
+         minimum on login. */
+      form.elements.password.removeAttribute('minlength');
       if(!form.elements.email.checkValidity()||!form.elements.password.checkValidity()){form.reportValidity();return}
       const data=Object.fromEntries(new FormData(form));
       message.textContent='Signing in…';
