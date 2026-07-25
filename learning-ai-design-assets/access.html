@@ -79,6 +79,15 @@
         const result=await window.LearningAIAPI.confirmPasswordReset(resetToken,String(form.elements.password.value||''));
         if(!result.ok){message.textContent=window.LearningAIAPI.friendlyError(result);return}
         message.textContent='';
+        /* A reset token is single use. Leaving the form live after success let a
+           second submit hit the spent token and report "invalid or has expired",
+           which reads as though the reset failed when it had already worked.
+           Close the form and drop the token from the URL so a reload cannot
+           resubmit it either. */
+        form.elements.password.disabled=true;
+        createAccount.disabled=true;
+        createAccount.textContent='Password saved';
+        try{history.replaceState(null,'',location.pathname);}catch{}
         success.classList.add('open');
         success.querySelector('strong').textContent='Your password is reset.';
         success.querySelector('p').textContent='You can now sign in and restore your LearningAI progress.';
