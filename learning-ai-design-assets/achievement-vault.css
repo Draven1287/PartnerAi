@@ -217,6 +217,9 @@
      from it, and a fallback would leave the rim at the wrong radius wherever a
      media query changes the medal size. */
   --object-size: 154px;
+  /* Struck thickness. The faces sit half of this either side of centre and the
+     rim staves are exactly this deep, so the three stay welded together. */
+  --medal-depth: 18px;
   position: relative;
   display: grid;
   width: var(--object-size);
@@ -247,6 +250,8 @@
 
 .milestone-item .achievement-stage {
   --object-size: 104px;
+  /* A pin is a third smaller than a medal; at the full 18px it read as a puck. */
+  --medal-depth: 12px;
 }
 
 .achievement-coin {
@@ -290,7 +295,7 @@
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .5),
     inset 0 0 22px rgba(24, 30, 28, .18);
-  transform: translateZ(9px);
+  transform: translateZ(calc(var(--medal-depth) / 2));
 }
 
 /* The specular is a gradient position, not a translated overlay. Sliding the
@@ -332,7 +337,7 @@
     inset 0 0 22px rgba(24, 30, 28, .2);
   color: #2f3432;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .68);
-  transform: rotateY(180deg) translateZ(9px);
+  transform: rotateY(180deg) translateZ(calc(var(--medal-depth) / 2));
 }
 
 /* The back is mirrored by its own rotateY(180deg), which already flips the
@@ -676,7 +681,7 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
    it swings side-on and catches the light. */
 .achievement-coin .achievement-edge {
   --rim-radius: calc(var(--object-size, 154px) / 2);
-  --rim-depth: 18px;
+  --rim-depth: var(--medal-depth, 18px);
   --rim-stave: calc(var(--rim-radius) * .2689);
   position: absolute;
   inset: 0;
