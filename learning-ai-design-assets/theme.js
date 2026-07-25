@@ -451,16 +451,13 @@
         ${index===0 ? `<label class="audience-field"><span>Age range</span><small>LearningAI is built first for ages 13–18 and is open to everyone. This answer only decides whether adult-only guidance appears.</small><select id="audienceAge">${AGE_OPTIONS.map(([value,label])=>`<option value="${value}" ${draft.age===value?'selected':''}>${label}</option>`).join('')}</select></label>`:''}
         <fieldset class="diagnostic-options-prototype"><legend>Choose the closest answer</legend>${questionOptions.map(([value,label],optionIndex)=>`<label><input type="radio" name="${question.key}" value="${value}" ${answer===value?'checked':''}><span><b>${optionIndex+1}</b>${label}</span></label>`).join('')}</fieldset>
         <p class="audience-result" id="audienceResult" aria-live="polite">Choose the answer closest to what you understand today. You can change your starting point later.</p>
-        <div class="audience-actions diagnostic-actions"><button class="audience-skip" id="audienceBack" type="button" ${index===0?'disabled':''}>Back</button><button class="audience-skip" id="audienceLater" type="button">Finish later</button><button class="audience-primary" id="audienceNext" type="button">${index===QUESTIONS.length-1?'Finish and unlock LearningAI':'Next question'}</button></div>
+        <div class="audience-actions diagnostic-actions"><button class="audience-skip" id="audienceBack" type="button" ${index===0?'disabled':''}>Back</button><button class="audience-primary" id="audienceNext" type="button">${index===QUESTIONS.length-1?'Finish and unlock LearningAI':'Next question'}</button></div>
       </form>`;
       const result = dialog.querySelector('#audienceResult');
       const ageSelect = dialog.querySelector('#audienceAge');
       ageSelect?.addEventListener('change',event=>{ draft.age=event.target.value; persistDraft(); });
       dialog.querySelectorAll(`input[name="${question.key}"]`).forEach(input=>input.addEventListener('change',event=>{ draft.answers[question.key]=event.target.value; persistDraft(); }));
-      /* The dialog prevents Escape and every control is type="button", so without
-         this there was no way out of the questionnaire at all. Answers persist. */
-      dialog.querySelector('#audienceLater').addEventListener('click',()=>{persistDraft();dialog.close();location.href='./lesson-one.html';});
-      dialog.querySelector('#audienceBack').addEventListener('click',()=>{ draft.index=Math.max(0,index-1); persistDraft(); renderQuestion(); });
+            dialog.querySelector('#audienceBack').addEventListener('click',()=>{ draft.index=Math.max(0,index-1); persistDraft(); renderQuestion(); });
       dialog.querySelector('#audienceNext').addEventListener('click',async()=>{
         const chosen = dialog.querySelector(`input[name="${question.key}"]:checked`);
         if(index===0 && !draft.age){ result.textContent='Choose an age range, or select “Prefer not to say.”'; ageSelect?.focus(); return; }
