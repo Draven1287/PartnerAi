@@ -280,15 +280,19 @@
 
 .achievement-front {
   z-index: 2;
-  border: 1px solid rgba(255, 255, 255, .68);
+  /* Each face is now its own square image, so it fills the disc directly.
+     Percentage cropping of a combined sheet mis-aligned the square-format
+     badges, which is why some medals sat off-centre. */
   background-color: #e8e5de;
   background-image: var(--front-image);
   background-repeat: no-repeat;
-  background-position: var(--front-position, 8% 50%);
-  background-size: var(--front-size, 255% auto);
+  background-position: center;
+  background-size: cover;
+  /* The artwork is already rendered with depth and lighting. Painting another
+     bevel over it flattened it into a sticker. Keep only a thin rim. */
   box-shadow:
-    inset 5px 7px 11px rgba(255, 255, 255, .52),
-    inset -6px -8px 12px rgba(16, 22, 22, .24);
+    inset 0 0 0 1px rgba(255, 255, 255, .5),
+    inset 0 0 22px rgba(24, 30, 28, .18);
   transform: translateZ(9px);
 }
 
@@ -314,16 +318,14 @@
 .achievement-back {
   z-index: 2;
   align-content: end;
-  padding: 10%;
-  border: 1px solid rgba(255, 255, 255, .72);
   background-color: #c9cdcb;
   background-image: var(--back-image);
   background-repeat: no-repeat;
-  background-position: var(--back-position, 96% 50%);
-  background-size: var(--back-size, 255% auto);
+  background-position: center;
+  background-size: cover;
   box-shadow:
-    inset 5px 7px 10px rgba(255, 255, 255, .78),
-    inset -7px -9px 12px rgba(46, 52, 50, .28);
+    inset 0 0 0 1px rgba(255, 255, 255, .5),
+    inset 0 0 22px rgba(24, 30, 28, .2);
   color: #2f3432;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .68);
   transform: rotateY(180deg) translateZ(9px);
@@ -636,4 +638,25 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
   opacity: 0 !important;
   visibility: hidden !important;
   transform: none !important;
+}
+
+/* ── Medal edge ───────────────────────────────────────────────────────────
+   With only two parallel faces the medal disappeared into a hairline when
+   turned side-on, which is the moment that sells the object as solid. These
+   slices sit between the faces and form a milled rim. */
+.achievement-coin .achievement-edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+.achievement-coin .achievement-edge i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #6f7674 0%, #cdd2d0 22%, #939997 52%, #d7dbd9 76%, #6b7270 100%);
+  transform: rotateY(calc(var(--slice) * 22.5deg)) translateZ(0);
+  backface-visibility: visible;
+  opacity: .92;
 }

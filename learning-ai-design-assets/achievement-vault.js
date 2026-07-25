@@ -21,17 +21,17 @@
   let activeObject = null;
 
   const capabilities = [
-    ['arc-1', 'First Signal', 'Explain what prediction is and choose when not to trust it.', 5, './badges/arc-01-first-signal-front-back-v1.png', '#2d9c94', '282% auto', '10.5% 50%'],
-    ['arc-2', 'Pattern Seeker', 'Give AI a clear goal, useful context, and boundaries.', 10, './badges/arc-02-pattern-seeker-front-back-v1.png', '#ea6f5f', '282% auto', '10.5% 50%'],
-    ['arc-3', 'Better Questions', 'Ask a question that exposes uncertainty instead of hiding it.', 15, './badges/arc-03-better-questions-front-back-v1.png', '#8668d5', '282% auto', '10.5% 50%'],
-    ['arc-4', 'Truth Check', 'Check an important claim outside the model.', 20, './badges/arc-04-truth-check-front-back-v1.png', '#81bcca', '282% auto', '10.5% 50%'],
-    ['arc-5', 'Context Keeper', 'Decide what AI may remember and what must remain private.', 25, './badges/arc-05-context-keeper-front-back-v1.png', '#6e8f70', '282% auto', '10.5% 50%'],
-    ['arc-6', 'Human Judgment', 'Make and explain the final human decision.', 30, './badges/arc-06-human-judgment-front-back-v1.png', '#c7903b', '282% auto', '10.5% 50%'],
-    ['arc-7', 'Privacy Boundary', 'Remove sensitive data and set a safe information boundary.', 35, './badges/arc-07-privacy-boundary-front-back-v1.png', '#d76557', '282% auto', '10.5% 50%'],
-    ['arc-8', 'Workflow Builder', 'Build a repeatable workflow with a human approval point.', 40, './badges/arc-08-workflow-builder-front-back-v1.png', '#318f8d', '282% auto', '10.5% 50%'],
-    ['arc-9', 'Agent Director', 'Direct an agent while keeping scope, review, and stop controls.', 45, './badges/arc-09-agent-director-front-back-v1.png', '#7b61b8', '282% auto', '10.5% 50%'],
-    ['arc-10', 'Control Remains Yours', 'Complete a goal with AI while preserving authorship and control.', 50, './badges/arc-10-control-remains-yours-front-back-v1.png', '#b58c45', '282% auto', '10.5% 50%']
-  ].map(([id, name, meaning, target, art, color, size, position]) => ({ id, name, meaning, target, art, color, size, position, kind: 'capability' }));
+    ['arc-1', 'First Signal', 'Explain what prediction is and choose when not to trust it.', 5, './badges/faces/arc-01-first-signal', '#2d9c94'],
+    ['arc-2', 'Pattern Seeker', 'Give AI a clear goal, useful context, and boundaries.', 10, './badges/faces/arc-02-pattern-seeker', '#ea6f5f'],
+    ['arc-3', 'Better Questions', 'Ask a question that exposes uncertainty instead of hiding it.', 15, './badges/faces/arc-03-better-questions', '#8668d5'],
+    ['arc-4', 'Truth Check', 'Check an important claim outside the model.', 20, './badges/faces/arc-04-truth-check', '#81bcca'],
+    ['arc-5', 'Context Keeper', 'Decide what AI may remember and what must remain private.', 25, './badges/faces/arc-05-context-keeper', '#6e8f70'],
+    ['arc-6', 'Human Judgment', 'Make and explain the final human decision.', 30, './badges/faces/arc-06-human-judgment', '#c7903b'],
+    ['arc-7', 'Privacy Boundary', 'Remove sensitive data and set a safe information boundary.', 35, './badges/faces/arc-07-privacy-boundary', '#d76557'],
+    ['arc-8', 'Workflow Builder', 'Build a repeatable workflow with a human approval point.', 40, './badges/faces/arc-08-workflow-builder', '#318f8d'],
+    ['arc-9', 'Agent Director', 'Direct an agent while keeping scope, review, and stop controls.', 45, './badges/faces/arc-09-agent-director', '#7b61b8'],
+    ['arc-10', 'Control Remains Yours', 'Complete a goal with AI while preserving authorship and control.', 50, './badges/faces/arc-10-control-remains-yours', '#b58c45']
+  ].map(([id, name, meaning, target, art, color]) => ({ id, name, meaning, target, art, color, kind: 'capability' }));
 
   const milestones = [
     ['first-lesson', 'First Lesson', 'Finished your first guided lesson.', 'lessons', 1, '12% 25%', '#ef5b58'],
@@ -192,13 +192,14 @@
       return `<span class="achievement-depth" style="--depth-z:${depth}px"></span>`;
     }).join('');
     const frontStyle = item.kind === 'capability'
-      ? `--front-image:url('${item.art}');--front-size:${item.size};--front-position:${item.position};--back-image:url('${item.art}');--back-size:${item.size};--back-position:89.5% 50%`
+      ? `--front-image:url('${item.art}-front.jpg');--back-image:url('${item.art}-back.jpg')`
       : `--sprite-position:${item.sprite};--back-image:url('./badges/learningai-small-milestone-pin-backs-concept-v1.png');--back-size:650% 650%;--back-position:${item.sprite}`;
     return `
       <button class="achievement-object" type="button" data-achievement="${item.id}" data-face="front" aria-pressed="false" aria-describedby="selectedBadgeMeaning selectedBadgeStatus">
         <span class="achievement-stage" aria-hidden="true">
           <span class="achievement-coin" style="${frontStyle}">
             ${depthLayers}
+            <span class="achievement-edge" aria-hidden="true"><i style="--slice:0"></i><i style="--slice:1"></i><i style="--slice:2"></i><i style="--slice:3"></i><i style="--slice:4"></i><i style="--slice:5"></i><i style="--slice:6"></i><i style="--slice:7"></i></span>
             <span class="achievement-face achievement-front ${item.kind === 'milestone' ? 'milestone-front' : ''}"></span>
             <span class="achievement-face achievement-back ${item.kind === 'milestone' ? 'milestone-back' : ''}">
               <span class="engraving-plate">
