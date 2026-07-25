@@ -29,10 +29,18 @@ const MIME = new Map([
   ['.woff2', 'font/woff2']
 ]);
 
-function headers(pathname) {
-  const immutable = /\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|woff2?)$/i.test(pathname);
+function headers(pathname, stat) {
+  const asset = /\.(?:css|js|mjs|png|jpe?g|gif|svg|webp|woff2?)$/i.test(pathname);
+  // Assets were cached for an hour with no ETag and no Last-Modified, so a
+  // browser could not revalidate and kept running superseded JavaScript after a
+  // deploy. Keep them cacheable, but require a revalidation round-trip; with an
+  // ETag that costs one 304, not a re-download.
   return {
-    'cache-control': immutable ? 'public, max-age=3600, stale-while-revalidate=86400' : 'no-cache',
+    ...(stat ? {
+      etag: `W/"${stat.size.toString(16)}-${Math.floor(stat.mtimeMs).toString(16)}"`,
+      'last-modified': new Date(stat.mtimeMs).toUTCString()
+    } : {}),
+    'cache-control': asset ? 'public, max-age=0, must-revalidate, stale-while-revalidate=86400' : 'no-cache',
     'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.learningai4you.com https://www.google-analytics.com http://127.0.0.1:* http://localhost:*; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
     'cross-origin-opener-policy': 'same-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
@@ -146,7 +154,17 @@ const server = http.createServer((request, response) => {
     return;
   }
 
-  response.writeHead(200, { 'content-type': MIME.get(extname(file).toLowerCase()) || 'application/octet-stream', ...headers(pathname) });
+  const stat = statSync(file);
+  const head = { 'content-type': MIME.get(extname(file).toLowerCase()) || 'application/octet-stream', ...headers(pathname, stat) };
+  const inm = request.headers['if-none-match'];
+  const ims = request.headers['if-modified-since'];
+  const fresh = (inm && inm === head.etag)
+    || (!inm && ims && Date.parse(ims) >= Math.floor(stat.mtimeMs / 1000) * 1000);
+  if (fresh) {
+    response.writeHead(304, head);
+    return response.end();
+  }
+  response.writeHead(200, head);
   if (request.method === 'HEAD') response.end();
   else createReadStream(file).pipe(response);
 });
