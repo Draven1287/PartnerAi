@@ -43,7 +43,7 @@
     .unit-rail{position:fixed;z-index:16;right:14px;top:50%;display:grid;gap:7px;padding:10px 8px;border:1px solid rgba(255,255,255,.86);border-radius:999px;background:linear-gradient(145deg,rgba(255,255,255,.46),rgba(236,241,239,.18));box-shadow:inset 0 1px 1px white,0 12px 34px rgba(35,39,37,.12);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);transform:translateY(-50%)}.unit-rail button{--rail-color:var(--arc-01);position:relative;width:13px;height:13px;padding:0;border:2px solid rgba(255,255,255,.92);border-radius:50%;background:var(--rail-color);box-shadow:0 2px 7px color-mix(in oklab,var(--rail-color) 45%,transparent);cursor:pointer}.unit-rail button[aria-current="true"]{transform:scale(1.55);box-shadow:0 0 0 3px rgba(255,255,255,.66),0 4px 12px color-mix(in oklab,var(--rail-color) 60%,transparent)}.unit-rail button:nth-child(1){--rail-color:var(--arc-01)}.unit-rail button:nth-child(2){--rail-color:var(--arc-02)}.unit-rail button:nth-child(3){--rail-color:var(--arc-03)}.unit-rail button:nth-child(4){--rail-color:var(--arc-04)}.unit-rail button:nth-child(5){--rail-color:var(--arc-05)}.unit-rail button:nth-child(6){--rail-color:var(--arc-06)}.unit-rail button:nth-child(7){--rail-color:var(--arc-07)}.unit-rail button:nth-child(8){--rail-color:var(--arc-08)}.unit-rail button:nth-child(9){--rail-color:var(--arc-09)}.unit-rail button:nth-child(10){--rail-color:var(--arc-10)}.unit-rail button:focus-visible{outline:3px solid #17231f;outline-offset:3px}
     @media(max-width:820px){.unit-rail{right:auto;left:50%;top:auto;bottom:10px;grid-auto-flow:column;margin-left:-105px;transform:none}}
   </style>
-  <link rel="stylesheet" href="./glass-finish.css"><link rel="stylesheet" href="./theme.css?v=2026-07-25e"><link rel="stylesheet" href="./focus-mini.css"><script src="./theme.js?v=2026-07-25e"></script>
+  <link rel="stylesheet" href="./glass-finish.css"><link rel="stylesheet" href="./theme.css?v=2026-07-25f"><link rel="stylesheet" href="./focus-mini.css"><script src="./theme.js?v=2026-07-25f"></script>
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">
@@ -68,9 +68,10 @@
     <div class="catalog" id="catalog"></div>
   </main>
 
-  <script src="../v2/lessons.js?v=2026-07-25e"></script><script src="./course-state.js?v=2026-07-25e"></script><script src="./nav-behavior.js?v=2026-07-25e"></script><script src="./focus-mini.js?v=2026-07-25e"></script>
+  <script src="../v2/lessons.js?v=2026-07-25f"></script><script src="./course-state.js?v=2026-07-25f"></script><script src="./nav-behavior.js?v=2026-07-25f"></script><script src="./focus-mini.js?v=2026-07-25f"></script>
   <script>
     document.querySelector('.settings').href='./settings.html';
+    let heightRelease=0;
     const navShell=document.querySelector('#navShell');let lastY=scrollY;
 
     const previewName=new URLSearchParams(location.search).get('name')||window.LearningAIUser?.displayName||'Learner';document.querySelector('#greeting').textContent=`Welcome back, ${previewName}`;
@@ -103,8 +104,16 @@
         const locked=document.createElement('div');locked.className='lesson is-locked';locked.tabIndex=0;locked.setAttribute('role','group');locked.setAttribute('aria-label',`Lesson ${lesson.num}: ${lesson.title}. Locked. Complete lesson ${lesson.num-1} to unlock.`);locked.innerHTML=`<span class="lesson-num">${String(lesson.num).padStart(2,'0')}</span><span><span class="lesson-title">${lesson.title}</span><span class="lesson-question">${lesson.coreQuestion}</span></span><span class="lesson-time">${lesson.minutes} min <span class="lesson-status">◌ Complete ${lesson.num-1} first</span></span>`;list.append(locked);
       });
       catalog.append(section);
-      requestAnimationFrame(()=>{catalog.style.minHeight=section.offsetHeight+'px';
-        window.setTimeout(()=>{catalog.style.minHeight='';},320);});
+      /* Measure the natural height with the pin released, then re-apply it so the
+         transition has two different values to move between. Clearing runs on a
+         plain timer (rAF is suspended in a hidden tab) and any pending release
+         is cancelled so rapid arc switching cannot drop the pin mid-swap. */
+      catalog.style.minHeight='';
+      const targetHeight=section.offsetHeight;
+      catalog.style.minHeight=heldHeight?heldHeight+'px':'';
+      requestAnimationFrame(()=>{catalog.style.minHeight=targetHeight+'px';});
+      window.clearTimeout(heightRelease);
+      heightRelease=window.setTimeout(()=>{catalog.style.minHeight='';},340);
       /* The side rail could select an arc whose tab was scrolled out of view, so
          the two controls disagreed about where you were. */
       jump.children[index]?.scrollIntoView({inline:'center',block:'nearest',
@@ -112,7 +121,7 @@
       history.replaceState(null,'',`#arc-${index+1}`);if(focus)section.querySelector('h2').focus();
     }
     arcs.forEach((arc,index)=>{const button=document.createElement('button');button.type='button';button.id=`arc-tab-${index+1}`;button.role='tab';button.textContent=`Arc ${String(index+1).padStart(2,'0')}`;button.style.width='auto';button.style.paddingInline='13px';button.setAttribute('aria-label',`Choose Arc ${index+1}: ${arc}`);button.addEventListener('click',()=>showArc(index));button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let next=index;if(event.key==='ArrowLeft')next=(index-1+arcs.length)%arcs.length;if(event.key==='ArrowRight')next=(index+1)%arcs.length;if(event.key==='Home')next=0;if(event.key==='End')next=arcs.length-1;showArc(next);jump.children[next].focus()});jump.append(button);const railButton=document.createElement('button');railButton.type='button';railButton.setAttribute('aria-label',`Open Arc ${index+1}: ${arc}`);railButton.title=`Arc ${index+1} · ${arc}`;railButton.addEventListener('click',()=>{showArc(index,true);scrollTo({top:Math.max(0,catalog.offsetTop-105),behavior:document.documentElement.dataset.motion==='none'?'auto':'smooth'})});unitRail.append(railButton)});
-    if(lessons.length!==50||arcs.length!==10){catalog.innerHTML='<section class="arc" role="alert"><div class="arc-meta"><span class="arc-number">!</span><h2>Lessons could not load</h2><p>The course manifest is missing or incomplete. Reload this page; if the problem continues, return to the Dashboard.</p><a class="lesson is-ready" href="./stage-1-navigation-proof.html">Return to Dashboard →</a></div></section>';jump.hidden=true}else{const requestedArc=Math.min(arcs.length-1,Math.max(0,(Number(location.hash.replace('#arc-',''))||1)-1));showArc(requestedArc)}
+    if(lessons.length!==50||arcs.length!==10){catalog.innerHTML='<section class="arc" role="alert"><div class="arc-meta"><span class="arc-number">!</span><h2>Lessons could not load</h2><p>The course manifest is missing or incomplete. Reload this page; if the problem continues, return to the Dashboard.</p><a class="lesson is-ready" href="./stage-1-navigation-proof.html">Return to Dashboard →</a></div></section>';jump.hidden=true;unitRail.hidden=true}else{const requestedArc=Math.min(arcs.length-1,Math.max(0,(Number(location.hash.replace('#arc-',''))||1)-1));showArc(requestedArc)}
   </script>
 </body>
 </html>

@@ -101,7 +101,7 @@
     const earned = current >= definition.target;
     const shownCurrent = definition.unit === 'minutes' ? Math.floor(current / 60) : current;
     const shownTarget = definition.unit === 'minutes' ? Math.floor(definition.target / 60) : definition.target;
-    const unit = shownTarget === 1 ? definition.unit : `${definition.unit}s`;
+    const unit = shownTarget === 1 ? definition.unit : `${definition.unit}`;
     return { current, earned, label: `${Math.min(shownCurrent, shownTarget)} of ${shownTarget} ${unit}` };
   }
 
