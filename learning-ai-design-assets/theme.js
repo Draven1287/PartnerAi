@@ -221,8 +221,11 @@
     ['adults.html', 'Adults']
   ]);
   const PROTECTED_ROUTES = new Set([
+    // about.html carries Teaching AI and the privacy commitment. A teacher
+    // evaluating this for a class, or anyone deciding whether to hand over an
+    // email, must be able to read them before creating an account.
     'stage-1-navigation-proof.html','progress.html','lessons.html','lesson.html','focus.html',
-    'notes.html','projects.html','gallery.html','about.html','adults.html','settings.html'
+    'notes.html','projects.html','gallery.html','adults.html','settings.html'
   ]);
 
   function prototypeName() {
