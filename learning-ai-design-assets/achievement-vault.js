@@ -191,11 +191,31 @@
       : `Not engraved yet — ${requirementText(item)}`;
   }
 
+  /* 24 staves, one every 15deg. The matching geometry constants live in
+     achievement-vault.css (.achievement-edge i): change one and change both. */
+  const EDGE_STAVES = 24;
+  const RAD = Math.PI / 180;
+
+  /* The medal only ever turns about its vertical axis, so a stave keeps its
+     place on the screen for the whole turn — the one at the top stays at the
+     top. Its tone is therefore a fixed material property and can be baked once.
+     rotateZ(0) sits on the right and angles run clockwise, so a light at the
+     upper left of the screen sits at 225deg. */
+  function staveTint(index) {
+    const lit = Math.cos((index * (360 / EDGE_STAVES) - 225) * RAD);
+    const alpha = Math.round(Math.abs(lit) * (lit > 0 ? .36 : .34) * 255);
+    return `${lit > 0 ? '#ffffff' : '#161a19'}${alpha.toString(16).padStart(2, '0')}`;
+  }
+
+  function edgeMarkup() {
+    let staves = '';
+    for (let index = 0; index < EDGE_STAVES; index += 1) {
+      staves += `<i style="--slice:${index};--facet-tint:${staveTint(index)}"></i>`;
+    }
+    return `<span class="achievement-edge" aria-hidden="true">${staves}</span>`;
+  }
+
   function objectMarkup(item) {
-    const depthLayers = Array.from({ length: 13 }, (_, index) => {
-      const depth = -9 + (index * 1.5);
-      return `<span class="achievement-depth" style="--depth-z:${depth}px"></span>`;
-    }).join('');
     const frontStyle = item.kind === 'capability'
       ? `--front-image:url('${item.art}-front.jpg');--back-image:url('${item.art}-back.jpg')`
       : `--sprite-position:${item.sprite};--back-image:url('./badges/learningai-small-milestone-pin-backs-concept-v1.png');--back-size:650% 650%;--back-position:${item.sprite}`;
@@ -203,8 +223,7 @@
       <button class="achievement-object" type="button" data-achievement="${item.id}" data-face="front" aria-pressed="false" aria-describedby="selectedBadgeMeaning selectedBadgeStatus">
         <span class="achievement-stage" aria-hidden="true">
           <span class="achievement-coin" style="${frontStyle}">
-            ${depthLayers}
-            <span class="achievement-edge" aria-hidden="true"><i style="--slice:0"></i><i style="--slice:1"></i><i style="--slice:2"></i><i style="--slice:3"></i><i style="--slice:4"></i><i style="--slice:5"></i><i style="--slice:6"></i><i style="--slice:7"></i></span>
+            ${edgeMarkup()}
             <span class="achievement-face achievement-front ${item.kind === 'milestone' ? 'milestone-front' : ''}"></span>
             <span class="achievement-face achievement-back ${item.kind === 'milestone' ? 'milestone-back' : ''}">
               <span class="engraving-plate">
@@ -244,14 +263,55 @@
     return `${face === 'back' ? 'Turning toward back' : 'Turning toward front'} · ${rounded}°`;
   }
 
+  function motionMode() {
+    const mode = document.documentElement.dataset.motion;
+    if (mode === 'none' || mode === 'reduced' || mode === 'standard') return mode;
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'standard';
+  }
+
+  /* One flip should read as one movement, so the duration follows the angle
+     actually travelled: a 15deg arrow nudge is quick, a 180deg turn is not.
+     Reduced motion keeps the turn but shortens it; "none" cuts to the face. */
+  function turnDuration(travel) {
+    const mode = motionMode();
+    if (mode === 'none') return 0;
+    const base = Math.min(660, 170 + Math.min(360, Math.abs(travel)) * 2.6);
+    return Math.round(mode === 'reduced' ? Math.min(240, base * .4) : base);
+  }
+
+  /* A highlight that stays put while the object turns is the thing that breaks
+     the illusion, so the light is fixed to the screen and the medal moves under
+     it. For a slightly domed face the hot spot sits where the surface normal
+     bisects eye and light, which after a turn of `y` puts it at
+     -(0.23·cos y + 1.04·sin y) across the face: just left of centre at rest,
+     sliding off the edge as the face turns away. The back face is mirrored by
+     its own rotateY(180deg), which cancels the sign, so one value serves both.
+     The rim brightens as it swings side-on and catches the light. */
+  function applyLight(object, x, y) {
+    const angle = y * RAD;
+    const across = Math.max(-1.15, Math.min(1.15, -((.23 * Math.cos(angle)) + (1.04 * Math.sin(angle)))));
+    const facing = Math.abs(Math.cos(angle));
+    const style = object.style;
+    style.setProperty('--shine-x', `${(across * 30).toFixed(2)}%`);
+    style.setProperty('--shine-y', `${Math.max(-15, Math.min(12, -6 - (x * .9))).toFixed(2)}%`);
+    style.setProperty('--shine-a', (.14 + (.46 * Math.sqrt(facing))).toFixed(3));
+    style.setProperty('--sheen', `${(150 - (Math.sin(angle) * 28)).toFixed(1)}deg`);
+    style.setProperty('--edge-lum', (.04 + (.26 * Math.abs(Math.sin(angle)))).toFixed(3));
+  }
+
   function setPose(object, x, y, animate = true) {
     const pose = poses.get(object);
     if (!pose) return;
-    pose.x = Math.max(-26, Math.min(26, x));
-    pose.y = Math.max(-180, Math.min(180, y));
+    const nextX = Math.max(-26, Math.min(26, x));
+    const nextY = Math.max(-180, Math.min(180, y));
+    const travel = Math.max(Math.abs(nextY - pose.y), Math.abs(nextX - pose.x) * .8);
+    pose.x = nextX;
+    pose.y = nextY;
     object.classList.toggle('is-turning', !animate);
+    if (animate) object.style.setProperty('--turn-ms', `${turnDuration(travel)}ms`);
     object.style.setProperty('--rotate-x', `${pose.x}deg`);
     object.style.setProperty('--rotate-y', `${pose.y}deg`);
+    applyLight(object, pose.x, pose.y);
     const face = faceFor(pose.y);
     object.dataset.face = face;
     object.setAttribute('aria-pressed', String(face === 'back'));
@@ -282,8 +342,6 @@
       : Math.max(-180, Math.min(180, Math.round(pose.y / 180) * 180));
     setPose(object, 4, next, true);
     object.classList.remove('is-turning');
-    object.style.setProperty('--shine-x', '0px');
-    object.style.setProperty('--shine-y', '0px');
   }
 
   function wireObject(object) {
@@ -334,10 +392,9 @@
       if (Math.abs(dx) > 4) pose.moved = true;
       if (!pose.moved) return;
       event.preventDefault();
+      /* The highlight follows the angle now, not the cursor, so there is no
+         second lighting model to reconcile — and no layout read per move. */
       setPose(object, Math.max(-18, Math.min(18, 4 - dy * .16)), pose.startYRotation + dx * .88, false);
-      const rect = object.getBoundingClientRect();
-      object.style.setProperty('--shine-x', `${Math.max(-11, Math.min(11, (event.clientX - rect.left - rect.width / 2) * .1))}px`);
-      object.style.setProperty('--shine-y', `${Math.max(-8, Math.min(8, (event.clientY - rect.top - rect.height / 2) * .08))}px`);
     });
 
     object.addEventListener('pointerup', event => {
@@ -372,9 +429,12 @@
       event.preventDefault();
       selectObject(object);
       pose.ignoreClickUntil = Date.now() + 500;
-      if (event.key === 'ArrowLeft') setPose(object, 4, pose.y - 15, true);
-      else if (event.key === 'ArrowRight') setPose(object, 4, pose.y + 15, true);
-      else snap(object, 1);
+      const arrow = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0;
+      /* With animation switched off there is nothing to see between the two
+         faces, so an arrow turns straight to the next one rather than stepping
+         invisibly 15deg at a time. */
+      if (!arrow || motionMode() === 'none') snap(object, arrow || 1);
+      else setPose(object, pose.x, pose.y + (arrow * 15), true);
     });
   }
 

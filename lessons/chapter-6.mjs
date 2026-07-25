@@ -5,29 +5,29 @@ export default {
   "id": "chapter-6",
   "num": 6,
   "arc": "How It Works",
-  "title": "How It Creates",
-  "coreQuestion": "When an AI product writes, draws, or speaks, what is it generating — and what can I actually know about where the result came from?",
-  "blurb": "Text, image, and audio systems create in different ways. Learn to separate generation from retrieval and check consent and provenance before you share.",
+  "title": "Where Did This Come From?",
+  "coreQuestion": "When AI makes a picture, some writing, or a voice, how can I tell where it really came from?",
+  "blurb": "Learn why you cannot tell how something was made just by looking at it, and what to check instead.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Generated, retrieved, or both?",
-      "scenario": "You ask an assistant for a poster of a glass city under two moons. It returns a polished image. The result looks original, but the product could have generated it, retrieved an existing image, combined tools, or used a workflow you cannot see.",
-      "prompt": "Before you read on: what evidence would you need before claiming the image was generated rather than found? Name one thing the image itself cannot prove."
+      "title": "It looks real. That tells you nothing.",
+      "scenario": "You ask an app for a poster of a glass city under two moons. Seconds later, there it is. It looks incredible.\n\nBut you cannot tell how the app got it. It might have made the picture itself. It might have found one someone else drew. It might have mixed both together.",
+      "prompt": "If a friend asked \"did the AI actually make that?\", what could you honestly say right now?"
     },
     {
       "kind": "reveal",
-      "title": "Different media, different systems",
-      "body": "Generative AI is a family of systems that produces new content from learned patterns. A text model commonly predicts units of text called tokens. Many image systems begin with noise or an internal representation and repeatedly adjust it toward patterns connected to the prompt. Speech systems can turn text into acoustic patterns, while a separate speech-recognition system may turn your voice into text.\n\nA single assistant may quietly route your request among several models, search tools, files, or other services. So 'one next-piece engine does everything' is a useful first analogy, not a complete technical description. The finished result also cannot prove its own history: a novel-looking image might be generated, retrieved, edited, or assembled by a hybrid tool. Check the product's source labels, content credentials, links, or activity record when origin matters.",
+      "title": "Made or found, and why you cannot see the difference",
+      "body": "There are two different things an app can do, and they look identical on screen.\n\nMade means the AI built something new, piece by piece, from patterns it learned. Nobody drew that exact picture before.\n\nFound means the app went and got something that already existed, that a real person made.\n\nHere is the problem. A finished picture cannot tell you which one happened. Looking closer does not help. Neither does it looking impressive.\n\nThe only way to know is if the app tells you. Some apps show a link to where something came from, or a small label saying the AI made this. That label is your evidence. The picture itself never is.\n\nIf there is no label and no link, the honest answer is \"I do not know where this came from\". That is a real answer, and it is the right one.",
       "mistake": "Assuming that a surprising result proves the assistant generated every part of it from scratch.",
       "good": "Ask what system or tool produced the result, what source information is available, and what still needs human checking."
     },
     {
       "kind": "classify",
-      "title": "What does the evidence support?",
-      "prompt": "Sort each result by the strongest conclusion the evidence supports. Do not guess from appearance alone.",
+      "title": "What can you honestly say?",
+      "prompt": "For each one, pick the strongest thing you are allowed to claim. Do not judge by how good it looks.",
       "buckets": [
         "Generation is documented",
         "Retrieval is documented",
@@ -55,12 +55,12 @@ export default {
           "answer": 2
         }
       ],
-      "reveal": "Appearance is not provenance. A creation record or content credential can support a generation claim; a source link can support retrieval; missing evidence means the honest answer is 'origin unclear.' Even provenance tools can be incomplete, so consequential uses still need verification."
+      "reveal": "Looking good is not evidence. A label or a link tells you where something came from. No label means \"I do not know\" — and saying that is not a failure."
     },
     {
       "kind": "workflowChain",
-      "title": "Create without taking someone else's identity",
-      "goal": "Plan a poster concept while respecting consent, authorship, and the audience's right to know what they are seeing.",
+      "title": "Make something without taking someone else's",
+      "goal": "Plan a poster of your own, without using a real person's face or someone else's artwork.",
       "correct": [
         "Choose an invented subject or material you have permission to use",
         "Describe visual qualities instead of copying a living artist or real person's identity",
@@ -77,7 +77,7 @@ export default {
         "Describe visual qualities instead of copying a living artist or real person's identity",
         "Decide the audience, purpose, and limits"
       ],
-      "note": "You do not need an image generator to complete this lesson. The plan and provenance decisions you make here are the required evidence. If you use an outside tool, do not upload a real person's photo, private material, or work you lack permission to use."
+      "note": "You do not need an image app to finish this lesson. Your plan is the work. If you do use one, do not upload a real person's photo or someone else's drawing."
     },
     {
       "kind": "compare",
@@ -115,8 +115,8 @@ export default {
     },
     {
       "kind": "exitCheck",
-      "title": "Make the claim the evidence supports",
-      "question": "An assistant returns a convincing image for a made-up subject, but gives no source, tool label, or content credential. What is the most accurate conclusion?",
+      "title": "Say only what you can back up",
+      "question": "An app gives you a convincing picture of something imaginary. There is no label and no link. What is the most honest thing you can say?",
       "options": [
         {
           "text": "The origin is unclear. I can describe the result, but I need provenance or source evidence before claiming it was generated or found.",

@@ -1,3 +1,12 @@
+/* Lighting variables are registered so they can be interpolated. Without a
+   registered syntax a custom property jumps to its new value instantly, which
+   made the specular arrive before the medal had finished turning. */
+@property --shine-x { syntax: "<percentage>"; inherits: true; initial-value: -7%; }
+@property --shine-y { syntax: "<percentage>"; inherits: true; initial-value: -10%; }
+@property --shine-a { syntax: "<number>"; inherits: true; initial-value: .58; }
+@property --sheen { syntax: "<angle>"; inherits: true; initial-value: 150deg; }
+@property --edge-lum { syntax: "<number>"; inherits: true; initial-value: .06; }
+
 .achievement-vault {
   overflow: hidden;
 }
@@ -94,25 +103,46 @@
     0 21px 42px color-mix(in oklab, var(--accent, #b58c45) 18%, transparent);
 }
 
+/* A locked award reads as unstruck metal: the colour is gone, the object is
+   not. It still turns, still shows its engraving, still takes focus. Hovering,
+   focusing or selecting it brings some of the colour back so it can be
+   inspected properly. */
 .achievement-item.is-locked .achievement-object {
-  filter: saturate(.68) brightness(.91);
+  filter: grayscale(.84) contrast(.93) brightness(1.04);
+  opacity: .74;
+}
+
+.achievement-item.is-locked:hover .achievement-object,
+.achievement-item.is-locked:focus-within .achievement-object,
+.achievement-item.is-locked.is-selected .achievement-object {
+  filter: grayscale(.46) contrast(.97) brightness(1.02);
+  opacity: .93;
 }
 
 .achievement-item.is-earned .achievement-stage {
   filter:
+    saturate(1.04) contrast(1.025)
     drop-shadow(0 0 8px color-mix(in oklab, var(--accent, #b58c45) 24%, transparent))
     drop-shadow(0 16px 14px rgba(38, 44, 41, .14));
 }
 
 .achievement-item.is-earned .achievement-front::after {
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, .58), transparent 25%),
-    radial-gradient(circle at 24% 18%, color-mix(in oklab, var(--accent, #b58c45) 22%, rgba(255, 255, 255, .24)), transparent 36%);
+    radial-gradient(56% 60% at calc(50% + var(--shine-x)) calc(30% + var(--shine-y)),
+      color-mix(in oklab, var(--accent, #b58c45) 16%, rgba(255, 255, 255, var(--shine-a))),
+      rgba(255, 255, 255, calc(var(--shine-a) * .22)) 46%,
+      transparent 70%),
+    linear-gradient(var(--sheen), rgba(255, 255, 255, .5), transparent 26%);
 }
 
 .achievement-object {
   --rotate-x: 5deg;
   --rotate-y: 0deg;
+  /* Duration is set per gesture in JS from the angle actually travelled, so a
+     15deg arrow nudge does not take as long as a 180deg flip. The curve carries
+     a little past the target and settles, the way a weighted object does. */
+  --turn-ms: 520ms;
+  --turn-ease: cubic-bezier(.32, 1.05, .38, 1);
   display: grid;
   width: 100%;
   min-width: 0;
@@ -128,6 +158,19 @@
   user-select: none;
   -webkit-user-select: none;
   perspective: 1100px;
+  /* The light travels with the turn instead of arriving ahead of it. */
+  transition:
+    --shine-x var(--turn-ms) var(--turn-ease),
+    --shine-y var(--turn-ms) var(--turn-ease),
+    --shine-a var(--turn-ms) var(--turn-ease),
+    --sheen var(--turn-ms) var(--turn-ease),
+    --edge-lum var(--turn-ms) var(--turn-ease),
+    filter 240ms ease,
+    opacity 240ms ease;
+}
+
+.achievement-object.is-turning {
+  transition: none;
 }
 
 .achievement-object:active {
@@ -170,13 +213,22 @@
 }
 
 .achievement-stage {
+  /* Declared rather than left to a var() fallback: the rim geometry is derived
+     from it, and a fallback would leave the rim at the wrong radius wherever a
+     media query changes the medal size. */
+  --object-size: 154px;
   position: relative;
   display: grid;
-  width: var(--object-size, 154px);
-  height: var(--object-size, 154px);
+  width: var(--object-size);
+  height: var(--object-size);
   place-items: center;
   perspective: 900px;
-  filter: none;
+  /* The material filter lives here, not on .achievement-coin. Any filter forces
+     transform-style to flat, so while it sat on the coin every child was
+     flattened into one plane: the faces' translateZ did nothing and the medal
+     was a flipping card with no thickness. The stage is already the flattening
+     boundary (it holds the perspective), so the same look costs no depth. */
+  filter: saturate(1.04) contrast(1.025) drop-shadow(0 10px 10px rgba(31, 36, 34, .12));
 }
 
 .achievement-stage::after {
@@ -203,67 +255,12 @@
   height: 100%;
   transform: rotateX(var(--rotate-x)) rotateY(var(--rotate-y));
   transform-style: preserve-3d;
-  transition: transform 440ms cubic-bezier(.18, .82, .22, 1);
+  transition: transform var(--turn-ms) var(--turn-ease);
   will-change: transform;
-  filter: saturate(1.04) contrast(1.025) drop-shadow(0 10px 10px rgba(31, 36, 34, .12));
 }
 
 .achievement-object.is-turning .achievement-coin {
   transition: none;
-}
-
-.achievement-coin::before {
-  content: none;
-  position: absolute;
-  z-index: -1;
-  inset: 1.5%;
-  border: 8px solid color-mix(in oklab, var(--accent, #a89f91) 18%, #858c89);
-  border-radius: 50%;
-  background:
-    repeating-linear-gradient(95deg, rgba(255, 255, 255, .22) 0 1px, rgba(70, 76, 74, .12) 1px 3px),
-    linear-gradient(115deg, #fafafa 0 8%, #777e7b 22%, #dfe2e0 46%, #5a615e 73%, #f4f5f4);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .72),
-    0 2px 4px rgba(0, 0, 0, .36);
-  transform: translateZ(-9px);
-}
-
-.achievement-coin::after {
-  content: none;
-  position: absolute;
-  z-index: 0;
-  inset: 1.5%;
-  border: 8px solid transparent;
-  border-radius: 50%;
-  background:
-    linear-gradient(#a9afac, #a9afac) padding-box,
-    repeating-linear-gradient(90deg, #f3f4f3 0 1px, #777e7b 1px 3px, #c9cdcb 3px 4px) border-box;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .64),
-    0 0 0 1px rgba(52, 58, 55, .30);
-  transform: translateZ(-1px);
-  pointer-events: none;
-}
-
-.achievement-depth {
-  position: absolute;
-  z-index: 1;
-  inset: 1.5%;
-  overflow: hidden;
-  border: 1px solid rgba(48, 54, 52, .48);
-  border-radius: 50%;
-  background:
-    repeating-linear-gradient(93deg, rgba(255, 255, 255, .22) 0 1px, rgba(59, 66, 63, .16) 1px 3px),
-    linear-gradient(112deg, #f3f4f3 0 8%, #7b827f 21%, #d7dad8 43%, #656c69 68%, #f5f6f5 92%);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .35),
-    inset 0 0 7px rgba(35, 41, 38, .28);
-  transform: translateZ(var(--depth-z));
-  pointer-events: none;
-}
-
-.achievement-depth:nth-of-type(even) {
-  filter: brightness(.91);
 }
 
 .achievement-face {
@@ -296,6 +293,11 @@
   transform: translateZ(9px);
 }
 
+/* The specular is a gradient position, not a translated overlay. Sliding the
+   whole overlay dragged its rim line with it; moving only the highlight lets
+   the light travel across a face that stays put. --shine-* are recomputed from
+   the rotation on every pose change, so the hot spot sweeps off the edge as the
+   medal turns away instead of staying pinned to the artwork. */
 .achievement-front::after {
   content: "";
   position: absolute;
@@ -303,10 +305,12 @@
   border: 1px solid rgba(255, 255, 255, .45);
   border-radius: inherit;
   background:
-    linear-gradient(150deg, rgba(255, 255, 255, .42), transparent 31%),
-    radial-gradient(circle at 25% 19%, rgba(255, 255, 255, .3), transparent 36%);
+    radial-gradient(56% 60% at calc(50% + var(--shine-x)) calc(30% + var(--shine-y)),
+      rgba(255, 255, 255, var(--shine-a)),
+      rgba(255, 255, 255, calc(var(--shine-a) * .22)) 46%,
+      transparent 70%),
+    linear-gradient(var(--sheen), rgba(255, 255, 255, .42), transparent 31%);
   pointer-events: none;
-  transform: translate3d(var(--shine-x, 0), var(--shine-y, 0), 15px);
 }
 
 .milestone-front {
@@ -331,6 +335,9 @@
   transform: rotateY(180deg) translateZ(9px);
 }
 
+/* The back is mirrored by its own rotateY(180deg), which already flips the
+   horizontal sense of the highlight, so --shine-x is used unchanged; only the
+   sheen angle has to be mirrored to keep the light coming from one direction. */
 .achievement-back::before {
   content: "";
   position: absolute;
@@ -338,9 +345,11 @@
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, .48);
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, .34), transparent 30%),
+    radial-gradient(58% 62% at calc(50% + var(--shine-x)) calc(32% + var(--shine-y)),
+      rgba(255, 255, 255, calc(var(--shine-a) * .74)),
+      transparent 62%),
+    linear-gradient(calc(360deg - var(--sheen)), rgba(255, 255, 255, .34), transparent 30%),
     radial-gradient(circle at 74% 78%, rgba(25, 30, 28, .12), transparent 34%);
-  transform: translate3d(calc(var(--shine-x, 0) * -1), var(--shine-y, 0), 15px);
   pointer-events: none;
 }
 
@@ -616,9 +625,12 @@
   .achievement-copy strong { font-size: 12px; }
 }
 
+/* The site's own motion setting is the authority here — theme.js already seeds
+   it from prefers-reduced-motion and the learner can override it in settings.
+   This only covers the case where theme.js has not run. */
 @media (prefers-reduced-motion: reduce) {
-  .achievement-coin {
-    transition: none;
+  html:not([data-motion]) .achievement-object {
+    --turn-ms: 0ms;
   }
 }
 
@@ -641,24 +653,53 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
 }
 
 /* ── Medal edge ───────────────────────────────────────────────────────────
-   With only two parallel faces the medal disappeared into a hairline when
-   turned side-on, which is the moment that sells the object as solid. These
-   slices sit between the faces and form a milled rim. */
+   The previous slices were full-diameter discs rotated about the medal's own
+   vertical axis, so at the side-on moment one of them turned to face the camera
+   and the medal read as a flat grey circle instead of a thin rim.
+
+   These are the staves of a real prism instead. Each one is a flat strip
+   18px wide — the exact gap between the two faces at translateZ(±9px) — stood
+   on end at the circumference and turned to face outward:
+
+     rotateZ(theta) translateX(apothem) rotateY(90deg)
+
+   With 24 staves each strip is 15deg of arc. Its height is the chord
+   2r·sin(7.5deg) = 0.261r so neighbours meet edge to edge with no gap, and it
+   is pushed out to the apothem r·cos(7.5deg) = 0.991r so the corners land on
+   the true radius rather than outside it. The resulting silhouette sits 0.66px
+   inside the faces at 154px — under a pixel, and invisible.
+
+   Because the coin only ever turns about Y, a stave keeps its position on the
+   screen (the one at the top stays at the top), so its shading is a fixed
+   material property: --facet-tint is baked per stave from its angle to a
+   fixed upper-left light. Only --edge-lum moves, brightening the whole rim as
+   it swings side-on and catches the light. */
 .achievement-coin .achievement-edge {
+  --rim-radius: calc(var(--object-size, 154px) / 2);
+  --rim-depth: 18px;
+  --rim-stave: calc(var(--rim-radius) * .2689);
   position: absolute;
   inset: 0;
-  border-radius: 50%;
   pointer-events: none;
   transform-style: preserve-3d;
 }
+
 .achievement-coin .achievement-edge i {
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: linear-gradient(90deg, #6f7674 0%, #cdd2d0 22%, #939997 52%, #d7dbd9 76%, #6b7270 100%);
-  transform: rotateY(calc(var(--slice) * 22.5deg)) translateZ(0);
-  backface-visibility: visible;
-  opacity: .92;
+  top: calc(50% - var(--rim-stave) / 2);
+  left: calc(50% - var(--rim-depth) / 2);
+  width: var(--rim-depth);
+  height: var(--rim-stave);
+  background:
+    linear-gradient(rgba(255, 255, 255, var(--edge-lum)) 0 100%),
+    linear-gradient(var(--facet-tint, transparent) 0 100%),
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, .30) 0 1px, rgba(40, 46, 44, .34) 1px 2.4px),
+    linear-gradient(90deg, #454c4a 0%, #e7ebe9 23%, #99a09d 52%, #d6dbd9 77%, #3f4644 100%);
+  transform:
+    rotateZ(calc(var(--slice) * 15deg))
+    translateX(calc(var(--rim-radius) * .9914))
+    rotateY(90deg);
+  backface-visibility: hidden;
 }
 
 /* ── Rotation console spacing ─────────────────────────────────────────────
