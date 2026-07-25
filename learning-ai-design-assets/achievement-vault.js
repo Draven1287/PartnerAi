@@ -183,7 +183,12 @@
     selectedMeaning.textContent = item.meaning;
     selectedRequirement.textContent = requirementText(item);
     selectedStatus.textContent = progressText(item, current, earnedAt);
-    selectedEarned.textContent = earnedAt ? stamp(earnedAt) : 'Earned date appears here';
+    /* "Earned date appears here" was placeholder copy that every learner saw,
+       because nothing is engraved until a badge is actually earned. Say what is
+       true and what would change it. */
+    selectedEarned.textContent = earnedAt
+      ? `First earned ${stamp(earnedAt)}`
+      : `Not engraved yet — ${requirementText(item)}`;
   }
 
   function objectMarkup(item) {
