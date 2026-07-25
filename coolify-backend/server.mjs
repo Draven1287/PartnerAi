@@ -804,6 +804,15 @@ async function handlePasswordResetRequest(req, res, db) {
       console.error('Password reset email could not be sent:', response.status);
     }
   }
+  // Never claim an email is coming when nothing can deliver one. Doing so
+  // strands a learner who has no other recovery path. Stay non-enumerating:
+  // this answer does not depend on whether the address has an account. The dev
+  // token-return escape hatch is a real delivery channel, so it is not an outage.
+  const devTokenReturnEnabled = process.env.NODE_ENV !== 'production'
+    && process.env.ALLOW_DEV_RESET_TOKEN_RETURN === 'true';
+  if (!PASSWORD_RESET_EMAIL_CONFIGURED && !devTokenReturnEnabled) {
+    return sendJson(res, 503, { ok: false, error: 'password_reset_unavailable' }, { req });
+  }
   const payload = { ok: true, message: 'If this email has a LearningAI account, a password reset email will arrive shortly.' };
   if (created && process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEV_RESET_TOKEN_RETURN === 'true') payload.resetToken = token;
   return sendJson(res, 200, payload, { req });
@@ -836,7 +845,13 @@ async function handleV1Minutes(req, res, db) {
 }
 
 function csvEscape(value) {
-  return `"${String(value == null ? '' : value).replaceAll('"', '""')}"`;
+  const text = String(value == null ? '' : value);
+  // Spreadsheets strip the enclosing quotes and then evaluate a leading =, +,
+  // -, @, tab or CR as a formula. displayName and assessment free text are
+  // learner-controlled and land in admin exports, so force the cell to stay
+  // literal.
+  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  return `"${safe.replaceAll('"', '""')}"`;
 }
 
 function learnerCsv(rows) {

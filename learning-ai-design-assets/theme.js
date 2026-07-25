@@ -430,7 +430,7 @@
       dialog.innerHTML = `<form method="dialog" class="audience-card diagnostic-card-prototype">
         <div class="diagnostic-meta"><p class="audience-eyebrow">Starting placement · not graded</p><span>Question ${index+1} of ${QUESTIONS.length}</span></div>
         <div class="diagnostic-progress-prototype" role="progressbar" aria-label="Starting questions" aria-valuemin="1" aria-valuemax="${QUESTIONS.length}" aria-valuenow="${index+1}" aria-valuetext="Question ${index+1} of ${QUESTIONS.length}"><i style="width:${((index+1)/QUESTIONS.length)*100}%"></i></div>
-        <p class="diagnostic-promise">About 2 minutes. Your answers place you in a starting explanation band—not a grade. The band only changes how much guidance you see; it never locks a lesson.</p>
+        <p class="diagnostic-promise">About 2 minutes. Your answers record your starting point so the course can be improved. They are not a grade, and they never lock or unlock a lesson.</p>
         <p class="diagnostic-topic">${question.label}</p>
         <h2 id="audienceTitle" tabindex="-1">${question.title}</h2>
         <p class="audience-copy">${question.copy}</p>

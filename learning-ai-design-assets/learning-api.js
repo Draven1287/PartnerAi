@@ -116,7 +116,16 @@
       request_timeout: 'The LearningAI service took too long to respond. Try again.',
       network_error: 'The LearningAI service is unavailable right now. Your lesson remains on this device.',
       unauthorized: 'Sign in again before continuing.',
-      lesson_locked: 'Complete the previous lesson before saving this one.'
+      lesson_locked: 'Complete the previous lesson before saving this one.',
+      // A real outage answers with one of these, not with network_error. Without
+      // them every service failure fell through to the generic message, which
+      // reads as "this button is broken" rather than "come back shortly".
+      api_proxy_not_configured: 'LearningAI cannot reach its account service right now. Your work is safe on this device — try again in a few minutes.',
+      api_proxy_unavailable: 'LearningAI cannot reach its account service right now. Your work is safe on this device — try again in a few minutes.',
+      db_not_ready: 'LearningAI is still starting up. Your work is safe on this device — try again in a minute.',
+      server_error: 'Something went wrong on the LearningAI service. Your work is safe on this device — try again shortly.',
+      password_reset_unavailable: 'Password reset by email is not available yet. Email learningai4youprojects@duck.com and we will restore your access.',
+      origin_not_allowed: 'This page was opened from an address LearningAI does not recognise. Go to learningai4you.com directly.'
     };
     return messages[result?.error] || 'Something went wrong. Your lesson remains safely on this device.';
   };

@@ -437,7 +437,18 @@
     if (error === 'invalid_credentials' || error === 'invalid_login') return 'That email and password do not match. Check the password, or create a new account with a different email.';
     if (error === 'email_exists') return 'That email already has an account. Choose Sign in and use the password you created earlier.';
     if (error === 'rate_limited') return 'Too many attempts. Wait a few minutes, then try again.';
-    return error || 'Could not complete that request.';
+    // Session and service failures reach the questionnaire too, where retrying
+    // the same button can never succeed. Say what will actually help, and never
+    // surface a raw error token to a learner.
+    if (error === 'unauthorized') return 'Your session has expired. Sign in again to continue.';
+    if (error === 'csrf_required') return 'Your secure session expired. Reload this page, then try again.';
+    if (error === 'api_proxy_unavailable' || error === 'api_proxy_not_configured' || error === 'db_not_ready' || error === 'server_error') {
+      return 'The Learning AI service is temporarily unavailable. Try again in a few minutes.';
+    }
+    if (error === 'password_reset_unavailable') return 'Password reset by email is not available yet. Contact Learning AI account help.';
+    if (error === 'origin_not_allowed') return 'This page was opened from an address Learning AI does not recognise. Open learningai4you.com directly.';
+    if (error === 'invalid_json' || error === 'backend_not_configured') return 'Learning AI could not process that request. Reload this page and try again.';
+    return 'Could not complete that request.';
   }
 
   function guestSampleProgress() {
@@ -1238,31 +1249,36 @@
     }
   }
 
+  async function signOutFlow() {
+    await syncPendingProgress();
+    await syncPendingToolkit();
+    const pendingAssessment = readJson(pendingAssessmentStorageKey(), null);
+    if (pendingAssessment) {
+      const saved = await api.saveAssessment(pendingAssessment).catch(() => ({ ok: false }));
+      if (saved.ok) localStorage.removeItem(pendingAssessmentStorageKey());
+    }
+    // Unsaved work is worth protecting, but a hard refusal traps a learner on a
+    // shared or borrowed device whenever the backend stays unreachable. State
+    // the cost plainly, then let the person decide.
+    if (readPendingProgress().length || readPendingToolkit().length || readJson(pendingAssessmentStorageKey(), null)) {
+      const signOutAnyway = window.confirm('Some recent learning on this device has not reached your account yet.\n\nSign out anyway? That unsaved work will be erased from this device.');
+      if (!signOutAnyway) return;
+    }
+    await api.logout();
+    clearV2LocalSession();
+    currentUser = null;
+    serverState = null;
+    location.hash = '#/';
+    render();
+  }
+
   function accountBar() {
     if (!currentUser) return null;
     const questionnaireLabel = hasAssessment() ? 'Retake questionnaire' : 'Take questionnaire';
     return h('div', { class: 'account-bar' }, [
       h('span', null, `Signed in as ${currentUser.displayName || currentUser.email}`),
       h('a', { class: 'btn btn-ghost', href: '#/questionnaire' }, questionnaireLabel),
-      h('button', { class: 'btn btn-ghost', onclick: async () => {
-        await syncPendingProgress();
-        await syncPendingToolkit();
-        const pendingAssessment = readJson(pendingAssessmentStorageKey(), null);
-        if (pendingAssessment) {
-          const saved = await api.saveAssessment(pendingAssessment).catch(() => ({ ok: false }));
-          if (saved.ok) localStorage.removeItem(pendingAssessmentStorageKey());
-        }
-        if (readPendingProgress().length || readPendingToolkit().length || readJson(pendingAssessmentStorageKey(), null)) {
-          window.alert('Some recent learning is still waiting to save. Check your connection and try signing out again so nothing is lost.');
-          return;
-        }
-        await api.logout();
-        clearV2LocalSession();
-        currentUser = null;
-        serverState = null;
-        location.hash = '#/';
-        render();
-      } }, 'Sign out')
+      h('button', { class: 'btn btn-ghost', onclick: signOutFlow }, 'Sign out')
     ]);
   }
 
@@ -1448,9 +1464,19 @@
         if (!saved.ok) {
           const savedOnDevice = set(pendingAssessmentStorageKey(), JSON.stringify(assessment));
           if (SAMPLE_FIRST_FLOW) {
-            message.textContent = savedOnDevice
-              ? `Not saved to your account yet (${friendlyError(saved)}). Your answers remain on this device; keep this page open and choose Finish again.`
-              : `Your answers could not be saved to your account or this device (${friendlyError(saved)}). Keep this page open and choose Finish again.`;
+            // apiErrorText returns whole sentences, so chain them rather than
+            // nesting one mid-sentence. Only advise retrying when a retry can
+            // actually succeed: a dead session or stale CSRF token never will.
+            const retryHelps = saved.error !== 'unauthorized' && saved.error !== 'csrf_required';
+            const whereKept = savedOnDevice
+              ? 'Your answers are still on this device.'
+              : 'Your answers could not be stored on this device either.';
+            message.textContent = [
+              'Not saved to your account yet.',
+              apiErrorText(saved.error),
+              whereKept,
+              retryHelps ? 'Keep this page open and choose Finish again.' : ''
+            ].filter(Boolean).join(' ');
             return;
           }
         }
@@ -1468,6 +1494,19 @@
         : SAMPLE_FIRST_FLOW
           ? 'Complete all six categories to open your dashboard and the rest of Learning AI.'
           : h('a', { href: '#/' }, 'Skip for now and open the dashboard'));
+
+    // The questionnaire is the last access gate in the sample-first flow, so
+    // every route renders it until it is finished. A learner whose answers
+    // cannot reach the backend would otherwise have no way out of the app.
+    // Keep the escape inside the card: `.auth-view` is a centred single-child
+    // grid, so a sibling here pushes the card below the fold.
+    const trappedByGate = SAMPLE_FIRST_FLOW && currentUser && !hasAssessment();
+    const gateEscape = trappedByGate
+      ? h('p', { class: 'questionnaire-escape muted' }, [
+          'Not your account, or need to stop here? ',
+          h('button', { class: 'btn btn-ghost', type: 'button', onclick: signOutFlow }, 'Sign out')
+        ])
+      : null;
 
     return h('div', { class: 'container view auth-view' }, [
       h('section', { class: 'lesson-card diagnostic-card' }, [
@@ -1491,7 +1530,8 @@
         note,
         h('div', { class: 'gauge-actions' }, [back, index === total - 1 ? finish : next]),
         message,
-        returnLink
+        returnLink,
+        gateEscape
       ])
     ]);
   }

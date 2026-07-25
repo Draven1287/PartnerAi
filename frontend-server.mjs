@@ -94,7 +94,13 @@ const server = http.createServer((request, response) => {
       headers: {
         ...request.headers,
         host: target.host,
-        'x-forwarded-for': String(request.socket.remoteAddress || ''),
+        // Append, never replace. Overwriting discarded the real client address
+        // the platform edge had already recorded, so every learner shared one
+        // rate-limit bucket and one bad actor could lock out the whole site.
+        'x-forwarded-for': [request.headers['x-forwarded-for'], String(request.socket.remoteAddress || '')]
+          .map(part => String(part || '').trim())
+          .filter(Boolean)
+          .join(', '),
         'x-forwarded-host': request.headers.host || '',
         'x-forwarded-proto': 'https'
       }
