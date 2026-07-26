@@ -49,23 +49,32 @@ is correct, because HSTS cannot be revoked quickly.
   and Text size, from the same eight values.
 - **The questionnaire gives the learner nothing.** Aarav asked whether it could
   award something. Currently it records a level that nothing reads.
-- ~~Backend console UI/UX~~ **DONE (26 Jul)** — rebuilt on the V2 design: light
-  paper, serif headings, avatar-initials learner rows, level pills, progress
-  bars, tab nav with count badges, KPI tiles, visits chart, diagnostics card,
-  light/dark toggle. Design source is
-  `v2-redesign/project/delivery/Backend Console.dc.html` plus
-  `v2-redesign/project/screenshots/console.png`.
-  **V2's design loads Google Fonts and the CSP forbids external stylesheets and
-  fonts — those tags fail silently. System serif/sans/mono stacks are used
-  instead; do not reintroduce the `<link>` tags.**
+- ~~Backend console UI/UX~~ **DONE (26 Jul)** — now the **V3 glass** look, not
+  V2: paper photograph, translucent panels, `blur(25px) saturate(1.6)`, the
+  site's own `theme.css` for tokens and the focus ring. Reference pages are
+  `progress.html` / `index.html` / `settings.html`. **Do not load `theme.js`** —
+  it rewrites the site nav and corrupts an admin page. Three console classes
+  are renamed (`.dcheck`, `.tcount`, `.cbrand`) because `theme.css` styles
+  `.check` / `.badge` / `.brand` site-wide with `!important`.
+  **No external resources: the CSP forbids external stylesheets and fonts, so
+  Google Fonts tags fail silently. System stacks only.**
+  Ignore `v2-redesign/` — that was the wrong reference.
   Verified in-browser against the real `/api/admin/overview` shape, which is
   **flat** (`{ok, total, learners, visitsByDay, …}`) — `visitsByDay` is an array
   of `{label, count}`, and levels join to learners on `attempt.userId`.
-  Four bugs fixed on the way: the assessment endpoint returns
-  `analytics.attempts` but the code read `assessment.attempts`, so the
-  questionnaire section always claimed nobody had finished it; an all-digit
-  build SHA rendered as "2,799,946"; long emails broke apart mid-word; the
-  overview grid starved the table into a scrollbar.
+  Bugs fixed on the way: the assessment endpoint returns `analytics.attempts`
+  but the code read `assessment.attempts`, so the questionnaire section always
+  claimed nobody had finished it; an all-digit build SHA rendered as
+  "2,799,946"; long emails broke apart mid-word; the overview grid starved the
+  table into a scrollbar.
+  **Sign-out was silently failing.** `handleAdminLogout` requires `csrf:true`,
+  but the console never sent `x-csrf-token`, so every sign-out returned 403
+  while the page said "Signed out." and the server session stayed alive. Fixed
+  and verified; if you touch `api()`, keep the header on non-GET requests.
+  **`consoleLevel()` coerces a missing assessment result to "Foundation"**
+  (`server.mjs`), so `overview.levels` reports learners who never took the
+  questionnaire as Foundation. The console deliberately ignores that field and
+  tallies real attempts instead — do not "simplify" it back.
   **Not verified: a real sign-in against production** — that needs the admin
   password. If a field is mis-modelled, the raw-JSON disclosure will show it.
 - **Safari "not secure"** — RESOLVED, not a real issue. Aarav confirmed Safari
