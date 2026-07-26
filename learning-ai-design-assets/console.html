@@ -185,8 +185,18 @@ $('#signout').addEventListener('click', async () => {
   showLogin('Signed out.');
 });
 
-// resume an existing admin session
-api('/api/admin/me').then(result => { if (result.ok) showApp(result.admin || result.user); });
+/* Opened straight off disk, every fetch('/api/...') resolves against file://
+   and fails, which looked identical to the service being down. Say what is
+   actually wrong. */
+if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+  $('#loginForm').hidden = true;
+  loginStatus.className = 'status bad';
+  loginStatus.innerHTML = 'This page is open from a file on your computer, so it cannot reach the API. '
+    + 'Open <a href="https://learningai4you.com/console.html">learningai4you.com/console.html</a> instead.';
+} else {
+  // resume an existing admin session
+  api('/api/admin/me').then(result => { if (result.ok) showApp(result.admin || result.user); });
+}
 </script>
 </body>
 </html>
