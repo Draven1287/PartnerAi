@@ -525,3 +525,26 @@ html[data-motion="none"] .medal[aria-pressed="true"] .medal-front {
   opacity: 0 !important;
   transform: none !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Contrast over glass — 26 July 2026
+
+   Measured against the glass panels as they sit on the paper photograph
+   (roughly #dedcd6 in the mid tones, #d0cec8 in the darker patches). Every
+   value below was under 4.5:1 on the mid tone. Several were also under 10px,
+   which is where small grey type on a translucent surface stops being
+   readable at all. This file loads after focus.css, so it is the right place
+   for the overrides.
+   ───────────────────────────────────────────────────────────────────────── */
+.focus-recommendation > span{color:#5d5330;font-size:10px;letter-spacing:.13em}
+.sound-choice span small{color:#565d59;font-size:11px}
+.timer-readout span{color:#4f5652;font-size:11px}
+.time-planner .time-estimate span{color:#4c534f;font-size:11px}
+.time-planner .dial-hint,.dial-readout span{color:#545b57}
+.dial-readout em{color:#58502f}
+.vault-head > p.vault-count{color:#565d59}
+.switch-option small{color:#545b57}
+.selected-achievement-detail dt{color:#545b57}
+.turn-controls .rotation-stops{color:#4f5652}
+.learning-rhythm .focus-time span,.learning-rhythm .focus-feedback{color:#4f5652;font-size:11px}
+.turn-hint b{color:color-mix(in oklab,var(--accent,#8d7445) 58%,#1b211e)}

@@ -174,21 +174,28 @@
     return `Reach ${item.target}`;
   }
 
+  /* renderStatus runs every second and this panel is aria-live, so writing the
+     same string back would have a screen reader re-announce the whole card once
+     a second. Only touch the node when the text has actually changed. */
+  function setText(node, value) {
+    if (node && node.textContent !== value) node.textContent = value;
+  }
+
   function updateInspector(item) {
     if (!item) return;
     const { metrics, earned } = syncAwards();
     const current = achievementMetric(item, metrics);
     const earnedAt = earned[item.id];
-    selectedDetailName.textContent = item.name;
-    selectedMeaning.textContent = item.meaning;
-    selectedRequirement.textContent = requirementText(item);
-    selectedStatus.textContent = progressText(item, current, earnedAt);
+    setText(selectedDetailName, item.name);
+    setText(selectedMeaning, item.meaning);
+    setText(selectedRequirement, requirementText(item));
+    setText(selectedStatus, progressText(item, current, earnedAt));
     /* "Earned date appears here" was placeholder copy that every learner saw,
        because nothing is engraved until a badge is actually earned. Say what is
        true and what would change it. */
-    selectedEarned.textContent = earnedAt
+    setText(selectedEarned, earnedAt
       ? `First earned ${stamp(earnedAt)}`
-      : `Not engraved yet — ${requirementText(item)}`;
+      : `Not engraved yet — ${requirementText(item)}`);
   }
 
   /* 24 staves, one every 15deg. The matching geometry constants live in
@@ -243,7 +250,65 @@
   }
 
   function buildGrid(grid, items, className) {
-    grid.innerHTML = items.map(item => `<article class="achievement-item ${className}" data-card="${item.id}" style="--accent:${item.color}">${objectMarkup(item)}</article>`).join('');
+    /* The number is on the card, not only on the artwork, so the whole set can
+       be read at a glance instead of one medal at a time. */
+    grid.innerHTML = items.map((item, index) => `<article class="achievement-item ${className}" data-card="${item.id}" style="--accent:${item.color}"><span class="item-index" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span>${objectMarkup(item)}</article>`).join('');
+  }
+
+  /* A rainbow strip standing in for the whole collection: every award has a
+     segment whether or not it is scrolled into view, the segment is coloured
+     and filled by its own accent once earned, and pressing one brings that
+     award to the middle of the rail. */
+  function buildPreview(container, items) {
+    if (!container) return;
+    container.innerHTML = items.map((item, index) => `<button class="preview-chip" type="button" data-target="${item.id}" style="--accent:${item.color}" aria-label="${item.name}"><i aria-hidden="true"></i><span aria-hidden="true">${String(index + 1).padStart(2, '0')}</span></button>`).join('');
+  }
+
+  function railFor(container) {
+    return container?.closest('.vault-panel')?.querySelector('.vault-rail') || null;
+  }
+
+  /* Two things at once: which awards are currently scrolled into view, and
+     which one the inspector below is describing. */
+  function syncPreview(container) {
+    const rail = railFor(container);
+    if (!container || !rail) return;
+    const cards = [...rail.querySelectorAll('.achievement-item')];
+    const chips = [...container.querySelectorAll('.preview-chip')];
+    if (!cards.length || !chips.length) return;
+    const railBox = rail.getBoundingClientRect();
+    cards.forEach((card, index) => {
+      const chip = chips[index];
+      if (!chip) return;
+      const box = card.getBoundingClientRect();
+      chip.classList.toggle('is-visible', box.left >= railBox.left - 2 && box.right <= railBox.right + 2);
+      const selected = card.classList.contains('is-selected');
+      chip.classList.toggle('is-current', selected);
+      if (selected) chip.setAttribute('aria-current', 'true');
+      else chip.removeAttribute('aria-current');
+    });
+  }
+
+  function syncPreviews() {
+    document.querySelectorAll('.rail-preview').forEach(syncPreview);
+  }
+
+  function wirePreview(container) {
+    if (!container) return;
+    const rail = railFor(container);
+    container.addEventListener('click', event => {
+      const chip = event.target.closest('.preview-chip');
+      if (!chip) return;
+      const card = document.querySelector(`[data-card="${chip.dataset.target}"]`);
+      if (!card) return;
+      card.scrollIntoView({ inline: 'center', block: 'nearest', behavior: motionMode() === 'standard' ? 'smooth' : 'auto' });
+      const object = card.querySelector('.achievement-object');
+      if (object) { selectObject(object); object.focus({ preventScroll: true }); }
+      syncPreview(container);
+    });
+    rail?.addEventListener('scroll', () => syncPreview(container), { passive: true });
+    rail?.addEventListener('scrollend', () => syncPreview(container), { passive: true });
+    window.addEventListener('resize', () => syncPreview(container), { passive: true });
   }
 
   function normalizedDegrees(degrees) {
@@ -332,6 +397,7 @@
       rotation.value = String(pose.y);
       rotationValue.textContent = rotationLabel(pose.y);
     }
+    syncPreviews();
   }
 
   function snap(object, direction = 0) {
@@ -349,7 +415,10 @@
 
   function wireObject(object) {
     const pose = {
-      x: 4,
+      /* Level, not tilted back 4°. The resting tilt sheared the arc numbers on
+         the artwork just enough to make the second half of the collection hard
+         to read without picking a medal up. */
+      x: 0,
       y: 0,
       startX: 0,
       startY: 0,
@@ -457,6 +526,11 @@
       object.setAttribute('aria-label', `${item.name}. ${item.meaning} ${progress}. Press Enter to flip, use the arrow keys to turn, or drag horizontally. You can also use the rotation slider.`);
       card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stamp(earnedAt) : `To earn · ${progress}`;
       card.querySelector('[data-achievement-progress]').textContent = progress;
+      const chip = document.querySelector(`.preview-chip[data-target="${item.id}"]`);
+      if (chip) {
+        chip.classList.toggle('is-earned', Boolean(earnedAt));
+        chip.setAttribute('aria-label', `${item.name}. ${progress}. Show this one.`);
+      }
       if (earnedAt && item.kind === 'capability') earnedCapabilities += 1;
       if (earnedAt && item.kind === 'milestone') earnedMilestones += 1;
     });
@@ -466,36 +540,100 @@
     updateInspector(selectedItem);
   }
 
+  const capabilityPreview = document.querySelector('#capabilityPreview');
+  const milestonePreview = document.querySelector('#milestonePreview');
+  const vaultSwitch = document.querySelector('.vault-switch');
+  const switchOptions = [...document.querySelectorAll('.switch-option')];
+
+  function collectionOf(tab) {
+    return String(tab.getAttribute('aria-controls') || '').replace('Panel', '');
+  }
+
+  /* One collection is shown at a time. The milestone set used to live in a
+     separate collapsed panel, so half the awards on the page were behind a
+     click and the two vaults together made the page feel stacked. */
+  function activateCollection(name, moveFocus, userInitiated) {
+    switchOptions.forEach(tab => {
+      const mine = collectionOf(tab) === name;
+      tab.setAttribute('aria-selected', String(mine));
+      tab.tabIndex = mine ? 0 : -1;
+      const panel = document.querySelector(`#${tab.getAttribute('aria-controls')}`);
+      if (panel) panel.hidden = !mine;
+      if (mine && moveFocus) tab.focus();
+    });
+    document.querySelectorAll('.vault-count').forEach(count => {
+      count.hidden = count.dataset.countFor !== name;
+    });
+    if (vaultSwitch) vaultSwitch.dataset.active = name;
+    /* Switching collections moves the inspector with you: it would otherwise
+       keep describing an award that is no longer on screen. */
+    if (userInitiated) {
+      const first = document.querySelector(`#${name}Panel .achievement-object`);
+      if (first) selectObject(first);
+    }
+    syncPreview(name === 'milestone' ? milestonePreview : capabilityPreview);
+  }
+
+  switchOptions.forEach((tab, index) => {
+    tab.addEventListener('click', () => activateCollection(collectionOf(tab), false, true));
+    tab.addEventListener('keydown', event => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+      event.preventDefault();
+      const next = event.key === 'Home' ? 0
+        : event.key === 'End' ? switchOptions.length - 1
+        : (index + (event.key === 'ArrowRight' ? 1 : switchOptions.length - 1)) % switchOptions.length;
+      activateCollection(collectionOf(switchOptions[next]), true, true);
+    });
+  });
+
   buildGrid(capabilityGrid, capabilities, 'capability-item');
   buildGrid(milestoneGrid, milestones, 'milestone-item');
-  document.querySelector('.milestone-vault')?.removeAttribute('open');
+  buildPreview(capabilityPreview, capabilities);
+  buildPreview(milestonePreview, milestones);
+  wirePreview(capabilityPreview);
+  wirePreview(milestonePreview);
   document.querySelectorAll('.achievement-object').forEach(wireObject);
   selectObject(document.querySelector('.achievement-object'));
+  if (vaultSwitch) activateCollection('capability', false);
+  syncPreviews();
 
   rotation.addEventListener('input', () => {
     if (!activeObject) return;
     const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 4, Number(rotation.value), false);
+    setPose(activeObject, pose?.x ?? 0, Number(rotation.value), false);
   });
 
-  rotation.addEventListener('change', () => {
+  /* Releasing the slider has to land the medal on a face, exactly as releasing
+     a drag on the medal itself does. Without this the thumb could be let go at
+     90° and the medal simply stayed edge-on — visually gone, with no way back
+     except finding the slider again. Keyboard steps are left where they are put
+     while the control has focus, and settle on blur. */
+  let rotationKeyed = false;
+  function settleRotation() {
     if (!activeObject) return;
     activeObject.classList.remove('is-turning');
-    const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 4, Number(rotation.value), true);
+    snap(activeObject);
+  }
+  rotation.addEventListener('keydown', () => { rotationKeyed = true; });
+  rotation.addEventListener('pointerup', settleRotation);
+  rotation.addEventListener('pointercancel', settleRotation);
+  rotation.addEventListener('blur', () => { rotationKeyed = false; settleRotation(); });
+  rotation.addEventListener('change', () => {
+    if (!rotationKeyed) settleRotation();
+    rotationKeyed = false;
   });
 
   showFront?.addEventListener('click', () => {
     if (!activeObject) return;
     const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 4, 0, true);
+    setPose(activeObject, pose?.x ?? 0, 0, true);
     activeObject.focus();
   });
 
   showBack?.addEventListener('click', () => {
     if (!activeObject) return;
     const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 4, 180, true);
+    setPose(activeObject, pose?.x ?? 0, 180, true);
     activeObject.focus();
   });
 

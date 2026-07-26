@@ -228,9 +228,13 @@ html{scroll-padding-top:112px}
   -webkit-backdrop-filter:blur(38px) saturate(1.12) contrast(1.05)!important;
 }
 /* Ease the glass across the scroll rather than snapping at a threshold. These
-   sit after the .is-over-content block so they win, and they interpolate the
-   same end state that block was jumping straight to. */
-.nav-shell .nav-glass{
+   interpolate the same end state that block was jumping straight to.
+
+   The selector must repeat .is-over-content. Coming later in the file is not
+   enough: `.nav-shell .nav-glass` is one class less specific than
+   `.nav-shell.is-over-content .nav-glass` above, so the threshold rule won at
+   every scroll position and the capsule still snapped at 12px. */
+.nav-shell.is-over-content .nav-glass{
   background:
     linear-gradient(145deg,
       rgba(255,255,255,calc(.24 + .73 * var(--nav-scroll, 0))),

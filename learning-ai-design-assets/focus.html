@@ -6,10 +6,10 @@
   <title>Focus · LearningAI</title>
   <link rel="stylesheet" href="./glass-finish.css">
   <link rel="stylesheet" href="./theme.css?v=2026-07-25w">
-  <link rel="stylesheet" href="./focus.css?v=2026-07-25w">
-  <link rel="stylesheet" href="./focus-refinement.css?rings=7">
-  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-25w">
-  <style>.rhythm-scale small,.timer-readout span,.medal-front small,.medal-back em,.medal-back span,.medal>small{font-size:12px}</style>
+  <link rel="stylesheet" href="./dashboard.css?v=2026-07-26e">
+  <link rel="stylesheet" href="./focus.css?v=2026-07-26e">
+  <link rel="stylesheet" href="./focus-refinement.css?v=2026-07-26e">
+  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26e">
 </head>
 <body>
   <div class="nav-stage">
@@ -51,19 +51,58 @@
             <strong>25–30 minutes</strong>
             <p>Start with 25 minutes of focused learning, then pause for a brief attention check. Continue only while your thinking still feels clear.</p>
           </div>
+
           <div class="checkpoint-picker time-planner" id="timePlanner">
             <div class="planner-heading">
-              <label for="checkpointLength">How long do you want to learn?</label>
+              <span class="planner-label" id="plannerLabel">How long do you want to learn?</span>
               <output id="plannedMinutes" for="checkpointLength">25 minutes</output>
             </div>
-            <input id="checkpointLength" type="range" min="10" max="60" step="5" value="25" aria-describedby="focusRecommendation timeEstimate">
-            <div class="planner-scale" aria-hidden="true"><span>10</span><span>25 recommended</span><span>60</span></div>
-            <div class="time-estimate" id="timeEstimate" aria-live="polite">
-              <strong id="estimateLessons">About 2 lessons fit</strong>
-              <span id="estimateArcTime">Arc 1 takes about 47 minutes</span>
-              <span id="estimateCourseTime">All 50 lessons take about 8 hours 22 minutes</span>
+            <div class="planner-body">
+              <!-- The dial is the control; the range input below is the state it
+                   writes to, so the existing timer logic and the <output> keep
+                   working unchanged. The input is hidden, never focusable, and
+                   never announced twice. -->
+              <div class="minute-dial" id="minuteDial" role="slider" tabindex="0"
+                   aria-labelledby="plannerLabel"
+                   aria-describedby="focusRecommendation timeEstimate"
+                   aria-valuemin="10" aria-valuemax="60" aria-valuenow="25"
+                   aria-valuetext="25 minutes, the recommended length">
+                <!-- Both arcs are drawn as explicit 270° paths rather than a
+                     rotated circle, because the "no motion" setting clears every
+                     transform with !important and would otherwise unwind the
+                     dial's geometry along with its animation. pathLength="100"
+                     makes the filled fraction a plain percentage. -->
+                <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+                  <defs>
+                    <linearGradient id="dialRainbow" gradientUnits="userSpaceOnUse" x1="30" y1="170" x2="170" y2="30">
+                      <stop offset="0" stop-color="#12bbcf"/>
+                      <stop offset=".34" stop-color="#8ec72f"/>
+                      <stop offset=".68" stop-color="#e8ab31"/>
+                      <stop offset="1" stop-color="#ff5265"/>
+                    </linearGradient>
+                  </defs>
+                  <path class="dial-rail" d="M44.846 155.154A78 78 0 1 1 155.154 155.154"/>
+                  <path class="dial-fill" id="dialFill" pathLength="100" d="M44.846 155.154A78 78 0 1 1 155.154 155.154"/>
+                  <g class="dial-ticks" id="dialTicks"></g>
+                  <circle class="dial-knob-halo" id="dialKnobHalo" cx="44.846" cy="155.154" r="22"/>
+                  <circle class="dial-knob" id="dialKnob" cx="44.846" cy="155.154" r="11"/>
+                </svg>
+                <div class="dial-readout">
+                  <strong id="dialMinutes">25</strong>
+                  <span>minutes</span>
+                  <em id="dialNote">recommended</em>
+                </div>
+              </div>
+              <div class="time-estimate" id="timeEstimate" aria-live="polite">
+                <strong id="estimateLessons">About 2 lessons fit</strong>
+                <span id="estimateArcTime">Arc 1 takes about 47 minutes</span>
+                <span id="estimateCourseTime">All 50 lessons take about 8 hours 22 minutes</span>
+                <small class="dial-hint">Drag the dial, or focus it and use the arrow keys.</small>
+              </div>
             </div>
+            <input id="checkpointLength" type="range" min="10" max="60" step="5" value="25" hidden>
           </div>
+
           <div class="timer-actions">
             <button class="action primary" id="timerToggle" type="button">Start focus</button>
             <button class="action" id="timerFinish" type="button">Finish session</button>
@@ -84,14 +123,44 @@
       <aside class="focus-panel today-panel">
         <p class="eyebrow">A healthy rhythm</p>
         <h2>Attention has seasons.</h2>
-        <div class="rhythm-scale" aria-label="Suggested learning session lengths">
-          <span style="--level:.56"><b>20</b><small>gentle</small></span>
-          <span class="recommended" style="--level:.72"><b>25</b><small>recommended</small></span>
-          <span style="--level:.84"><b>30</b><small>deep</small></span>
-          <span style="--level:1"><b>45</b><small>extended</small></span>
+        <!-- Was four vertical bars with their captions set in vertical writing
+             mode and absolutely positioned below the container, which laid 12px
+             of rotated text straight across the coloured bars. Four rows: the
+             number, the bar, and the caption never share the same space. -->
+        <div class="rhythm-scale" role="img" aria-label="Suggested session lengths: 20 minutes is gentle, 25 minutes is recommended, 30 minutes is deep, 45 minutes is extended.">
+          <div class="rhythm-step" style="--level:.444"><b>20</b><span class="rhythm-bar"><i></i></span><small>gentle</small></div>
+          <div class="rhythm-step is-recommended" style="--level:.556"><b>25</b><span class="rhythm-bar"><i></i></span><small>recommended</small></div>
+          <div class="rhythm-step" style="--level:.667"><b>30</b><span class="rhythm-bar"><i></i></span><small>deep</small></div>
+          <div class="rhythm-step" style="--level:1"><b>45</b><span class="rhythm-bar"><i></i></span><small>extended</small></div>
         </div>
         <p class="rhythm-note">At every checkpoint, LearningAI pauses and asks whether you want to finish or continue. There is no maximum and no penalty for stopping early.</p>
       </aside>
+    </section>
+
+    <!-- The dashboard's learning-rhythm panel, on the Focus page. It is the same
+         timer and the same stored state as the interval dial above — focus.js
+         drives both control sets — read here as the whole of today against the
+         twenty-five minute recommendation. -->
+    <section class="learning-rhythm" aria-labelledby="learningRhythmTitle">
+      <article class="dashboard-card focus-card">
+        <div class="focus-copy">
+          <p class="dashboard-eyebrow">Your learning rhythm</p>
+          <h2 id="learningRhythmTitle">A little learning, often.</h2>
+          <p>The same timer, read a different way: everything you have learned today measured against the twenty-five minute recommendation. It is a rhythm, not a quota.</p>
+          <div class="focus-actions">
+            <button class="focus-button primary" id="focusToggle" type="button">Start learning</button>
+            <a class="focus-button" href="./lessons.html">Go to a lesson</a>
+          </div>
+          <p class="focus-feedback" id="focusFeedback">Ready when you are.</p>
+        </div>
+        <div class="focus-meter" aria-label="Daily learning timer">
+          <svg class="focus-ring" viewBox="0 0 160 160" role="img" aria-label="Progress toward the recommended twenty-five minutes">
+            <circle class="focus-ring-track" cx="80" cy="80" r="66"/>
+            <circle class="focus-ring-value" id="focusRingValue" cx="80" cy="80" r="66"/>
+          </svg>
+          <div class="focus-time"><strong id="focusClock">00:00</strong><span>of 25:00 today</span></div>
+        </div>
+      </article>
     </section>
 
     <section class="focus-panel achievement-vault" aria-labelledby="capabilityTitle">
@@ -100,49 +169,63 @@
           <p class="eyebrow">Capability collection</p>
           <h2 id="capabilityTitle">Ten arcs. Ten capabilities you practise.</h2>
         </div>
-        <p><strong id="capabilityEarnedCount">0</strong> of 10 earned</p>
+        <p class="vault-count" data-count-for="capability"><strong id="capabilityEarnedCount">0</strong> of 10 earned</p>
+        <p class="vault-count" data-count-for="milestone" hidden><strong id="milestoneEarnedCount">0</strong> of 12 earned</p>
       </div>
-      <p class="vault-help">Click or tap any medal to flip it. Drag horizontally to turn it slowly. Locked medals are safe to inspect—they do not start or skip a lesson. Each major medal unlocks when you finish an arc and marks a practical human capability you practiced; time alone never earns one.</p>
-      <div class="capability-grid" id="capabilityGrid" aria-label="Arc capability medals"></div>
+
+      <div class="vault-switch" role="tablist" aria-label="Choose a collection">
+        <span class="switch-thumb" aria-hidden="true"></span>
+        <button class="switch-option" type="button" role="tab" id="vaultTabCapability" aria-selected="true" aria-controls="capabilityPanel"><b>Arc medals</b><small>Ten capabilities</small></button>
+        <button class="switch-option" type="button" role="tab" id="vaultTabMilestone" aria-selected="false" aria-controls="milestonePanel" tabindex="-1"><b>Milestone pins</b><small>Twelve moments</small></button>
+      </div>
+
+      <div class="vault-panel" id="capabilityPanel" role="tabpanel" aria-labelledby="vaultTabCapability">
+        <p class="vault-help">Each medal marks a practical human capability you practised, not time served. Drag one sideways to turn it, or press Enter to flip it. Locked medals are safe to inspect—they never start or skip a lesson.</p>
+        <div class="vault-rail" id="capabilityGrid" role="group" tabindex="0" aria-label="Arc capability medals. Scroll sideways to see all ten."></div>
+        <div class="rail-preview" id="capabilityPreview" role="group" aria-label="Jump to a medal"></div>
+      </div>
+
+      <div class="vault-panel" id="milestonePanel" role="tabpanel" aria-labelledby="vaultTabMilestone" hidden>
+        <p class="vault-help">Milestone pins mark lessons, focus time, returns, notes, and projects. They are deliberately simpler than arc medals: useful encouragement, never a score of intelligence.</p>
+        <div class="vault-rail milestone-rail" id="milestoneGrid" role="group" tabindex="0" aria-label="Learning milestone pins. Scroll sideways to see all twelve."></div>
+        <div class="rail-preview" id="milestonePreview" role="group" aria-label="Jump to a pin"></div>
+      </div>
     </section>
 
-    <details class="focus-panel achievement-vault milestone-vault" open>
-      <summary class="vault-head">
-        <div>
-          <p class="eyebrow">Smaller milestones</p>
-          <h2 id="milestoneTitle">The moments that keep you moving.</h2>
-        </div>
-        <p><strong id="milestoneEarnedCount">0</strong> of 12 earned <span aria-hidden="true">＋</span></p>
-      </summary>
-      <p class="vault-help">Milestone pins mark lessons, focus time, returns, notes, and projects. They are intentionally simpler than arc medals: useful encouragement, never a score of intelligence.</p>
-      <div class="milestone-grid" id="milestoneGrid" aria-label="Learning milestone pins"></div>
-    </details>
-
-    <section class="focus-panel rotation-console" aria-labelledby="rotationTitle">
-      <div class="rotation-copy">
-        <p class="eyebrow">Inspect the object</p>
-        <h2 id="rotationTitle">Turn <span id="selectedBadgeName">First Signal</span></h2>
-        <p>Drag horizontally on a medal with a mouse, trackpad, or finger. A vertical finger gesture still scrolls the page. Press Enter to flip, use the arrow keys to turn, or move the slider.</p>
+    <!-- This panel used to sit at the very bottom, under a second collapsed
+         vault, titled "Inspect the object" — far from anything it described. It
+         now follows the collection directly and names what it is showing. -->
+    <section class="focus-panel medal-inspector" aria-labelledby="rotationTitle">
+      <div class="inspector-head">
+        <p class="eyebrow">The medal you selected</p>
+        <h2 id="rotationTitle"><span id="selectedBadgeName">First Signal</span></h2>
+        <p class="inspector-lede">This describes whichever medal is highlighted in the collection above. Turn it over to read the engraving on its back.</p>
       </div>
-      <aside class="selected-achievement-detail" aria-live="polite" aria-label="Selected achievement details">
-        <p class="eyebrow">Selected achievement</p>
-        <h3 id="selectedBadgeDetailName">First Signal</h3>
-        <p id="selectedBadgeMeaning">Explain what prediction is and choose when not to trust it.</p>
-        <dl>
-          <div><dt>Requirement</dt><dd id="selectedBadgeRequirement">Complete 5 lessons</dd></div>
-          <div><dt>Status</dt><dd id="selectedBadgeStatus">0 of 5 lessons</dd></div>
-          <div><dt>Engraving</dt><dd id="selectedBadgeEarned">Not engraved yet</dd></div>
-        </dl>
-      </aside>
-      <label for="badgeRotation">
-        <span>Rotation</span>
-        <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
-      </label>
-      <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="rotationTitle">
-      <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
-      <div class="rotation-actions" aria-label="Quick badge rotation controls">
-        <button id="badgeShowFront" type="button">Show front</button>
-        <button id="badgeShowBack" type="button">Show back</button>
+      <div class="inspector-body">
+        <aside class="selected-achievement-detail" aria-live="polite" aria-label="Selected achievement details">
+          <p class="eyebrow">What it means</p>
+          <h3 id="selectedBadgeDetailName">First Signal</h3>
+          <p id="selectedBadgeMeaning">Explain what prediction is and choose when not to trust it.</p>
+          <dl>
+            <div><dt>Requirement</dt><dd id="selectedBadgeRequirement">Complete 5 lessons</dd></div>
+            <div><dt>Status</dt><dd id="selectedBadgeStatus">0 of 5 lessons</dd></div>
+            <div><dt>Engraving</dt><dd id="selectedBadgeEarned">Not engraved yet</dd></div>
+          </dl>
+        </aside>
+        <div class="turn-controls">
+          <p class="eyebrow">Turn it over</p>
+          <p class="turn-help">Drag a medal sideways with a mouse, trackpad, or finger—a vertical finger gesture still scrolls the page. Press Enter to flip it, or use this slider. Let the slider go and the medal settles on whichever face is nearer.</p>
+          <label for="badgeRotation">
+            <span>Rotation</span>
+            <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
+          </label>
+          <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="rotationTitle">
+          <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
+          <div class="rotation-actions" aria-label="Quick badge rotation controls">
+            <button id="badgeShowFront" type="button">Show front</button>
+            <button id="badgeShowBack" type="button">Show back</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -165,7 +248,7 @@
   <script src="./nav-behavior.js?v=2026-07-25w"></script>
   <script src="../v2/lessons.js?v=2026-07-25w"></script>
   <script src="./course-state.js?v=2026-07-25w"></script>
-  <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-25w"></script>
-  <script src="./achievement-vault.js?v=2026-07-25w"></script>
+  <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-26e"></script>
+  <script src="./achievement-vault.js?v=2026-07-26e"></script>
 </body>
 </html>

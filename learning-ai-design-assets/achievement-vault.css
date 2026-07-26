@@ -748,3 +748,203 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
   .rotation-console { gap: 14px; }
   .rotation-actions button { flex: 1 1 auto; }
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Vault rework — 26 July 2026
+
+   Two stacked panels (ten medals in a 5×2 grid, then a collapsed disclosure
+   holding twelve more, then a rotation console at the very bottom) is what
+   made this page feel crowded and made the bottom section unreadable. It is
+   now one panel with a two-option switch, one horizontal rail at a time, and
+   a rainbow preview strip that shows the whole collection at a glance and
+   scrolls the rail when you use it.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.achievement-vault .vault-help{max-width:82ch;margin:0 0 4px;color:#545b57;font-size:12.5px;line-height:1.55}
+.vault-count{margin:0;color:#5c635f;font-size:12px}
+.vault-count strong{color:#222825;font-size:26px}
+.vault-count[hidden]{display:none}
+
+/* ── 4 · Two-option switch ────────────────────────────────────────────────
+   Positioned with `left`, not a transform: the "no motion" setting clears
+   every transform with !important, which would strand the thumb on the left
+   while the right option claimed to be selected. */
+.vault-switch{
+  position:relative;display:grid;grid-template-columns:1fr 1fr;
+  width:min(438px,100%);margin-top:26px;padding:5px;
+  border:1px solid rgba(255,255,255,.76);border-radius:19px;
+  background:linear-gradient(145deg,rgba(255,255,255,.44),rgba(255,255,255,.12));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px rgba(30,36,33,.10);
+}
+.switch-thumb{
+  position:absolute;z-index:0;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);
+  border-radius:15px;
+  background:linear-gradient(180deg,rgba(255,255,255,.99),rgba(233,233,227,.88));
+  box-shadow:inset 0 1px 0 white,inset 0 -2px 2px rgba(56,53,44,.12),0 6px 15px rgba(38,44,41,.14);
+  transition:left 320ms cubic-bezier(.2,.85,.2,1);
+}
+.vault-switch[data-active="milestone"] .switch-thumb{left:50%}
+.switch-option{
+  position:relative;z-index:1;display:grid;gap:2px;min-height:50px;padding:7px 10px;
+  border:0;border-radius:15px;background:transparent;color:#4a524e;font:inherit;
+  text-align:center;cursor:pointer;
+}
+.switch-option b{font-size:13px;font-weight:740}
+.switch-option small{font-size:11px;color:#545b57}
+.switch-option[aria-selected="true"]{color:#1b211e}
+.switch-option[aria-selected="true"] small{color:#4f5652}
+.switch-option:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+
+.vault-panel{display:grid;gap:14px;margin-top:24px}
+.vault-panel[hidden]{display:none}
+
+/* ── 5 · One rail instead of two grids ──────────────────────────────────── */
+.vault-rail{
+  display:grid;grid-auto-flow:column;
+  grid-auto-columns:clamp(176px,20vw,212px);
+  gap:16px;margin:0;padding:14px 2px 18px;
+  overflow-x:auto;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity;scroll-padding-inline:2px;
+  scrollbar-width:thin;scrollbar-color:rgba(48,54,52,.32) transparent;
+}
+.vault-rail:focus-visible{outline:3px solid #17231f;outline-offset:3px;border-radius:22px}
+.vault-rail::-webkit-scrollbar{height:8px}
+.vault-rail::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(48,54,52,.28)}
+.vault-rail .achievement-item{scroll-snap-align:center;padding:20px 13px 18px}
+.milestone-rail{grid-auto-columns:clamp(148px,16vw,176px)}
+
+/* ── 8 · Every arc legible without opening anything ─────────────────────── */
+.item-index{
+  position:absolute;top:13px;left:13px;
+  display:inline-grid;min-width:27px;height:22px;place-items:center;padding:0 7px;
+  border:1px solid color-mix(in oklab,var(--accent,#8a6b3a) 42%,white);
+  border-radius:999px;
+  background:color-mix(in oklab,var(--accent,#8a6b3a) 17%,rgba(255,255,255,.82));
+  color:color-mix(in oklab,var(--accent,#8a6b3a) 62%,#1d2320);
+  font-family:var(--focus-mono,ui-monospace,monospace);font-size:11px;font-weight:760;
+  letter-spacing:.04em;
+}
+.achievement-item.is-earned .item-index{
+  border-color:color-mix(in oklab,var(--accent,#8a6b3a) 70%,white);
+  background:color-mix(in oklab,var(--accent,#8a6b3a) 34%,rgba(255,255,255,.86));
+  color:color-mix(in oklab,var(--accent,#8a6b3a) 74%,#141917);
+}
+/* Locked medals were 84% grey at 74% opacity, which is why the second half of
+   the collection read as absent rather than as unearned. */
+.achievement-item.is-locked .achievement-object{filter:grayscale(.55) contrast(.96) brightness(1.03);opacity:.88}
+.achievement-item.is-locked:hover .achievement-object,
+.achievement-item.is-locked:focus-within .achievement-object,
+.achievement-item.is-locked.is-selected .achievement-object{filter:grayscale(.2) contrast(.99);opacity:1}
+.achievement-copy strong{font-size:14.5px;font-weight:700}
+.achievement-copy span{color:#545b57}
+.achievement-copy small{font-size:10.5px}
+
+/* ── 5 · Rainbow preview strip ──────────────────────────────────────────── */
+.rail-preview{display:flex;flex-wrap:wrap;gap:5px;margin:0;padding:0}
+.preview-chip{
+  display:grid;gap:6px;justify-items:center;align-content:center;
+  flex:1 1 40px;min-width:40px;min-height:44px;padding:8px 5px;
+  border:1px solid rgba(255,255,255,.7);border-radius:12px;
+  background:rgba(255,255,255,.22);
+  color:#3c443f;font:inherit;cursor:pointer;
+}
+.preview-chip i{
+  display:block;width:100%;height:7px;border-radius:999px;
+  background:color-mix(in oklab,var(--accent,#8a6b3a) 26%,#c9ccc7);
+  box-shadow:inset 0 1px rgba(255,255,255,.55);
+}
+.preview-chip.is-earned i{background:color-mix(in oklab,var(--accent,#8a6b3a) 88%,white)}
+.preview-chip span{font-family:var(--focus-mono,ui-monospace,monospace);font-size:10.5px;font-weight:720}
+.preview-chip.is-current{
+  border-color:color-mix(in oklab,var(--accent,#8a6b3a) 52%,white);
+  background:rgba(255,255,255,.52);
+  box-shadow:0 0 0 2px color-mix(in oklab,var(--accent,#8a6b3a) 24%,transparent),0 6px 14px rgba(38,44,41,.1);
+}
+.preview-chip:hover{background:rgba(255,255,255,.44)}
+.preview-chip:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+
+/* ── 2 · The bottom panel, given room and a name ────────────────────────── */
+.medal-inspector{margin-top:18px;padding:44px 48px}
+.medal-inspector .eyebrow{margin-bottom:11px}
+.inspector-head h2{margin:0;font-size:34px;font-weight:590;letter-spacing:-.045em}
+.inspector-lede{max-width:66ch;margin:13px 0 0;color:#545b57;font-size:14.5px;line-height:1.6}
+.inspector-body{
+  display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);
+  gap:24px 44px;margin-top:30px;align-items:start;
+}
+.selected-achievement-detail{padding:24px 26px;border-radius:22px}
+.selected-achievement-detail dl{gap:9px;margin-top:18px}
+/* "REQUIREMENT" needs 93px and the column was 82px, so every label ran into
+   its own value. Let the label column size to its content. */
+.selected-achievement-detail dl div{grid-template-columns:minmax(106px,auto) minmax(0,1fr);gap:18px;padding-top:10px;align-items:baseline}
+.selected-achievement-detail dt{color:#545b57;font-size:11px;letter-spacing:.07em}
+.selected-achievement-detail dd{font-size:14px}
+
+.turn-controls{
+  display:grid;gap:14px;align-content:start;padding:24px 26px;
+  border:1px solid rgba(255,255,255,.72);border-radius:22px;
+  background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(239,238,233,.15));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 12px 26px rgba(35,40,38,.07);
+}
+.turn-help{max-width:52ch;margin:0;color:#545b57;font-size:12.5px;line-height:1.55}
+.turn-controls label{
+  display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between;
+  margin:0;color:#343a37;font-size:12px;font-weight:720;
+}
+.turn-controls output{color:#4f5652;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+/* The old rule set this track to `background:transparent` at 34px tall, so the
+   control was an empty outline with a gold bead floating in it. */
+.turn-controls input[type="range"]{
+  width:100%;height:13px;margin:0;appearance:none;-webkit-appearance:none;
+  border:1px solid rgba(41,47,44,.17);border-radius:999px;
+  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
+  box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
+  cursor:pointer;
+}
+.turn-controls input[type="range"]::-webkit-slider-thumb{
+  width:30px;height:30px;appearance:none;-webkit-appearance:none;
+  border:1px solid rgba(255,255,255,.82);border-radius:50%;
+  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+}
+.turn-controls input[type="range"]::-moz-range-thumb{
+  width:28px;height:28px;border:1px solid rgba(255,255,255,.82);border-radius:50%;
+  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+}
+.turn-controls input[type="range"]:focus-visible{outline:3px solid #17231f;outline-offset:5px}
+.turn-controls .rotation-stops,
+.turn-controls .rotation-actions{grid-column:auto}
+.turn-controls .rotation-actions{justify-content:flex-start}
+/* Back · Front · Back label the two ends and the middle of the slider, so they
+   have to sit over the points they name. */
+.turn-controls .rotation-stops{justify-content:space-between;color:#4f5652;font-size:11px}
+
+@media(max-width:900px){
+  .medal-inspector{padding:32px 24px}
+  .inspector-body{grid-template-columns:1fr;gap:18px}
+  .inspector-head h2{font-size:28px}
+}
+@media(max-width:640px){
+  .vault-switch{width:100%}
+  .switch-option b{font-size:12px}
+  .switch-option small{font-size:10.5px}
+  .vault-rail{grid-auto-columns:clamp(158px,62vw,196px)}
+  .milestone-rail{grid-auto-columns:clamp(140px,52vw,170px)}
+  .preview-chip{flex:1 1 44px;min-width:44px}
+}
+
+html[data-motion="none"] .switch-thumb,
+html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:auto!important}
+
+/* The vault panel never had padding of its own — focus.css styles `.medal-vault`,
+   a class this section stopped using — so its heading sat flush against the
+   glass edge and `overflow:hidden` clipped the first letter. */
+.focus-panel.achievement-vault{padding:42px 46px}
+@media(max-width:900px){.focus-panel.achievement-vault{padding:30px 22px}}
+
+/* A chip that is scrolled into view reads as present; the selected one carries
+   the ring, because that is the award the inspector below is describing. */
+.preview-chip.is-visible{background:rgba(255,255,255,.40)}
+.preview-chip.is-visible i{box-shadow:inset 0 1px rgba(255,255,255,.7),0 1px 3px rgba(30,36,33,.18)}
