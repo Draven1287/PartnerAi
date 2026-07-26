@@ -1992,7 +1992,13 @@ export function createDb(options = {}) {
         count(DISTINCT CASE WHEN lp.completed_at IS NOT NULL THEN lp.user_id END)::int AS learners_completed,
         count(DISTINCT ia.id)::int AS interactions,
         count(DISTINCT CASE WHEN ia.correct = false THEN ia.id END)::int AS incorrect_answers,
-        max(GREATEST(COALESCE(lp.updated_at, 'epoch'::timestamptz), COALESCE(ia.answered_at, 'epoch'::timestamptz))) AS last_activity_at
+        -- 'epoch' is only a floor so GREATEST has something to compare. A lesson
+        -- nobody has touched would otherwise report 1970-01-01, which reads as
+        -- "December 31, 1969" west of UTC. NULLIF turns that back into no date.
+        NULLIF(
+          max(GREATEST(COALESCE(lp.updated_at, 'epoch'::timestamptz), COALESCE(ia.answered_at, 'epoch'::timestamptz))),
+          'epoch'::timestamptz
+        ) AS last_activity_at
       FROM lessons l
       LEFT JOIN lesson_progress lp ON lp.lesson_id = l.id
       LEFT JOIN interaction_answers ia ON ia.lesson_id = l.id

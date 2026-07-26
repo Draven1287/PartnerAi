@@ -46,8 +46,12 @@
     };
     const params=new URLSearchParams(location.search),id=params.get('id')||'chapter-2',review=Boolean(window.LearningAIReviewMode)/* was params.get('review')==='1', which let any learner unlock every lesson with a query string */;
     const lessons=Array.isArray(window.LESSONS)?window.LESSONS:[],lesson=lessons.find(item=>item.id===id);
-    if(!review){const first=localStorage.getItem('learningai-first-lesson-complete'),account=localStorage.getItem('learningai-prototype-account'),questions=localStorage.getItem('learningai-diagnostic-prototype');if(!first||!account||!questions){location.replace(!first?'./lesson-one.html':!account?'./access.html':'./onboarding.html');return}}
+    /* Lesson 1 is the free lesson and never needs an account. This has to be
+       checked before the account gate below, or someone who finished it and has
+       not signed up is sent to the sign-in page when they pick Lesson 1 from
+       the lesson list — instead of back to the lesson they are allowed to read. */
     if(id==='chapter-1'){location.replace(`./lesson-one.html${review?'?review=1':''}`);return}
+    if(!review){const first=localStorage.getItem('learningai-first-lesson-complete'),account=localStorage.getItem('learningai-prototype-account'),questions=localStorage.getItem('learningai-diagnostic-prototype');if(!first||!account||!questions){location.replace(!first?'./lesson-one.html':!account?'./access.html':'./onboarding.html');return}}
     if(!lesson){document.querySelector('#player').classList.add('hidden');const locked=document.querySelector('#locked');locked.classList.add('open');locked.querySelector('h2').textContent='That lesson could not be loaded.';document.querySelector('#lockedCopy').textContent='Return to the lesson path and choose one of the 50 authored lessons.';return}
     const state=window.LearningAICourseState.snapshot();
     if(!review&&!state.isUnlocked(lesson)){document.querySelector('#player').classList.add('hidden');document.querySelector('#locked').classList.add('open');document.querySelector('#lockedCopy').textContent=`Lesson ${lesson.num} opens after Lesson ${lesson.num-1} is complete. Your current next lesson is ${state.nextNumber}.`;return}

@@ -703,11 +703,17 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ISO_DATE = /^\d{4}-\d\d-\d\d([T ]\d\d:\d\d|$)/;
 const PERCENT_KEY = /(percent|percentage|rate|share)$/;
 
+/* A timestamp at or before the Unix epoch is not a real date — it is a null
+   that has been through a COALESCE somewhere. Rendering it gives
+   "December 31, 1969" to anyone west of UTC. Treated as no date at all. */
+const EPOCH_FLOOR = 86400000; // first day of 1970
+
 function toDate(value) {
   if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
   if (typeof value !== 'string' || !ISO_DATE.test(value)) return null;
   const date = new Date(value);
-  return isNaN(date.getTime()) ? null : date;
+  if (isNaN(date.getTime())) return null;
+  return date.getTime() < EPOCH_FLOOR ? null : date;
 }
 
 function relative(date) {
