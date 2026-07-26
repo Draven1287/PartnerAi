@@ -291,8 +291,8 @@
     }
   </style>
   <link rel="stylesheet" href="./glass-finish.css">
-  <link rel="stylesheet" href="./theme.css?v=2026-07-25w">
-  <link rel="stylesheet" href="./dashboard.css?v=2026-07-25w">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26a">
+  <link rel="stylesheet" href="./dashboard.css?v=2026-07-26a">
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer">
@@ -314,7 +314,7 @@
         </nav>
 
         <div class="welcome">
-          <span class="greeting" id="greeting">Welcome back, Learner</span>
+          <span class="greeting" id="greeting">Welcome</span>
         </div>
         <a class="settings" href="./settings.html" aria-label="Settings" title="Settings">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.13.36.34.7.6 1 .3.3.7.44 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg>
@@ -329,7 +329,7 @@
     <section class="dashboard-plane">
       <article class="dashboard-card welcome-card">
         <p class="dashboard-eyebrow">Your learning space</p>
-        <h1 id="dashboardGreeting">Welcome back, Learner.</h1>
+        <h1 id="dashboardGreeting">Welcome</h1>
         <p class="welcome-copy">Learn what AI can do, where it can fail, and how to keep your own judgment in control.</p>
         <p class="teen-first-note">Built first for ages 13–18 · open to anyone who wants a simple start.</p>
         <p class="free-note" id="dashboardAccessNote">Your first lesson is free. Sign in after it to save your progress.</p>
@@ -414,19 +414,19 @@
     </section>
   </main>
 
-  <script src="./theme.js?v=2026-07-25w"></script>
-  <script src="./arc-rail.js?v=2026-07-25w"></script>
-  <script src="./nav-behavior.js?v=2026-07-25w"></script>
-  <script src="../v2/lessons.js?v=2026-07-25w"></script>
-  <script src="./course-state.js?v=2026-07-25w"></script>
-  <script src="./learning-api.js?v=2026-07-25w"></script><script src="./learning-rhythm.js?v=2026-07-25w"></script>
+  <script src="./theme.js?v=2026-07-26a"></script>
+  <script src="./arc-rail.js?v=2026-07-26a"></script>
+  <script src="./nav-behavior.js?v=2026-07-26a"></script>
+  <script src="../v2/lessons.js?v=2026-07-26a"></script>
+  <script src="./course-state.js?v=2026-07-26a"></script>
+  <script src="./learning-api.js?v=2026-07-26a"></script><script src="./learning-rhythm.js?v=2026-07-26a"></script>
   <script>
     const navShell = document.querySelector('#navShell');
     const previewName = new URLSearchParams(location.search).get('name')
       || window.LearningAIUser?.displayName
       || 'Learner';
-    document.querySelector('#greeting').textContent = `Welcome back, ${previewName}`;
-    document.querySelector('#dashboardGreeting').textContent = `Welcome back, ${previewName}.`;
+    document.querySelector('#greeting').textContent = window.LearningAIGreeting?.navText(previewName) || `Welcome, ${previewName}`;
+    document.querySelector('#dashboardGreeting').textContent = window.LearningAIGreeting?.pageText(previewName) || `Welcome, ${previewName}.`;
     const courseState=window.LearningAICourseState.snapshot();
     const courseLessons=Array.isArray(window.LESSONS)?window.LESSONS:[];
     const courseArcs=[...new Set(courseLessons.map(lesson=>lesson.arc))];

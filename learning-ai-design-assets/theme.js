@@ -146,6 +146,156 @@
   window.addEventListener('resize', scheduleCurrentNavRoute, {passive: true});
 })();
 
+/* One browser can hold more than one LearningAI account over time, but only one
+   server session at a time. learningai-prototype-account holds whoever is signed
+   in now; this roster remembers which accounts this browser has seen, so they can
+   be listed, switched and forgotten on accounts.html — and so that a brand-new
+   account is not greeted with "Welcome back" on the session it was created in. */
+(() => {
+  const ROSTER_KEY = 'learningai-browser-accounts';
+  const SESSION_KEY = 'learningai-browser-session-id';
+  const ACCOUNT_KEY = 'learningai-prototype-account';
+  const MAX_ACCOUNTS = 8;
+
+  const readJson = (key, fallback) => {
+    try {
+      const value = JSON.parse(localStorage.getItem(key) || 'null');
+      return value === null || value === undefined ? fallback : value;
+    } catch {
+      return fallback;
+    }
+  };
+  const writeJson = (key, value) => {
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+  };
+
+  /* sessionStorage is per tab-session, so it is the only honest "is this the same
+     visit?" signal available without a server round trip. */
+  function sessionId() {
+    try {
+      let value = sessionStorage.getItem(SESSION_KEY) || '';
+      if (!value) {
+        value = `s${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+        sessionStorage.setItem(SESSION_KEY, value);
+      }
+      return value;
+    } catch {
+      return 'no-session-storage';
+    }
+  }
+
+  const keyFor = account => String(account?.id || account?.email || '').trim().toLowerCase();
+  const activeAccount = () => {
+    const value = readJson(ACCOUNT_KEY, null);
+    return value && typeof value === 'object' ? value : null;
+  };
+  const roster = () => {
+    const value = readJson(ROSTER_KEY, []);
+    return Array.isArray(value) ? value.filter(entry => entry && typeof entry === 'object' && entry.key) : [];
+  };
+  const activeKey = () => keyFor(activeAccount());
+
+  function remember(account, via = 'restored') {
+    const key = keyFor(account);
+    if (!key) return null;
+    const list = roster();
+    const now = new Date().toISOString();
+    const current = sessionId();
+    /* keyFor prefers the account id, so the same person keyed by email before
+       their id was known and by id afterwards would open two rows on the
+       accounts page — one of them permanently "signed out". Match on either
+       identifier, then migrate the row onto the current key. */
+    const email = String(account.email || '').trim().toLowerCase();
+    let entry = list.find(item => item.key === key)
+      || (email ? list.find(item => String(item.email || '').trim().toLowerCase() === email) : null)
+      || (account.id ? list.find(item => String(item.id || '') === String(account.id)) : null);
+    if (entry) entry.key = key;
+    if (!entry) {
+      entry = {
+        key,
+        id: String(account.id || ''),
+        email: String(account.email || ''),
+        displayName: String(account.displayName || '').trim() || 'Learner',
+        accountCreatedAt: String(account.createdAt || ''),
+        addedAt: now,
+        addedVia: via,
+        firstSessionId: current,
+        lastSessionId: current,
+        sessionCount: 1,
+        lastSeenAt: now
+      };
+      list.push(entry);
+    } else {
+      if (account.id) entry.id = String(account.id);
+      if (account.email) entry.email = String(account.email);
+      if (account.displayName) entry.displayName = String(account.displayName).trim() || entry.displayName;
+      if (account.createdAt) entry.accountCreatedAt = String(account.createdAt);
+      // An explicit sign-up/sign-in is evidence; a passive page load is not.
+      if (via !== 'restored') entry.addedVia = via;
+      if (entry.lastSessionId !== current) {
+        entry.sessionCount = (Number(entry.sessionCount) || 1) + 1;
+        entry.lastSessionId = current;
+      }
+      entry.lastSeenAt = now;
+    }
+    writeJson(ROSTER_KEY, list.slice(-MAX_ACCOUNTS));
+    return entry;
+  }
+
+  function forget(key) {
+    const wanted = String(key || '').trim().toLowerCase();
+    if (!wanted) return false;
+    const list = roster();
+    const next = list.filter(entry => entry.key !== wanted);
+    if (next.length === list.length) return false;
+    writeJson(ROSTER_KEY, next);
+    return true;
+  }
+
+  /* Fallback for an account this browser has no record of (roster cleared, or
+     written directly by an account-state hydration). A genuinely new account was
+     created recently and has at most the free sample lesson behind it. */
+  function looksBrandNew(account) {
+    const created = Date.parse(String(account?.createdAt || ''));
+    if (!Number.isFinite(created) || Date.now() - created > 86_400_000) return false;
+    let completed = 0;
+    try {
+      const progress = JSON.parse(localStorage.getItem('learningai-progress') || 'null');
+      completed = progress && progress.completed && typeof progress.completed === 'object'
+        ? Object.keys(progress.completed).length
+        : 0;
+    } catch {}
+    return completed <= 1;
+  }
+
+  function isReturning() {
+    const account = activeAccount();
+    const key = keyFor(account);
+    if (!key) return false;
+    const entry = roster().find(item => item.key === key);
+    if (!entry) return !looksBrandNew(account);
+    if (entry.addedVia === 'signin') return true;
+    if ((Number(entry.sessionCount) || 1) > 1) return true;
+    if (entry.lastSessionId !== sessionId()) return true;
+    return entry.addedVia === 'signup' ? false : !looksBrandNew(account);
+  }
+
+  const list = () => roster()
+    .map(entry => ({ ...entry, active: entry.key === activeKey() }))
+    .sort((a, b) => String(b.lastSeenAt || '').localeCompare(String(a.lastSeenAt || '')));
+
+  window.LearningAIAccounts = { list, remember, forget, activeKey, sessionId, isReturning };
+  window.LearningAIGreeting = {
+    isReturning,
+    isFirstSession: () => !isReturning(),
+    navText: name => (isReturning() ? `Welcome back, ${name}` : `Welcome, ${name}`),
+    pageText: name => (isReturning() ? `Welcome back, ${name}.` : `Welcome to LearningAI, ${name}.`)
+  };
+
+  // Record this visit so the next one is correctly recognised as a return.
+  remember(activeAccount(), 'restored');
+})();
+
 /* Prototype V2 starting questions. They follow account creation, establish a
    starting point, and unlock the full prototype. Age controls the Adults route. */
 (() => {
@@ -233,13 +383,17 @@
     return String(fromQuery || window.LearningAIUser?.displayName || 'Learner').trim() || 'Learner';
   }
 
+  /* "Welcome back" is only true on a return visit. A learner who created their
+     account minutes ago, and anyone not signed in at all, is greeted as new. */
   function syncGreeting() {
     const name = prototypeName();
+    const greeting = window.LearningAIGreeting;
+    const navText = greeting ? greeting.navText(name) : `Welcome, ${name}`;
     document.querySelectorAll('.greeting').forEach(element => {
-      element.textContent = `Welcome back, ${name}`;
+      element.textContent = navText;
     });
     const dashboardGreeting = document.querySelector('#dashboardGreeting');
-    if (dashboardGreeting) dashboardGreeting.textContent = `Welcome back, ${name}.`;
+    if (dashboardGreeting) dashboardGreeting.textContent = greeting ? greeting.pageText(name) : `Welcome, ${name}.`;
   }
 
   function syncCanonicalNavigation() {

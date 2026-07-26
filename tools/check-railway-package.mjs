@@ -25,6 +25,7 @@ const required = [
   'learning-ai-design-assets/about.html',
   'learning-ai-design-assets/adults.html',
   'learning-ai-design-assets/settings.html',
+  'learning-ai-design-assets/accounts.html',
   'learning-ai-design-assets/submission-policy.html',
   'learning-ai-design-assets/learning-api.js',
   'learning-ai-design-assets/course-state.js',

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Accounts · LearningAI</title>
+  <link rel="stylesheet" href="./glass-finish.css">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26a">
+  <script src="./learning-api.js?v=2026-07-26a"></script>
+  <script src="./theme.js?v=2026-07-26a"></script>
+  <style>
+    :root{--ink:#171a18;--muted:#525954;--gold:#9a7937;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#efeee9 url("./learning-ai-paper-light-v1.jpg") center top/cover fixed no-repeat;overflow-x:hidden}
+    .nav-stage{position:fixed;inset:0 0 auto;height:118px;z-index:20;pointer-events:none;overflow:hidden}
+    .nav-shell{width:min(1080px,calc(100vw - 36px));margin:18px auto 0;pointer-events:auto}
+    .nav-glass{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;min-height:60px;padding:7px 9px 7px 13px;border-radius:22px}
+    .brand{display:flex;align-items:center;gap:8px;padding-right:10px;color:inherit;text-decoration:none;font-size:14px;font-weight:720;white-space:nowrap}
+    .mark{position:relative;width:27px;height:27px;border:1px solid rgba(45,42,32,.17);border-radius:9px;background:rgba(255,255,255,.52);box-shadow:inset 0 1px 1px white,0 4px 10px rgba(46,41,30,.14)}
+    .mark:before,.mark:after{content:"";position:absolute;inset:7px;border:1.4px solid #a8843f;border-radius:50%}
+    .mark:after{inset:11px 6px;border-left:0;border-right:0;border-radius:0}
+    nav{display:flex;justify-content:center;overflow-x:auto;scrollbar-width:none}
+    nav a,.settings{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 8px;border-radius:14px;color:#22231f;text-decoration:none;font-size:11px;font-weight:610;white-space:nowrap;text-shadow:0 1px 0 white,0 2px 3px rgba(37,35,30,.2)}
+    .welcome{padding-left:7px;white-space:nowrap}.greeting{padding:9px 10px;font-size:11.5px;font-weight:620}
+    .settings{width:38px;padding:0;border:1px solid rgba(255,255,255,.94);background:rgba(255,255,255,.48);box-shadow:inset 0 1px 1px white,inset 0 -2px 0 #a8843f}.settings svg{width:17px}
+    main{width:min(1080px,calc(100vw - 36px));margin:132px auto 110px}
+    .accounts-head{max-width:800px}
+    .eyebrow{margin:0;color:#675d46;font-size:11px;font-weight:750;letter-spacing:.18em;text-transform:uppercase}
+    .accounts-head h1{margin:14px 0 0;font-size:clamp(44px,7vw,80px);font-weight:520;letter-spacing:-.062em;line-height:.96;text-shadow:0 1px 0 white,0 4px 12px rgba(35,39,37,.14)}
+    .accounts-head>p:last-of-type{max-width:740px;margin:22px 0 0;color:var(--muted);font-size:17px;line-height:1.55}
+    .back-link{display:inline-flex;margin-top:22px;color:#3d443f;font-size:13px;font-weight:720;text-decoration:none}
+    .panel{margin-top:20px;padding:36px 40px;border:1px solid rgba(255,255,255,.78);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21));box-shadow:inset 0 1px 1px white,inset 0 -1px 0 rgba(30,34,33,.12),0 22px 70px rgba(40,42,39,.11);backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .panel h2{margin:0 0 10px;font-size:28px;font-weight:580;letter-spacing:-.045em}
+    .panel>p{max-width:720px;margin:0;color:var(--muted);font-size:15px;line-height:1.55}
+    .account-list{display:grid;gap:12px;margin:26px 0 0;padding:0;list-style:none}
+    .account-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:20px 22px;border:1px solid rgba(50,55,52,.12);border-radius:17px;background:rgba(255,255,255,.27)}
+    .account-row.is-active{border-color:rgba(26,33,30,.5);background:rgba(255,255,255,.44);box-shadow:inset 0 0 0 1px rgba(26,33,30,.16)}
+    .account-id{min-width:0}
+    .account-id strong{display:block;font-size:18px;font-weight:720;letter-spacing:-.02em;overflow-wrap:anywhere}
+    .account-id .account-email{display:block;margin-top:5px;color:#4d544f;font-size:13.5px;overflow-wrap:anywhere}
+    .account-id .account-meta{display:block;margin-top:7px;color:#5c635e;font-size:12px}
+    /* Not .badge: theme.css forces every .badge to the gold eyebrow colour with
+       !important, which put 1.22:1 gold text on the dark "Signed in now" pill. */
+    .account-badge{display:inline-flex;align-items:center;margin-bottom:8px;padding:5px 11px;border-radius:999px;background:#1f2724;color:#fff;font-size:11.5px;font-weight:740;letter-spacing:.04em;text-shadow:none}
+    .account-badge.is-away{background:rgba(45,52,48,.14);color:#252b27}
+    .row-actions{display:flex;flex-wrap:wrap;gap:9px;justify-content:flex-end}
+    .action{min-height:45px;padding:0 16px;border:1px solid rgba(40,45,42,.18);border-radius:13px;background:rgba(255,255,255,.5);color:#252b28;font:inherit;font-size:12.5px;font-weight:730;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+    .action.is-primary{border-color:#141a17;background:#1f2724;color:#fff}
+    .action.is-danger{border-color:rgba(122,58,45,.45);background:rgba(255,255,255,.5);color:#67342a}
+    .action:focus-visible{outline:3px solid #17231f;outline-offset:3px}
+    .empty{margin:24px 0 0;padding:22px;border:1px solid rgba(50,55,52,.12);border-radius:17px;background:rgba(255,255,255,.27);color:#3d443f;font-size:14.5px;line-height:1.5}
+    .fact-list{display:grid;gap:9px;margin:20px 0 0;padding:0;list-style:none}
+    .fact-list li{position:relative;padding-left:26px;color:#3b423d;font-size:14px;line-height:1.5}
+    .fact-list li::before{position:absolute;top:0;left:0;font-weight:800}
+    .fact-list.is-gone li::before{content:"−";color:#67342a}
+    .fact-list.is-kept li::before{content:"+";color:#31563f}
+    .fact-columns{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+    .fact-columns h3{margin:22px 0 0;font-size:14px;font-weight:760;letter-spacing:.03em;text-transform:uppercase;color:#4a514c}
+    .delete-panel{border-color:rgba(122,58,45,.34)}
+    .confirm-form{display:grid;gap:12px;max-width:430px;margin-top:24px}
+    .confirm-form label{display:grid;gap:8px;color:#3d443f;font-size:12.5px;font-weight:730}
+    .confirm-form input{height:50px;padding:0 15px;border:1px solid rgba(42,48,45,.22);border-radius:14px;background:rgba(255,255,255,.55);color:#1c211f;font:inherit;font-size:16px;letter-spacing:.12em}
+    .confirm-form input:focus-visible{outline:3px solid #17231f;outline-offset:3px}
+    .status{min-height:20px;margin:16px 0 0;color:#3d443f;font-size:13.5px;font-weight:660;line-height:1.5}
+    .status[data-tone="error"]{color:#67342a}
+    .status[data-tone="ok"]{color:#2b5240}
+    html[data-motion="standard"] .account-row,html[data-motion="standard"] .action{transition:background 180ms ease,box-shadow 180ms ease,border-color 180ms ease}
+    @media(forced-colors:active){.account-badge{border:1px solid CanvasText}.account-row.is-active{border:2px solid CanvasText}}
+    @media(max-width:820px){
+      .nav-shell,main{width:calc(100vw - 20px)}
+      .nav-glass{grid-template-columns:auto minmax(0,1fr) auto}
+      .brand span:last-child,.welcome{display:none}
+      nav{justify-content:flex-start}
+      main{margin-top:100px}
+      .panel{padding:26px 21px}
+      .account-row{grid-template-columns:1fr;gap:14px}
+      .row-actions{justify-content:flex-start}
+      .fact-columns{grid-template-columns:1fr;gap:0}
+    }
+  </style>
+</head>
+<body>
+  <div class="nav-stage"><header class="nav-shell"><div class="nav-glass"><a class="brand" href="./stage-1-navigation-proof.html"><span class="mark"></span><span>LearningAI</span></a><nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./progress.html">Progress</a><a href="./lessons.html">Lessons</a><a href="./focus.html">Focus</a></nav><div class="welcome"><span class="greeting">Welcome</span></div><a class="settings" href="./settings.html" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1v-4a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v.09a1.7 1.7 0 0 0 1.4 1.51 1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1v4a1.7 1.7 0 0 0-.6 1Z"/></svg></a></div></header></div>
+  <main>
+    <div class="accounts-head">
+      <p class="eyebrow">Accounts</p>
+      <h1>Accounts on this browser.</h1>
+      <p>This browser can remember several LearningAI accounts, but it can only be signed in to one at a time. Switch between them, remove one from this device, or delete an account permanently.</p>
+      <a class="back-link" href="./settings.html">← Back to Settings</a>
+    </div>
+
+    <section class="panel" aria-labelledby="listTitle">
+      <h2 id="listTitle">Accounts this browser has used</h2>
+      <p>Only the account marked “Signed in now” has an open session. Switching signs the current account out of this device first, then asks for the other account’s password — LearningAI never keeps two sessions open at once.</p>
+      <ul class="account-list" id="accountList"></ul>
+      <div class="empty" id="accountEmpty" hidden>This browser has not signed in to a LearningAI account yet.</div>
+      <div class="row-actions" id="listActions" style="justify-content:flex-start;margin-top:22px">
+        <a class="action" href="./access.html?returning=1">Sign in to another account</a>
+      </div>
+      <p class="status" id="listStatus" aria-live="polite"></p>
+    </section>
+
+    <section class="panel delete-panel" id="delete" aria-labelledby="deleteTitle">
+      <h2 id="deleteTitle">Delete an account permanently</h2>
+      <p id="deleteIntro">Deleting removes the account itself. It cannot be undone, and LearningAI cannot restore it for you afterwards. You can only delete the account you are signed in to — switch to it first if it is a different one.</p>
+      <div class="fact-columns">
+        <div>
+          <h3>Deleted from LearningAI</h3>
+          <ul class="fact-list is-gone">
+            <li>Your account: email address, password and display name</li>
+            <li>Your six starting-question answers and recorded level</li>
+            <li>Lesson progress, completed lessons and quiz answers</li>
+            <li>Saved Notes and project submissions</li>
+            <li>Recorded focus minutes and page visits</li>
+            <li>This browser’s copy of all of the above</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Not deleted</h3>
+          <ul class="fact-list is-kept">
+            <li>Any other account this browser has used, and its data</li>
+            <li>Email you have already received from LearningAI</li>
+            <li>Database backups, until they age out on their own schedule</li>
+            <li>Hosting-level server logs, which record requests but not your lesson answers</li>
+            <li>Anything you exported or downloaded yourself</li>
+          </ul>
+        </div>
+      </div>
+      <form class="confirm-form" id="deleteForm">
+        <label for="deleteConfirm"><span id="deleteLabel">Type DELETE to confirm</span><input id="deleteConfirm" name="confirmation" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="DELETE" aria-describedby="deleteStatus"></label>
+        <button class="action is-danger" id="deleteButton" type="submit" disabled>Delete this account permanently</button>
+      </form>
+      <p class="status" id="deleteStatus" aria-live="polite"></p>
+    </section>
+  </main>
+  <script src="./nav-behavior.js?v=2026-07-26a"></script>
+  <script>
+    (() => {
+      const accountsApi = window.LearningAIAccounts;
+      const list = document.querySelector('#accountList');
+      const empty = document.querySelector('#accountEmpty');
+      const listStatus = document.querySelector('#listStatus');
+      const deleteForm = document.querySelector('#deleteForm');
+      const deleteInput = document.querySelector('#deleteConfirm');
+      const deleteButton = document.querySelector('#deleteButton');
+      const deleteStatus = document.querySelector('#deleteStatus');
+      const deleteIntro = document.querySelector('#deleteIntro');
+      const CONFIRMATION = 'DELETE';
+
+      const setStatus = (element, text, tone = '') => {
+        element.textContent = text;
+        if (tone) element.dataset.tone = tone; else element.removeAttribute('data-tone');
+      };
+
+      const readAccount = () => {
+        try {
+          const value = JSON.parse(localStorage.getItem('learningai-prototype-account') || 'null');
+          return value && typeof value === 'object' ? value : null;
+        } catch { return null; }
+      };
+
+      /* Signing out erases this device's learner state, because lesson drafts,
+         notes and progress are not namespaced per account. The account roster is
+         deliberately kept so the account stays listed and switchable. */
+      const clearDevice = () => Object.keys(localStorage)
+        .filter(key => key.startsWith('learningai-') && key !== 'learningai-browser-accounts')
+        .forEach(key => localStorage.removeItem(key));
+
+      const unsyncedCount = () => {
+        try {
+          const notes = JSON.parse(localStorage.getItem('learningai-toolkit') || '[]');
+          return Array.isArray(notes) ? notes.filter(note => !note.synced).length : 0;
+        } catch { return 0; }
+      };
+      const draftCount = () => Object.keys(localStorage).filter(key => key.startsWith('learningai-lesson-draft')).length;
+      const localLossWarning = () => {
+        const notes = unsyncedCount();
+        const drafts = draftCount();
+        const losses = [
+          notes ? `${notes} note${notes === 1 ? '' : 's'} not yet saved to your account` : '',
+          drafts ? `${drafts} lesson draft${drafts === 1 ? '' : 's'}` : ''
+        ].filter(Boolean);
+        return losses.length ? `\n\nThis will erase ${losses.join(' and ')} from this browser.` : '';
+      };
+
+      const formatWhen = value => {
+        const time = Date.parse(String(value || ''));
+        if (!Number.isFinite(time)) return '';
+        try {
+          return new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(time));
+        } catch { return new Date(time).toISOString().slice(0, 10); }
+      };
+
+      function render() {
+        const entries = accountsApi ? accountsApi.list() : [];
+        list.replaceChildren();
+        empty.hidden = entries.length > 0;
+        for (const entry of entries) {
+          const item = document.createElement('li');
+          item.className = `account-row${entry.active ? ' is-active' : ''}`;
+
+          const identity = document.createElement('div');
+          identity.className = 'account-id';
+          const badge = document.createElement('span');
+          badge.className = entry.active ? 'account-badge' : 'account-badge is-away';
+          badge.textContent = entry.active ? 'Signed in now' : 'Signed out on this device';
+          const name = document.createElement('strong');
+          name.textContent = entry.displayName || 'Learner';
+          const email = document.createElement('span');
+          email.className = 'account-email';
+          email.textContent = entry.email || 'Email not recorded on this device';
+          const meta = document.createElement('span');
+          meta.className = 'account-meta';
+          const lastSeen = formatWhen(entry.lastSeenAt);
+          const created = formatWhen(entry.accountCreatedAt);
+          meta.textContent = [
+            lastSeen ? `Last used ${lastSeen}` : '',
+            created ? `account created ${created}` : ''
+          ].filter(Boolean).join(' · ');
+          identity.append(badge, name, email);
+          if (meta.textContent) identity.append(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'row-actions';
+          if (!entry.active) {
+            const move = document.createElement('button');
+            move.type = 'button';
+            move.className = 'action is-primary';
+            move.textContent = 'Switch to this account';
+            move.addEventListener('click', () => switchTo(entry));
+            actions.append(move);
+          } else {
+            const settings = document.createElement('a');
+            settings.className = 'action';
+            settings.href = './settings.html';
+            settings.textContent = 'Settings for this account';
+            actions.append(settings);
+          }
+          const forget = document.createElement('button');
+          forget.type = 'button';
+          forget.className = 'action';
+          forget.textContent = 'Forget on this device';
+          forget.addEventListener('click', () => forgetEntry(entry));
+          actions.append(forget);
+
+          item.append(identity, actions);
+          list.append(item);
+        }
+        syncDeletePanel();
+      }
+
+      async function switchTo(entry) {
+        if (window.LearningAIReviewMode) {
+          setStatus(listStatus, 'Review mode cannot change which account is signed in.', 'error');
+          return;
+        }
+        const message = `Switch to ${entry.email || entry.displayName}?\n\nLearningAI will sign out of this device first, then ask for that account's password.${localLossWarning()}\n\nCompleted lessons and answers already saved to an account are kept.`;
+        if (!confirm(message)) return;
+        setStatus(listStatus, 'Signing out of this device…');
+        await window.LearningAIAPI.logout().catch(() => ({ ok: false }));
+        clearDevice();
+        /* The email is carried in sessionStorage, not the URL, so it never lands
+           in a browser history entry, a referrer or a server log. */
+        try { sessionStorage.setItem('learningai-switch-to-email', String(entry.email || '')); } catch {}
+        location.href = './access.html?returning=1';
+      }
+
+      function forgetEntry(entry) {
+        if (window.LearningAIReviewMode) {
+          setStatus(listStatus, 'Review mode cannot change the account list.', 'error');
+          return;
+        }
+        const extra = entry.active
+          ? `\n\n${entry.displayName || 'This account'} is signed in right now, so this also signs out of this device.${localLossWarning()}`
+          : '';
+        if (!confirm(`Remove ${entry.email || entry.displayName} from this browser's list?\n\nThe account itself is NOT deleted. You can sign back in at any time.${extra}`)) return;
+        const wasActive = entry.active;
+        accountsApi?.forget(entry.key);
+        if (wasActive) {
+          window.LearningAIAPI.logout().catch(() => {});
+          clearDevice();
+        }
+        render();
+        setStatus(listStatus, `${entry.email || entry.displayName} was removed from this browser. The account still exists.`, 'ok');
+      }
+
+      function syncDeletePanel() {
+        const account = readAccount();
+        const name = account?.email || account?.displayName || '';
+        if (!name) {
+          deleteIntro.textContent = 'No account is signed in on this browser, so there is nothing to delete here. Sign in to the account you want to remove first — deletion always applies to the signed-in account.';
+          deleteInput.disabled = true;
+          deleteButton.disabled = true;
+          deleteButton.textContent = 'Sign in first';
+          return;
+        }
+        deleteIntro.textContent = `This deletes ${name}, the account signed in on this browser. It cannot be undone, and LearningAI cannot restore it afterwards. To delete a different account, switch to it first.`;
+        deleteInput.disabled = false;
+        deleteButton.textContent = `Delete ${name} permanently`;
+        deleteButton.disabled = deleteInput.value.trim().toUpperCase() !== CONFIRMATION;
+      }
+
+      deleteInput.addEventListener('input', () => {
+        const typed = deleteInput.value.trim().toUpperCase();
+        deleteButton.disabled = typed !== CONFIRMATION || !readAccount();
+        if (!typed) setStatus(deleteStatus, '');
+        else if (typed !== CONFIRMATION) setStatus(deleteStatus, `Type the word ${CONFIRMATION} to enable the button.`);
+        else setStatus(deleteStatus, 'The delete button is now enabled. This cannot be undone.');
+      });
+
+      deleteForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (window.LearningAIReviewMode) {
+          setStatus(deleteStatus, 'Review mode cannot delete learner accounts.', 'error');
+          return;
+        }
+        const account = readAccount();
+        if (!account) { syncDeletePanel(); return; }
+        if (deleteInput.value.trim().toUpperCase() !== CONFIRMATION) {
+          setStatus(deleteStatus, `Type ${CONFIRMATION} exactly to confirm.`, 'error');
+          return;
+        }
+        const label = account.email || account.displayName || 'this account';
+        if (!confirm(`Delete ${label} permanently?\n\nEvery lesson answer, note and record belonging to it is removed from LearningAI. This cannot be undone.`)) return;
+        deleteButton.disabled = true;
+        setStatus(deleteStatus, 'Checking your account…');
+        const session = await window.LearningAIAPI.me();
+        if (!session.ok) {
+          deleteButton.disabled = false;
+          setStatus(deleteStatus, 'Your session has expired, so nothing was deleted. Sign in again and retry.', 'error');
+          return;
+        }
+        setStatus(deleteStatus, 'Deleting your account…');
+        const deleted = await window.LearningAIAPI.deleteAccount();
+        if (!deleted.ok) {
+          deleteButton.disabled = false;
+          setStatus(deleteStatus, `${window.LearningAIAPI.friendlyError(deleted)} Nothing was deleted.`, 'error');
+          return;
+        }
+        const key = accountsApi?.activeKey();
+        clearDevice();
+        if (key) accountsApi?.forget(key);
+        location.replace('./lesson-one.html?deleted=1');
+      });
+
+      const name = new URLSearchParams(location.search).get('name') || window.LearningAIUser?.displayName || 'Learner';
+      document.querySelector('.greeting').textContent = window.LearningAIGreeting?.navText(name) || `Welcome, ${name}`;
+      render();
+    })();
+  </script>
+</body>
+</html>
