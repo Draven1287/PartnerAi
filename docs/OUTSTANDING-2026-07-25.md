@@ -36,17 +36,30 @@ is correct, because HSTS cannot be revoked quickly.
   turn onto whatever the drag left; medals settle level rather than at 4°.
 - ~~About page empty grid cell~~ **DONE** — a trailing odd card spans the width.
 - **Glass ↔ non-glass scroll transition** — not smooth enough on scroll. STILL OPEN.
-- **Progress page** — arc names should sit *inside* the coloured boxes; there is
-  a "Start" control with nothing in it that just navigates back.
+- ~~Progress page~~ **DONE** — arc names now sit in a full-bleed coloured band at
+  the top of each card. The empty "Start" control was a real bug: it resolved to
+  the first *unlocked* lesson, which for anyone past lesson one is lesson one, so
+  it sent learners backwards. It now goes to the first unlocked lesson not yet
+  done, with a 44px hit target.
 - ~~Start / landing page~~ **DONE** — index.html is now a single glass panel:
   one line of what this is, one of what happens after the first lesson, one
   primary action, one quiet sign-in link. Returning learners bypass it. The
   two-option lesson-length picker was also removed; there is one 7-step path.
-- **Age range control** — should not be a plain dropdown; wants something nicer.
+- ~~Age range control~~ **DONE** — now a row of choice buttons matching Motion
+  and Text size, from the same eight values.
 - **The questionnaire gives the learner nothing.** Aarav asked whether it could
   award something. Currently it records a level that nothing reads.
-- **Backend console UI/UX** — restyled to V2 tokens, NOT yet reviewed with
-  Aarav. He explicitly asked for a UX pass on the console. STILL OPEN.
+- **Backend console UI/UX** — a readability pass shipped (human column names,
+  relative times, curated stats, real empty states) and it fixed a live bug: the
+  lesson endpoint returns `lessons`, the code looked for `analytics`. But Aarav
+  is right that **it does not look like V2**. The V2 design is light paper with
+  serif headings, avatar-initials learner rows, level pills, progress bars, tab
+  nav, KPI tiles and a diagnostics card — see
+  `v2-redesign/project/delivery/Backend Console.dc.html` and
+  `v2-redesign/project/screenshots/console.png`. The shipped console is a dark
+  table layout. A port of the V2 presentation onto the working data layer is IN
+  PROGRESS. **Note: V2's design loads Google Fonts; the CSP forbids that, so the
+  port must use system serif/sans/mono stacks.**
 - **Safari "not secure"** — RESOLVED, not a real issue. Aarav confirmed Safari
   says nothing. The red icon was Arc's tracker-blocker shield. Certificate is
   valid, no mixed content, http redirects, HSTS now set. Do not re-investigate.
@@ -58,9 +71,10 @@ is correct, because HSTS cannot be revoked quickly.
   stranger ever sees — still uses roughly **nine undefined technical terms**
   (context, evidence, permission, prediction, prompt …). This is the single
   highest-value remaining content fix.
-- **Projects page** — "Open case study" opens a how-to-run-it-yourself brief,
-  not a case study. The label does not match the behaviour.
-- **`submission-policy.html`** is a navigational dead end: no nav, no back link.
+- ~~Projects page label~~ **DONE** — now "Open project brief", matching its
+  sibling control and what the dialog actually contains.
+- ~~`submission-policy.html` dead end~~ **DONE** — breadcrumbs above the title.
+  It did have a back link, but below five sections of policy.
 
 ## 5. Legal / privacy (decision, then build)
 

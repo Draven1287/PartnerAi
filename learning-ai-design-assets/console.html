@@ -1,135 +1,404 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>LearningAI console</title>
+  <title>Backend Console · Learning AI</title>
   <style>
-    /* Design tokens carried over from the V2 backend console so this looks like
-       the rest of the product rather than a debug page. Dark theme follows the
-       operating system; the sticky bar and paper-tone surfaces are the same. */
+    /* ------------------------------------------------------------------
+       V2 backend-console design, carried over verbatim in structure and
+       tokens. The one deliberate departure: the V2 source loaded Newsreader,
+       Plus Jakarta Sans and JetBrains Mono from Google Fonts. The site CSP is
+       font-src 'self' data:, so those stylesheet links would be blocked outright.
+       The serif headings are the load-bearing part of the V2 character, so
+       they stay — served from the system stack instead.
+       ------------------------------------------------------------------ */
     :root{
-      --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9;
-      --text:#211f1a; --text-dim:#5d5749; --text-faint:#8c8573;
-      --accent:#3a3aa3; --accent-soft:rgba(58,58,163,.10); --on-accent:#fff;
-      --good:#1f8a5b; --bad:#c2414b; --shadow:rgba(40,33,20,.08);
-      color-scheme:light;
-      font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+      --bw:1px;
+      --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+      --font-serif:ui-serif,Georgia,"Times New Roman",serif;
+      --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      /* Level colours are one set for both themes: they are always solid chips
+         carrying white text, so they are picked for 5:1+ against #fff rather
+         than for the surface behind them. */
+      --lv-foundation:#8a6018; --lv-explorer:#3a3aa3; --lv-builder:#1b6d4a;
+      --lv-none:#5d5749; --on-lv:#fff;
     }
-    @media (prefers-color-scheme: dark){
-      :root{
-        --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b;
-        --text:#f3efe6; --text-dim:#b3ab9a; --text-faint:#857e6e;
-        --accent:#a6a4f2; --accent-soft:rgba(166,164,242,.16); --on-accent:#16140f;
-        --good:#4cc38a; --bad:#f0808a; --shadow:rgba(0,0,0,.45);
-        color-scheme:dark;
-      }
+    html[data-theme="light"]{
+      --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9;
+      --text:#211f1a; --text-dim:#5d5749; --text-faint:#6b6655;
+      --accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.10);
+      --good:#1f8a5b; --good-soft:rgba(31,138,91,.12);
+      --bad:#c2414b; --bad-soft:rgba(194,65,75,.12);
+      --warn:#b6802a; --warn-soft:rgba(182,128,42,.14);
+      /* Two departures from V2's palette, both for contrast. --text-faint is
+         darkened here (and lightened in dark) because V2's value lands at
+         3.0–4.1:1 on --surface-2, which is where table headers and detail
+         labels live. And "ink" = text drawn on a *-soft band, "solid" = a
+         filled chip carrying --on-solid: both are darkened in light mode so
+         12px bold clears 4.5:1. Everything else is V2's token, unchanged. */
+      --accent-ink:#2c2c84; --good-ink:#17724a; --warn-ink:#8a6018; --bad-ink:#a8323c;
+      --good-solid:#187048; --warn-solid:#8a6018; --bad-solid:#a8323c; --on-solid:#fff;
+      --on-accent:#fff; --shadow:rgba(40,33,20,.08);
+      color-scheme:light;
+    }
+    html[data-theme="dark"]{
+      --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b;
+      --text:#f3efe6; --text-dim:#b3ab9a; --text-faint:#9b9382;
+      --accent:#a6a4f2; --accent-dim:#bcbaf6; --accent-soft:rgba(166,164,242,.16);
+      --good:#4cc38a; --good-soft:rgba(76,195,138,.16);
+      --bad:#f0808a; --bad-soft:rgba(240,128,138,.16);
+      --warn:#e0a64d; --warn-soft:rgba(224,166,77,.16);
+      --accent-ink:#a6a4f2; --good-ink:#4cc38a; --warn-ink:#e0a64d; --bad-ink:#f0808a;
+      --good-solid:#4cc38a; --warn-solid:#e0a64d; --bad-solid:#f0808a; --on-solid:#16140f;
+      --on-accent:#16140f; --shadow:rgba(0,0,0,.45);
+      color-scheme:dark;
     }
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
-    .bar{position:sticky;top:0;z-index:30;padding:16px 0;backdrop-filter:blur(10px);
-      background:color-mix(in srgb,var(--bg) 84%,transparent);border-bottom:1px solid var(--border)}
-    .bar-inner,main{max-width:1180px;margin:0 auto;padding:0 24px}
-    main{padding-bottom:80px}
-    h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em}
-    .sub{margin:4px 0 0;color:var(--text-dim);font-size:13px;line-height:1.5}
-    .card{margin:18px 0;padding:22px;border:1px solid var(--border);border-radius:14px;
-      background:var(--surface);box-shadow:0 1px 2px var(--shadow)}
-    .card h2{margin:0 0 4px;font-size:15px;font-weight:700;letter-spacing:-.01em}
-    .card p.hint{margin:0 0 14px;color:var(--text-dim);font-size:13px;line-height:1.5}
-    label{display:grid;gap:6px;margin-bottom:12px;color:var(--text-dim);font-size:11px;
-      font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-    input{height:44px;padding:0 12px;border:1px solid var(--border);border-radius:10px;
-      background:var(--bg);color:var(--text);font:inherit;font-size:14px}
-    input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-    button{min-height:40px;padding:0 16px;border:1px solid var(--accent);border-radius:10px;
-      background:var(--accent);color:var(--on-accent);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
-    button.ghost{border-color:var(--border);background:var(--surface-2);color:var(--text)}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
-    .status{min-height:20px;margin:12px 0 0;color:var(--text-dim);font-size:13px}
-    .status.bad{color:var(--bad)}
-    .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-    .tile{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
-    .tile b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-    .tile span{display:block;margin-top:4px;color:var(--text-dim);font-size:11px;
-      letter-spacing:.04em;text-transform:uppercase}
-    /* The one-line answer to "is anyone using this?" — sits above the numbers so
-       it can be read without decoding a grid of tiles. */
-    .glance{margin:0 0 16px;font-size:16px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
-    .glance em{font-style:normal;font-weight:500;color:var(--text-dim)}
+    html,body{margin:0;padding:0}
+    body{min-height:100vh;font-family:var(--font-body);background:var(--bg);color:var(--text);
+      -webkit-font-smoothing:antialiased}
+    [hidden]{display:none !important}
+    .canvas{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+
+    /* ---------- top bar ---------- */
+    .bar{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
+      background:color-mix(in srgb,var(--bg) 84%,transparent);border-bottom:var(--bw) solid var(--border)}
+    .bar-in{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+    .brand .mk{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
+      background:var(--accent);color:var(--on-accent);flex:none}
+    .brand .sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+      color:var(--text-faint);padding:3px 8px;border:var(--bw) solid var(--border);border-radius:999px}
+    .spacer{flex:1}
+    .conn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;
+      padding:7px 13px;border-radius:999px;border:var(--bw) solid var(--border);cursor:pointer;
+      background:var(--surface);color:var(--text-dim)}
+    .conn .dot{width:9px;height:9px;border-radius:50%;background:var(--text-faint);flex:none}
+    .conn.ok{color:var(--good-ink);border-color:color-mix(in srgb,var(--good) 40%,var(--border));background:var(--good-soft)}
+    .conn.ok .dot{background:var(--good-solid);animation:pulse 2s infinite}
+    .conn.warn{color:var(--warn-ink);border-color:color-mix(in srgb,var(--warn) 40%,var(--border));background:var(--warn-soft)}
+    .conn.warn .dot{background:var(--warn-solid)}
+    .conn.bad{color:var(--bad-ink);border-color:color-mix(in srgb,var(--bad) 40%,var(--border));background:var(--bad-soft)}
+    .conn.bad .dot{background:var(--bad-solid)}
+    @keyframes pulse{
+      0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 60%,transparent)}
+      70%{box-shadow:0 0 0 7px transparent}
+      100%{box-shadow:0 0 0 0 transparent}
+    }
+    @media (prefers-reduced-motion: reduce){.conn.ok .dot{animation:none}}
+    .seg{display:inline-flex;background:var(--surface-2);border:var(--bw) solid var(--border);
+      border-radius:999px;padding:3px;gap:2px}
+    .seg button{border:0;background:transparent;color:var(--text-dim);font:inherit;font-size:12.5px;
+      font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer}
+    .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px var(--shadow)}
+
+    /* ---------- head ---------- */
+    .head{padding:26px 0 4px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .head .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);font-weight:700}
+    .head h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(26px,3.6vw,38px);
+      letter-spacing:-.015em;margin:8px 0 0}
+    .head .env{font-size:12.5px;color:var(--text-dim);margin-top:8px;font-family:var(--font-mono);
+      line-height:1.6;word-break:break-word}
+    .head .env b{color:var(--accent-ink)}
+    .head-side{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .live-flag{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;
+      letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-soft);
+      border:var(--bw) solid color-mix(in srgb,var(--accent) 35%,var(--border));padding:7px 13px;border-radius:999px}
+
+    /* ---------- tab nav ---------- */
+    .tabnav{display:flex;gap:4px;margin:22px 0 4px;border-bottom:var(--bw) solid var(--border);flex-wrap:wrap}
+    .tabnav button{border:0;background:transparent;color:var(--text-dim);font:inherit;font-size:14px;
+      font-weight:600;padding:11px 15px;border-radius:10px 10px 0 0;cursor:pointer;display:inline-flex;
+      align-items:center;gap:8px;border-bottom:2px solid transparent;margin-bottom:-1px;
+      transition:color .12s,background .12s}
+    .tabnav button:hover{color:var(--text);background:var(--surface-2)}
+    .tabnav button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
+    .tabnav button .badge{font-size:11px;font-weight:700;background:var(--surface-2);color:var(--text-faint);
+      padding:1px 7px;border-radius:999px;font-variant-numeric:tabular-nums}
+    .tabnav button.on .badge{background:var(--accent-soft);color:var(--accent-ink)}
+
+    /* ---------- kpi ---------- */
+    .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
+    @media (max-width:780px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    .kpi{background:var(--surface);border:var(--bw) solid var(--border);border-radius:16px;padding:18px 20px;
+      box-shadow:0 8px 26px var(--shadow)}
+    .kpi .l{font-size:12.5px;color:var(--text-dim);font-weight:600;display:flex;align-items:center;gap:7px}
+    .kpi .l svg{color:var(--accent-ink);flex:none}
+    .kpi .v{font-family:var(--font-serif);font-weight:500;font-size:36px;line-height:1;letter-spacing:-.01em;
+      margin:12px 0 6px;font-variant-numeric:tabular-nums}
+    .kpi .d{font-size:12px;font-weight:600;min-height:15px}
+    .kpi .d.up{color:var(--good-ink)}
+    .kpi .d.flat{color:var(--text-faint)}
+
+    /* ---------- panels ---------- */
+    .panel{background:var(--surface);border:var(--bw) solid var(--border);border-radius:18px;
+      box-shadow:0 8px 26px var(--shadow);overflow:hidden;margin-bottom:18px}
+    .panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px 14px;flex-wrap:wrap}
+    .panel-h h2{font-family:var(--font-serif);font-weight:500;font-size:20px;margin:0}
+    .panel-h .meta{font-size:12.5px;color:var(--text-faint);font-weight:600}
+    .panel-b{padding:0 22px 22px}
+    .panel-b>:first-child{margin-top:0}
+    /* The learner table carries three columns; the level bars beside it carry
+       one. An even split starved the table and left the right panel padded with
+       empty space, which is also why V2 gave the table the larger share. */
+    .grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:start}
+    @media (max-width:820px){.grid2{grid-template-columns:1fr}}
+    .grid2>.panel{margin-bottom:0}
+
+    /* ---------- search ---------- */
+    .search{display:flex;align-items:center;gap:9px;background:var(--surface-2);
+      border:var(--bw) solid var(--border);border-radius:11px;padding:9px 13px;width:280px;max-width:100%}
+    .search input{border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;width:100%;outline:none}
+    .search input::placeholder{color:var(--text-faint)}
+    .search svg{color:var(--text-faint);flex:none}
+    .search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+    /* ---------- tables ---------- */
+    .tbl-scroll{max-height:620px;overflow:auto}
     .scroll{overflow-x:auto}
-    table{width:100%;border-collapse:collapse;font-size:13px}
-    th,td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;vertical-align:top}
-    th{color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
-    th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
-    tbody tr:hover{background:var(--accent-soft)}
-    .empty{padding:14px;border:1px dashed var(--border);border-radius:10px;color:var(--text-dim);
-      font-size:13px;line-height:1.6;white-space:normal}
+    .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+    .tbl thead th{position:sticky;top:0;z-index:1;text-align:left;font-size:11px;letter-spacing:.06em;
+      text-transform:uppercase;color:var(--text-faint);font-weight:700;padding:10px 22px;
+      border-bottom:var(--bw) solid var(--border);background:var(--surface-2);white-space:nowrap}
+    .tbl thead th.num,.tbl tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+    .tbl tbody td{padding:12px 22px;border-bottom:var(--bw) solid var(--border);vertical-align:middle}
+    .tbl tbody tr:hover{background:var(--surface-2)}
+    .tbl tbody tr.sel{background:var(--accent-soft)}
+    .tbl.rows tbody tr{cursor:pointer;transition:background .12s}
+    /* Dense skin for the generic "every stored column" tables. */
+    .tbl.compact{font-size:13px}
+    .tbl.compact thead th{position:static;padding:9px 14px}
+    .tbl.compact tbody td{padding:9px 14px;vertical-align:top;white-space:nowrap}
+    .tbl.compact tbody th{padding:9px 14px;border-bottom:var(--bw) solid var(--border);text-align:left;
+      font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);font-weight:700;
+      white-space:nowrap;vertical-align:top}
+    .who{display:flex;align-items:center;gap:11px}
+    .ava{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;
+      color:var(--on-lv);font-weight:700;font-size:13px;background:var(--lv-none)}
+    .ava.lv-foundation{background:var(--lv-foundation)}
+    .ava.lv-explorer{background:var(--lv-explorer)}
+    .ava.lv-builder{background:var(--lv-builder)}
+    /* The text column must be allowed to shrink, or a flex item refuses to go
+       below its content width and a long address breaks apart mid-word. */
+    .who .tx{min-width:0}
+    .who .nm{font-weight:600;color:var(--text)}
+    /* Capped, or a single long address stretches the table cell and pushes the
+       other columns out of view. Truncated addresses keep their full value in a
+       title attribute. */
+    .who .em{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30ch}
+    .lvl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+    .lvl.lv-foundation{color:var(--warn-ink);background:var(--warn-soft)}
+    .lvl.lv-explorer{color:var(--accent-ink);background:var(--accent-soft)}
+    .lvl.lv-builder{color:var(--good-ink);background:var(--good-soft)}
+    .lprog{display:flex;align-items:center;gap:9px}
+    .lprog .track{width:70px;height:7px;border-radius:999px;background:var(--surface-2);
+      border:var(--bw) solid var(--border);overflow:hidden;flex:none}
+    .lprog .fill{height:100%;background:var(--accent)}
+    .lprog .n{font-size:12px;color:var(--text-dim);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .seen{color:var(--text-dim)}
+    .seen.cold{color:var(--bad-ink)}
+    .empty{padding:26px 22px;text-align:center;color:var(--text-faint);font-size:14px;line-height:1.6}
+    .empty.left{text-align:left;padding:18px 0}
+    .dash{color:var(--text-faint)}
+    .mono{font-family:var(--font-mono);font-size:.92em}
+
+    /* ---------- learner detail ---------- */
+    .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:4px 22px 20px}
+    @media (max-width:600px){.detail-grid{grid-template-columns:1fr 1fr}}
+    .dcell{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:13px 15px;
+      min-width:0;overflow-wrap:anywhere}
+    .dcell .l{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);font-weight:700}
+    .dcell .v{font-size:15px;font-weight:600;margin-top:5px}
+    .dcell .v.mono{font-family:var(--font-mono);font-size:13px}
+
+    /* ---------- distributions ---------- */
+    .dist{padding:8px 22px 22px;display:grid;gap:16px}
+    .dist-row .top{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:600;margin-bottom:7px}
+    .dist-row .top .c{color:var(--text-faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+    .dist-row .track{height:14px;border-radius:999px;background:var(--surface-2);overflow:hidden;
+      border:var(--bw) solid var(--border)}
+    .dist-row .fill{height:100%;border-radius:999px;background:var(--accent)}
+    .dist-row .fill.lv-foundation{background:var(--lv-foundation)}
+    .dist-row .fill.lv-explorer{background:var(--lv-explorer)}
+    .dist-row .fill.lv-builder{background:var(--lv-builder)}
+    .age-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 22px 22px}
+    @media (max-width:600px){.age-grid{grid-template-columns:1fr 1fr}}
+    .agecell{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:13px 15px}
+    .agecell .n{font-family:var(--font-serif);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
+    .agecell .l{font-size:12px;color:var(--text-dim);margin-top:2px}
+
+    /* ---------- questions ---------- */
+    .subtabs{display:flex;gap:7px;padding:4px 22px 16px;flex-wrap:wrap}
+    .subtabs button{border:var(--bw) solid var(--border);background:var(--surface);color:var(--text-dim);
+      font:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer}
+    .subtabs button:hover{border-color:var(--accent);color:var(--accent-ink)}
+    .subtabs button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+    .qbody{padding:0 22px 24px}
+    .qbody .qt{font-family:var(--font-serif);font-weight:500;font-size:22px;line-height:1.25;
+      margin:4px 0 18px;max-width:60ch}
+    .qopt-dist{display:grid;gap:11px}
+    .qopt-row{display:grid;grid-template-columns:26px 1fr;gap:13px;align-items:start}
+    .qopt-row .letter{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;
+      font-weight:700;background:var(--surface-2);color:var(--text-dim);border:var(--bw) solid var(--border)}
+    .qopt-row.best .letter{background:var(--good-solid);color:var(--on-solid);border-color:var(--good-solid)}
+    .qopt-row .body .txt{font-size:14px;line-height:1.45;margin-bottom:7px}
+    .qopt-row .body .txt .strongest{color:var(--good-ink);font-weight:700}
+    .qopt-row .body .meter{display:flex;align-items:center;gap:10px}
+    .qopt-row .body .track{flex:1;height:12px;border-radius:999px;background:var(--surface-2);overflow:hidden;
+      border:var(--bw) solid var(--border)}
+    .qopt-row .body .fill{height:100%;background:var(--accent);border-radius:999px}
+    .qopt-row.best .body .fill{background:var(--good-solid)}
+    .qopt-row .body .pct{font-size:12.5px;font-weight:700;color:var(--text-dim);min-width:76px;text-align:right;
+      font-variant-numeric:tabular-nums}
+    .qnote{font-size:12.5px;color:var(--text-faint);margin:18px 0 0;line-height:1.55}
+
+    /* ---------- visits ---------- */
+    .spark{display:flex;align-items:flex-end;gap:10px;height:200px;padding:20px 24px 8px}
+    .spark .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
+    .spark .col .bar-fill{width:100%;max-width:48px;background:var(--accent);border-radius:6px 6px 0 0}
+    .spark .col .bv{font-size:12px;font-weight:700;color:var(--text-dim);font-variant-numeric:tabular-nums}
+    .spark .col .bx{font-size:12px;color:var(--text-faint);font-weight:600}
+    .vstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:8px 24px 24px}
+    @media (max-width:680px){.vstats{grid-template-columns:repeat(2,1fr)}}
+    .vstat{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:14px 16px}
+    .vstat .n{font-family:var(--font-serif);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+    .vstat .l{font-size:12px;color:var(--text-dim);margin-top:3px;line-height:1.35}
+
+    /* ---------- connection diagnostics ---------- */
+    .diag{padding:6px 24px 24px}
+    .diag .url{font-family:var(--font-mono);font-size:12.5px;color:var(--text-dim);background:var(--surface-2);
+      border:var(--bw) solid var(--border);border-radius:9px;padding:10px 13px;margin-bottom:16px;word-break:break-all}
+    .check{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:var(--bw) solid var(--border)}
+    .check:last-child{border-bottom:0}
+    .check .ic{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;
+      color:var(--on-solid);font-size:12px;font-weight:700}
+    .check .ic.ok{background:var(--good-solid)}
+    .check .ic.bad{background:var(--bad-solid)}
+    .check .ic.warn{background:var(--warn-solid)}
+    .check .ic.pend{background:var(--surface-2);color:var(--text-faint);border:var(--bw) solid var(--border)}
+    .check .tx{flex:1;min-width:0}
+    .check .tx .t{font-size:14px;font-weight:600}
+    .check .tx .s{font-size:12.5px;color:var(--text-faint);margin-top:2px;line-height:1.4;overflow-wrap:anywhere}
+    .check .ms{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);white-space:nowrap}
+    .diag-note{font-size:12.5px;color:var(--text-faint);margin-top:16px;line-height:1.55}
+
+    /* ---------- buttons, notes, prose ---------- */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;font:inherit;
+      font-size:14px;font-weight:600;cursor:pointer;border:var(--bw) solid transparent}
+    .btn-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+    .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn-sm{padding:8px 13px;font-size:13px;border-radius:10px}
+    button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{
+      outline:3px solid var(--accent);outline-offset:2px}
+    .glance{margin:22px 0 0;font-size:17px;font-weight:500;line-height:1.55;letter-spacing:-.01em}
+    .glance em{font-style:normal;font-weight:500;color:var(--text-dim)}
     /* Why a table is empty is as much a finding as a row would have been. */
-    .note{margin:12px 0 0;padding:11px 14px;border:1px solid var(--border);border-left:3px solid var(--accent);
-      border-radius:0 10px 10px 0;background:var(--surface-2);color:var(--text-dim);
-      font-size:12.5px;line-height:1.6;white-space:normal}
+    .note{margin:14px 0 0;padding:12px 15px;border:var(--bw) solid color-mix(in srgb,var(--warn) 30%,var(--border));
+      border-left:3px solid var(--warn);border-radius:0 12px 12px 0;background:var(--warn-soft);
+      color:var(--text-dim);font-size:12.5px;line-height:1.6}
     .note b{color:var(--text);font-weight:700}
-    h3.subhead{margin:20px 0 8px;color:var(--text-faint);font-size:10px;font-weight:700;
+    .lede{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:var(--text)}
+    h3.subhead{margin:22px 0 8px;color:var(--text-faint);font-size:10px;font-weight:700;
       letter-spacing:.07em;text-transform:uppercase}
     h3.subhead:first-child{margin-top:0}
-    .dash{color:var(--text-faint)}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
-    .lede{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text);white-space:normal}
-    details summary{cursor:pointer;color:var(--text-faint);font-size:12px;margin-top:10px}
-    details summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+    details{margin-top:12px}
+    details summary{cursor:pointer;color:var(--text-faint);font-size:12.5px;font-weight:600}
+    details[open] summary{margin-bottom:6px}
     pre{overflow:auto;margin:10px 0 0;padding:12px;border-radius:10px;background:var(--surface-2);
-      color:var(--text-dim);font-size:12px;line-height:1.5}
-    code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:.92em}
-    a{color:var(--accent)}
-    #app[hidden]{display:none}
-    @media(max-width:640px){.bar-inner,main{padding:0 16px}.card{padding:18px}.glance{font-size:15px}}
+      color:var(--text-dim);font-size:12px;line-height:1.5;font-family:var(--font-mono)}
+    code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-family:var(--font-mono);font-size:.92em}
+    a{color:var(--accent-ink)}
+    label.field{display:grid;gap:6px;margin-bottom:12px;color:var(--text-dim);font-size:11px;
+      font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+    label.field input{height:44px;padding:0 13px;border:var(--bw) solid var(--border);border-radius:11px;
+      background:var(--surface-2);color:var(--text);font:inherit;font-size:14px}
+    .status{min-height:20px;margin:12px 0 0;color:var(--text-dim);font-size:13px;line-height:1.6}
+    .status.bad{color:var(--bad-ink)}
+    .foot{margin-top:22px;font-size:12.5px;color:var(--text-faint);line-height:1.6}
+    .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    @media(max-width:640px){
+      .bar-in,.canvas{padding-left:16px;padding-right:16px}
+      .panel-h,.panel-b,.detail-grid,.dist,.age-grid,.qbody,.subtabs{padding-left:16px;padding-right:16px}
+      .tbl thead th,.tbl tbody td{padding-left:16px;padding-right:16px}
+      .glance{font-size:16px}
+    }
   </style>
 </head>
 <body>
-<header class="bar"><div class="bar-inner">
-  <h1>LearningAI console</h1>
-  <p class="sub">Live data from the production database, through <code>/api/admin/*</code>. Read-only.</p>
-</div></header>
-<main>
 
-  <section class="card" id="loginCard">
-    <h2>Sign in</h2>
-    <p class="hint">Use the ADMIN_EMAIL and ADMIN_PASSWORD set on the <code>learning-ai-api</code> service in Railway.</p>
-    <form id="loginForm" autocomplete="off">
-      <label>Email<input name="email" type="email" required autocomplete="username"></label>
-      <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
-      <div class="row"><button type="submit">Sign in</button></div>
-    </form>
-    <p class="status" id="loginStatus" role="status" aria-live="polite"></p>
+<div class="bar"><div class="bar-in">
+  <div class="brand">
+    <span class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 14h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM6 7h.01M6 18h.01"></path></svg></span>
+    <span>Learning AI</span>
+    <span class="sub">Backend Console</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="conn" id="conn" type="button">
+    <span class="dot"></span><span id="connLabel">Connection: not tested</span>
+  </button>
+  <div class="seg" role="group" aria-label="Colour theme">
+    <button type="button" data-theme-set="light" class="on">Light</button>
+    <button type="button" data-theme-set="dark">Dark</button>
+  </div>
+</div></div>
+
+<div class="canvas">
+
+  <div class="head">
+    <div>
+      <div class="kick">Admin · learning analytics</div>
+      <h1>Backend Console</h1>
+      <div class="env" id="env">env: <b>production</b> · <span id="envHost">learningai4you.com</span> · read-only</div>
+    </div>
+    <div class="head-side">
+      <span class="meta" id="who" style="font-size:12.5px;color:var(--text-faint);font-weight:600"></span>
+      <span class="live-flag" id="liveFlag">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+        Live production data
+      </span>
+      <button class="btn btn-ghost btn-sm" id="refresh" type="button" hidden>
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15"></path></svg>
+        Refresh
+      </button>
+      <button class="btn btn-ghost btn-sm" id="signout" type="button" hidden>Sign out</button>
+    </div>
+  </div>
+
+  <section class="panel" id="loginCard" style="margin-top:22px">
+    <div class="panel-h"><h2>Sign in</h2><span class="meta">admin only</span></div>
+    <div class="panel-b">
+      <p class="lede">Use the ADMIN_EMAIL and ADMIN_PASSWORD set on the <code>learning-ai-api</code> service in Railway.</p>
+      <form id="loginForm" autocomplete="off" style="max-width:380px">
+        <label class="field">Email<input name="email" type="email" required autocomplete="username"></label>
+        <label class="field">Password<input name="password" type="password" required autocomplete="current-password"></label>
+        <div class="row"><button class="btn btn-primary" type="submit">Sign in</button></div>
+      </form>
+      <p class="status" id="loginStatus" role="status" aria-live="polite"></p>
+    </div>
   </section>
 
   <div id="app" hidden>
-    <section class="card">
-      <div class="row" style="justify-content:space-between">
-        <div><h2>Overview</h2><p class="hint" id="who"></p></div>
-        <div class="row">
-          <button class="ghost" id="refresh" type="button">Refresh</button>
-          <button class="ghost" id="signout" type="button">Sign out</button>
-        </div>
-      </div>
+    <nav class="tabnav" id="tabnav" aria-label="Console sections"></nav>
+
+    <section id="tab-overview" class="tabpanel">
       <p class="glance" id="glance" aria-live="polite"></p>
-      <div class="tiles" id="tiles"></div>
+      <div class="kpis" id="kpis"></div>
+      <div id="overviewPanels"></div>
       <div id="overviewRaw"></div>
     </section>
-    <section class="card"><h2>Learners</h2><p class="hint">Who signed up and how far they got.</p><div class="scroll" id="learners"></div></section>
-    <section class="card"><h2>Lessons</h2><p class="hint">Where people are getting stuck.</p><div class="scroll" id="lessons"></div></section>
-    <section class="card"><h2>Questionnaire answers</h2><p class="hint">What the starting questionnaire says about them.</p><div class="scroll" id="assessment"></div></section>
-    <section class="card">
-      <h2>Health</h2>
-      <p class="hint">Is the API up and which build is live.</p>
-      <div class="scroll" id="health"></div>
-    </section>
+
+    <section id="tab-learners" class="tabpanel" hidden><div id="learners"></div></section>
+    <section id="tab-lessons" class="tabpanel" hidden><div id="lessons"></div></section>
+    <section id="tab-questionnaire" class="tabpanel" hidden><div id="assessment"></div></section>
+    <section id="tab-connection" class="tabpanel" hidden><div id="health"></div></section>
+
+    <p class="foot">Everything on this page is read straight from the production database through <code>/api/admin/*</code>. Nothing here is sample data, and nothing on this page writes. Where a number is missing it is because the API has not recorded it — each section says so in its own words, and the raw response is one disclosure away.</p>
   </div>
-</main>
+</div>
 
 <script>
 /* Renders whatever the API returns, but never as-is: raw column names, ISO
@@ -155,6 +424,50 @@ async function api(path, options = {}) {
 
 const esc = value => String(value ?? '').replace(/[<>&"']/g, c =>
   ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- theme ------------------------------------------------------- */
+
+/* V2 defaults to light and offers the segmented control; the choice sticks so
+   an admin who prefers dark does not re-pick it every session. */
+function setTheme(value) {
+  const theme = value === 'dark' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = theme;
+  document.querySelectorAll('[data-theme-set]').forEach(button => {
+    button.classList.toggle('on', button.dataset.themeSet === theme);
+  });
+  try { localStorage.setItem('console-theme', theme); } catch (error) { /* private mode */ }
+}
+document.querySelectorAll('[data-theme-set]').forEach(button => {
+  button.addEventListener('click', () => setTheme(button.dataset.themeSet));
+});
+try { setTheme(localStorage.getItem('console-theme') || 'light'); } catch (error) { setTheme('light'); }
+
+/* ---------- icons ------------------------------------------------------- */
+
+const ICONS = {
+  users: 'M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75',
+  pulse: 'M22 12h-4l-3 9L9 3l-3 9H2',
+  check: 'M20 6 9 17l-5-5',
+  x: 'M18 6 6 18M6 6l12 12',
+  alert: 'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  book: 'M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5z',
+  target: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+  list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  clock: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
+  refresh: 'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15',
+  server: 'M5 3h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 14h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM6 7h.01M6 18h.01',
+  search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
+  database: 'M12 8c4.4 0 8-1.3 8-3s-3.6-3-8-3-8 1.3-8 3 3.6 3 8 3zM20 12c0 1.7-3.6 3-8 3s-8-1.3-8-3M20 5v14c0 1.7-3.6 3-8 3s-8-1.3-8-3V5'
+};
+
+/* Path data is a fixed literal table — no user input reaches this markup. */
+function icon(name, size) {
+  const d = ICONS[name] || ICONS.server;
+  const s = Number(size) || 16;
+  return '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" stroke="currentColor"'
+    + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+    + '<path d="' + d + '"></path></svg>';
+}
 
 /* ---------- column names ---------------------------------------------- */
 
@@ -250,8 +563,14 @@ function fullDate(date) {
 const isNumericString = value =>
   typeof value === 'string' && value.trim() !== '' && /^-?\d+(\.\d+)?$/.test(value.trim());
 
+/* Identifiers that merely happen to be all digits. A short git SHA is hex, so
+   roughly one deploy in twenty-five has no letters in it — and "2,799,946" is a
+   quantity, not a build. Version and schema numbers read the same way. */
+const IDENT_KEY = /(sha|hash|build|version|token|id)$/;
+
 function formatNumber(n, key) {
   if (PERCENT_KEY.test(normKey(key))) return `${Math.round(n * 10) / 10}%`;
+  if (IDENT_KEY.test(normKey(key))) return String(n);
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
@@ -274,15 +593,16 @@ function cell(key, value) {
     }
     const json = JSON.stringify(value);
     return {
-      html: `<span title="${esc(json.slice(0, 800))}">${value.length} item${value.length === 1 ? '' : 's'}</span>`,
+      html: `<span title="${esc(String(json).slice(0, 800))}">${value.length} item${value.length === 1 ? '' : 's'}</span>`,
       numeric: true, blank: false
     };
   }
 
   if (typeof value === 'object') {
     const json = JSON.stringify(value);
-    const short = json.length > 60 ? `${json.slice(0, 57)}…` : json;
-    return { html: `<span title="${esc(json.slice(0, 800))}">${esc(short)}</span>`, numeric: false, blank: false };
+    const text = String(json);
+    const short = text.length > 60 ? `${text.slice(0, 57)}…` : text;
+    return { html: `<span title="${esc(text.slice(0, 800))}">${esc(short)}</span>`, numeric: false, blank: false };
   }
 
   const date = toDate(value);
@@ -307,7 +627,8 @@ function cell(key, value) {
 
 /* ---------- tables ------------------------------------------------------ */
 
-const emptyBox = message => `<p class="empty">${message || 'Nothing here yet.'}</p>`;
+const emptyBox = (message, left) =>
+  `<p class="empty${left ? ' left' : ''}">${message || 'Nothing here yet.'}</p>`;
 
 function orderColumns(cols, preferred = []) {
   const rank = new Map(preferred.map((key, index) => [normKey(key), index]));
@@ -319,7 +640,7 @@ function orderColumns(cols, preferred = []) {
 }
 
 function table(rows, options = {}) {
-  if (!Array.isArray(rows) || !rows.length) return emptyBox(options.empty);
+  if (!Array.isArray(rows) || !rows.length) return emptyBox(options.empty, true);
 
   let data = rows;
   let cols = [...new Set(data.flatMap(row => (row && typeof row === 'object' && !Array.isArray(row)) ? Object.keys(row) : []))];
@@ -329,7 +650,7 @@ function table(rows, options = {}) {
   }
   const hide = new Set((options.hide || []).map(normKey));
   cols = orderColumns(cols.filter(col => !hide.has(normKey(col))), options.columns);
-  if (!cols.length) return emptyBox(options.empty);
+  if (!cols.length) return emptyBox(options.empty, true);
 
   const shown = data.slice(0, 200);
   const cells = shown.map(row => cols.map(col => cell(col, (row && typeof row === 'object') ? row[col] : row)));
@@ -348,21 +669,21 @@ function table(rows, options = {}) {
   const body = cells.map(row =>
     '<tr>' + row.map((c, i) => `<td${numeric[i] ? ' class="num"' : ''}>${c.html}</td>`).join('') + '</tr>'
   ).join('');
-  const more = data.length > 200 ? `<p class="hint">Showing the first 200 of ${data.length} rows.</p>` : '';
-  return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>${more}`;
+  const more = data.length > 200 ? `<p class="diag-note">Showing the first 200 of ${data.length} rows.</p>` : '';
+  return `<div class="scroll"><table class="tbl compact"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>${more}`;
 }
 
 /* Wide single-object payloads (health) read better vertically. */
 function kvTable(object, options = {}) {
-  if (!object || typeof object !== 'object') return emptyBox(options.empty);
+  if (!object || typeof object !== 'object') return emptyBox(options.empty, true);
   const hide = new Set((options.hide || []).map(normKey));
   const entries = Object.entries(object).filter(([key]) => !hide.has(normKey(key)));
-  if (!entries.length) return emptyBox(options.empty);
+  if (!entries.length) return emptyBox(options.empty, true);
   const body = entries.map(([key, value]) => {
     const c = cell(key, value);
     return `<tr><th scope="row">${esc(label(key))}</th><td${c.numeric ? ' class="num"' : ''}>${c.html}</td></tr>`;
   }).join('');
-  return `<table><tbody>${body}</tbody></table>`;
+  return `<div class="scroll"><table class="tbl compact"><tbody>${body}</tbody></table></div>`;
 }
 
 const raw = payload =>
@@ -414,15 +735,40 @@ function render(el, build, payload) {
   try {
     html = build();
   } catch (error) {
-    html = emptyBox('This section could not be drawn — the API returned a shape this page does not recognise. The raw response below is the whole truth.');
+    html = emptyBox('This section could not be drawn — the API returned a shape this page does not recognise. The raw response below is the whole truth.', true);
   }
   el.innerHTML = html + raw(payload);
 }
 
-/* ---------- the three questions ---------------------------------------- */
+/* ---------- the standing explanations ----------------------------------- */
 
 const CONSENT_NOTE = '<b>Minutes, visits and active days are consent-gated.</b> Time and page tracking are off unless a learner turns them on, so these columns stay at zero for everyone who has not opted in. That is the privacy setting working, not a broken counter.';
 const ANSWER_NOTE = '<b>Nothing to show yet.</b> Recording of in-lesson answers and quiz submissions was only wired up on 25 July 2026, so nothing was saved before then. Rows appear here after the next lesson anyone completes.';
+const VISITS_NOTE = '<b>Nothing has been written to <code>page_visits</code>.</b> Page visits are consent-gated: nothing is recorded until a learner opts in to analytics, so this chart stays empty until someone does. An empty chart here is the privacy default holding, not a broken counter.';
+
+/* The DB stores diagnostic levels free-form. Anything that is not recognisably
+   Explorer or Builder is Foundation — but an absent attempt is *not* a level,
+   and must never be drawn as one. */
+function levelOf(value) {
+  const text = String(value ?? '').trim().toLowerCase();
+  if (!text) return null;
+  if (text.includes('build')) return 'Builder';
+  if (text.includes('explor')) return 'Explorer';
+  return 'Foundation';
+}
+const levelClass = level => 'lv-' + String(level || 'none').toLowerCase();
+
+/* V2 draws initials in the avatar. Real display names are frequently one word
+   or missing entirely, so the email is the fallback rather than a blank chip. */
+function initials(name, email) {
+  const source = String(name || '').trim() || String(email || '').split('@')[0].replace(/[._-]+/g, ' ');
+  const words = source.split(/\s+/).filter(Boolean);
+  if (!words.length) return '?';
+  const letters = words.length > 1 ? words[0][0] + words[1][0] : words[0].slice(0, 2);
+  return letters.toUpperCase();
+}
+
+/* ---------- the at-a-glance line --------------------------------------- */
 
 function glanceLine(context) {
   const { learnerRows, attemptRows, lessonRows, overview } = context;
@@ -445,68 +791,271 @@ function glanceLine(context) {
   return parts.join(' ');
 }
 
+/* ---------- KPI tiles --------------------------------------------------- */
+
 /* Curated, named figures. Ids, tokens and anything that is only meaningful to
    the database are deliberately left out — the raw JSON is one click away. */
-function statTiles(context) {
-  const { overview, learnerRows, lessonRows, attemptRows } = context;
+function statList(context) {
+  const { overview, learnerRows, lessonRows, attemptRows, lessonTotal } = context;
   const stats = [];
-  const add = (name, value) => {
+  const add = (name, value, detail, ic) => {
     if (value === null || value === undefined || !Number.isFinite(Number(value))) return;
-    stats.push({ name, value: Number(value) });
+    stats.push({ name, value: Number(value), detail: detail || '', icon: ic || 'server' });
   };
 
-  add('Learners', learnerRows.length || Number(overview?.total) || 0);
-  add('Active this week', overview?.activeWeek);
-  if (Number(overview?.newThisWeek)) add('Joined this week', overview.newThisWeek);
+  const total = learnerRows.length || Number(overview?.total) || 0;
+  const joined = Number(overview?.newThisWeek);
+  add('Learners', total, Number.isFinite(joined) && joined > 0 ? `+${joined.toLocaleString()} this week` : '', 'users');
 
-  const completed = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
-  add('Lessons completed', completed !== null ? completed : sumBy(lessonRows, ['learnersCompleted']));
-  const started = sumBy(learnerRows, ['startedLessons', 'started_lessons']);
-  if (started !== null) add('Lessons started', started);
-
-  add('Questionnaires done', attemptRows.length);
+  const active = Number(overview?.activeWeek);
+  add('Active this week', active,
+    Number.isFinite(active) && total ? `${Math.round((active / total) * 100)}% of all learners` : '', 'pulse');
 
   const avgLesson = Number(overview?.avgLesson);
-  if (Number.isFinite(avgLesson) && avgLesson > 0) stats.push({ name: 'Average lesson reached', value: avgLesson });
+  if (Number.isFinite(avgLesson) && avgLesson > 0) {
+    stats.push({ name: 'Average lesson reached', value: avgLesson, detail: `of ${lessonTotal}`, icon: 'book' });
+  }
+
+  const medianVisits = Number(overview?.medianVisits);
+  const medianDays = Number(overview?.medianActiveDays);
+  if (Number.isFinite(medianVisits) && medianVisits > 0) {
+    add('Median visits / learner', medianVisits,
+      Number.isFinite(medianDays) && medianDays > 0 ? `over ~${medianDays} active days` : '', 'clock');
+  }
+
+  const completed = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
+  add('Lessons completed', completed !== null ? completed : sumBy(lessonRows, ['learnersCompleted']), '', 'check');
+  const started = sumBy(learnerRows, ['startedLessons', 'started_lessons']);
+  if (started !== null) add('Lessons started', started, '', 'book');
+
+  add('Questionnaires done', attemptRows.length, '', 'list');
 
   const minutes = sumBy(learnerRows, ['totalMinutes', 'total_minutes']);
-  if (minutes) add('Minutes recorded', minutes);
+  if (minutes) add('Minutes recorded', minutes, '', 'clock');
   const wrong = sumBy(lessonRows, ['incorrectAnswers', 'incorrect_answers']);
-  if (wrong) add('Wrong answers', wrong);
+  if (wrong) add('Wrong answers', wrong, '', 'alert');
 
   if (!stats.length) { // degrade rather than show an empty grid
     const fallback = Object.entries(overview || {})
       .filter(([key, value]) => typeof value === 'number' && !/id$|token/i.test(key))
-      .map(([key, value]) => ({ name: label(key), value }));
-    if (!fallback.length) return emptyBox('No summary figures came back from /api/admin/overview. The raw response is below.');
+      .map(([key, value]) => ({ name: label(key), value, detail: '', icon: 'server' }));
     stats.push(...fallback);
   }
+  return stats;
+}
 
+function kpisHtml(context) {
+  const stats = statList(context);
+  if (!stats.length) {
+    return emptyBox('No summary figures came back from /api/admin/overview. The raw response is below.');
+  }
   return stats.map(stat =>
-    `<div class="tile"><b>${esc(stat.value.toLocaleString())}</b><span>${esc(stat.name)}</span></div>`
+    '<div class="kpi">'
+    + `<div class="l">${icon(stat.icon, 15)}${esc(stat.name)}</div>`
+    + `<div class="v">${esc(stat.value.toLocaleString())}</div>`
+    + `<div class="d ${stat.detail ? 'up' : 'flat'}">${esc(stat.detail)}</div>`
+    + '</div>'
   ).join('');
 }
 
-function learnersHtml(context) {
-  const rows = context.learnerRows;
-  if (!rows.length) {
-    return emptyBox('No learners yet. Anyone who signs up on learningai4you.com appears here straight away, with the lessons they have finished.');
+/* ---------- learner rows ------------------------------------------------ */
+
+/* One learner row in V2's vocabulary, assembled from up to three payloads:
+   /api/admin/learners has the stored columns, /api/admin/overview has the
+   normalised current lesson, and the assessment attempts carry the diagnostic
+   level. A learner with no attempt gets no level pill — the overview endpoint
+   defaults an absent level to "Foundation", which would be a fabrication here. */
+function learnerViews(context) {
+  const { learnerRows, overviewById, attemptsById, lessonTotal } = context;
+  return learnerRows.map((row, index) => {
+    const safe = (row && typeof row === 'object' && !Array.isArray(row)) ? row : { value: row };
+    const id = pick(safe, ['id', 'userId', 'user_id']);
+    const extra = (id !== undefined && overviewById.get(id)) || {};
+    const name = pick(safe, ['displayName', 'display_name', 'name']) || pick(extra, ['display_name', 'displayName']) || '';
+    const email = pick(safe, ['email']) || pick(extra, ['email']) || '';
+    const attempt = id !== undefined ? attemptsById.get(id) : undefined;
+    const level = attempt ? levelOf(attempt.level) : null;
+
+    const done = Number(pick(safe, ['completedLessons', 'completed_lessons']));
+    const current = Number(pick(safe, ['current_lesson']) ?? pick(extra, ['current_lesson']));
+    let progress = null;
+    if (Number.isFinite(done)) {
+      progress = { fill: lessonTotal ? Math.max(0, Math.min(100, (done / lessonTotal) * 100)) : 0, text: `${done}/${lessonTotal}` };
+    } else if (Number.isFinite(current) && current > 0) {
+      progress = { fill: lessonTotal ? Math.max(0, Math.min(100, (current / lessonTotal) * 100)) : 0, text: `Lesson ${current}` };
+    }
+
+    const visits = Number(pick(safe, ['visitCount', 'visits', 'visit_count']));
+    const seenValue = pick(safe, ['lastActiveAt', 'last_seen', 'lastSeen', 'last_active_at', 'createdAt', 'created_at'])
+      ?? pick(extra, ['last_seen']);
+    const seenDate = toDate(seenValue);
+
+    return {
+      index, id, row: safe, extra, attempt, name, email, level, progress,
+      visits: Number.isFinite(visits) ? visits : null,
+      seenDate,
+      seenText: seenDate ? dateText(seenDate) : '',
+      seenTitle: seenDate ? fullDate(seenDate) : '',
+      cold: seenDate ? (Date.now() - seenDate.getTime()) > 6 * 86400000 : false,
+      search: [name, email, level || '', String(id ?? '')].join(' ').toLowerCase()
+    };
+  });
+}
+
+function learnerRowHtml(view, selected) {
+  const cls = levelClass(view.level);
+  const who = '<div class="who">'
+    + `<span class="ava ${cls}" aria-hidden="true">${esc(initials(view.name, view.email))}</span>`
+    + '<div class="tx">'
+    + `<div class="nm">${esc(view.name || '(no display name)')}</div>`
+    + `<div class="em" title="${esc(view.email || '')}">${esc(view.email || '—')}</div>`
+    + '</div></div>';
+  const lvl = view.level
+    ? `<span class="lvl ${cls}">${esc(view.level)}</span>`
+    : '<span class="dash" title="This learner has not finished the starting questionnaire, so there is no diagnostic level to show.">—</span>';
+  const prog = view.progress
+    ? '<div class="lprog">'
+      + `<div class="track"><div class="fill" style="width:${Math.round(view.progress.fill)}%"></div></div>`
+      + `<span class="n">${esc(view.progress.text)}</span></div>`
+    : '<span class="dash">—</span>';
+  const visits = view.visits === null ? '<span class="dash">—</span>' : esc(view.visits.toLocaleString());
+  const seen = view.seenText
+    ? `<span title="${esc(view.seenTitle)}">${esc(view.seenText)}</span>`
+    : '<span class="dash">—</span>';
+  return `<tr data-lrow="${view.index}"${selected ? ' class="sel"' : ''}>`
+    + `<td>${who}</td><td>${lvl}</td><td>${prog}</td>`
+    + `<td class="num">${visits}</td><td class="num seen${view.cold ? ' cold' : ''}">${seen}</td></tr>`;
+}
+
+function learnerTableHtml(views, selectedIndex) {
+  if (!views.length) return '<div class="empty">No learners match that search.</div>';
+  const head = '<thead><tr><th>Learner</th><th>Diagnostic</th><th>Progress</th>'
+    + '<th class="num">Visits</th><th class="num">Last seen</th></tr></thead>';
+  const body = views.map(view => learnerRowHtml(view, view.index === selectedIndex)).join('');
+  return `<div class="tbl-scroll"><table class="tbl rows">${head}<tbody>${body}</tbody></table></div>`;
+}
+
+/* The detail grid is also where every column V2's row has no slot for stays
+   reachable — toolkit cards, name changes, minutes and the rest. */
+function learnerDetailHtml(view) {
+  if (!view) return '';
+  const cells = [];
+  const seen = new Set();
+  /* Deduplicated on the *label*, not the key: /api/admin/learners says
+     visitCount where /api/admin/overview says visits, and both mean Visits. */
+  const push = (key, value) => {
+    const k = normKey(key);
+    const shown = label(key).toLowerCase();
+    if (seen.has(k) || seen.has(shown)) return;
+    seen.add(k);
+    seen.add(shown);
+    const c = cell(key, value);
+    if (c.blank) return;
+    const mono = /email|^id$|userid|lessonid|currentlesson/.test(k);
+    cells.push(`<div class="dcell"><div class="l">${esc(label(key))}</div>`
+      + `<div class="v${mono ? ' mono' : ''}">${c.html}</div></div>`);
+  };
+  if (view.attempt) {
+    push('level', view.level);
+    push('scorePercent', view.attempt.scorePercent);
+    push('ageRange', view.attempt.ageRange);
+    push('completedAt', view.attempt.completedAt);
   }
-  const html = table(rows, {
+  for (const [key, value] of Object.entries(view.row)) push(key, value);
+  for (const [key, value] of Object.entries(view.extra || {})) push(key, value);
+  if (!cells.length) cells.push('<div class="dcell"><div class="l">Stored</div><div class="v">Nothing beyond the row above.</div></div>');
+
+  return '<div class="panel-h" style="border-top:var(--bw) solid var(--border)">'
+    + `<h2>${esc(view.name || view.email || 'Learner')}</h2>`
+    + '<span class="meta">what the backend stores for one learner</span></div>'
+    + `<div class="detail-grid">${cells.join('')}</div>`;
+}
+
+/* ---------- learners tab ------------------------------------------------ */
+
+let LEARNER_VIEWS = [];
+let LEARNER_SELECTED = -1;
+let LEARNER_QUERY = '';
+
+function filteredLearners() {
+  const q = LEARNER_QUERY.trim().toLowerCase();
+  if (!q) return LEARNER_VIEWS;
+  return LEARNER_VIEWS.filter(view => view.search.includes(q));
+}
+
+function paintLearnerList() {
+  const list = filteredLearners();
+  const body = $('#learnerList');
+  const info = $('#learnerInfo');
+  const detail = $('#learnerDetail');
+  if (body) body.innerHTML = learnerTableHtml(list, LEARNER_SELECTED);
+  if (info) {
+    const searching = LEARNER_QUERY.trim().length > 0;
+    info.textContent = LEARNER_VIEWS.length
+      ? `Showing ${searching ? `${list.length} matching` : `all ${list.length}`} learners · click a row for the full record`
+      : '';
+  }
+  if (detail) {
+    const chosen = LEARNER_VIEWS.find(view => view.index === LEARNER_SELECTED)
+      || (LEARNER_QUERY.trim() ? null : LEARNER_VIEWS[0]);
+    detail.innerHTML = chosen ? learnerDetailHtml(chosen) : '';
+  }
+}
+
+function learnersHtml(context) {
+  const views = learnerViews(context);
+  LEARNER_VIEWS = views;
+  LEARNER_SELECTED = views.length ? views[0].index : -1;
+
+  if (!views.length) {
+    return '<div class="panel"><div class="panel-h"><h2>Learners</h2></div>'
+      + emptyBox('No learners yet. Anyone who signs up on learningai4you.com appears here straight away, with the lessons they have finished.')
+      + '</div>';
+  }
+
+  const search = '<div class="search">' + icon('search', 16)
+    + '<input type="search" id="learnerSearch" placeholder="Search name, email, or level…" aria-label="Search learners">'
+    + '</div>';
+
+  const quiet = !sumBy(context.learnerRows, ['totalMinutes', 'total_minutes'])
+    && !sumBy(context.learnerRows, ['visitCount', 'visits']);
+  const withLevel = views.filter(view => view.level).length;
+  const levelNote = withLevel === 0
+    ? note('<b>No diagnostic levels yet.</b> The level column stays empty until a learner finishes the starting questionnaire. Nobody is shown as Foundation by default — an unanswered questionnaire is not a level.')
+    : '';
+
+  /* The ~60-entry label map earns its keep on the full column dump, which is
+     where every field V2's row has no slot for is still readable as a table. */
+  const full = table(context.learnerRows, {
     columns: ['displayName', 'display_name', 'email', 'completedLessons', 'completionPercent', 'currentLesson',
       'startedLessons', 'interactions', 'totalMinutes', 'visitCount', 'activeDays', 'lastActiveAt', 'last_seen',
       'createdAt', 'toolkitCards', 'savedNoteCount', 'disabled', 'id'],
     hide: ['currentStep', 'nameChangeCount', 'lastNameChangedAt', 'lastToolkitSavedAt'],
     empty: 'No learners yet.'
   });
-  const quiet = !sumBy(rows, ['totalMinutes', 'total_minutes']) && !sumBy(rows, ['visitCount', 'visits']);
-  return html + (quiet ? note(CONSENT_NOTE) : '');
+
+  return '<div class="panel">'
+    + `<div class="panel-h"><h2>Learners</h2>${search}</div>`
+    + '<div id="learnerInfo" style="padding:0 22px 10px;font-size:12.5px;color:var(--text-faint);font-weight:600"></div>'
+    + '<div id="learnerList"></div>'
+    + '<div id="learnerDetail"></div>'
+    + '</div>'
+    + '<div class="panel"><div class="panel-h"><h2>Everything stored</h2>'
+    + `<span class="meta">${esc(String(context.learnerRows.length))} rows · every column</span></div>`
+    + `<div class="panel-b">${full}${quiet ? note(CONSENT_NOTE) : ''}${levelNote}</div></div>`;
 }
+
+/* ---------- lessons tab ------------------------------------------------- */
 
 function lessonsHtml(context) {
   const rows = context.lessonRows;
+  const shell = (inner, meta) => '<div class="panel"><div class="panel-h"><h2>Lesson analytics</h2>'
+    + `<span class="meta">${esc(meta)}</span></div><div class="panel-b">${inner}</div></div>`;
+
   if (!rows.length) {
-    return emptyBox('No lesson rows came back. Either the curriculum has not been seeded or nobody has opened a lesson yet.') + note(ANSWER_NOTE);
+    return shell(
+      emptyBox('No lesson rows came back. Either the curriculum has not been seeded or nobody has opened a lesson yet.')
+      + note(ANSWER_NOTE), 'no rows');
   }
   const touched = rows.filter(row =>
     Number(pick(row, ['learnersStarted'])) > 0 ||
@@ -535,70 +1084,429 @@ function lessonsHtml(context) {
   html += '<h3 class="subhead">Lessons someone has opened</h3>';
   html += touched.length
     ? table(touched, { columns })
-    : emptyBox('Nobody has opened a lesson yet, so there is nothing to be confused by.');
+    : emptyBox('Nobody has opened a lesson yet, so there is nothing to be confused by.', true);
 
   if (!hardest.length) html += note(ANSWER_NOTE);
 
   if (rows.length > touched.length) {
     html += `<details><summary>Show all ${rows.length} lessons in the curriculum</summary>${table(rows, { columns })}</details>`;
   }
-  return html;
+  return shell(html, `${touched.length} of ${rows.length} opened`);
+}
+
+/* ---------- questionnaire tab ------------------------------------------- */
+
+/* The API returns question *keys*; the option text lives in the course, not the
+   database. These are the section names, not invented option copy — the four
+   bars below are the real counts and nothing else. */
+const QUESTION_TITLES = {
+  definition: 'What learners think "AI" means',
+  capability: 'What they think AI can do',
+  limits: 'When they slow down and check',
+  learning: 'How they use AI without losing control',
+  impact: 'How they weigh AI\u2019s real-world costs',
+  systems: 'What they know beyond chatbots'
+};
+
+let QUESTION_INDEX = 0;
+let QUESTION_KEYS = [];
+let QUESTION_DATA = {};
+let QUESTION_TOTAL = 0;
+
+function questionBodyHtml() {
+  const key = QUESTION_KEYS[QUESTION_INDEX];
+  const counts = (QUESTION_DATA[key] || []).map(n => Number(n) || 0);
+  const total = counts.reduce((a, b) => a + b, 0);
+  const rows = counts.map((count, i) => {
+    const pct = total ? Math.round((count / total) * 100) : 0;
+    const best = i === counts.length - 1;
+    return `<div class="qopt-row${best ? ' best' : ''}">`
+      + `<div class="letter">${String.fromCharCode(65 + i)}</div>`
+      + '<div class="body">'
+      + `<div class="txt">Answer ${String.fromCharCode(65 + i)}`
+      + (best ? '<span class="strongest"> · strongest answer</span>' : '')
+      + '</div>'
+      + `<div class="meter"><div class="track"><div class="fill" style="width:${pct}%"></div></div>`
+      + `<span class="pct">${esc(String(count))} · ${pct}%</span></div>`
+      + '</div></div>';
+  }).join('');
+  const title = QUESTION_TITLES[key] || label(key);
+  return `<div class="qt">${esc(title)}</div>`
+    + `<div class="qopt-dist">${rows}</div>`
+    + `<p class="qnote">There is no &quot;right&quot; answer — each option is what a learner thinks. D is the most sophisticated view, the one the course builds toward; A is the most basic. `
+    + `${esc(total ? `${total} answers recorded for this question.` : 'No answers recorded for this question yet.')} `
+    + 'The option wording lives in the course, not in the database, so only the counts are shown here — the full per-answer breakdown is in the tables below.</p>';
+}
+
+function paintQuestions() {
+  const body = $('#questionBody');
+  if (body) body.innerHTML = questionBodyHtml();
+  document.querySelectorAll('[data-qtab]').forEach(button => {
+    button.classList.toggle('on', Number(button.dataset.qtab) === QUESTION_INDEX);
+  });
+}
+
+function questionsPanelHtml(context) {
+  const questions = (context.overview && typeof context.overview.questions === 'object' && context.overview.questions) || {};
+  const order = Array.isArray(context.overview?.questionOrder)
+    ? context.overview.questionOrder.filter(key => Array.isArray(questions[key]))
+    : Object.keys(questions).filter(key => Array.isArray(questions[key]));
+  if (!order.length) return '';
+  const answered = order.reduce((sum, key) =>
+    sum + (questions[key] || []).reduce((a, b) => a + (Number(b) || 0), 0), 0);
+  if (!answered) return '';
+
+  QUESTION_KEYS = order;
+  QUESTION_DATA = questions;
+  QUESTION_TOTAL = answered;
+  QUESTION_INDEX = 0;
+
+  const subtabs = order.map((key, i) =>
+    `<button type="button" data-qtab="${i}" class="${i === 0 ? 'on' : ''}">Q${i + 1}</button>`).join('');
+  return '<div class="panel"><div class="panel-h"><h2>Diagnostic questions</h2>'
+    + `<span class="meta">${esc(`${answered.toLocaleString()} answers recorded`)}</span></div>`
+    + `<div class="subtabs">${subtabs}</div>`
+    + '<div class="qbody" id="questionBody"></div></div>';
 }
 
 function assessmentHtml(context) {
-  const { assessment, attemptRows } = context;
-  const byQuestion = Array.isArray(assessment?.summaryByQuestion) ? assessment.summaryByQuestion : [];
-  const byAnswer = Array.isArray(assessment?.summaryByAnswer) ? assessment.summaryByAnswer : [];
-  const responses = Array.isArray(assessment?.responses) ? assessment.responses : [];
+  const { assessmentData, attemptRows } = context;
+  const byQuestion = Array.isArray(assessmentData?.summaryByQuestion) ? assessmentData.summaryByQuestion : [];
+  const byAnswer = Array.isArray(assessmentData?.summaryByAnswer) ? assessmentData.summaryByAnswer : [];
+  const byAge = Array.isArray(assessmentData?.summaryByAge) ? assessmentData.summaryByAge : [];
+  const responses = Array.isArray(assessmentData?.responses) ? assessmentData.responses : [];
 
   if (!attemptRows.length && !byQuestion.length && !responses.length) {
-    const fallback = pickRows(assessment);
-    if (fallback.length) return table(fallback);
-    return emptyBox('Nobody has finished the starting questionnaire yet. It runs before lesson one, so the first answers arrive with the first learner who gets that far.');
+    const fallback = pickRows(assessmentData);
+    const shell = inner => '<div class="panel"><div class="panel-h"><h2>Questionnaire answers</h2>'
+      + '<span class="meta">the starting diagnostic</span></div>'
+      + `<div class="panel-b">${inner}</div></div>`;
+    if (fallback.length) return shell(table(fallback));
+    return shell(emptyBox('Nobody has finished the starting questionnaire yet. It runs before lesson one, so the first answers arrive with the first learner who gets that far.'));
   }
 
-  let html = '';
+  let html = questionsPanelHtml(context);
+
+  if (context.levelRows.length) html += levelsPanelHtml(context);
+
+  if (byAge.length) {
+    const cells = byAge.map(row =>
+      '<div class="agecell">'
+      + `<div class="n">${esc(String(Number(row?.attempts) || 0))}</div>`
+      + `<div class="l">${esc(row?.ageRange || 'unknown')}</div></div>`).join('');
+    html += '<div class="panel"><div class="panel-h"><h2>Who is taking it</h2>'
+      + '<span class="meta">age range</span></div>'
+      + `<div class="age-grid">${cells}</div></div>`;
+  }
+
+  let tables = '';
   if (attemptRows.length) {
-    html += '<h3 class="subhead">Who has taken it</h3>';
-    html += table(attemptRows, {
+    tables += '<h3 class="subhead">Who has taken it</h3>';
+    tables += table(attemptRows, {
       columns: ['displayName', 'email', 'level', 'ageRange', 'scorePercent', 'completedAt'],
       hide: ['id', 'userId']
     });
   }
   if (byQuestion.length) {
-    html += '<h3 class="subhead">How each question went</h3>';
-    html += table(byQuestion, {
+    tables += '<h3 class="subhead">How each question went</h3>';
+    tables += table(byQuestion, {
       columns: ['category', 'questionKey', 'responses', 'averageScore', 'percentage'],
       hide: ['scoreTotal', 'scored']
     });
   }
   if (byAnswer.length) {
-    html += `<details><summary>Every answer chosen (${byAnswer.length})</summary>${table(byAnswer, {
+    tables += `<details><summary>Every answer chosen (${byAnswer.length})</summary>${table(byAnswer, {
       columns: ['questionKey', 'selectedLabel', 'ageRange', 'responses', 'averageScore', 'percentage'],
       hide: ['selectedValue', 'category', 'scoreTotal', 'scored']
     })}</details>`;
   }
   if (responses.length) {
-    html += `<details><summary>Individual responses (${responses.length})</summary>${table(responses, {
+    tables += `<details><summary>Individual responses (${responses.length})</summary>${table(responses, {
       columns: ['displayName', 'category', 'questionKey', 'selectedLabel', 'score', 'freeText', 'completedAt'],
       hide: ['attemptId', 'userId', 'email', 'selectedValue', 'scorePercent']
     })}</details>`;
   }
+  if (tables) {
+    html += '<div class="panel"><div class="panel-h"><h2>Questionnaire answers</h2>'
+      + `<span class="meta">${esc(`${attemptRows.length} attempt${attemptRows.length === 1 ? '' : 's'}`)}</span></div>`
+      + `<div class="panel-b">${tables}</div></div>`;
+  }
   return html;
 }
 
-function healthHtml(health) {
-  if (!health || typeof health !== 'object') return emptyBox('The health endpoint did not answer.');
-  const head = health.ok
-    ? '<p class="lede">The API answered and the database is reachable.</p>'
-    : `<p class="lede">The API did not answer cleanly${health.status ? ` (HTTP ${esc(health.status)})` : ''}. Everything above may be stale.</p>`;
-  return head + kvTable(health, { hide: ['csrfToken'], empty: 'The health endpoint returned nothing.' });
+/* ---------- level distribution ------------------------------------------ */
+
+function levelsPanelHtml(context) {
+  const rows = context.levelRows;
+  const total = rows.reduce((sum, row) => sum + row.n, 0);
+  if (!total) {
+    return '<div class="panel"><div class="panel-h"><h2>Where they land</h2>'
+      + '<span class="meta">diagnostic level</span></div>'
+      + emptyBox('Nobody has finished the starting questionnaire, so there is no diagnostic level to place anyone at.')
+      + '</div>';
+  }
+  const bars = rows.map(row => {
+    const pct = Math.round((row.n / total) * 100);
+    return '<div class="dist-row">'
+      + `<div class="top"><span>${esc(row.level)}</span>`
+      + `<span class="c">${esc(plural(row.n, 'learner'))} · ${pct}%</span></div>`
+      + `<div class="track"><div class="fill ${levelClass(row.level)}" style="width:${pct}%"></div></div></div>`;
+  }).join('');
+  return '<div class="panel"><div class="panel-h"><h2>Where they land</h2>'
+    + `<span class="meta">${esc(plural(total, 'diagnostic'))}</span></div>`
+    + `<div class="dist">${bars}</div></div>`;
 }
+
+/* ---------- visits ------------------------------------------------------ */
+
+function visitsPanelHtml(context) {
+  const overview = context.overview || {};
+  const byDay = Array.isArray(overview.visitsByDay) ? overview.visitsByDay : [];
+  const counts = byDay.map(row => Number(row?.count) || 0);
+  const total = counts.reduce((a, b) => a + b, 0);
+  const head = '<div class="panel-h"><h2>Visits this week</h2>'
+    + `<span class="meta">${esc(total ? `${total.toLocaleString()} sessions` : 'sessions per day')}</span></div>`;
+
+  if (!byDay.length || !total) {
+    return `<div class="panel">${head}${emptyBox('No sessions recorded this week.')}`
+      + `<div class="panel-b" style="padding-top:0">${note(VISITS_NOTE)}</div></div>`;
+  }
+
+  const max = Math.max(...counts, 1);
+  const cols = byDay.map((row, i) => {
+    const value = counts[i];
+    const height = Math.round((value / max) * 150) + 8;
+    return '<div class="col">'
+      + `<div class="bv">${esc(String(value))}</div>`
+      + `<div class="bar-fill" style="height:${height}px"></div>`
+      + `<div class="bx">${esc(String(row?.label ?? ''))}</div></div>`;
+  }).join('');
+
+  const stats = [];
+  stats.push([total.toLocaleString(), 'sessions this week']);
+  const gap = Number(overview.avgGapDays);
+  if (Number.isFinite(gap) && gap > 0) stats.push([String(gap), 'avg days between visits']);
+  const returned = Number(overview.returnedWithin7);
+  if (Number.isFinite(returned)) stats.push([`${returned}%`, 'returned within 7 days']);
+  const busiest = byDay[counts.indexOf(max)];
+  if (busiest && busiest.label) stats.push([String(busiest.label), 'busiest day']);
+  const statCells = stats.map(([n, l]) =>
+    `<div class="vstat"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div></div>`).join('');
+
+  return `<div class="panel">${head}<div class="spark">${cols}</div>`
+    + `<div class="vstats">${statCells}</div></div>`;
+}
+
+/* ---------- overview tab ------------------------------------------------ */
+
+function recentLearnersPanelHtml(context) {
+  const views = LEARNER_VIEWS.slice(0, 5);
+  const head = '<div class="panel-h"><h2>Recent learners</h2>'
+    + `<span class="meta">${esc(plural(LEARNER_VIEWS.length, 'total', 'total'))}</span></div>`;
+  if (!views.length) {
+    return `<div class="panel">${head}${emptyBox('Nobody has signed up yet.')}</div>`;
+  }
+  const rows = views.map(view => {
+    const cls = levelClass(view.level);
+    const who = '<div class="who">'
+      + `<span class="ava ${cls}" aria-hidden="true">${esc(initials(view.name, view.email))}</span>`
+      + `<div class="tx"><div class="nm">${esc(view.name || '(no display name)')}</div>`
+      + `<div class="em" title="${esc(view.email || '')}">${esc(view.email || '—')}</div></div></div>`;
+    const lvl = view.level ? `<span class="lvl ${cls}">${esc(view.level)}</span>` : '<span class="dash">—</span>';
+    const prog = view.progress ? esc(view.progress.text) : '<span class="dash">—</span>';
+    return `<tr><td>${who}</td><td>${lvl}</td><td class="num">${prog}</td></tr>`;
+  }).join('');
+  return `<div class="panel">${head}`
+    + '<div class="tbl-scroll" style="max-height:none"><table class="tbl">'
+    + '<thead><tr><th>Learner</th><th>Diagnostic</th><th class="num">Progress</th></tr></thead>'
+    + `<tbody>${rows}</tbody></table></div>`
+    + '<div style="padding:14px 22px;border-top:var(--bw) solid var(--border);text-align:right">'
+    + '<button type="button" class="btn btn-ghost btn-sm" data-goto="learners">View all learners →</button></div></div>';
+}
+
+function overviewPanelsHtml(context) {
+  return `<div class="grid2">${recentLearnersPanelHtml(context)}${levelsPanelHtml(context)}</div>`
+    + `<div style="margin-top:18px">${visitsPanelHtml(context)}</div>`;
+}
+
+/* ---------- connection tab ---------------------------------------------- */
+
+/* V2's diagnostics card, but the six invented Cloudflare probes are replaced by
+   the checks this deployment can actually answer from /api/health and the admin
+   session it already holds. Nothing here is simulated. */
+function healthChecks(context) {
+  const health = context.health;
+  const checks = [];
+  const ms = Number.isFinite(context.healthMs) ? `${Math.round(context.healthMs)}ms` : '—';
+
+  if (!health || typeof health !== 'object') {
+    return [{ status: 'bad', t: 'GET /api/health', s: 'The health endpoint did not answer at all.', ms }];
+  }
+
+  checks.push({
+    status: health.ok ? 'ok' : 'bad',
+    t: 'GET /api/health',
+    s: health.ok
+      ? `${health.status || 200} OK · the API answered this browser directly`
+      : `The API did not answer cleanly${health.status ? ` (HTTP ${health.status})` : ''}. Everything on this page may be stale.`,
+    ms
+  });
+
+  const db = health.dbStatus ?? health.db ?? health.database;
+  if (db !== undefined && db !== null && db !== '') {
+    const good = /^(ok|up|connected|ready|true)$/i.test(String(db));
+    checks.push({ status: good ? 'ok' : 'bad', t: 'Database reachable', s: `dbStatus: ${String(db)}`, ms: '—' });
+  }
+
+  const version = health.migrationVersion ?? health.migration_version;
+  if (version !== undefined && version !== null && version !== '') {
+    checks.push({ status: 'ok', t: 'Schema up to date', s: `migration version ${String(version)}`, ms: '—' });
+  }
+
+  const sha = health.buildSha ?? health.build_sha;
+  const built = toDate(health.buildTime ?? health.build_time);
+  if (sha || built) {
+    checks.push({
+      status: 'ok', t: 'Build live',
+      s: [sha ? `build ${String(sha).slice(0, 12)}` : '', built ? `deployed ${dateText(built)}` : ''].filter(Boolean).join(' · '),
+      ms: '—'
+    });
+  }
+
+  const reset = health.passwordResetEmailConfigured ?? health.password_reset_email_configured;
+  if (reset !== undefined && reset !== null) {
+    checks.push({
+      status: reset ? 'ok' : 'warn',
+      t: 'Password-reset email configured',
+      s: reset ? 'Learners who forget a password can recover it.' : 'Not configured — password-reset emails will not send.',
+      ms: '—'
+    });
+  }
+
+  checks.push({
+    status: context.sessionOk ? 'ok' : 'warn',
+    t: 'Admin session accepted',
+    s: context.sessionOk
+      ? 'The session cookie is being sent and accepted on /api/admin/*.'
+      : 'The admin endpoints refused this session.',
+    ms: '—'
+  });
+
+  return checks;
+}
+
+function checkRowHtml(check) {
+  const mark = check.status === 'ok' ? icon('check', 13)
+    : check.status === 'bad' ? icon('x', 13)
+      : check.status === 'warn' ? '!' : '';
+  return '<div class="check">'
+    + `<span class="ic ${esc(check.status)}">${mark}</span>`
+    + `<div class="tx"><div class="t">${esc(check.t)}</div><div class="s">${esc(check.s)}</div></div>`
+    + `<span class="ms">${esc(check.ms)}</span></div>`;
+}
+
+function healthHtml(context) {
+  const health = context.health;
+  const checks = healthChecks(context);
+  const base = (location.protocol === 'http:' || location.protocol === 'https:')
+    ? `${location.origin}/api`
+    : 'file:// — the API cannot be reached from disk';
+
+  let html = '<div class="panel"><div class="panel-h"><h2>Connection diagnostics</h2>'
+    + '<button type="button" class="btn btn-primary" id="rerun">'
+    + icon('refresh', 15) + 'Re-run</button></div>'
+    + '<div class="diag">'
+    + `<div class="url">base → ${esc(base)}</div>`
+    + checks.map(checkRowHtml).join('')
+    + '<p class="diag-note">These checks run in your browser against the live API — each one is a real request or a real value from <code>/api/health</code>, not a simulation. A red row means the console is showing stale numbers.</p>'
+    + '</div></div>';
+
+  html += '<div class="panel"><div class="panel-h"><h2>What the API reports</h2>'
+    + '<span class="meta">/api/health</span></div>'
+    + `<div class="panel-b">${kvTable(health, { hide: ['csrfToken'], empty: 'The health endpoint returned nothing.' })}</div></div>`;
+  return html;
+}
+
+/* ---------- tabs -------------------------------------------------------- */
+
+const TABS = [
+  { key: 'overview', name: 'Overview', icon: 'server' },
+  { key: 'learners', name: 'Learners', icon: 'users' },
+  { key: 'lessons', name: 'Lessons', icon: 'book' },
+  { key: 'questionnaire', name: 'Questionnaire', icon: 'list' },
+  { key: 'connection', name: 'Connection', icon: 'refresh' }
+];
+let ACTIVE_TAB = 'overview';
+
+function paintTabs(counts) {
+  const nav = $('#tabnav');
+  if (!nav) return;
+  nav.innerHTML = TABS.map(tab => {
+    const count = counts ? counts[tab.key] : undefined;
+    const badge = Number.isFinite(Number(count))
+      ? `<span class="badge">${esc(Number(count).toLocaleString())}</span>` : '';
+    return `<button type="button" data-tab="${tab.key}" class="${tab.key === ACTIVE_TAB ? 'on' : ''}"`
+      + ` aria-current="${tab.key === ACTIVE_TAB ? 'page' : 'false'}">`
+      + icon(tab.icon, 15) + esc(tab.name) + badge + '</button>';
+  }).join('');
+}
+
+function showTab(key, counts) {
+  if (!TABS.some(tab => tab.key === key)) return;
+  ACTIVE_TAB = key;
+  TABS.forEach(tab => {
+    const panel = document.getElementById('tab-' + tab.key);
+    if (panel) panel.hidden = tab.key !== key;
+  });
+  paintTabs(counts || LAST_COUNTS);
+  window.scrollTo(0, 0);
+}
+
+let LAST_COUNTS = null;
+
+document.addEventListener('click', event => {
+  const tabButton = event.target.closest('[data-tab]');
+  if (tabButton) { showTab(tabButton.dataset.tab); return; }
+  const goto = event.target.closest('[data-goto]');
+  if (goto) { showTab(goto.dataset.goto); return; }
+  const qtab = event.target.closest('[data-qtab]');
+  if (qtab) { QUESTION_INDEX = Number(qtab.dataset.qtab) || 0; paintQuestions(); return; }
+  const rerun = event.target.closest('#rerun');
+  if (rerun) { load(); return; }
+  const lrow = event.target.closest('[data-lrow]');
+  if (lrow) { LEARNER_SELECTED = Number(lrow.dataset.lrow); paintLearnerList(); }
+});
+
+document.addEventListener('input', event => {
+  if (event.target && event.target.id === 'learnerSearch') {
+    LEARNER_QUERY = event.target.value || '';
+    paintLearnerList();
+  }
+});
+
+/* ---------- connection pill --------------------------------------------- */
+
+function paintConn(state, text) {
+  const pill = $('#conn');
+  const pillLabel = $('#connLabel');
+  if (!pill || !pillLabel) return;
+  pill.className = 'conn' + (state ? ' ' + state : '');
+  pillLabel.textContent = text;
+}
+
+$('#conn').addEventListener('click', () => {
+  showTab('connection');
+  load();
+});
 
 /* ---------- load -------------------------------------------------------- */
 
 async function load() {
-  $('#refresh').disabled = true;
+  const refresh = $('#refresh');
+  if (refresh) refresh.disabled = true;
+  paintConn('warn', 'Checking connection…');
+
+  const started = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
   const [overview, learners, lessons, assessment, health] = await Promise.all([
     api('/api/admin/overview'),
     api('/api/admin/learners'),
@@ -606,14 +1514,56 @@ async function load() {
     api('/api/admin/assessment-analytics'),
     api('/api/health')
   ]);
+  const healthMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - started;
   if (!overview.ok && overview.status === 401) return showLogin('Your admin session expired. Sign in again.');
 
   const learnerRows = pickRows(learners, ['learners']).length
     ? pickRows(learners, ['learners'])
     : (Array.isArray(overview?.learners) ? overview.learners : []);
   const lessonRows = pickRows(lessons, ['lessons', 'analytics']);
-  const attemptRows = Array.isArray(assessment?.attempts) ? assessment.attempts : [];
-  const context = { overview, learners, lessons, assessment, learnerRows, lessonRows, attemptRows };
+  /* /api/admin/assessment-analytics nests its payload under `analytics`; older
+     builds returned it flat. Accept both. */
+  const assessmentData = (assessment && typeof assessment.analytics === 'object' && assessment.analytics !== null
+    && !Array.isArray(assessment.analytics))
+    ? assessment.analytics
+    : assessment;
+  const attemptRows = Array.isArray(assessmentData?.attempts) ? assessmentData.attempts : [];
+
+  const overviewById = new Map();
+  if (Array.isArray(overview?.learners)) {
+    for (const row of overview.learners) if (row && row.id !== undefined) overviewById.set(row.id, row);
+  }
+  const attemptsById = new Map();
+  for (const attempt of attemptRows) {
+    const key = attempt && (attempt.userId ?? attempt.user_id);
+    if (key !== undefined && key !== null && !attemptsById.has(key)) attemptsById.set(key, attempt);
+  }
+
+  /* The denominator for "how far did they get" comes from the curriculum the
+     API just returned, not from a number typed into this page. */
+  const lessonTotal = lessonRows.length || Number(overview?.lessonCount) || 50;
+
+  /* Level counts: prefer the overview's own tally, but only trust it when it
+     is non-empty; otherwise count the attempts this page can see. */
+  let levelRows = Array.isArray(overview?.levels)
+    ? overview.levels
+      .filter(row => row && row.level)
+      .map(row => ({ level: String(row.level), n: Number(row.n) || 0 }))
+    : [];
+  if (!levelRows.length || !levelRows.some(row => row.n > 0)) {
+    const tally = { Foundation: 0, Explorer: 0, Builder: 0 };
+    for (const attempt of attemptsById.values()) {
+      const level = levelOf(attempt?.level);
+      if (level) tally[level] += 1;
+    }
+    levelRows = Object.entries(tally).map(([level, n]) => ({ level, n }));
+  }
+
+  const context = {
+    overview, learners, lessons, assessment, assessmentData, health, healthMs,
+    learnerRows, lessonRows, attemptRows, overviewById, attemptsById, lessonTotal, levelRows,
+    sessionOk: overview.ok === true || learners.ok === true
+  };
 
   try {
     $('#glance').innerHTML = glanceLine(context);
@@ -621,30 +1571,65 @@ async function load() {
     $('#glance').textContent = 'Signed in. The figures below are straight from the API.';
   }
   try {
-    $('#tiles').innerHTML = statTiles(context);
+    $('#kpis').innerHTML = kpisHtml(context);
   } catch (error) {
-    $('#tiles').innerHTML = emptyBox('The overview could not be summarised. The raw response is below.');
+    $('#kpis').innerHTML = emptyBox('The overview could not be summarised. The raw response is below.');
+  }
+
+  render($('#learners'), () => learnersHtml(context), learners);
+  paintLearnerList();
+
+  try {
+    $('#overviewPanels').innerHTML = overviewPanelsHtml(context);
+  } catch (error) {
+    $('#overviewPanels').innerHTML = emptyBox('These panels could not be drawn. The raw overview response is below.');
   }
   $('#overviewRaw').innerHTML = raw(overview);
 
-  render($('#learners'), () => learnersHtml(context), learners);
   render($('#lessons'), () => lessonsHtml(context), lessons);
   render($('#assessment'), () => assessmentHtml(context), assessment);
-  render($('#health'), () => healthHtml(health), health);
-  $('#refresh').disabled = false;
+  paintQuestions();
+  render($('#health'), () => healthHtml(context), health);
+
+  LAST_COUNTS = {
+    learners: learnerRows.length,
+    lessons: lessonRows.length,
+    questionnaire: attemptRows.length
+  };
+  paintTabs(LAST_COUNTS);
+
+  const failing = !health.ok || !overview.ok;
+  paintConn(failing ? 'bad' : 'ok', failing ? 'Connection: failing' : 'Connection: healthy');
+
+  const sha = health.buildSha ?? health.build_sha;
+  const envName = health.env || health.environment || 'production';
+  const host = (location.protocol === 'http:' || location.protocol === 'https:') ? location.host : 'file://';
+  $('#env').innerHTML = 'env: <b>' + esc(String(envName)) + '</b> · ' + esc(host)
+    + (sha ? ' · build ' + esc(String(sha).slice(0, 12)) : '') + ' · read-only';
+
+  if (refresh) refresh.disabled = false;
 }
+
+/* ---------- session ----------------------------------------------------- */
 
 function showLogin(message) {
   $('#app').hidden = true;
   $('#loginCard').hidden = false;
+  $('#refresh').hidden = true;
+  $('#signout').hidden = true;
+  $('#who').textContent = '';
   loginStatus.textContent = message || '';
   loginStatus.className = message ? 'status bad' : 'status';
+  paintConn('', 'Connection: not tested');
 }
 
 function showApp(admin) {
   $('#loginCard').hidden = true;
   $('#app').hidden = false;
+  $('#refresh').hidden = false;
+  $('#signout').hidden = false;
   $('#who').textContent = admin?.email ? `Signed in as ${admin.email}` : 'Signed in';
+  showTab('overview');
   load();
 }
 
@@ -677,9 +1662,12 @@ $('#signout').addEventListener('click', async () => {
    actually wrong. */
 if (location.protocol !== 'http:' && location.protocol !== 'https:') {
   $('#loginForm').hidden = true;
+  $('#liveFlag').hidden = true;
   loginStatus.className = 'status bad';
   loginStatus.innerHTML = 'This page is open from a file on your computer, so it cannot reach the API. '
     + 'Open <a href="https://learningai4you.com/console.html">learningai4you.com/console.html</a> instead.';
+  $('#env').innerHTML = 'env: <b>none</b> · opened from disk · the API is unreachable';
+  paintConn('bad', 'Connection: unreachable');
 } else {
   // resume an existing admin session
   api('/api/admin/me').then(result => { if (result.ok) showApp(result.admin || result.user); });
