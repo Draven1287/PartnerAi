@@ -6,137 +6,137 @@ export default {
   "num": 17,
   "arc": "Trust & Everyday AI",
   "title": "AI Is Already in Your Apps",
-  "coreQuestion": "Where might learned systems be shaping what an app shows or suggests, and what evidence should change how much I trust the feature?",
-  "blurb": "Notice quiet AI features, inspect what the product actually says they do, and match your checking to the consequence.",
+  "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
+  "blurb": "Spot the quiet AI bits in apps you already use, read what the app itself says they do, and check harder when a mistake would cost you.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The feature did not announce itself",
-      "scenario": "A photo app groups similar faces, an inbox offers a reply, and a search page writes a summary. Each may use a different learned system — vision, language, ranking, or generation — and the exact feature can vary by product, version, account, and organization.",
-      "prompt": "Before you read on: which matters more for deciding whether to rely on one of these features — whether it has the label 'AI,' or what happens if its output is wrong?"
+      "title": "Nothing announced itself",
+      "scenario": "Your photo app has quietly gathered every picture of your best friend into one folder. Your email offers you a ready-made reply. A search page writes you a paragraph before any of the links.\n\nNone of them said 'this is AI'. Each one is doing a different job, and the same app can behave differently on a school account.",
+      "prompt": "Before you rely on one of these, which matters more: whether the word AI appears anywhere, or what happens if it gets it wrong?"
     },
     {
       "kind": "classify",
-      "title": "Notice the evidence, not the buzzword",
-      "prompt": "Sort each clue by what it can honestly establish. These are built-in examples, so you do not need a particular phone or app.",
+      "title": "Look at the evidence, not the buzzword",
+      "prompt": "Sort each clue by what it can honestly tell you. These are all built in, so you do not need any particular phone.",
       "buckets": [
-        "Evidence about this feature",
-        "Only a guess or broad clue"
+        "Tells me something real about this feature",
+        "Only a guess"
       ],
       "items": [
         {
-          "text": "The product's help page says photo search uses image-recognition models and explains how to correct a match.",
+          "text": "The app's own help page says photo search matches faces, and shows how to fix a wrong match.",
           "answer": 0
         },
         {
-          "text": "An assistant says the feature 'probably uses AI somewhere.'",
+          "text": "A chatbot says the feature 'probably uses AI somewhere'.",
           "answer": 1
         },
         {
-          "text": "A setting names the feature, shows whether it is on, and links to its data controls.",
+          "text": "A setting names the feature, shows whether it is on, and says what it is allowed to look at.",
           "answer": 0
         },
         {
-          "text": "The result appeared quickly and looked futuristic.",
+          "text": "The answer arrived fast and looked futuristic.",
           "answer": 1
         },
         {
-          "text": "Your school or workplace documentation says the feature is disabled or configured differently on its accounts.",
+          "text": "Your school says this feature is switched off on school accounts.",
           "answer": 0
         },
         {
-          "text": "A friend uses the same app and assumes every account behaves the same way.",
+          "text": "A friend has the same app and assumes every account works the same.",
           "answer": 1
         }
       ],
-      "reveal": "A label, animation, or confident guess does not tell you how a specific feature works. Product help, visible controls, and organization policy are stronger evidence. Even then, focus on the decision in front of you: what the feature does, what data it touches, and what a mistake would cost."
+      "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you: what the feature does, what it can see, and what a mistake would cost."
     },
     {
       "kind": "reveal",
-      "title": "A family of systems, not one hidden brain",
-      "body": "AI inside everyday apps is not one recipe copied everywhere. A ranking system orders results, a vision system matches image patterns, a speech system turns sound into text, and a generative system produces new words or images. Some features combine learned models with fixed rules or human review. You do not need to identify every component before acting. You need enough evidence to answer four practical questions: What job is the feature doing? What data can it use? Can I turn it off, correct it, or recover from an error? What changes if it is wrong?",
-      "mistake": "Treating 'AI' as a single yes-or-no label, then trusting or rejecting every feature the same way.",
-      "good": "Inspect the actual feature and its controls, then increase checking as the consequence rises."
+      "title": "Lots of different jobs, not one hidden brain",
+      "body": "AI inside everyday apps is not one recipe copied everywhere. Different parts do different jobs.\n\nOne puts search results in an order. One matches pictures to each other. One turns speech into text. One writes new sentences or makes new images.\n\nPlenty of features mix a guessing part with plain fixed rules, or with a person checking the result.\n\nYou do not have to name every piece before you use something. You need enough to answer four questions.\n\nWhat job is this feature doing?\n\nWhat is it allowed to see?\n\nCan I turn it off, correct it, or undo a mistake?\n\nWhat changes if it gets it wrong?",
+      "mistake": "Treating 'AI' as one yes-or-no label, then trusting or refusing every feature the same way.",
+      "good": "Looking at the actual feature and its settings, then checking harder as the cost of a mistake goes up."
     },
     {
       "kind": "workflowChain",
-      "title": "Inspect before you rely",
-      "goal": "A calendar app suggests a meeting time, but choosing badly could make you miss an appointment. Put the app-awareness check in order.",
+      "title": "Look before you lean on it",
+      "goal": "A calendar app suggests a time for your study group. Get it wrong and somebody turns up to an empty room. Put the check in order.",
       "correct": [
-        "Name the output you may rely on: the suggested meeting time",
-        "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess",
-        "Check what information the feature used and whether the suggestion can be corrected or disabled",
-        "Compare the suggestion with the original calendar details because a mistake has a real consequence",
-        "If it is wrong, correct the event and adjust or turn off the feature before the next use"
+        "Name the thing you might rely on: the time it suggested",
+        "Read the app's own label, help page, settings, or your school's rules, instead of asking another AI to guess",
+        "Check what it looked at, and whether you can correct the suggestion or switch it off",
+        "Compare the suggestion with the real calendar entry, because getting it wrong costs somebody an afternoon",
+        "If it is wrong, fix the entry, then change or switch off the feature before next time"
       ],
       "choices": [
-        "Compare the suggestion with the original calendar details because a mistake has a real consequence",
-        "Name the output you may rely on: the suggested meeting time",
-        "If it is wrong, correct the event and adjust or turn off the feature before the next use",
-        "Check what information the feature used and whether the suggestion can be corrected or disabled",
-        "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess"
+        "Compare the suggestion with the real calendar entry, because getting it wrong costs somebody an afternoon",
+        "Name the thing you might rely on: the time it suggested",
+        "If it is wrong, fix the entry, then change or switch off the feature before next time",
+        "Check what it looked at, and whether you can correct the suggestion or switch it off",
+        "Read the app's own label, help page, settings, or your school's rules, instead of asking another AI to guess"
       ],
-      "note": "For a low-consequence feature, this check can take seconds. For health, money, school, work, safety, or another person's information, slow down and use an authoritative source."
+      "note": "If a mistake costs nothing, this takes seconds. For health, money, school, work, safety, or somebody else's private information, slow down and check a source that actually knows."
     },
     {
       "kind": "tryLive",
-      "title": "Optional: inspect one documented feature",
-      "prompt": "Choose one ordinary feature you can safely inspect — or use this built-in example: 'an email app offers a suggested reply.' Find the product's own label, help text, or setting. Record: what job it claims to do, what control you have, one possible false positive, and how you would recover if it were wrong.",
-      "note": "You do not need to list your real apps or devices. Do not share account names, device IDs, contacts, messages, photos, school or workplace details, or location history. If documentation is unavailable, write 'not established' rather than asking an assistant to invent an explanation."
+      "title": "Optional: look up one real feature",
+      "prompt": "Pick one ordinary feature you can safely look into. Or use this one: 'an email app offers a ready-made reply.' Find the app's own label, help text, or setting. Write down four things: what job it says it does, what control you have, one way it could be wrong, and how you would fix it if it were.",
+      "note": "You do not need to list your real apps or devices. Do not share account names, contacts, messages, photos, school details, or where you have been. If the app explains nothing, write 'not stated' rather than asking a chatbot to invent an explanation."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save an Everyday-AI check",
+      "title": "Save an everyday-AI check",
       "cardType": "Everyday-AI feature check",
       "fields": [
         {
           "key": "feature",
-          "label": "Feature and job",
-          "placeholder": "e.g. Calendar suggests a meeting time"
+          "label": "The feature and its job",
+          "placeholder": "Calendar suggests a time for the study group"
         },
         {
           "key": "evidence",
-          "label": "What establishes how it works",
-          "placeholder": "e.g. product help page, setting, or organization policy"
+          "label": "What tells me how it works",
+          "placeholder": "The help page, a setting, or a school rule"
         },
         {
           "key": "consequence",
-          "label": "What a mistake would change",
-          "placeholder": "e.g. I could miss the appointment"
+          "label": "What a mistake would cost",
+          "placeholder": "Somebody turns up to an empty room"
         },
         {
           "key": "control",
-          "label": "Correction, opt-out, or recovery",
-          "placeholder": "e.g. compare with the invitation, correct it, then disable suggestions"
+          "label": "How I fix it or switch it off",
+          "placeholder": "Compare with the invite, fix it, then turn suggestions off"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Choose the trustworthy inspection",
-      "question": "A writing app silently rewrites a sentence in a message to your teacher. Which response shows the full skill?",
+      "title": "Pick the check that actually holds up",
+      "question": "A writing app quietly rewrites a sentence in a message to your teacher. Which response shows the whole skill?",
       "options": [
         {
-          "text": "I identify the rewrite feature, inspect its setting or help page, reread the changed sentence because the consequence matters, and undo or disable it if it changes my meaning.",
+          "text": "I find the rewrite setting, read what it says it does, reread the changed sentence because this message matters, and undo it if the meaning shifted.",
           "ok": true,
-          "feedback": "Yes. You used observable evidence, matched checking to the consequence, and kept a correction path."
+          "feedback": "Yes. You used what you could actually see, checked harder because it mattered, and kept a way to undo it."
         },
         {
-          "text": "It looks like AI, so I assume it is unsafe and never use the app again.",
+          "text": "It looks like AI, so I decide it is unsafe and never open the app again.",
           "ok": false,
-          "feedback": "The label alone does not settle the decision. Inspect the feature, its controls, and the consequence of a mistake."
+          "feedback": "The label alone does not settle it. Look at the feature, its settings, and what a mistake would cost."
         },
         {
-          "text": "I ask another AI whether this app uses AI and trust whatever it says.",
+          "text": "I ask a different chatbot whether this app uses AI, and believe whatever it says.",
           "ok": false,
-          "feedback": "That adds another guess. Use the product's documentation, visible controls, and any school or workplace policy."
+          "feedback": "That is one more guess. Use the app's own help page, the settings you can see, and any school rule."
         },
         {
-          "text": "Grammar changes are usually low stakes, so I send it without rereading.",
+          "text": "Grammar changes are usually harmless, so I send it without rereading.",
           "ok": false,
-          "feedback": "The consequence depends on this message, not the feature category. A changed meaning sent to a teacher is worth checking."
+          "feedback": "The cost depends on this message, not on the type of feature. A changed meaning going to a teacher is worth ten seconds."
         }
       ]
     }

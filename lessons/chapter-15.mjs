@@ -6,128 +6,128 @@ export default {
   "num": 15,
   "arc": "Talking to AI",
   "title": "Who Is in Charge",
-  "coreQuestion": "If the AI does the work, who is actually in charge — and what stays my job?",
-  "blurb": "The AI can do the busy middle. You hold the goal, the method, and the final check.",
+  "coreQuestion": "If the AI writes it, who is actually in charge, and which part is still my job?",
+  "blurb": "AI can do the middle of a job. You keep the goal, the way you want it, and the last look.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "It did the work. So who decided?",
-      "scenario": "You ask an assistant to write a thank-you note for a neighbor who watched your dog. It comes back in five seconds — polished, polite, done. You almost paste it as-is. But it opened with 'Dear valued neighbor,' which is not how you talk at all.",
-      "prompt": "Before you read on: the AI typed the note. Does that mean the AI was in charge of it? What part of that task was never actually the AI's to decide?"
+      "title": "It wrote the whole thing. So who decided?",
+      "scenario": "Your gran sent you money for your birthday. You ask an AI app to write the thank-you message.\n\nFive seconds later it is there. Neat, polite, finished. You nearly send it.\n\nThen you read the first line. 'Dear valued family member.' You have never said that in your life.",
+      "prompt": "The AI typed every word. Does that mean it was in charge? Which part of that job was never its to decide?"
     },
     {
       "kind": "reveal",
-      "title": "The AI does the middle. You hold the ends.",
-      "body": "Here is what is really happening: an AI assistant learned patterns from huge amounts of human writing, and it works by predicting the likely next words — one after another — to fill in the middle of a task. In 2026 it can do real work: search the live web, take steps, and remember things across chats. But it still has no goal of its own, no idea what 'good enough' means for YOU, and it can still confidently make things up. (When we say the AI 'decides' or 'knows,' that is a comparison, not the real thing — underneath it is predicting words, it does not want or understand anything. That is exactly why the next part stays with you.) Three jobs are always yours: the GOAL (what you actually want), the METHOD (how you want it done), and the FINAL CHECK (you deciding it's right before you use it). Letting the AI type for you is not the same as letting it decide for you.",
-      "mistake": "Handing over the whole task — 'write my thank-you note' — and pasting whatever comes back, treating the AI as if it knows what a good note means to you.",
-      "good": "Handing over only the middle: you state the goal and method up front, let it draft, then run your own check before you trust a word of it."
+      "title": "It does the middle. You hold both ends.",
+      "body": "The AI wrote every word and still decided nothing. Here is what it actually does.\n\nIt has read an enormous amount of human writing. When you type something, it guesses which words usually come next. Then the next. Then the next. That is the whole trick.\n\nSome apps can also search the web, or keep bits of your older chats. They are still guessing.\n\nSo it can fill in the middle of a job. It cannot want anything. It has no idea what counts as good to you.\n\nThree jobs stay yours.\n\nThe goal. What you actually want.\n\nThe way. How you want it done.\n\nThe last look. You reading it and saying yes before you use it.\n\nLetting it type for you is not the same as letting it decide for you.",
+      "mistake": "Handing over the whole thing — 'write my thank-you message' — and sending back whatever turns up.",
+      "good": "Handing over only the middle. You say the goal and the way. It drafts. You check it before it goes anywhere."
     },
     {
       "kind": "classify",
       "title": "Whose job is it?",
-      "prompt": "Sort each piece of a task into who it belongs to. The AI can do the busy middle; three things stay yours.",
+      "prompt": "Sort each piece of the job. AI can handle the busy middle. Three things stay with you.",
       "buckets": [
-        "The AI can do this",
+        "AI can do this",
         "Stays my job"
       ],
       "items": [
         {
-          "text": "Deciding the note should sound warm and like me, not formal",
+          "text": "Deciding it should sound warm and like me, not stiff",
           "answer": 1
         },
         {
-          "text": "Producing a first draft in a few seconds",
+          "text": "Writing a first draft in five seconds",
           "answer": 0
         },
         {
-          "text": "Choosing that it stays under four sentences and mentions the cookies",
+          "text": "Choosing that it stays under four sentences and mentions the money",
           "answer": 1
         },
         {
-          "text": "Searching the web for how to phrase a tricky sentence",
+          "text": "Looking up a nicer way to word one awkward line",
           "answer": 0
         },
         {
-          "text": "Reading the result against what I wanted and deciding it's right before I send it",
+          "text": "Reading it against what I wanted and saying yes before I send it",
           "answer": 1
         }
       ],
-      "reveal": "The AI happily does the drafting and the looking-up — the middle. But the goal (warm, like me), the method (short, mention the cookies), and the final check (is this actually what I wanted?) never left your hands. Those are the three ends you hold."
+      "reveal": "The drafting and the looking-up are the middle. AI is happy to do those. The goal (warm, like me), the way (short, mention the money), and the last look never left you. Those are the two ends you hold."
     },
     {
       "kind": "workflowChain",
-      "title": "Mark the handoff points",
-      "goal": "Use AI to prepare a community-event flyer while keeping the responsible decisions human.",
+      "title": "Mark where the job changes hands",
+      "goal": "Use AI to help make a poster for the school charity match, without letting it make the calls that matter.",
       "correct": [
-        "A person defines the audience and purpose",
-        "A person removes private contact details that are not needed",
-        "AI produces several draft structures",
-        "A person verifies dates, rules, and accessibility information",
-        "The organizer selects, edits, and approves what is published"
+        "You decide who the poster is for and what it has to do",
+        "You take out phone numbers and anything private a poster does not need",
+        "AI writes a few different layouts to choose from",
+        "You check the date, the rules, and how people get in",
+        "You pick one, fix what is off, and say yes before it goes up"
       ],
       "choices": [
-        "A person verifies dates, rules, and accessibility information",
-        "AI produces several draft structures",
-        "The organizer selects, edits, and approves what is published",
-        "A person removes private contact details that are not needed",
-        "A person defines the audience and purpose"
+        "You check the date, the rules, and how people get in",
+        "AI writes a few different layouts to choose from",
+        "You pick one, fix what is off, and say yes before it goes up",
+        "You take out phone numbers and anything private a poster does not need",
+        "You decide who the poster is for and what it has to do"
       ],
-      "note": "If an outside assistant helps with the draft, data leaves LearningAI. Use public event facts only; do not paste attendee lists, private phone numbers, or internal messages."
+      "note": "If an outside app writes the draft, your words leave LearningAI. Stick to facts a poster on a wall would show anyway. Do not paste lists of names, phone numbers, or private messages."
     },
     {
       "kind": "tryLive",
-      "title": "Run one real task — keep the three jobs",
-      "prompt": "Pick a small real thing you're doing right now. First write three lines: 'My goal is ___,' 'My method is ___,' 'I'll check it by ___.' THEN send this:\n\n\"Help me in the middle of this — do not decide it for me: [task]. My goal is [goal]. I'd like it done this way: [method]. Give me a draft I can review, then list 2–3 things I should double-check before I trust it.\"",
-      "note": "Example fill-ins — task: 'write a short thank-you note to a neighbor who watched my dog.' goal: 'it sounds warm and like me, not formal or fake.' method: 'keep it under four sentences and mention the homemade cookies they sent over.' When the draft comes back, read it out loud against your goal and ask 'is this actually what I wanted?' The moment you're tempted to just accept it is the wheel — your check keeps your hands on it."
+      "title": "Run one real job and keep the three parts",
+      "prompt": "Pick one small real thing you have to do today. Write three lines first: 'My goal is ___.' 'The way I want it is ___.' 'I will check it by ___.' THEN send this:\n\n\"Help me with the middle of this. Do not decide it for me: [the job]. My goal is [goal]. I want it done this way: [the way]. Give me a draft I can read, then list 2 or 3 things I should double-check before I trust it.\"",
+      "note": "Example fill-ins — job: 'write a short thank-you message to my gran for the birthday money.' goal: 'it sounds warm and like me, not stiff.' way: 'under four sentences, and mention what I am saving up for.' When the draft lands, read it out loud against your goal. Ask: is this what I actually wanted? The moment you feel like just sending it is the moment your check matters most. If the job is homework, ask it to walk you through the bit you are stuck on. Asking it to hand you the finished answer gives away the part that was meant to teach you."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your 'three jobs' card",
+      "title": "Save your three-jobs card",
       "cardType": "Staying in charge",
       "fields": [
         {
           "key": "goal",
           "label": "My goal",
-          "placeholder": "What 'done well' means to me, in my words — the line the AI must not redraw"
+          "placeholder": "What done well means to me, in my own words"
         },
         {
           "key": "method",
-          "label": "My method",
-          "placeholder": "How I want it done, so the AI works my way (e.g. under four sentences, mention the cookies)"
+          "label": "The way I want it",
+          "placeholder": "How it should be done — under four sentences, mention the money"
         },
         {
           "key": "check",
-          "label": "I'll check it by",
-          "placeholder": "Exactly how I'll test the result before I trust it (e.g. read against my goal, verify each claim)"
+          "label": "I will check it by",
+          "placeholder": "How I test it before I trust it — read it against my goal, check each fact"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove you held the wheel",
-      "question": "Take a brand-new task of your own — different from the thank-you note. Before typing a single prompt, you say all three lines, run it, and do your check. What proves you were actually in charge?",
+      "title": "Show that you held the wheel",
+      "question": "Take a brand-new job of your own, not the thank-you message. Say all three lines before you type anything. Run it, then do your check. What proves you were in charge?",
       "options": [
         {
-          "text": "You can point to the spot where you caught or corrected the AI — a place its draft missed your goal or method and you changed it.",
+          "text": "I can point at the spot where I caught something — a place the draft missed my goal or my way, and I changed it.",
           "ok": true,
-          "feedback": "Yes. That caught-and-corrected moment is the proof: you held the goal, the method, and the final check, and let the AI do only the middle."
+          "feedback": "Yes. That caught-it moment is the proof. You held the goal, the way, and the last look, and let AI do only the middle."
         },
         {
-          "text": "The AI's draft was so good you pasted it with no changes.",
+          "text": "The draft was so good I sent it without changing anything.",
           "ok": false,
-          "feedback": "Pasting it untouched means you skipped your check. The AI can sound confident and still be wrong or off from what you wanted — the final call has to be yours, out loud, every time."
+          "feedback": "Sending it untouched means you skipped your check. It can sound sure of itself and still be wrong, or just not what you wanted."
         },
         {
-          "text": "You gave the AI the whole task and let it decide what 'done well' meant.",
+          "text": "I handed over the whole job and let the AI work out what good meant.",
           "ok": false,
-          "feedback": "That hands over the goal, which is the one line the AI must not redraw. It has no idea what 'good enough' means for you — that stays your job."
+          "feedback": "That gives away the goal, which is the one thing it must not decide. It has no idea what good means to you."
         },
         {
-          "text": "The task finished fast, so you didn't need to check anything.",
+          "text": "It finished so fast that there was nothing left to check.",
           "ok": false,
-          "feedback": "Speed isn't a check. Fast and confident is exactly when it's easiest to skip your review — and when a made-up detail slips through. Run the check anyway."
+          "feedback": "Speed is not a check. Fast and confident is exactly when a made-up detail slips past you. Read it anyway."
         }
       ]
     }

@@ -1964,128 +1964,128 @@
       "num": 15,
       "arc": "Talking to AI",
       "title": "Who Is in Charge",
-      "coreQuestion": "If the AI does the work, who is actually in charge — and what stays my job?",
-      "blurb": "The AI can do the busy middle. You hold the goal, the method, and the final check.",
+      "coreQuestion": "If the AI writes it, who is actually in charge, and which part is still my job?",
+      "blurb": "AI can do the middle of a job. You keep the goal, the way you want it, and the last look.",
       "minutes": 9,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "It did the work. So who decided?",
-          "scenario": "You ask an assistant to write a thank-you note for a neighbor who watched your dog. It comes back in five seconds — polished, polite, done. You almost paste it as-is. But it opened with 'Dear valued neighbor,' which is not how you talk at all.",
-          "prompt": "Before you read on: the AI typed the note. Does that mean the AI was in charge of it? What part of that task was never actually the AI's to decide?"
+          "title": "It wrote the whole thing. So who decided?",
+          "scenario": "Your gran sent you money for your birthday. You ask an AI app to write the thank-you message.\n\nFive seconds later it is there. Neat, polite, finished. You nearly send it.\n\nThen you read the first line. 'Dear valued family member.' You have never said that in your life.",
+          "prompt": "The AI typed every word. Does that mean it was in charge? Which part of that job was never its to decide?"
         },
         {
           "kind": "reveal",
-          "title": "The AI does the middle. You hold the ends.",
-          "body": "Here is what is really happening: an AI assistant learned patterns from huge amounts of human writing, and it works by predicting the likely next words — one after another — to fill in the middle of a task. In 2026 it can do real work: search the live web, take steps, and remember things across chats. But it still has no goal of its own, no idea what 'good enough' means for YOU, and it can still confidently make things up. (When we say the AI 'decides' or 'knows,' that is a comparison, not the real thing — underneath it is predicting words, it does not want or understand anything. That is exactly why the next part stays with you.) Three jobs are always yours: the GOAL (what you actually want), the METHOD (how you want it done), and the FINAL CHECK (you deciding it's right before you use it). Letting the AI type for you is not the same as letting it decide for you.",
-          "mistake": "Handing over the whole task — 'write my thank-you note' — and pasting whatever comes back, treating the AI as if it knows what a good note means to you.",
-          "good": "Handing over only the middle: you state the goal and method up front, let it draft, then run your own check before you trust a word of it."
+          "title": "It does the middle. You hold both ends.",
+          "body": "The AI wrote every word and still decided nothing. Here is what it actually does.\n\nIt has read an enormous amount of human writing. When you type something, it guesses which words usually come next. Then the next. Then the next. That is the whole trick.\n\nSome apps can also search the web, or keep bits of your older chats. They are still guessing.\n\nSo it can fill in the middle of a job. It cannot want anything. It has no idea what counts as good to you.\n\nThree jobs stay yours.\n\nThe goal. What you actually want.\n\nThe way. How you want it done.\n\nThe last look. You reading it and saying yes before you use it.\n\nLetting it type for you is not the same as letting it decide for you.",
+          "mistake": "Handing over the whole thing — 'write my thank-you message' — and sending back whatever turns up.",
+          "good": "Handing over only the middle. You say the goal and the way. It drafts. You check it before it goes anywhere."
         },
         {
           "kind": "classify",
           "title": "Whose job is it?",
-          "prompt": "Sort each piece of a task into who it belongs to. The AI can do the busy middle; three things stay yours.",
+          "prompt": "Sort each piece of the job. AI can handle the busy middle. Three things stay with you.",
           "buckets": [
-            "The AI can do this",
+            "AI can do this",
             "Stays my job"
           ],
           "items": [
             {
-              "text": "Deciding the note should sound warm and like me, not formal",
+              "text": "Deciding it should sound warm and like me, not stiff",
               "answer": 1
             },
             {
-              "text": "Producing a first draft in a few seconds",
+              "text": "Writing a first draft in five seconds",
               "answer": 0
             },
             {
-              "text": "Choosing that it stays under four sentences and mentions the cookies",
+              "text": "Choosing that it stays under four sentences and mentions the money",
               "answer": 1
             },
             {
-              "text": "Searching the web for how to phrase a tricky sentence",
+              "text": "Looking up a nicer way to word one awkward line",
               "answer": 0
             },
             {
-              "text": "Reading the result against what I wanted and deciding it's right before I send it",
+              "text": "Reading it against what I wanted and saying yes before I send it",
               "answer": 1
             }
           ],
-          "reveal": "The AI happily does the drafting and the looking-up — the middle. But the goal (warm, like me), the method (short, mention the cookies), and the final check (is this actually what I wanted?) never left your hands. Those are the three ends you hold."
+          "reveal": "The drafting and the looking-up are the middle. AI is happy to do those. The goal (warm, like me), the way (short, mention the money), and the last look never left you. Those are the two ends you hold."
         },
         {
           "kind": "workflowChain",
-          "title": "Mark the handoff points",
-          "goal": "Use AI to prepare a community-event flyer while keeping the responsible decisions human.",
+          "title": "Mark where the job changes hands",
+          "goal": "Use AI to help make a poster for the school charity match, without letting it make the calls that matter.",
           "correct": [
-            "A person defines the audience and purpose",
-            "A person removes private contact details that are not needed",
-            "AI produces several draft structures",
-            "A person verifies dates, rules, and accessibility information",
-            "The organizer selects, edits, and approves what is published"
+            "You decide who the poster is for and what it has to do",
+            "You take out phone numbers and anything private a poster does not need",
+            "AI writes a few different layouts to choose from",
+            "You check the date, the rules, and how people get in",
+            "You pick one, fix what is off, and say yes before it goes up"
           ],
           "choices": [
-            "A person verifies dates, rules, and accessibility information",
-            "AI produces several draft structures",
-            "The organizer selects, edits, and approves what is published",
-            "A person removes private contact details that are not needed",
-            "A person defines the audience and purpose"
+            "You check the date, the rules, and how people get in",
+            "AI writes a few different layouts to choose from",
+            "You pick one, fix what is off, and say yes before it goes up",
+            "You take out phone numbers and anything private a poster does not need",
+            "You decide who the poster is for and what it has to do"
           ],
-          "note": "If an outside assistant helps with the draft, data leaves LearningAI. Use public event facts only; do not paste attendee lists, private phone numbers, or internal messages."
+          "note": "If an outside app writes the draft, your words leave LearningAI. Stick to facts a poster on a wall would show anyway. Do not paste lists of names, phone numbers, or private messages."
         },
         {
           "kind": "tryLive",
-          "title": "Run one real task — keep the three jobs",
-          "prompt": "Pick a small real thing you're doing right now. First write three lines: 'My goal is ___,' 'My method is ___,' 'I'll check it by ___.' THEN send this:\n\n\"Help me in the middle of this — do not decide it for me: [task]. My goal is [goal]. I'd like it done this way: [method]. Give me a draft I can review, then list 2–3 things I should double-check before I trust it.\"",
-          "note": "Example fill-ins — task: 'write a short thank-you note to a neighbor who watched my dog.' goal: 'it sounds warm and like me, not formal or fake.' method: 'keep it under four sentences and mention the homemade cookies they sent over.' When the draft comes back, read it out loud against your goal and ask 'is this actually what I wanted?' The moment you're tempted to just accept it is the wheel — your check keeps your hands on it."
+          "title": "Run one real job and keep the three parts",
+          "prompt": "Pick one small real thing you have to do today. Write three lines first: 'My goal is ___.' 'The way I want it is ___.' 'I will check it by ___.' THEN send this:\n\n\"Help me with the middle of this. Do not decide it for me: [the job]. My goal is [goal]. I want it done this way: [the way]. Give me a draft I can read, then list 2 or 3 things I should double-check before I trust it.\"",
+          "note": "Example fill-ins — job: 'write a short thank-you message to my gran for the birthday money.' goal: 'it sounds warm and like me, not stiff.' way: 'under four sentences, and mention what I am saving up for.' When the draft lands, read it out loud against your goal. Ask: is this what I actually wanted? The moment you feel like just sending it is the moment your check matters most. If the job is homework, ask it to walk you through the bit you are stuck on. Asking it to hand you the finished answer gives away the part that was meant to teach you."
         },
         {
           "kind": "toolkitSave",
-          "title": "Save your 'three jobs' card",
+          "title": "Save your three-jobs card",
           "cardType": "Staying in charge",
           "fields": [
             {
               "key": "goal",
               "label": "My goal",
-              "placeholder": "What 'done well' means to me, in my words — the line the AI must not redraw"
+              "placeholder": "What done well means to me, in my own words"
             },
             {
               "key": "method",
-              "label": "My method",
-              "placeholder": "How I want it done, so the AI works my way (e.g. under four sentences, mention the cookies)"
+              "label": "The way I want it",
+              "placeholder": "How it should be done — under four sentences, mention the money"
             },
             {
               "key": "check",
-              "label": "I'll check it by",
-              "placeholder": "Exactly how I'll test the result before I trust it (e.g. read against my goal, verify each claim)"
+              "label": "I will check it by",
+              "placeholder": "How I test it before I trust it — read it against my goal, check each fact"
             }
           ]
         },
         {
           "kind": "exitCheck",
-          "title": "Prove you held the wheel",
-          "question": "Take a brand-new task of your own — different from the thank-you note. Before typing a single prompt, you say all three lines, run it, and do your check. What proves you were actually in charge?",
+          "title": "Show that you held the wheel",
+          "question": "Take a brand-new job of your own, not the thank-you message. Say all three lines before you type anything. Run it, then do your check. What proves you were in charge?",
           "options": [
             {
-              "text": "You can point to the spot where you caught or corrected the AI — a place its draft missed your goal or method and you changed it.",
+              "text": "I can point at the spot where I caught something — a place the draft missed my goal or my way, and I changed it.",
               "ok": true,
-              "feedback": "Yes. That caught-and-corrected moment is the proof: you held the goal, the method, and the final check, and let the AI do only the middle."
+              "feedback": "Yes. That caught-it moment is the proof. You held the goal, the way, and the last look, and let AI do only the middle."
             },
             {
-              "text": "The AI's draft was so good you pasted it with no changes.",
+              "text": "The draft was so good I sent it without changing anything.",
               "ok": false,
-              "feedback": "Pasting it untouched means you skipped your check. The AI can sound confident and still be wrong or off from what you wanted — the final call has to be yours, out loud, every time."
+              "feedback": "Sending it untouched means you skipped your check. It can sound sure of itself and still be wrong, or just not what you wanted."
             },
             {
-              "text": "You gave the AI the whole task and let it decide what 'done well' meant.",
+              "text": "I handed over the whole job and let the AI work out what good meant.",
               "ok": false,
-              "feedback": "That hands over the goal, which is the one line the AI must not redraw. It has no idea what 'good enough' means for you — that stays your job."
+              "feedback": "That gives away the goal, which is the one thing it must not decide. It has no idea what good means to you."
             },
             {
-              "text": "The task finished fast, so you didn't need to check anything.",
+              "text": "It finished so fast that there was nothing left to check.",
               "ok": false,
-              "feedback": "Speed isn't a check. Fast and confident is exactly when it's easiest to skip your review — and when a made-up detail slips through. Run the check anyway."
+              "feedback": "Speed is not a check. Fast and confident is exactly when a made-up detail slips past you. Read it anyway."
             }
           ]
         }
@@ -2095,116 +2095,116 @@
       "id": "chapter-16",
       "num": 16,
       "arc": "Trust & Everyday AI",
-      "title": "Verify Before You Trust",
-      "coreQuestion": "How do I tell whether an AI's source actually backs up its answer?",
-      "blurb": "A citation only counts once you open it and confirm it really proves the claim.",
+      "title": "Check It Before You Trust It",
+      "coreQuestion": "How do I tell whether the source an AI gives me really backs up what it said?",
+      "blurb": "A link proves nothing until you open it and find the fact sitting there on the page.",
       "minutes": 9,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "A perfect-looking answer",
-          "scenario": "You ask an AI a factual question and it replies confidently, with a tidy source: a title, an author, a date, even a working link. It looks airtight. You are about to paste it into a class presentation.",
-          "prompt": "Before you read on: what has the AI actually proven by handing you that link or title? Has it shown the source is real AND that the source says the claimed fact?"
+          "title": "The answer that looks airtight",
+          "scenario": "You ask an AI app a question for your class presentation. The answer comes back sounding certain.\n\nUnderneath it lists where the fact came from. A title, a writer, a date, even a link that opens.\n\nIt looks solid. Your slide is nearly done.",
+          "prompt": "What has the AI actually proved by handing you that link? That the page is real? That the page says the thing it claimed?"
         },
         {
           "kind": "reveal",
-          "title": "A citation is just decoration until you open it",
-          "body": "The one idea: a source only counts once you open it and confirm it actually proves the claim. Here's the mechanism. AI works by predicting the most plausible-sounding next words, one after another, from patterns it learned across huge amounts of human writing. So it can produce a source that LOOKS perfect but is outdated, points somewhere unrelated, or was never real at all — that's called a fabricated citation. In 2026 there's a second, even more common trap: many assistants browse the live web and hand you a real, working link — but a real link still doesn't prove the claim, because the page may not actually say what the AI said it does. The link or title existing proves nothing. The source SAYING the claimed thing is the only test. (Comparison, flagged as a comparison: a citation is like a receipt for a purchase — but a receipt can be forged, so you don't trust it until you confirm the charge yourself. That's the analogy; here's what's really happening — the AI generated text that fits the pattern of 'a good source,' with no built-in guarantee that source is real or that it backs the claim.)",
-          "mistake": "It gave me a link (or a title and author), so the answer must be backed up.",
-          "good": "I open the source myself and confirm it exists, is a real place, and actually states the fact — before I trust it."
+          "title": "A source is decoration until you open it",
+          "body": "A source is simply where a fact came from. A website, a book, a report by people who study that thing.\n\nHere is the problem. The AI guesses words that fit the shape of a good answer. A tidy source name fits that shape perfectly. So it can hand you one that is out of date, is about something else, or was never real at all.\n\nThere is a second trap, and it catches more people. Plenty of apps really do search the web. They give you a genuine link that genuinely opens. That still proves nothing on its own. The page may simply not say what the AI said it says.\n\nThe link opening is not the test. The page saying the thing is the test.\n\nThink of a receipt. Anyone can print one. You only believe it once you see the money actually gone from the account. That is a comparison, not the real thing. What is really happening is plainer: the AI wrote something shaped like a good source, and nothing checked it.",
+          "mistake": "It gave me a link and an author, so the answer must be backed up.",
+          "good": "I open it myself, see that it is real, and find the fact on the page before I trust it."
         },
         {
           "kind": "workflowChain",
-          "title": "The three checks, in order",
-          "goal": "Turn one AI claim-plus-source into a justified verdict",
+          "title": "Three checks, in this order",
+          "goal": "Turn one AI claim plus its source into a verdict you can defend",
           "correct": [
-            "Ask the AI for the single best source and the exact sentence from it that supports the answer",
-            "Open the source yourself — click the link, or search the title and author",
-            "Check 1 — Does it exist? Does the link load, or does the title turn up at all?",
-            "Check 2 — Is it a real, credible place: a known site, journal, or organization, not an invented one?",
-            "Check 3 — Does it actually say the claim? Can you find that exact fact in it?",
-            "Reach a one-word verdict: Verified, Doesn't match, or Not found"
+            "Ask the AI for its single best source, and the exact sentence in it that backs the answer",
+            "Open it yourself — click the link, or search the title and the writer's name",
+            "Check 1 — Is it there? Does the link open, or does the title turn up at all?",
+            "Check 2 — Is it a real place: a known site, a proper study, a real organisation?",
+            "Check 3 — Does it actually say it? Can you find that exact fact on the page?",
+            "Give it one word: Checked, Does not match, or Not found"
           ],
-          "note": "A paywall or login wall is not proof it's fake — 'I can't open it' is not the same as 'it doesn't exist.' Try another route to reach it before you judge. If any of the three checks fails, the claim is NOT proven — and you just caught it before trusting it."
+          "note": "A page that wants you to pay or log in is not proof it is fake. 'I cannot open it' is not the same as 'it does not exist.' Try another way in before you judge. If any of the three checks fails, the claim is not proven, and you just caught it in time."
         },
         {
           "kind": "verify",
-          "title": "Judge a built-in source trail",
-          "claim": "A community pool allows anyone under 16 to enter alone after 6 p.m.",
+          "title": "Judge a source trail",
+          "claim": "A local swimming pool lets anyone under 16 swim on their own after 6 p.m.",
           "steps": [
-            "Identify the exact permission claim and who could be affected",
-            "Choose the pool's current official policy rather than another AI answer",
-            "Check the location, age rule, date, and exceptions",
-            "Record Verified, Doesn't match, or Not found",
-            "Do not act until the responsible adult or venue confirms uncertainty"
+            "Write down exactly what is being allowed, and who it affects",
+            "Go to the pool's own current rules, not to another AI answer",
+            "Check the place, the age rule, the date, and any exceptions",
+            "Write down one word: Checked, Does not match, or Not found",
+            "If it is still unclear, do not act until the pool or a responsible adult confirms it"
           ],
-          "note": "This built-in trail is enough to practice. It avoids using real names, locations, or a minor's schedule."
+          "note": "This trail is enough to practise on. It uses no real names, no real address, and nobody's actual timetable."
         },
         {
           "kind": "reveal",
-          "title": "Optional outside check: protect the question",
-          "body": "If you continue with an outside assistant, data leaves LearningAI. Use a public, low-stakes claim. Do not share a real person's name, age, schedule, health detail, account number, or private message. The independent source—not the chatbot—earns the verdict.",
-          "mistake": "Including personal details to make a public fact easier to check.",
-          "good": "Ask only for the public claim and inspect the responsible source yourself."
+          "title": "If you go outside, keep the question clean",
+          "body": "If you carry on in an outside app, your words leave LearningAI. Pick a public claim that does not matter much.\n\nDo not share a real person's name, age, timetable, health detail, account number, or private message.\n\nThe source you open is what earns the verdict. Not the chatbot.",
+          "mistake": "Adding personal details to make a public fact easier to look up.",
+          "good": "Asking about the public claim only, then going and reading the source yourself."
         },
         {
           "kind": "tryLive",
           "title": "Ask for the source AND the exact sentence",
-          "prompt": "Answer this factual question: [question]. Then give me the single best source for your answer, the exact sentence from that source that supports it, and a link or the title, author, and date. Keep it to [number] source(s). I am going to open it and check that it really says this, so do not invent anything — if you are not sure a real source exists, tell me that instead.",
-          "note": "For [question], pick one specific factual thing that should have a real, findable source — e.g. 'How much water should an average adult drink per day, and which health body recommends it?' For [number], start with 'one' (or 'two' if you want a cross-check). Then actually open it and run the three checks."
+          "prompt": "Answer this question: [question]. Then give me the single best source for it, the exact sentence from that source that backs it up, and a link, or the title, writer and date. Keep it to [number] source(s). I am going to open it and check that it really says this, so do not invent anything. If you are not sure a real source exists, say so instead.",
+          "note": "For [question], pick one specific fact that should have a real, findable source. For example: 'How much water should an adult drink in a day, and which health body says so?' For [number], start with one. Use two if you want a second opinion. Then actually open it and run the three checks."
         },
         {
           "kind": "toolkitSave",
-          "title": "Save your verify-a-claim card",
+          "title": "Save your check-a-claim card",
           "cardType": "Verify a claim",
           "fields": [
             {
               "key": "claim",
-              "label": "The claim I'm checking",
-              "placeholder": "e.g. Adults should drink 8 cups of water a day"
+              "label": "The claim I am checking",
+              "placeholder": "Adults should drink 8 cups of water a day"
             },
             {
               "key": "source",
-              "label": "Source the AI gave (link or title/author/date)",
-              "placeholder": "e.g. NHS 'Water, drinks and hydration', 2025"
+              "label": "The source it gave me",
+              "placeholder": "A link, or a title, writer and date"
             },
             {
               "key": "quote",
-              "label": "The exact sentence that should prove it",
+              "label": "The sentence that should prove it",
               "placeholder": "Paste the sentence the AI quoted"
             },
             {
               "key": "verdict",
               "label": "My verdict after opening it",
-              "placeholder": "Verified / Doesn't match / Not found — and the sentence that earns it"
+              "placeholder": "Checked / Does not match / Not found — and the sentence that earns it"
             }
           ]
         },
         {
           "kind": "exitCheck",
-          "title": "Earn a verdict on your own fresh claim",
-          "question": "Pick a brand-new factual question of your own (not the water example), run the live prompt, and open the source. What counts as succeeding at this skill?",
+          "title": "Earn a verdict on a claim of your own",
+          "question": "Pick a brand-new question of your own, not the water one. Run the prompt and open the source. What counts as doing this well?",
           "options": [
             {
-              "text": "The AI said 'Verified,' so I'm done — a Verified reply is the goal.",
+              "text": "The AI wrote 'verified', so I am done. Getting that word back is the goal.",
               "ok": false,
-              "feedback": "No — the AI's word isn't the check. The win is YOU reaching a justified verdict by opening the source, whatever that verdict turns out to be."
+              "feedback": "The AI's own word is not the check. The win is you reaching a verdict by opening the source, whatever that verdict turns out to be."
             },
             {
-              "text": "I opened the source, ran the three checks, and wrote a one-word verdict — Verified, Doesn't match, or Not found — pointing to the exact sentence that earns it (or noting its absence).",
+              "text": "I opened the source, ran the three checks, and wrote one word — Checked, Does not match, or Not found — pointing at the exact sentence that earns it, or at the fact it is missing.",
               "ok": true,
-              "feedback": "That's it. Reaching a justified verdict on your own fresh claim is the win — not getting a 'Verified.'"
+              "feedback": "That is it. Reaching a verdict you can defend on a fresh claim is the win, not collecting a tick."
             },
             {
-              "text": "The link loaded and looked professional, so I trusted the claim without reading the page.",
+              "text": "The link opened and the page looked professional, so I trusted the claim without reading it.",
               "ok": false,
-              "feedback": "That's the 2026 trap. A real, working link proves the page exists — not that it says the claimed fact. Check 3 is the one that matters."
+              "feedback": "That is the modern trap. A working link proves the page exists. Check 3 is the one that matters."
             },
             {
-              "text": "I couldn't open the source because of a paywall, so I marked the claim as fabricated.",
+              "text": "The page wanted me to pay, so I marked the claim as made up.",
               "ok": false,
-              "feedback": "A paywall isn't proof it's fake. 'I can't open it' isn't 'it doesn't exist' — try another route before you judge."
+              "feedback": "A paywall is not proof of anything. 'I cannot open it' is not 'it does not exist.' Try another way in first."
             }
           ]
         }
@@ -2215,137 +2215,137 @@
       "num": 17,
       "arc": "Trust & Everyday AI",
       "title": "AI Is Already in Your Apps",
-      "coreQuestion": "Where might learned systems be shaping what an app shows or suggests, and what evidence should change how much I trust the feature?",
-      "blurb": "Notice quiet AI features, inspect what the product actually says they do, and match your checking to the consequence.",
+      "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
+      "blurb": "Spot the quiet AI bits in apps you already use, read what the app itself says they do, and check harder when a mistake would cost you.",
       "minutes": 9,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "The feature did not announce itself",
-          "scenario": "A photo app groups similar faces, an inbox offers a reply, and a search page writes a summary. Each may use a different learned system — vision, language, ranking, or generation — and the exact feature can vary by product, version, account, and organization.",
-          "prompt": "Before you read on: which matters more for deciding whether to rely on one of these features — whether it has the label 'AI,' or what happens if its output is wrong?"
+          "title": "Nothing announced itself",
+          "scenario": "Your photo app has quietly gathered every picture of your best friend into one folder. Your email offers you a ready-made reply. A search page writes you a paragraph before any of the links.\n\nNone of them said 'this is AI'. Each one is doing a different job, and the same app can behave differently on a school account.",
+          "prompt": "Before you rely on one of these, which matters more: whether the word AI appears anywhere, or what happens if it gets it wrong?"
         },
         {
           "kind": "classify",
-          "title": "Notice the evidence, not the buzzword",
-          "prompt": "Sort each clue by what it can honestly establish. These are built-in examples, so you do not need a particular phone or app.",
+          "title": "Look at the evidence, not the buzzword",
+          "prompt": "Sort each clue by what it can honestly tell you. These are all built in, so you do not need any particular phone.",
           "buckets": [
-            "Evidence about this feature",
-            "Only a guess or broad clue"
+            "Tells me something real about this feature",
+            "Only a guess"
           ],
           "items": [
             {
-              "text": "The product's help page says photo search uses image-recognition models and explains how to correct a match.",
+              "text": "The app's own help page says photo search matches faces, and shows how to fix a wrong match.",
               "answer": 0
             },
             {
-              "text": "An assistant says the feature 'probably uses AI somewhere.'",
+              "text": "A chatbot says the feature 'probably uses AI somewhere'.",
               "answer": 1
             },
             {
-              "text": "A setting names the feature, shows whether it is on, and links to its data controls.",
+              "text": "A setting names the feature, shows whether it is on, and says what it is allowed to look at.",
               "answer": 0
             },
             {
-              "text": "The result appeared quickly and looked futuristic.",
+              "text": "The answer arrived fast and looked futuristic.",
               "answer": 1
             },
             {
-              "text": "Your school or workplace documentation says the feature is disabled or configured differently on its accounts.",
+              "text": "Your school says this feature is switched off on school accounts.",
               "answer": 0
             },
             {
-              "text": "A friend uses the same app and assumes every account behaves the same way.",
+              "text": "A friend has the same app and assumes every account works the same.",
               "answer": 1
             }
           ],
-          "reveal": "A label, animation, or confident guess does not tell you how a specific feature works. Product help, visible controls, and organization policy are stronger evidence. Even then, focus on the decision in front of you: what the feature does, what data it touches, and what a mistake would cost."
+          "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you: what the feature does, what it can see, and what a mistake would cost."
         },
         {
           "kind": "reveal",
-          "title": "A family of systems, not one hidden brain",
-          "body": "AI inside everyday apps is not one recipe copied everywhere. A ranking system orders results, a vision system matches image patterns, a speech system turns sound into text, and a generative system produces new words or images. Some features combine learned models with fixed rules or human review. You do not need to identify every component before acting. You need enough evidence to answer four practical questions: What job is the feature doing? What data can it use? Can I turn it off, correct it, or recover from an error? What changes if it is wrong?",
-          "mistake": "Treating 'AI' as a single yes-or-no label, then trusting or rejecting every feature the same way.",
-          "good": "Inspect the actual feature and its controls, then increase checking as the consequence rises."
+          "title": "Lots of different jobs, not one hidden brain",
+          "body": "AI inside everyday apps is not one recipe copied everywhere. Different parts do different jobs.\n\nOne puts search results in an order. One matches pictures to each other. One turns speech into text. One writes new sentences or makes new images.\n\nPlenty of features mix a guessing part with plain fixed rules, or with a person checking the result.\n\nYou do not have to name every piece before you use something. You need enough to answer four questions.\n\nWhat job is this feature doing?\n\nWhat is it allowed to see?\n\nCan I turn it off, correct it, or undo a mistake?\n\nWhat changes if it gets it wrong?",
+          "mistake": "Treating 'AI' as one yes-or-no label, then trusting or refusing every feature the same way.",
+          "good": "Looking at the actual feature and its settings, then checking harder as the cost of a mistake goes up."
         },
         {
           "kind": "workflowChain",
-          "title": "Inspect before you rely",
-          "goal": "A calendar app suggests a meeting time, but choosing badly could make you miss an appointment. Put the app-awareness check in order.",
+          "title": "Look before you lean on it",
+          "goal": "A calendar app suggests a time for your study group. Get it wrong and somebody turns up to an empty room. Put the check in order.",
           "correct": [
-            "Name the output you may rely on: the suggested meeting time",
-            "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess",
-            "Check what information the feature used and whether the suggestion can be corrected or disabled",
-            "Compare the suggestion with the original calendar details because a mistake has a real consequence",
-            "If it is wrong, correct the event and adjust or turn off the feature before the next use"
+            "Name the thing you might rely on: the time it suggested",
+            "Read the app's own label, help page, settings, or your school's rules, instead of asking another AI to guess",
+            "Check what it looked at, and whether you can correct the suggestion or switch it off",
+            "Compare the suggestion with the real calendar entry, because getting it wrong costs somebody an afternoon",
+            "If it is wrong, fix the entry, then change or switch off the feature before next time"
           ],
           "choices": [
-            "Compare the suggestion with the original calendar details because a mistake has a real consequence",
-            "Name the output you may rely on: the suggested meeting time",
-            "If it is wrong, correct the event and adjust or turn off the feature before the next use",
-            "Check what information the feature used and whether the suggestion can be corrected or disabled",
-            "Look for the feature label, help page, settings, or organization policy instead of asking another AI to guess"
+            "Compare the suggestion with the real calendar entry, because getting it wrong costs somebody an afternoon",
+            "Name the thing you might rely on: the time it suggested",
+            "If it is wrong, fix the entry, then change or switch off the feature before next time",
+            "Check what it looked at, and whether you can correct the suggestion or switch it off",
+            "Read the app's own label, help page, settings, or your school's rules, instead of asking another AI to guess"
           ],
-          "note": "For a low-consequence feature, this check can take seconds. For health, money, school, work, safety, or another person's information, slow down and use an authoritative source."
+          "note": "If a mistake costs nothing, this takes seconds. For health, money, school, work, safety, or somebody else's private information, slow down and check a source that actually knows."
         },
         {
           "kind": "tryLive",
-          "title": "Optional: inspect one documented feature",
-          "prompt": "Choose one ordinary feature you can safely inspect — or use this built-in example: 'an email app offers a suggested reply.' Find the product's own label, help text, or setting. Record: what job it claims to do, what control you have, one possible false positive, and how you would recover if it were wrong.",
-          "note": "You do not need to list your real apps or devices. Do not share account names, device IDs, contacts, messages, photos, school or workplace details, or location history. If documentation is unavailable, write 'not established' rather than asking an assistant to invent an explanation."
+          "title": "Optional: look up one real feature",
+          "prompt": "Pick one ordinary feature you can safely look into. Or use this one: 'an email app offers a ready-made reply.' Find the app's own label, help text, or setting. Write down four things: what job it says it does, what control you have, one way it could be wrong, and how you would fix it if it were.",
+          "note": "You do not need to list your real apps or devices. Do not share account names, contacts, messages, photos, school details, or where you have been. If the app explains nothing, write 'not stated' rather than asking a chatbot to invent an explanation."
         },
         {
           "kind": "toolkitSave",
-          "title": "Save an Everyday-AI check",
+          "title": "Save an everyday-AI check",
           "cardType": "Everyday-AI feature check",
           "fields": [
             {
               "key": "feature",
-              "label": "Feature and job",
-              "placeholder": "e.g. Calendar suggests a meeting time"
+              "label": "The feature and its job",
+              "placeholder": "Calendar suggests a time for the study group"
             },
             {
               "key": "evidence",
-              "label": "What establishes how it works",
-              "placeholder": "e.g. product help page, setting, or organization policy"
+              "label": "What tells me how it works",
+              "placeholder": "The help page, a setting, or a school rule"
             },
             {
               "key": "consequence",
-              "label": "What a mistake would change",
-              "placeholder": "e.g. I could miss the appointment"
+              "label": "What a mistake would cost",
+              "placeholder": "Somebody turns up to an empty room"
             },
             {
               "key": "control",
-              "label": "Correction, opt-out, or recovery",
-              "placeholder": "e.g. compare with the invitation, correct it, then disable suggestions"
+              "label": "How I fix it or switch it off",
+              "placeholder": "Compare with the invite, fix it, then turn suggestions off"
             }
           ]
         },
         {
           "kind": "exitCheck",
-          "title": "Choose the trustworthy inspection",
-          "question": "A writing app silently rewrites a sentence in a message to your teacher. Which response shows the full skill?",
+          "title": "Pick the check that actually holds up",
+          "question": "A writing app quietly rewrites a sentence in a message to your teacher. Which response shows the whole skill?",
           "options": [
             {
-              "text": "I identify the rewrite feature, inspect its setting or help page, reread the changed sentence because the consequence matters, and undo or disable it if it changes my meaning.",
+              "text": "I find the rewrite setting, read what it says it does, reread the changed sentence because this message matters, and undo it if the meaning shifted.",
               "ok": true,
-              "feedback": "Yes. You used observable evidence, matched checking to the consequence, and kept a correction path."
+              "feedback": "Yes. You used what you could actually see, checked harder because it mattered, and kept a way to undo it."
             },
             {
-              "text": "It looks like AI, so I assume it is unsafe and never use the app again.",
+              "text": "It looks like AI, so I decide it is unsafe and never open the app again.",
               "ok": false,
-              "feedback": "The label alone does not settle the decision. Inspect the feature, its controls, and the consequence of a mistake."
+              "feedback": "The label alone does not settle it. Look at the feature, its settings, and what a mistake would cost."
             },
             {
-              "text": "I ask another AI whether this app uses AI and trust whatever it says.",
+              "text": "I ask a different chatbot whether this app uses AI, and believe whatever it says.",
               "ok": false,
-              "feedback": "That adds another guess. Use the product's documentation, visible controls, and any school or workplace policy."
+              "feedback": "That is one more guess. Use the app's own help page, the settings you can see, and any school rule."
             },
             {
-              "text": "Grammar changes are usually low stakes, so I send it without rereading.",
+              "text": "Grammar changes are usually harmless, so I send it without rereading.",
               "ok": false,
-              "feedback": "The consequence depends on this message, not the feature category. A changed meaning sent to a teacher is worth checking."
+              "feedback": "The cost depends on this message, not on the type of feature. A changed meaning going to a teacher is worth ten seconds."
             }
           ]
         }
@@ -2356,24 +2356,24 @@
       "num": 18,
       "arc": "Trust & Everyday AI",
       "title": "A Daily Habit, Not a Crutch",
-      "coreQuestion": "How do I use AI every day in a way that makes my own thinking sharper instead of switching my brain off?",
-      "blurb": "Use AI often without giving away the part you want your own brain to learn.",
+      "coreQuestion": "How do I use AI every day so my own thinking gets sharper instead of switching off?",
+      "blurb": "Use AI often, without handing over the part you wanted your own brain to learn.",
       "minutes": 8,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "Two ways to use the same tool",
-          "scenario": "You need to text your neighbor a thank-you for watering your plants. You could type 'write a thank-you text to my neighbor' and paste whatever comes back. Or you could write a rough draft yourself, then ask AI to tighten it. Same task, same tool, same five minutes.",
-          "prompt": "Before you read on: after each of those two ways, which one leaves something behind in YOUR head — a sentence you shaped, a choice you made? Say it in one line."
+          "title": "Two ways to use the same app",
+          "scenario": "Your friend's mum has driven you to football three weekends running. You owe her a thank-you text.\n\nYou could type 'write a thank-you text' and send back whatever appears. Or you could write a rough one yourself, then ask AI to tighten it.\n\nSame job. Same app. Same five minutes.",
+          "prompt": "After each of those, which one leaves something behind in your head? A sentence you shaped, a choice you made. Say it in one line."
         },
         {
           "kind": "classify",
-          "title": "Crutch use or coach use?",
-          "prompt": "Underneath, the AI is just predicting likely next words either way. What changes is your instruction. Sort each way of asking: does the AI do the thinking for you (crutch), or does it make YOU do the thinking and only then help (coach)?",
+          "title": "Crutch, or coach?",
+          "prompt": "Underneath, the AI is guessing likely next words either way. What changes is what you ask for. Sort each one: does it think for you, or does it make you think and then help?",
           "buckets": [
-            "Crutch (it thinks, you copy)",
-            "Coach (you think, it helps)"
+            "Crutch — it thinks, I copy",
+            "Coach — I think, it helps"
           ],
           "items": [
             {
@@ -2381,40 +2381,40 @@
               "answer": 0
             },
             {
-              "text": "\"I'll draft the reply first — then point out two lines I could cut.\"",
+              "text": "\"I will write the reply first. Then show me two lines I could cut.\"",
               "answer": 1
             },
             {
-              "text": "\"Just give me the answer to this math problem.\"",
+              "text": "\"Just give me the answer to this maths question.\"",
               "answer": 0
             },
             {
-              "text": "\"Ask me a question that checks if I actually understood the chapter.\"",
+              "text": "\"Ask me a question that shows whether I actually understood the chapter.\"",
               "answer": 1
             },
             {
-              "text": "\"Rewrite this so it sounds smart, I don't want to touch it.\"",
+              "text": "\"Rewrite this so it sounds clever. I do not want to touch it.\"",
               "answer": 0
             },
             {
-              "text": "\"Wait for my try, then tell me one thing to fix next time.\"",
+              "text": "\"Wait for my attempt, then tell me one thing to fix next time.\"",
               "answer": 1
             }
           ],
-          "reveal": "Same machine, different instructions. 'Crutch' and 'coach' are a comparison to help you feel the difference—not a claim about what the AI is doing inside. Assistants can search, use tools, take several steps, and sometimes reuse saved information. They still cannot choose which human ability you want to protect. You make that boundary explicit."
+          "reveal": "Same machine, different instructions. Crutch and coach are a comparison to help you feel the difference. They are not a claim about what is going on inside. These apps can search, take several steps, and sometimes keep bits of old chats. None of that lets them choose which of your own skills you want to protect. You draw that line."
         },
         {
           "kind": "reveal",
-          "title": "A good habit ends with your brain working",
-          "body": "Using AI every day does not make you lazy by itself. It depends entirely on HOW you use it. The tool learned patterns from huge amounts of human writing and works by predicting the likely next words to fill in whatever you ask. Ask it to do the task, and it does the task — your brain stays off. Ask it to make you try first and only then coach you, and it waits — your brain stays on. A good AI habit is one that ends with YOUR thinking sharper, not switched off. Note: AI is not a friend, therapist, or a stand-in for a professional — for anything about your health, safety, or a hard personal decision, keep a real human in the loop and defer to professionals.",
-          "mistake": "\"Write this for me\" — you paste the result, learn nothing, and the skill never becomes yours.",
-          "good": "\"I'll do my part first, THEN you coach me\" — you keep one step for yourself, so the skill stays yours."
+          "title": "A good habit ends with your brain switched on",
+          "body": "Using AI every day does not make you lazy on its own. It depends entirely on how you use it.\n\nHere is what it does. It has read an enormous amount of human writing, and it guesses the words that usually come next. Ask it to do the job, and it does the job. Your brain stays off.\n\nAsk it to make you try first and only then help, and it waits. Your brain stays on.\n\nA good habit is one that leaves your thinking sharper afterwards, not switched off.\n\nOne more thing. AI is not a friend, and it is not a doctor or a counsellor. For anything about your health, your safety, or a hard personal decision, bring in a real person you trust.",
+          "mistake": "\"Write this for me.\" You paste the result, learn nothing, and the skill never becomes yours.",
+          "good": "\"I will do my part first, then you help.\" You keep one step for yourself, so the skill stays yours."
         },
         {
           "kind": "tryLive",
-          "title": "Run your coach habit once, right now",
-          "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or redacted example; do not paste names, private messages, school details, or another person's information. I want a 5-minute habit that makes me sharper at [an area, e.g. writing clear messages] instead of dependent. Don't do the work for me — make me try first, then coach me. My guardrail is: [the one step I'll always do myself]. Give me one small practice task, wait for my try, then point out one useful improvement.",
-          "note": "Choose an ordinary practice task: a pretend customer reply, a made-up thank-you, a game strategy, or a short explanation. Do your try before the AI helps. If it jumps in, say: 'Pause. Wait for my attempt first.'"
+          "title": "Run your coach habit once, now",
+          "prompt": "This step uses an outside app, so anything you type leaves LearningAI. Use a made-up example. Do not paste names, private messages, school details, or anyone else's information. I want a 5-minute habit that makes me sharper at [an area, for example writing clear messages] instead of dependent on you. Don't do the work for me — make me try first, then coach me. The one step I will always do myself is: [your step]. Give me one small practice task, wait for my try, then point out one thing worth improving.",
+          "note": "Pick an ordinary practice task: a pretend reply to a customer, a made-up thank-you, a plan for a game, a short explanation of something you learned. Do your attempt before it helps. If it jumps in early, say: 'Stop. Wait for my attempt first.'"
         },
         {
           "kind": "toolkitSave",
@@ -2423,40 +2423,40 @@
           "fields": [
             {
               "key": "area",
-              "label": "Area I want to get genuinely better at",
+              "label": "What I want to get genuinely better at",
               "placeholder": "writing clear messages"
             },
             {
               "key": "habit",
-              "label": "My one tiny coach-style habit (do it daily)",
-              "placeholder": "draft it myself first, then ask AI to tighten it"
+              "label": "My one small coach-style habit, done daily",
+              "placeholder": "write it myself first, then ask AI to tighten it"
             },
             {
               "key": "guardrail",
-              "label": "My guardrail — the one step I refuse to hand over",
-              "placeholder": "I always write the first draft before I show it to AI"
+              "label": "The one step I refuse to hand over",
+              "placeholder": "I always write the first version before I show it to AI"
             }
           ]
         },
         {
           "kind": "exitCheck",
-          "title": "Did YOU do a part the AI didn't?",
-          "question": "Tomorrow, on a NEW real task (not the one you just practiced), you run your habit with the guardrail held. Afterward, which sentence means you did it right?",
+          "title": "Did you do a part it did not?",
+          "question": "Tomorrow, on a new real job, you run your habit and hold that one step for yourself. Afterwards, which sentence means you got it right?",
           "options": [
             {
-              "text": "\"I wrote the whole message myself; AI only trimmed two wordy lines, and I kept my own greeting.\"",
+              "text": "\"I wrote the whole message myself. AI trimmed two wordy lines, and I kept my own opening.\"",
               "ok": true,
-              "feedback": "That's the win. You can name a specific thing YOU did that the AI didn't — the skill stayed yours."
+              "feedback": "That is the win. You can name a specific thing you did that it did not. The skill stayed yours."
             },
             {
-              "text": "\"I gave the AI my main points, let it draft the message, then changed the greeting and sent it.\"",
+              "text": "\"I gave it my main points, let it write the message, then changed the opening and sent it.\"",
               "ok": false,
-              "feedback": "You made a small edit, but the AI still did the skill you meant to practice. Keep the first meaningful attempt or the final decision for yourself."
+              "feedback": "You made a small edit, but it still did the very thing you meant to practise. Keep either the first real attempt or the final decision."
             },
             {
-              "text": "\"I asked the AI for three drafts, chose the one I liked, and rewrote one sentence.\"",
+              "text": "\"I asked for three versions, picked the one I liked, and rewrote one sentence.\"",
               "ok": false,
-              "feedback": "Choosing is a real decision, but it does not practice drafting. If drafting is the skill you want, make your own rough version before comparing options."
+              "feedback": "Picking is a real decision, but it is not practice at writing. If writing is the skill you want, make your own rough version first."
             }
           ]
         }
@@ -2466,141 +2466,141 @@
       "id": "chapter-19",
       "num": 19,
       "arc": "Trust & Everyday AI",
-      "title": "Context and Memory",
-      "coreQuestion": "When an AI seems to remember, what is active context, chat history, saved memory, retained service data, or training use — and what evidence can I actually inspect?",
-      "blurb": "Separate five things that products often blur together so a visible Memory screen never becomes a false privacy promise.",
+      "title": "When It Seems to Remember",
+      "coreQuestion": "When an AI seems to remember me, what is actually going on, and what can I really check?",
+      "blurb": "Five different things all get called memory. Telling them apart stops an empty Memory screen from feeling like a promise.",
       "minutes": 11,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "Remembered here does not mean erased elsewhere",
-          "scenario": "You give an assistant the harmless invented fact 'my houseplant is named Gerald.' It recalls Gerald later in the same chat. A new chat forgets. The old chat still appears in History, while a Memory screen shows nothing saved.",
-          "prompt": "Before you read on: what has this test proved — and what questions about storage, review, deletion, or future training are still unanswered?"
+          "title": "Forgotten here does not mean gone",
+          "scenario": "You tell a chatbot one made-up thing: your houseplant is called Gerald.\n\nLater in the same chat it mentions Gerald. You open a new chat and it has no idea who Gerald is. The old chat is still sitting in your list. The Memory screen is empty.",
+          "prompt": "What has that little test actually proved? And what have you learned nothing about yet?"
         },
         {
           "kind": "reveal",
-          "title": "Five different data paths",
-          "body": "Products use similar words for different systems. (1) Active context is information supplied to the model for the current response, often from earlier messages in the same chat. (2) Chat history or service logs are records the provider may retain; whether you can see a chat does not reveal every operational or safety log. (3) Saved or persistent memory is selected information a product may reuse across chats for personalization. (4) Retention and human review describe how long service data may remain, who may access it under policy, and what deletion does or does not cover. (5) Training or improvement use is whether eligible data may later help build or evaluate future systems. None of these is proven by a fresh-chat test alone. A Memory screen can show a personalization control; it cannot by itself establish every log, backup, administrator rule, legal hold, review process, or training choice.",
-          "mistake": "Treating 'it forgot in a new chat' or 'Memory is empty' as proof that no service data exists anywhere.",
-          "good": "Check the user-facing controls, current provider policy, and — for school or work accounts — the organization's rules. Then share only what you can afford to have retained."
+          "title": "Five different things, one word",
+          "body": "Apps use the word memory for five different things. Keeping them apart is the whole skill.\n\n1. Still in this chat. Everything you typed in this conversation is sitting in front of it while it writes. That is why it can use something from ten messages ago.\n\n2. Your chat list. The company keeps a copy of the conversation. Seeing an old chat does not mean you are seeing every record they kept.\n\n3. Remembered on purpose. Some apps save a few facts about you and bring them back in new chats.\n\n4. Kept behind the scenes. How long copies stay, who at the company is allowed to look at them, and what the delete button actually removes.\n\n5. Used to build the next one. Whether your chats may later help train the next version.\n\nA new chat forgetting Gerald proves one of those. An empty Memory screen proves one setting is off. Neither one tells you about copies, staff, school rules, or training.",
+          "mistake": "Reading 'it forgot in a new chat' or 'Memory is empty' as proof that nothing is stored anywhere.",
+          "good": "Check the settings you can see, the company's current rules, and for a school account, the school's rules. Then only type things you could live with being kept."
         },
         {
           "kind": "classify",
-          "title": "Name the data path",
-          "prompt": "Sort each example by the mechanism it most directly describes. Real products label and combine these differently; the point is to keep the questions separate.",
+          "title": "Which one is it?",
+          "prompt": "Sort each example into the thing it really describes. Real apps mix these up and label them differently, so the point is to keep the five questions separate in your head.",
           "buckets": [
-            "Active context",
-            "History or service logs",
-            "Saved memory",
-            "Retention or human review",
-            "Training or improvement use"
+            "Still in this chat",
+            "Kept in your chat list",
+            "Remembered on purpose",
+            "Kept behind the scenes",
+            "Used to build the next one"
           ],
           "items": [
             {
-              "text": "The assistant uses a detail from ten messages earlier to answer now.",
+              "text": "It uses a detail from ten messages ago to answer you now.",
               "answer": 0
             },
             {
-              "text": "Yesterday's conversation still appears in the product's chat list.",
+              "text": "Yesterday's conversation is still there when you open the app.",
               "answer": 1
             },
             {
-              "text": "A personalization control stores your preferred response format for future chats.",
+              "text": "A setting saves how you like answers laid out, and uses it in future chats.",
               "answer": 2
             },
             {
-              "text": "A policy explains how long deleted chats may remain in backups or safety systems and when authorized reviewers may access them.",
+              "text": "The rules explain how long deleted chats stay in copies, and when staff are allowed to read them.",
               "answer": 3
             },
             {
-              "text": "A data control says whether eligible conversations may be used to improve future models.",
+              "text": "A switch decides whether your conversations may help train the next version.",
               "answer": 4
             },
             {
-              "text": "A school account's administrator sets a different retention rule from a personal account.",
+              "text": "A school sets a different time limit on how long chats are stored than a personal account has.",
               "answer": 3
             }
           ],
-          "reveal": "The categories answer different questions: what the model can use now, what records exist, what personalization returns later, how service data is retained or reviewed, and whether eligible data may improve future systems. One control may affect several paths, but never assume it answers all five."
+          "reveal": "Each one answers a different question. What it can see right now. What copies exist. What comes back in a new chat. How long things stay and who may read them. Whether any of it trains the next version. One switch might touch several of these. Never assume it settles all five."
         },
         {
           "kind": "workflowChain",
-          "title": "Make a claim the evidence can support",
-          "goal": "You want to know what happens to a harmless chat after you delete it. Put the investigation in order.",
+          "title": "Only claim what you can show",
+          "goal": "You want to know what really happens to a harmless chat after you delete it. Put the digging in order.",
           "correct": [
-            "Name the exact question: visible history, saved memory, retention, human review, or training use",
-            "Inspect the relevant product control and record exactly what it says — no broader",
-            "Read the current provider policy for retention, deletion, review, and improvement use",
-            "If it is a school or work account, check the organization's administrator or data policy too",
-            "State what is established, what remains unknown, and choose a paste rule that is safe under the uncertainty"
+            "Say exactly which of the five you are asking about",
+            "Open the setting that covers it and write down only what it actually says",
+            "Read the company's current rules on keeping, deleting, staff access, and training",
+            "On a school or work account, check that place's own rules as well",
+            "Write down what you now know, what you still do not, and set a rule for what you will never type in"
           ],
           "choices": [
-            "Read the current provider policy for retention, deletion, review, and improvement use",
-            "State what is established, what remains unknown, and choose a paste rule that is safe under the uncertainty",
-            "Name the exact question: visible history, saved memory, retention, human review, or training use",
-            "If it is a school or work account, check the organization's administrator or data policy too",
-            "Inspect the relevant product control and record exactly what it says — no broader"
+            "Read the company's current rules on keeping, deleting, staff access, and training",
+            "Write down what you now know, what you still do not, and set a rule for what you will never type in",
+            "Say exactly which of the five you are asking about",
+            "On a school or work account, check that place's own rules as well",
+            "Open the setting that covers it and write down only what it actually says"
           ],
-          "note": "If no memory control exists, that establishes only that you cannot manage saved personalization there. It does not prove that no chat record, service log, retention period, review process, or training rule exists."
+          "note": "If there is no memory setting at all, that tells you one thing: there is nowhere to manage saved facts. It does not prove there is no chat record, no copy, no time limit, no staff access, and no training rule."
         },
         {
           "kind": "tryLive",
-          "title": "Optional: view, clear, and confirm safely",
-          "prompt": "Use only the invented fact 'my houseplant is named Gerald.' Test whether it remains in the current chat. Then inspect — without changing anything you need — where this product shows chat history, saved memory or personalization, data-use controls, and links to its policy. Write one sentence for what each screen establishes and one thing it does not establish.",
-          "note": "This optional step leaves LearningAI. Do not enter a real name, address, password, account number, private message, health detail, school or workplace secret, or another person's information. You may instead use the five built-in examples above."
+          "title": "Optional: look, clear, and confirm safely",
+          "prompt": "Use only the made-up fact that your houseplant is called Gerald. Check whether it sticks inside one chat. Then look at where this app shows your chat list, any saved facts about you, any switch about training, and a link to its rules. For each screen, write one sentence on what it proves and one on what it does not.",
+          "note": "This optional step leaves LearningAI. Do not enter a real name, address, password, account number, private message, health detail, school secret, or anything about another person. You can do the whole lesson on the six built-in examples instead."
         },
         {
           "kind": "toolkitSave",
-          "title": "Save a memory-and-retention check",
+          "title": "Save a what-is-kept check",
           "cardType": "Data-path check",
           "fields": [
             {
               "key": "question",
-              "label": "Which data path am I asking about?",
-              "placeholder": "context / history or logs / saved memory / retention or review / training use"
+              "label": "Which of the five am I asking about?",
+              "placeholder": "this chat / chat list / saved facts / kept behind the scenes / training"
             },
             {
               "key": "control",
-              "label": "What the visible control actually establishes",
-              "placeholder": "e.g. saved personalization is off; this does not describe every retained log"
+              "label": "What the setting actually proves",
+              "placeholder": "Saved facts are off. That says nothing about copies."
             },
             {
               "key": "policy",
-              "label": "Provider or organization policy to check",
-              "placeholder": "e.g. retention, deletion, authorized review, and model-improvement terms"
+              "label": "Whose rules I still need to read",
+              "placeholder": "The company's rules, and my school's rules"
             },
             {
               "key": "rule",
-              "label": "My safe paste rule",
-              "placeholder": "If retention would cause harm, I do not enter it"
+              "label": "My rule for what I type in",
+              "placeholder": "If it being kept would hurt, I do not type it"
             }
           ]
         },
         {
           "kind": "exitCheck",
-          "title": "Transfer the data-path check",
-          "question": "A school account hides chat history after 30 days and has no visible Memory switch. What can you responsibly conclude about the learner's data?",
+          "title": "Use the same check somewhere new",
+          "question": "A school account hides your chats after 30 days and has no memory switch at all. What can you honestly say about your data?",
           "options": [
             {
-              "text": "Only the visible-history behavior and absence of that control are established. I still need the provider and school policies to understand logs, retention, authorized review, deletion, and model-improvement use.",
+              "text": "Only that the chats stop showing after 30 days and there is no saved-facts switch. I still need the company's rules and the school's rules to know about copies, time limits, staff access, deleting, and training.",
               "ok": true,
-              "feedback": "Exactly. You matched the claim to the evidence and kept visible history, controls, service records, and policy-defined uses separate."
+              "feedback": "Exactly. You matched what you claimed to what you could actually see, and kept the five questions apart."
             },
             {
-              "text": "Every copy is automatically deleted after 30 days because the history is no longer visible.",
+              "text": "Every copy is wiped after 30 days, because I cannot see the chats any more.",
               "ok": false,
-              "feedback": "A visibility limit does not by itself prove deletion from service logs, backups, or other policy-defined systems."
+              "feedback": "Not being able to see something is not the same as it being gone. Copies and records can outlive what shows on your screen."
             },
             {
-              "text": "The missing Memory switch proves the account cannot retain any information in any form.",
+              "text": "There is no memory switch, so the account cannot be keeping anything at all.",
               "ok": false,
-              "feedback": "A missing personalization control does not establish what records, retention, review, or organization rules exist."
+              "feedback": "A missing switch tells you about one setting. It says nothing about records, time limits, staff access, or school rules."
             },
             {
-              "text": "The policy is all that matters, so I do not need to inspect the actual account controls.",
+              "text": "The written rules are all that matter, so there is no need to look at the account settings.",
               "ok": false,
-              "feedback": "You need both: policy describes the service rules, while controls show choices or saved items for this account."
+              "feedback": "You need both. The rules describe the service. The settings show what is switched on for this account."
             }
           ]
         }
@@ -2610,144 +2610,144 @@
       "id": "chapter-20",
       "num": 20,
       "arc": "Trust & Everyday AI",
-      "title": "Models, Tools, and Agents",
-      "coreQuestion": "What separates a model output, a tool call, and an agentic workflow — and where does human approval belong before a system acts?",
-      "blurb": "Read the trace, permissions, and side effects instead of trusting a label or a polished list of steps.",
+      "title": "It Said It Did It",
+      "coreQuestion": "How do I tell apart an AI guessing words, an AI really using a helper, and an AI taking steps on its own?",
+      "blurb": "Look for proof of what actually ran, what it was allowed to touch, and who had to say yes before anything changed.",
       "minutes": 10,
       "resources": [],
       "steps": [
         {
           "kind": "coldOpen",
-          "title": "A plan is not proof of an action",
-          "scenario": "An assistant says: 'I searched three sites, chose a route, and booked it.' The reply contains a neat list of steps. But there is no source trace, permission request, booking confirmation, or account change. It may have described actions without performing any.",
-          "prompt": "Before you read on: what evidence would separate words about an action from a tool actually running or an agentic workflow changing something?"
+          "title": "A plan is not proof",
+          "scenario": "You ask an assistant to find you cheap football boots. It replies: 'I checked three shops, found the best price, and ordered them.'\n\nIt even lists the steps in order. Very tidy.\n\nBut there is no order number. No message from the shop. No money gone. It may have written about doing all that without doing any of it.",
+          "prompt": "What would show you it really did those things, rather than just writing that it did?"
         },
         {
           "kind": "reveal",
-          "title": "Output, operation, workflow",
-          "body": "A MODEL produces an output from the information supplied to it and patterns learned during development. A TOOL is an outside operation the surrounding software can call — such as search, calculation, file reading, or calendar access. An AGENTIC WORKFLOW is an orchestrated loop that pursues a goal across steps: it chooses or is assigned a next action, calls tools, reads results, keeps state, and may continue until a stop condition. These are not three sealed boxes. An agentic system normally includes a model and tools, while an ordinary assistant may quietly use a tool for one answer. The useful questions are observable: What input was supplied? Which operation actually ran? What permission or data crossed a boundary? What side effect occurred? Where did a human approve, stop, or undo it?",
-          "mistake": "Calling any long answer an agent, or assuming a web link proves that a live tool ran.",
-          "good": "Inspect the execution trace, permissions, outputs, and side effects; if the interface does not expose them, say the mode is not established."
+          "title": "Three different things get muddled up",
+          "body": "Here they are in plain words.\n\nThe guesser. It reads what you gave it and guesses words that fit. People call it a model. On its own it only produces text. It cannot touch anything in the real world.\n\nA helper. A separate piece of software the app can call on. A web search, a calculator, your calendar, a file. People call it a tool. A helper can fetch real facts, and it can change real things.\n\nWorking through steps on its own. The app picks a next step, calls a helper, reads what came back, picks the step after that, and keeps going until it decides to stop. People call this an agent.\n\nThese are not three sealed boxes. Something working through steps uses a guesser and helpers. An ordinary chat app might quietly call one helper for one answer.\n\nSo do not argue about the label. Ask five things you can look at.\n\nWhat did you give it?\n\nWhich helper actually ran?\n\nWhat was it allowed to touch?\n\nWhat changed in the real world?\n\nWhere did a person say yes, stop, or undo it?",
+          "mistake": "Calling any long answer an agent, or treating a link as proof that a live search really ran.",
+          "good": "Look for a record of what ran, what it could touch, and what changed. If the app shows none of that, say you cannot tell."
         },
         {
           "kind": "classify",
-          "title": "What does the evidence establish?",
-          "prompt": "Classify each built-in trace. Use 'cannot tell' when the output does not prove what happened behind it.",
+          "title": "What does the proof actually show?",
+          "prompt": "Sort each one. Use 'cannot tell' whenever the answer does not show what happened behind it.",
           "buckets": [
-            "Model output only",
-            "Tool-assisted operation",
-            "Agentic workflow",
-            "Cannot tell from this evidence"
+            "Guessing only (the model)",
+            "It used a helper (a tool)",
+            "It worked through steps (an agent)",
+            "Cannot tell from this"
           ],
           "items": [
             {
-              "text": "Input: 'Explain why bread rises.' Output: a general explanation; no tool event or fresh data is shown.",
+              "text": "You asked why bread rises. You got a general explanation. Nothing shows a helper running.",
               "answer": 3
             },
             {
-              "text": "Runtime record: tools are disabled for this turn; the supplied prompt and model output are the only recorded events.",
+              "text": "The record says helpers were switched off for this reply. Only your question and its answer were logged.",
               "answer": 0
             },
             {
-              "text": "Trace: calculator(1487 × 23) → 34,201; the reply cites that returned value.",
+              "text": "The record shows: calculator, 1487 x 23, answer 34,201. The reply uses that exact number.",
               "answer": 1
             },
             {
-              "text": "Trace: search current bus routes → compare arrival times → ask for approval → add the chosen trip to a draft itinerary; no booking occurs.",
+              "text": "The record shows: look up today's buses, compare arrival times, ask you to approve, add the chosen trip to a draft plan. Nothing is booked.",
               "answer": 2
             },
             {
-              "text": "The reply says 'I checked the live web' but shows no tool event, source, timestamp, or result.",
+              "text": "It says 'I checked the live web' but shows no helper, no source, no time, and no result.",
               "answer": 3
             },
             {
-              "text": "A current weather result includes a logged weather-service call and retrieval time.",
+              "text": "A weather answer arrives with a logged call to a weather service and the time it ran.",
               "answer": 1
             },
             {
-              "text": "A seven-step plan describes how someone could organize files, but no file access or action trace exists.",
+              "text": "A seven-step plan for tidying your files. No record that any file was ever opened or moved.",
               "answer": 3
             }
           ],
-          "reveal": "Length, confidence, and first-person verbs are not execution evidence. A tool event shows an outside operation. An agentic trace shows goal-directed orchestration across operations, state, and stop conditions. A real system can hide these details, so 'cannot tell' is often the honest answer."
+          "reveal": "Length, confidence, and the words 'I did this' are not proof. A logged helper shows something outside really ran. A chain of steps with a stopping point shows it worked on its own. Plenty of real apps hide all of this, so 'cannot tell' is often the honest answer."
         },
         {
           "kind": "workflowChain",
-          "title": "Put approval before the side effect",
-          "goal": "A system may compare public bus routes and prepare an itinerary, but it must not buy anything, message anyone, or use private location history. Put the safe action boundary in order.",
+          "title": "Put the yes before the change",
+          "goal": "An app may compare public bus times and put a plan together. It must not buy anything, message anyone, or use where you have been. Put the safety line in order.",
           "correct": [
-            "State the goal and the allowed public information",
-            "List forbidden data and actions: private history, messages, purchases, account changes, and sharing",
-            "Let the system gather and compare public route information while exposing its sources and tool trace",
-            "Pause on a draft and ask the person to inspect the route, time, and consequences",
-            "Only the person chooses whether to copy the approved plan; no external side effect is required for practice"
+            "Say the goal, and which public information it may use",
+            "List what is off limits: where you have been, your messages, buying, changing accounts, sharing",
+            "Let it gather and compare public bus times, showing its sources and every helper it used",
+            "Make it stop at a draft and ask you to check the route, the time, and what could go wrong",
+            "Only you decide whether to use the plan. Nothing real has to change for this practice"
           ],
           "choices": [
-            "Pause on a draft and ask the person to inspect the route, time, and consequences",
-            "Let the system gather and compare public route information while exposing its sources and tool trace",
-            "State the goal and the allowed public information",
-            "Only the person chooses whether to copy the approved plan; no external side effect is required for practice",
-            "List forbidden data and actions: private history, messages, purchases, account changes, and sharing"
+            "Make it stop at a draft and ask you to check the route, the time, and what could go wrong",
+            "Let it gather and compare public bus times, showing its sources and every helper it used",
+            "Say the goal, and which public information it may use",
+            "Only you decide whether to use the plan. Nothing real has to change for this practice",
+            "List what is off limits: where you have been, your messages, buying, changing accounts, sharing"
           ],
-          "note": "More autonomy means more checkpoints, not more automatic trust. A side effect is any change outside the answer: sending, buying, deleting, publishing, booking, moving money, editing an account, or exposing data."
+          "note": "The more it does by itself, the more places you should stop and check. A real change is anything outside the answer: sending, buying, deleting, posting, booking, moving money, editing an account, or handing over private information."
         },
         {
           "kind": "tryLive",
-          "title": "Optional: inspect a harmless trace",
-          "prompt": "If an external assistant exposes tool activity, use a harmless public task: ask for one current public fact, then a two-step comparison that ends in a draft. Record the input, tool event, returned data, next step, approval point, and whether any side effect occurred. If no trace is exposed, use the built-in bus-route trace above and mark the live mode 'not established.'",
-          "note": "Do not connect accounts, private files, precise location, messages, purchases, contacts, or another person's data. The full skill can be completed with the built-in trace."
+          "title": "Optional: read one harmless record",
+          "prompt": "If an outside assistant shows you what it ran, give it a harmless public job. Ask for one current public fact. Then ask for a two-step comparison that ends in a draft. Write down what you gave it, which helper ran, what came back, what it did next, where it asked you, and whether anything real changed. If it shows you nothing, use the bus-route example above and mark this one 'cannot tell'.",
+          "note": "Do not connect accounts, private files, your exact location, your messages, payment details, your contacts, or anyone else's information. You can finish the whole skill on the built-in example."
         },
         {
           "kind": "toolkitSave",
-          "title": "Save an action-boundary check",
+          "title": "Save a what-actually-ran check",
           "cardType": "Model, tool, or agentic workflow",
           "fields": [
             {
               "key": "trace",
-              "label": "What the trace actually shows",
-              "placeholder": "model output / tool event / multi-step orchestration / not established"
+              "label": "What the record actually shows",
+              "placeholder": "guessing only / a helper ran / steps on its own / cannot tell"
             },
             {
               "key": "permission",
-              "label": "Data or permission boundary",
-              "placeholder": "e.g. public routes only; no location history or account access"
+              "label": "What it was allowed to touch",
+              "placeholder": "Public bus times only. Not my location, not my accounts."
             },
             {
               "key": "effect",
-              "label": "Possible side effect",
-              "placeholder": "e.g. draft only; no booking, message, purchase, or account change"
+              "label": "What could change in the real world",
+              "placeholder": "A draft only. No booking, message, purchase, or account change."
             },
             {
               "key": "approval",
-              "label": "Human approval point",
-              "placeholder": "e.g. inspect the route before copying the plan"
+              "label": "Where I have to say yes",
+              "placeholder": "I check the route before anyone uses the plan"
             }
           ]
         },
         {
           "kind": "exitCheck",
           "title": "Read what happened, not what it claimed",
-          "question": "An assistant returns a current recipe link, groups ingredients by aisle, and says it 'completed several agent steps.' What would justify calling the process agentic?",
+          "question": "An assistant hands you a working recipe link, sorts the ingredients by aisle, and says it 'completed several agent steps.' What would make that claim true?",
           "options": [
             {
-              "text": "An execution trace shows a goal-directed loop across search and transformation, the data returned at each step, its stop condition, and the human approval boundary before any side effect.",
+              "text": "A record showing each step it took, what came back at every step, when it decided to stop, and the point where a person had to say yes before anything changed.",
               "ok": true,
-              "feedback": "Yes. The trace, state, stop condition, and action boundary establish the workflow — not the assistant's label."
+              "feedback": "Yes. The record, the steps, the stopping point, and the place a person approves are what settle it. Not the word it used about itself."
             },
             {
-              "text": "The answer contains a link and more than one bullet point.",
+              "text": "The answer has a working link and more than one bullet point.",
               "ok": false,
-              "feedback": "A link may show tool use and bullets may be generated text. Neither proves goal-directed orchestration."
+              "feedback": "A link might mean a helper ran, and bullet points are just written text. Neither shows it worked through steps."
             },
             {
-              "text": "The assistant calls itself an agent and writes its steps in the first person.",
+              "text": "It calls itself an agent and writes every step as 'I did this'.",
               "ok": false,
-              "feedback": "Self-description is still generated output. Inspect tool events, permissions, state, and side effects."
+              "feedback": "Describing itself is still guessed text. Look for what ran, what it could touch, and what changed."
             },
             {
-              "text": "The recipe task is complicated enough that only an agent could answer it.",
+              "text": "Sorting a whole shop by aisle is too fiddly for anything simpler to manage.",
               "ok": false,
-              "feedback": "Task complexity does not prove execution mode. A model can describe a process without running it."
+              "feedback": "A hard job does not prove how it was done. A guesser can describe a process it never carried out."
             }
           ]
         }

@@ -6,24 +6,24 @@ export default {
   "num": 18,
   "arc": "Trust & Everyday AI",
   "title": "A Daily Habit, Not a Crutch",
-  "coreQuestion": "How do I use AI every day in a way that makes my own thinking sharper instead of switching my brain off?",
-  "blurb": "Use AI often without giving away the part you want your own brain to learn.",
+  "coreQuestion": "How do I use AI every day so my own thinking gets sharper instead of switching off?",
+  "blurb": "Use AI often, without handing over the part you wanted your own brain to learn.",
   "minutes": 8,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Two ways to use the same tool",
-      "scenario": "You need to text your neighbor a thank-you for watering your plants. You could type 'write a thank-you text to my neighbor' and paste whatever comes back. Or you could write a rough draft yourself, then ask AI to tighten it. Same task, same tool, same five minutes.",
-      "prompt": "Before you read on: after each of those two ways, which one leaves something behind in YOUR head — a sentence you shaped, a choice you made? Say it in one line."
+      "title": "Two ways to use the same app",
+      "scenario": "Your friend's mum has driven you to football three weekends running. You owe her a thank-you text.\n\nYou could type 'write a thank-you text' and send back whatever appears. Or you could write a rough one yourself, then ask AI to tighten it.\n\nSame job. Same app. Same five minutes.",
+      "prompt": "After each of those, which one leaves something behind in your head? A sentence you shaped, a choice you made. Say it in one line."
     },
     {
       "kind": "classify",
-      "title": "Crutch use or coach use?",
-      "prompt": "Underneath, the AI is just predicting likely next words either way. What changes is your instruction. Sort each way of asking: does the AI do the thinking for you (crutch), or does it make YOU do the thinking and only then help (coach)?",
+      "title": "Crutch, or coach?",
+      "prompt": "Underneath, the AI is guessing likely next words either way. What changes is what you ask for. Sort each one: does it think for you, or does it make you think and then help?",
       "buckets": [
-        "Crutch (it thinks, you copy)",
-        "Coach (you think, it helps)"
+        "Crutch — it thinks, I copy",
+        "Coach — I think, it helps"
       ],
       "items": [
         {
@@ -31,40 +31,40 @@ export default {
           "answer": 0
         },
         {
-          "text": "\"I'll draft the reply first — then point out two lines I could cut.\"",
+          "text": "\"I will write the reply first. Then show me two lines I could cut.\"",
           "answer": 1
         },
         {
-          "text": "\"Just give me the answer to this math problem.\"",
+          "text": "\"Just give me the answer to this maths question.\"",
           "answer": 0
         },
         {
-          "text": "\"Ask me a question that checks if I actually understood the chapter.\"",
+          "text": "\"Ask me a question that shows whether I actually understood the chapter.\"",
           "answer": 1
         },
         {
-          "text": "\"Rewrite this so it sounds smart, I don't want to touch it.\"",
+          "text": "\"Rewrite this so it sounds clever. I do not want to touch it.\"",
           "answer": 0
         },
         {
-          "text": "\"Wait for my try, then tell me one thing to fix next time.\"",
+          "text": "\"Wait for my attempt, then tell me one thing to fix next time.\"",
           "answer": 1
         }
       ],
-      "reveal": "Same machine, different instructions. 'Crutch' and 'coach' are a comparison to help you feel the difference—not a claim about what the AI is doing inside. Assistants can search, use tools, take several steps, and sometimes reuse saved information. They still cannot choose which human ability you want to protect. You make that boundary explicit."
+      "reveal": "Same machine, different instructions. Crutch and coach are a comparison to help you feel the difference. They are not a claim about what is going on inside. These apps can search, take several steps, and sometimes keep bits of old chats. None of that lets them choose which of your own skills you want to protect. You draw that line."
     },
     {
       "kind": "reveal",
-      "title": "A good habit ends with your brain working",
-      "body": "Using AI every day does not make you lazy by itself. It depends entirely on HOW you use it. The tool learned patterns from huge amounts of human writing and works by predicting the likely next words to fill in whatever you ask. Ask it to do the task, and it does the task — your brain stays off. Ask it to make you try first and only then coach you, and it waits — your brain stays on. A good AI habit is one that ends with YOUR thinking sharper, not switched off. Note: AI is not a friend, therapist, or a stand-in for a professional — for anything about your health, safety, or a hard personal decision, keep a real human in the loop and defer to professionals.",
-      "mistake": "\"Write this for me\" — you paste the result, learn nothing, and the skill never becomes yours.",
-      "good": "\"I'll do my part first, THEN you coach me\" — you keep one step for yourself, so the skill stays yours."
+      "title": "A good habit ends with your brain switched on",
+      "body": "Using AI every day does not make you lazy on its own. It depends entirely on how you use it.\n\nHere is what it does. It has read an enormous amount of human writing, and it guesses the words that usually come next. Ask it to do the job, and it does the job. Your brain stays off.\n\nAsk it to make you try first and only then help, and it waits. Your brain stays on.\n\nA good habit is one that leaves your thinking sharper afterwards, not switched off.\n\nOne more thing. AI is not a friend, and it is not a doctor or a counsellor. For anything about your health, your safety, or a hard personal decision, bring in a real person you trust.",
+      "mistake": "\"Write this for me.\" You paste the result, learn nothing, and the skill never becomes yours.",
+      "good": "\"I will do my part first, then you help.\" You keep one step for yourself, so the skill stays yours."
     },
     {
       "kind": "tryLive",
-      "title": "Run your coach habit once, right now",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or redacted example; do not paste names, private messages, school details, or another person's information. I want a 5-minute habit that makes me sharper at [an area, e.g. writing clear messages] instead of dependent. Don't do the work for me — make me try first, then coach me. My guardrail is: [the one step I'll always do myself]. Give me one small practice task, wait for my try, then point out one useful improvement.",
-      "note": "Choose an ordinary practice task: a pretend customer reply, a made-up thank-you, a game strategy, or a short explanation. Do your try before the AI helps. If it jumps in, say: 'Pause. Wait for my attempt first.'"
+      "title": "Run your coach habit once, now",
+      "prompt": "This step uses an outside app, so anything you type leaves LearningAI. Use a made-up example. Do not paste names, private messages, school details, or anyone else's information. I want a 5-minute habit that makes me sharper at [an area, for example writing clear messages] instead of dependent on you. Don't do the work for me — make me try first, then coach me. The one step I will always do myself is: [your step]. Give me one small practice task, wait for my try, then point out one thing worth improving.",
+      "note": "Pick an ordinary practice task: a pretend reply to a customer, a made-up thank-you, a plan for a game, a short explanation of something you learned. Do your attempt before it helps. If it jumps in early, say: 'Stop. Wait for my attempt first.'"
     },
     {
       "kind": "toolkitSave",
@@ -73,40 +73,40 @@ export default {
       "fields": [
         {
           "key": "area",
-          "label": "Area I want to get genuinely better at",
+          "label": "What I want to get genuinely better at",
           "placeholder": "writing clear messages"
         },
         {
           "key": "habit",
-          "label": "My one tiny coach-style habit (do it daily)",
-          "placeholder": "draft it myself first, then ask AI to tighten it"
+          "label": "My one small coach-style habit, done daily",
+          "placeholder": "write it myself first, then ask AI to tighten it"
         },
         {
           "key": "guardrail",
-          "label": "My guardrail — the one step I refuse to hand over",
-          "placeholder": "I always write the first draft before I show it to AI"
+          "label": "The one step I refuse to hand over",
+          "placeholder": "I always write the first version before I show it to AI"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Did YOU do a part the AI didn't?",
-      "question": "Tomorrow, on a NEW real task (not the one you just practiced), you run your habit with the guardrail held. Afterward, which sentence means you did it right?",
+      "title": "Did you do a part it did not?",
+      "question": "Tomorrow, on a new real job, you run your habit and hold that one step for yourself. Afterwards, which sentence means you got it right?",
       "options": [
         {
-          "text": "\"I wrote the whole message myself; AI only trimmed two wordy lines, and I kept my own greeting.\"",
+          "text": "\"I wrote the whole message myself. AI trimmed two wordy lines, and I kept my own opening.\"",
           "ok": true,
-          "feedback": "That's the win. You can name a specific thing YOU did that the AI didn't — the skill stayed yours."
+          "feedback": "That is the win. You can name a specific thing you did that it did not. The skill stayed yours."
         },
         {
-          "text": "\"I gave the AI my main points, let it draft the message, then changed the greeting and sent it.\"",
+          "text": "\"I gave it my main points, let it write the message, then changed the opening and sent it.\"",
           "ok": false,
-          "feedback": "You made a small edit, but the AI still did the skill you meant to practice. Keep the first meaningful attempt or the final decision for yourself."
+          "feedback": "You made a small edit, but it still did the very thing you meant to practise. Keep either the first real attempt or the final decision."
         },
         {
-          "text": "\"I asked the AI for three drafts, chose the one I liked, and rewrote one sentence.\"",
+          "text": "\"I asked for three versions, picked the one I liked, and rewrote one sentence.\"",
           "ok": false,
-          "feedback": "Choosing is a real decision, but it does not practice drafting. If drafting is the skill you want, make your own rough version before comparing options."
+          "feedback": "Picking is a real decision, but it is not practice at writing. If writing is the skill you want, make your own rough version first."
         }
       ]
     }
