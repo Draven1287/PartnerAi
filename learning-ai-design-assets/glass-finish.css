@@ -7,7 +7,10 @@
 .nav-glass {
   cursor: default !important;
   touch-action: auto !important;
-  user-select: auto !important;
+  /* A press and drag across the capsule used to leave a selection smear over
+     the route labels. Nothing in here is text anyone reads. */
+  -webkit-user-select: none !important;
+  user-select: none !important;
   border: 1px solid rgba(255, 255, 255, .86) !important;
   background:
     linear-gradient(145deg, rgba(255,255,255,.29), rgba(255,255,255,.055) 48%, rgba(210,218,218,.14)) !important;

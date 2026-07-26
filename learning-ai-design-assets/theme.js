@@ -146,6 +146,23 @@
   window.addEventListener('resize', scheduleCurrentNavRoute, {passive: true});
 })();
 
+/* Press-and-drag on a glass surface used to leave the browser's own artefact
+   behind: a blue selection smear across the navigation labels, or the ghost
+   image the browser drags when you grab a link or a badge. CSS user-select
+   handles the smear (see theme.css); this handles the ghost, because
+   -webkit-user-drag is not implemented everywhere and setting draggable="false"
+   on every element in twelve pages would not survive the next page that is
+   added. Only surfaces that are grabbed on purpose are listed — text in a
+   lesson stays selectable, and links elsewhere stay draggable to a bookmark
+   bar. */
+(() => {
+  const GRAB_SURFACES = '.nav-glass,.arc-rail,.panel-handle,.medal,.achievement-object,.minute-dial,.unit-rail';
+  document.addEventListener('dragstart', event => {
+    const origin = event.target instanceof Element ? event.target : event.target?.parentElement;
+    if (origin?.closest(GRAB_SURFACES)) event.preventDefault();
+  });
+})();
+
 /* One browser can hold more than one LearningAI account over time, but only one
    server session at a time. learningai-prototype-account holds whoever is signed
    in now; this roster remembers which accounts this browser has seen, so they can
@@ -353,11 +370,16 @@
     ['Notes', './notes.html'],
     ['Projects', './projects.html'],
     ['Gallery', './gallery.html'],
-    ['About', './about.html'],
-    ['Teaching AI', './about.html#teaching']
+    ['About', './about.html']
   ]);
-  const PRIMARY_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus'];
-  const MORE_ROUTES = ['Projects', 'Gallery', 'Notes', 'About', 'Teaching AI'];
+  /* Projects was the destination people gave up looking for, so it is now one of
+     the five always-visible routes rather than something you had to open a menu
+     called "More" to discover. The menu beside them is the full site index — it
+     repeats the visible five so that "All pages" is literally true and nobody
+     has to guess which half of the site a page lives in. */
+  const PRIMARY_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus', 'Projects'];
+  const MENU_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus', 'Projects', 'Gallery', 'Notes', 'About'];
+  const MENU_ONLY_ROUTES = ['Gallery', 'Notes', 'About'];
   const CURRENT_ROUTE = new Map([
     ['stage-1-navigation-proof.html', 'Dashboard'],
     ['progress.html', 'Progress'],
@@ -371,9 +393,9 @@
     ['adults.html', 'Adults']
   ]);
   const PROTECTED_ROUTES = new Set([
-    // about.html carries Teaching AI and the privacy commitment. A teacher
-    // evaluating this for a class, or anyone deciding whether to hand over an
-    // email, must be able to read them before creating an account.
+    // about.html carries the teaching method and the privacy commitment. A
+    // teacher evaluating this for a class, or anyone deciding whether to hand
+    // over an email, must be able to read them before creating an account.
     'stage-1-navigation-proof.html','progress.html','lessons.html','lesson.html','focus.html',
     'notes.html','projects.html','gallery.html','adults.html','settings.html'
   ]);
@@ -396,11 +418,12 @@
     if (dashboardGreeting) dashboardGreeting.textContent = greeting ? greeting.pageText(name) : `Welcome, ${name}.`;
   }
 
+  function currentRouteLabel() {
+    return CURRENT_ROUTE.get(location.pathname.split('/').pop() || '');
+  }
+
   function syncCanonicalNavigation() {
-    const file = location.pathname.split('/').pop() || '';
-    const currentLabel = file === 'about.html' && location.hash === '#teaching'
-      ? 'Teaching AI'
-      : CURRENT_ROUTE.get(file);
+    const currentLabel = currentRouteLabel();
     document.querySelectorAll('.nav-glass nav').forEach(nav => {
       nav.setAttribute('aria-label', 'Primary');
       nav.replaceChildren(...PRIMARY_ROUTES.map(label => {
@@ -470,25 +493,24 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'mobile-nav-more';
-      button.setAttribute('aria-label', 'More LearningAI pages');
+      button.setAttribute('aria-label', 'All LearningAI pages');
       button.setAttribute('aria-haspopup', 'menu');
       button.setAttribute('aria-expanded', 'false');
-      button.textContent = 'More';
+      /* "More" said nothing about what was behind it. The visible label now
+         matches the accessible name and the menu's own name. */
+      button.textContent = 'All pages';
       const menu = document.createElement('div');
       menu.className = 'mobile-nav-menu';
       menu.hidden = true;
       menu.setAttribute('role', 'menu');
       menu.setAttribute('aria-label', 'All LearningAI pages');
-      const file = location.pathname.split('/').pop() || '';
-      const currentLabel = file === 'about.html' && location.hash === '#teaching'
-        ? 'Teaching AI'
-        : CURRENT_ROUTE.get(file);
-      if (MORE_ROUTES.includes(currentLabel) || currentLabel === 'Adults') {
-        // Keep the visible label as "More" so it matches the accessible name and
-        // does not read as a sibling of the settings gear beside it.
+      const currentLabel = currentRouteLabel();
+      if (MENU_ONLY_ROUTES.includes(currentLabel) || currentLabel === 'Adults') {
+        // Mark the button only when the page you are on has no visible route of
+        // its own, so the capsule still shows where you are.
         button.classList.add('is-current');
       }
-      MORE_ROUTES.forEach(label => {
+      MENU_ROUTES.forEach(label => {
         const link = document.createElement('a');
         link.href = ROUTES.get(label);
         link.textContent = label;
