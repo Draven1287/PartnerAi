@@ -1,5 +1,32 @@
 # Outstanding work — 25 July 2026
 
+## ⚠️ Deploying: the two services build from different directories
+
+**`railway up` from the repo root deploys the FRONTEND.** The root
+`railway.toml` builds `Dockerfile.frontend`. Running
+`railway up --service learning-ai-api` **from the repo root** therefore pushes
+the frontend onto the API service and takes the backend down — the logs then
+read "Learning AI frontend listening on 0.0.0.0:8080" and every `/api/*` call
+returns 503. This happened on 26 Jul and took a few minutes to spot and undo.
+
+```bash
+# frontend
+railway up --service learning-ai-web --ci            # from the repo root
+
+# backend — note the directory
+cd coolify-backend && railway up --service learning-ai-api --ci
+```
+
+`coolify-backend/railway.toml` builds `coolify-backend/Dockerfile`. Always
+confirm afterwards with `curl -s https://learningai4you.com/api/health`, which
+should return `"dbStatus":"ok"`.
+
+Related: `api.learningai4you.com` returns 503 ("no available server") and has
+for some time. The site does not use it — it proxies through
+`learningai4you.com/api` via `API_INTERNAL_URL` on the web service — so this is
+cosmetic unless something starts calling that host directly.
+
+
 Everything raised in the 25 July session that is **not yet done**. Written before
 a context compaction so nothing is lost. Ordered by who is blocked.
 
