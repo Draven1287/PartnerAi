@@ -49,17 +49,25 @@ is correct, because HSTS cannot be revoked quickly.
   and Text size, from the same eight values.
 - **The questionnaire gives the learner nothing.** Aarav asked whether it could
   award something. Currently it records a level that nothing reads.
-- **Backend console UI/UX** — a readability pass shipped (human column names,
-  relative times, curated stats, real empty states) and it fixed a live bug: the
-  lesson endpoint returns `lessons`, the code looked for `analytics`. But Aarav
-  is right that **it does not look like V2**. The V2 design is light paper with
-  serif headings, avatar-initials learner rows, level pills, progress bars, tab
-  nav, KPI tiles and a diagnostics card — see
-  `v2-redesign/project/delivery/Backend Console.dc.html` and
-  `v2-redesign/project/screenshots/console.png`. The shipped console is a dark
-  table layout. A port of the V2 presentation onto the working data layer is IN
-  PROGRESS. **Note: V2's design loads Google Fonts; the CSP forbids that, so the
-  port must use system serif/sans/mono stacks.**
+- ~~Backend console UI/UX~~ **DONE (26 Jul)** — rebuilt on the V2 design: light
+  paper, serif headings, avatar-initials learner rows, level pills, progress
+  bars, tab nav with count badges, KPI tiles, visits chart, diagnostics card,
+  light/dark toggle. Design source is
+  `v2-redesign/project/delivery/Backend Console.dc.html` plus
+  `v2-redesign/project/screenshots/console.png`.
+  **V2's design loads Google Fonts and the CSP forbids external stylesheets and
+  fonts — those tags fail silently. System serif/sans/mono stacks are used
+  instead; do not reintroduce the `<link>` tags.**
+  Verified in-browser against the real `/api/admin/overview` shape, which is
+  **flat** (`{ok, total, learners, visitsByDay, …}`) — `visitsByDay` is an array
+  of `{label, count}`, and levels join to learners on `attempt.userId`.
+  Four bugs fixed on the way: the assessment endpoint returns
+  `analytics.attempts` but the code read `assessment.attempts`, so the
+  questionnaire section always claimed nobody had finished it; an all-digit
+  build SHA rendered as "2,799,946"; long emails broke apart mid-word; the
+  overview grid starved the table into a scrollbar.
+  **Not verified: a real sign-in against production** — that needs the admin
+  password. If a field is mis-modelled, the raw-JSON disclosure will show it.
 - **Safari "not secure"** — RESOLVED, not a real issue. Aarav confirmed Safari
   says nothing. The red icon was Arc's tracker-blocker shield. Certificate is
   valid, no mixed content, http redirects, HSTS now set. Do not re-investigate.
