@@ -5,151 +5,239 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>Backend Console · Learning AI</title>
+  <link rel="stylesheet" href="./theme.css?v=2026-07-25w">
+  <script>
+    /* theme.js is what normally sets data-motion, but it also rewrites the site
+       navigation and injects the learner shell, which would corrupt an admin
+       page — so it is deliberately not loaded here. Read the same preference it
+       writes, and fall back to the OS setting, so Reduced and No-motion behave
+       on this page exactly as they do on every other page. */
+    try {
+      const saved = localStorage.getItem('learningai-motion');
+      if (saved === 'none' || saved === 'reduced' || saved === 'standard') {
+        document.documentElement.dataset.motion = saved;
+      } else if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.dataset.motion = 'reduced';
+      }
+    } catch (error) { /* private mode */ }
+  </script>
   <style>
     /* ------------------------------------------------------------------
-       V2 backend-console design, carried over verbatim in structure and
-       tokens. The one deliberate departure: the V2 source loaded Newsreader,
-       Plus Jakarta Sans and JetBrains Mono from Google Fonts. The site CSP is
-       font-src 'self' data:, so those stylesheet links would be blocked outright.
-       The serif headings are the load-bearing part of the V2 character, so
-       they stay — served from the system stack instead.
+       V3 — the live glass site. The reference is progress.html, index.html
+       and settings.html in this folder: the paper photograph fixed behind
+       everything, panels of blurred white glass, and inner surfaces as a
+       plain 27% white wash on a hairline ink border.
+
+       ./theme.css is linked for the shared tokens, the three motion modes
+       and the site focus ring (outline:3px solid #17231f). Everything is
+       same-origin, so the CSP (style-src 'self' 'unsafe-inline';
+       font-src 'self' data:) is satisfied — there are no web fonts and no
+       CDN of any kind on this page, only the system stack.
+
+       theme.css styles a list of *site* component classes globally and with
+       !important. Three console classes collided with that list, so they are
+       renamed here — .check → .dcheck, .badge → .tcount, .brand → .cbrand —
+       which means no site rule can ever repaint a console component.
+
+       Note on backdrop-filter: it makes an element a containing block for
+       position:fixed descendants. Nothing on this page is fixed; the top bar
+       is position:sticky (unaffected), and the glass lives on .bar-in, the
+       child, never on .bar or on any wrapper around it.
        ------------------------------------------------------------------ */
     :root{
       --bw:1px;
-      --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
-      --font-serif:ui-serif,Georgia,"Times New Roman",serif;
+      --font-body:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,system-ui,sans-serif;
       --font-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-      /* Level colours are one set for both themes: they are always solid chips
-         carrying white text, so they are picked for 5:1+ against #fff rather
-         than for the surface behind them. */
-      --lv-foundation:#8a6018; --lv-explorer:#3a3aa3; --lv-builder:#1b6d4a;
-      --lv-none:#5d5749; --on-lv:#fff;
     }
     html[data-theme="light"]{
-      --bg:#f6f3ea; --surface:#fffdf8; --surface-2:#efe8d8; --border:#e4dcc9;
-      --text:#211f1a; --text-dim:#5d5749; --text-faint:#6b6655;
-      --accent:#3a3aa3; --accent-dim:#2c2c84; --accent-soft:rgba(58,58,163,.10);
-      --good:#1f8a5b; --good-soft:rgba(31,138,91,.12);
-      --bad:#c2414b; --bad-soft:rgba(194,65,75,.12);
-      --warn:#b6802a; --warn-soft:rgba(182,128,42,.14);
-      /* Two departures from V2's palette, both for contrast. --text-faint is
-         darkened here (and lightened in dark) because V2's value lands at
-         3.0–4.1:1 on --surface-2, which is where table headers and detail
-         labels live. And "ink" = text drawn on a *-soft band, "solid" = a
-         filled chip carrying --on-solid: both are darkened in light mode so
-         12px bold clears 4.5:1. Everything else is V2's token, unchanged. */
-      --accent-ink:#2c2c84; --good-ink:#17724a; --warn-ink:#8a6018; --bad-ink:#a8323c;
-      --good-solid:#187048; --warn-solid:#8a6018; --bad-solid:#a8323c; --on-solid:#fff;
-      --on-accent:#fff; --shadow:rgba(40,33,20,.08);
+      /* Panel glass. progress.html's recipe is the starting point; the two
+         middle stops are lifted from .10/.21 to .28/.34 because they were not
+         survivable. Measured against the *blurred* paper photograph (blur(25px)
+         is what backdrop-filter feeds the panel) the darkest patch a panel can
+         sit on is rgb(158,152,145); at .10 white the panel only reaches
+         rgb(163,157,151), where every muted colour on this page landed between
+         1.8:1 and 3.4:1. At .28 the panel is still plainly glass — the paper
+         reads straight through it — and the whole palette below clears 4.5:1. */
+      --glass-line:rgba(255,255,255,.80);
+      --glass-bg:linear-gradient(145deg,rgba(255,255,255,.50),rgba(255,255,255,.28) 58%,rgba(219,226,226,.34));
+      --glass-shadow:inset 0 1px 1px white,inset 0 -1px 0 rgba(30,34,33,.12),0 22px 70px rgba(40,42,39,.11);
+      /* Inner/secondary surfaces — rows, tiles, chips. */
+      --inner-line:rgba(50,55,52,.12);
+      --inner:rgba(255,255,255,.30);
+      --inner-2:rgba(255,255,255,.50);
+      /* Sticky table headers sit over scrolling rows, so they are the one
+         surface that has to be nearly opaque or the rows read through them. */
+      --head-bg:rgba(246,245,240,.93);
+      --text:#171a18; --text-dim:#333834; --text-faint:#3d423e;
+      --heading-shadow:0 1px 0 rgba(255,255,255,.92);
+      /* theme.css paints .eyebrow with var(--gold-text) and !important, so the
+         eyebrow is corrected by moving the token, not by fighting the rule. */
+      --gold-text:#563a0e;
+      --accent:#3d6c7c; --accent-ink:#204450; --accent-soft:rgba(201,221,228,.42);
+      --good-ink:#134634; --good-soft:rgba(207,224,215,.45); --good-solid:#134634;
+      --warn-ink:#543810; --warn-soft:rgba(232,214,174,.45); --warn-solid:#543810;
+      --bad-ink:#702428; --bad-soft:rgba(236,207,198,.45); --bad-solid:#702428;
+      --on-solid:#fff; --on-accent:#fff;
+      --lv-foundation:#7c5514; --lv-explorer:#204450; --lv-builder:#134634;
+      --lv-none:#4c4c44; --on-lv:#fff;
+      --shadow:rgba(40,42,39,.10);
       color-scheme:light;
     }
+    /* The site has one dark treatment — theme.css's "onyx" — and it works by
+       laying a dark wash over the same paper photograph rather than swapping it
+       out. This mirrors that, so the glass still reads as glass. */
     html[data-theme="dark"]{
-      --bg:#16140f; --surface:#211e18; --surface-2:#2b271f; --border:#3a352b;
-      --text:#f3efe6; --text-dim:#b3ab9a; --text-faint:#9b9382;
-      --accent:#a6a4f2; --accent-dim:#bcbaf6; --accent-soft:rgba(166,164,242,.16);
-      --good:#4cc38a; --good-soft:rgba(76,195,138,.16);
-      --bad:#f0808a; --bad-soft:rgba(240,128,138,.16);
-      --warn:#e0a64d; --warn-soft:rgba(224,166,77,.16);
-      --accent-ink:#a6a4f2; --good-ink:#4cc38a; --warn-ink:#e0a64d; --bad-ink:#f0808a;
-      --good-solid:#4cc38a; --warn-solid:#e0a64d; --bad-solid:#f0808a; --on-solid:#16140f;
-      --on-accent:#16140f; --shadow:rgba(0,0,0,.45);
+      --glass-line:rgba(220,196,139,.24);
+      --glass-bg:linear-gradient(145deg,rgba(38,44,41,.74),rgba(20,24,23,.52) 62%,rgba(58,49,31,.20));
+      --glass-shadow:inset 0 1px 0 rgba(255,255,255,.15),inset 0 -1px 0 rgba(0,0,0,.42),0 24px 70px rgba(0,0,0,.30);
+      --inner-line:rgba(226,212,178,.16);
+      --inner:rgba(255,255,255,.055);
+      --inner-2:rgba(255,255,255,.11);
+      --head-bg:rgba(25,29,27,.94);
+      --text:#f3f0e8; --text-dim:#c2beb3; --text-faint:#c6c1b6;
+      --heading-shadow:0 1px 0 rgba(0,0,0,.5);
+      --gold-text:#d8b46b;
+      --accent:#84b6c6; --accent-ink:#aed8e5; --accent-soft:rgba(132,182,198,.20);
+      --good-ink:#9adcbb; --good-soft:rgba(127,202,166,.18); --good-solid:#9adcbb;
+      --warn-ink:#f0cb8c; --warn-soft:rgba(226,185,114,.18); --warn-solid:#f0cb8c;
+      --bad-ink:#f7b3ad; --bad-soft:rgba(240,160,154,.18); --bad-solid:#f7b3ad;
+      --on-solid:#14100c; --on-accent:#12191c;
+      --lv-foundation:#8a6018; --lv-explorer:#2f5c6b; --lv-builder:#1d6349;
+      --lv-none:#4a4a42; --on-lv:#fff;
+      --shadow:rgba(0,0,0,.42);
       color-scheme:dark;
     }
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
-    body{min-height:100vh;font-family:var(--font-body);background:var(--bg);color:var(--text);
+    body{min-height:100vh;overflow-x:hidden;font-family:var(--font-body);color:var(--text);
+      background:#efeee9 url("./learning-ai-paper-light-v1.jpg") center top/cover fixed no-repeat;
       -webkit-font-smoothing:antialiased}
+    html[data-theme="dark"] body{background-color:#111513;
+      background-image:linear-gradient(rgba(13,17,16,.76),rgba(13,17,16,.80)),url("./learning-ai-paper-light-v1.jpg")}
+    /* theme.css puts a white text-shadow on every heading, which is right on
+       light glass and a halo on dark. */
+    html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3{
+      text-shadow:0 1px 0 rgba(0,0,0,.5) !important}
+    html[data-theme="dark"] .eyebrow{color:var(--gold-text) !important;text-shadow:0 1px 0 rgba(0,0,0,.5) !important}
     [hidden]{display:none !important}
-    .canvas{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+    .canvas{max-width:1180px;margin:0 auto;padding:0 18px 96px}
 
     /* ---------- top bar ---------- */
-    .bar{position:sticky;top:0;z-index:30;backdrop-filter:blur(10px);
-      background:color-mix(in srgb,var(--bg) 84%,transparent);border-bottom:var(--bw) solid var(--border)}
-    .bar-in{max-width:1180px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
-    .brand .mk{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;
-      background:var(--accent);color:var(--on-accent);flex:none}
-    .brand .sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-      color:var(--text-faint);padding:3px 8px;border:var(--bw) solid var(--border);border-radius:999px}
+    /* Sticky, not fixed: a floating glass capsule that stays with the admin
+       through a 200-row table. The blur is on .bar-in so the sticky element
+       itself is never a filtered ancestor. */
+    .bar{position:sticky;top:0;z-index:30;padding:14px 18px 4px}
+    .bar-in{max-width:1180px;margin:0 auto;padding:9px 11px 9px 15px;display:flex;align-items:center;
+      gap:14px;flex-wrap:wrap;border-radius:24px;
+      border:var(--bw) solid var(--glass-line);background:var(--glass-bg);box-shadow:var(--glass-shadow);
+      backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .cbrand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:720;letter-spacing:-.02em;
+      text-shadow:var(--heading-shadow)}
+    .cbrand .mk{width:29px;height:29px;border-radius:10px;display:grid;place-items:center;flex:none;
+      border:var(--bw) solid var(--inner-line);background:var(--inner-2);color:var(--accent-ink);
+      box-shadow:inset 0 1px 1px rgba(255,255,255,.9)}
+    .cbrand .sub{font-size:10.5px;font-weight:750;letter-spacing:.11em;text-transform:uppercase;
+      color:var(--text-faint);padding:4px 9px;border:var(--bw) solid var(--inner-line);
+      border-radius:999px;background:var(--inner);text-shadow:none}
     .spacer{flex:1}
-    .conn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:600;
-      padding:7px 13px;border-radius:999px;border:var(--bw) solid var(--border);cursor:pointer;
-      background:var(--surface);color:var(--text-dim)}
+    .conn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:640;
+      padding:8px 14px;border-radius:999px;border:var(--bw) solid var(--inner-line);cursor:pointer;
+      background:var(--inner);color:var(--text-dim)}
     .conn .dot{width:9px;height:9px;border-radius:50%;background:var(--text-faint);flex:none}
-    .conn.ok{color:var(--good-ink);border-color:color-mix(in srgb,var(--good) 40%,var(--border));background:var(--good-soft)}
+    .conn.ok{color:var(--good-ink);background:var(--good-soft)}
     .conn.ok .dot{background:var(--good-solid);animation:pulse 2s infinite}
-    .conn.warn{color:var(--warn-ink);border-color:color-mix(in srgb,var(--warn) 40%,var(--border));background:var(--warn-soft)}
+    .conn.warn{color:var(--warn-ink);background:var(--warn-soft)}
     .conn.warn .dot{background:var(--warn-solid)}
-    .conn.bad{color:var(--bad-ink);border-color:color-mix(in srgb,var(--bad) 40%,var(--border));background:var(--bad-soft)}
+    .conn.bad{color:var(--bad-ink);background:var(--bad-soft)}
     .conn.bad .dot{background:var(--bad-solid)}
     @keyframes pulse{
-      0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--good) 60%,transparent)}
+      0%{box-shadow:0 0 0 0 var(--good-soft)}
       70%{box-shadow:0 0 0 7px transparent}
       100%{box-shadow:0 0 0 0 transparent}
     }
     @media (prefers-reduced-motion: reduce){.conn.ok .dot{animation:none}}
-    .seg{display:inline-flex;background:var(--surface-2);border:var(--bw) solid var(--border);
-      border-radius:999px;padding:3px;gap:2px}
+    html[data-motion="reduced"] .conn.ok .dot,html[data-motion="none"] .conn.ok .dot{animation:none}
+    .seg{display:inline-flex;border:var(--bw) solid var(--inner-line);border-radius:999px;padding:3px;gap:2px;
+      background:var(--inner)}
     .seg button{border:0;background:transparent;color:var(--text-dim);font:inherit;font-size:12.5px;
-      font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer}
-    .seg button.on{background:var(--surface);color:var(--text);box-shadow:0 1px 4px var(--shadow)}
+      font-weight:640;padding:6px 13px;border-radius:999px;cursor:pointer}
+    .seg button.on{background:var(--inner-2);color:var(--text);
+      box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 2px 6px var(--shadow)}
 
     /* ---------- head ---------- */
-    .head{padding:26px 0 4px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap}
-    .head .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);font-weight:700}
-    .head h1{font-family:var(--font-serif);font-weight:500;font-size:clamp(26px,3.6vw,38px);
-      letter-spacing:-.015em;margin:8px 0 0}
-    .head .env{font-size:12.5px;color:var(--text-dim);margin-top:8px;font-family:var(--font-mono);
+    /* The hero is a glass plane, the way progress.html and settings.html open.
+       It is also the reason the page-level prose is legible: measured over the
+       blurred paper, *nothing* smaller than a heading clears 4.5:1 directly on
+       the photograph — the darkest patch leaves the bare page at rgb(152,147,140),
+       where even 4.5:1 needs near-black text. So every run of small type on this
+       page sits on glass: the hero, the glance line, the raw disclosure and the
+       footnote. Only the h1 stands on the background, and at 38px+ it is large
+       text at 5.7:1. */
+    .head{margin-top:18px;padding:36px 38px 32px;display:flex;align-items:flex-end;
+      justify-content:space-between;gap:22px;flex-wrap:wrap;border-radius:30px;
+      border:var(--bw) solid var(--glass-line);background:var(--glass-bg);box-shadow:var(--glass-shadow);
+      backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .eyebrow{margin:0;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-text);font-weight:760}
+    .head h1{font-weight:520;font-size:clamp(38px,5.4vw,64px);letter-spacing:-.055em;line-height:.98;
+      margin:14px 0 0;text-shadow:var(--heading-shadow)}
+    .head .env{font-size:12.5px;color:var(--text-dim);margin-top:12px;font-family:var(--font-mono);
       line-height:1.6;word-break:break-word}
     .head .env b{color:var(--accent-ink)}
     .head-side{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-    .live-flag{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;
+    .live-flag{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:720;
       letter-spacing:.04em;text-transform:uppercase;color:var(--accent-ink);background:var(--accent-soft);
-      border:var(--bw) solid color-mix(in srgb,var(--accent) 35%,var(--border));padding:7px 13px;border-radius:999px}
+      border:var(--bw) solid var(--inner-line);padding:8px 14px;border-radius:999px}
 
     /* ---------- tab nav ---------- */
-    .tabnav{display:flex;gap:4px;margin:22px 0 4px;border-bottom:var(--bw) solid var(--border);flex-wrap:wrap}
-    .tabnav button{border:0;background:transparent;color:var(--text-dim);font:inherit;font-size:14px;
-      font-weight:600;padding:11px 15px;border-radius:10px 10px 0 0;cursor:pointer;display:inline-flex;
-      align-items:center;gap:8px;border-bottom:2px solid transparent;margin-bottom:-1px;
-      transition:color .12s,background .12s}
-    .tabnav button:hover{color:var(--text);background:var(--surface-2)}
-    .tabnav button.on{color:var(--accent-ink);border-bottom-color:var(--accent)}
-    .tabnav button .badge{font-size:11px;font-weight:700;background:var(--surface-2);color:var(--text-faint);
-      padding:1px 7px;border-radius:999px;font-variant-numeric:tabular-nums}
-    .tabnav button.on .badge{background:var(--accent-soft);color:var(--accent-ink)}
+    .tabnav{display:flex;gap:4px;margin:26px 0 6px;padding:5px;flex-wrap:wrap;border-radius:22px;
+      border:var(--bw) solid var(--glass-line);background:var(--glass-bg);box-shadow:var(--glass-shadow);
+      backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .tabnav button{border:var(--bw) solid transparent;background:transparent;color:var(--text-dim);font:inherit;
+      font-size:13.5px;font-weight:650;padding:10px 15px;border-radius:17px;cursor:pointer;
+      display:inline-flex;align-items:center;gap:8px;transition:color .12s,background .12s}
+    .tabnav button:hover{color:var(--text);background:var(--inner)}
+    .tabnav button.on{color:var(--text);border-color:rgba(255,255,255,.9);background:var(--inner-2);
+      box-shadow:inset 0 1px 1px rgba(255,255,255,.9),inset 0 -2px 0 var(--accent),0 6px 14px var(--shadow)}
+    html[data-theme="dark"] .tabnav button.on{border-color:rgba(220,196,139,.30)}
+    .tabnav button .tcount{font-size:11px;font-weight:720;background:var(--inner);color:var(--text-faint);
+      padding:2px 8px;border-radius:999px;font-variant-numeric:tabular-nums;
+      border:var(--bw) solid var(--inner-line)}
+    .tabnav button.on .tcount{background:var(--accent-soft);color:var(--accent-ink)}
 
     /* ---------- kpi ---------- */
     .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}
-    @media (max-width:780px){.kpis{grid-template-columns:repeat(2,1fr)}}
-    .kpi{background:var(--surface);border:var(--bw) solid var(--border);border-radius:16px;padding:18px 20px;
-      box-shadow:0 8px 26px var(--shadow)}
-    .kpi .l{font-size:12.5px;color:var(--text-dim);font-weight:600;display:flex;align-items:center;gap:7px}
-    .kpi .l svg{color:var(--accent-ink);flex:none}
-    .kpi .v{font-family:var(--font-serif);font-weight:500;font-size:36px;line-height:1;letter-spacing:-.01em;
-      margin:12px 0 6px;font-variant-numeric:tabular-nums}
-    .kpi .d{font-size:12px;font-weight:600;min-height:15px}
+    @media (max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    .kpi{border:var(--bw) solid var(--glass-line);border-radius:22px;padding:19px 21px;
+      background:var(--glass-bg);box-shadow:var(--glass-shadow);
+      backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .kpi .l{font-size:12.5px;color:var(--text-dim);font-weight:640;display:flex;align-items:flex-start;gap:7px;
+      line-height:1.35}
+    .kpi .l svg{color:var(--accent-ink);flex:none;margin-top:2px}
+    .kpi .v{font-weight:510;font-size:40px;line-height:1;letter-spacing:-.055em;
+      margin:14px 0 7px;font-variant-numeric:tabular-nums;text-shadow:var(--heading-shadow)}
+    .kpi .d{font-size:12px;font-weight:620;min-height:16px;line-height:1.4}
     .kpi .d.up{color:var(--good-ink)}
     .kpi .d.flat{color:var(--text-faint)}
 
     /* ---------- panels ---------- */
-    .panel{background:var(--surface);border:var(--bw) solid var(--border);border-radius:18px;
-      box-shadow:0 8px 26px var(--shadow);overflow:hidden;margin-bottom:18px}
-    .panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px 14px;flex-wrap:wrap}
-    .panel-h h2{font-family:var(--font-serif);font-weight:500;font-size:20px;margin:0}
-    .panel-h .meta{font-size:12.5px;color:var(--text-faint);font-weight:600}
-    .panel-b{padding:0 22px 22px}
+    .panel{border:var(--bw) solid var(--glass-line);border-radius:27px;background:var(--glass-bg);
+      box-shadow:var(--glass-shadow);backdrop-filter:blur(25px) saturate(1.6);
+      -webkit-backdrop-filter:blur(25px) saturate(1.6);overflow:hidden;margin-bottom:18px}
+    .panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:21px 24px 15px;flex-wrap:wrap}
+    .panel-h h2{font-weight:570;font-size:22px;letter-spacing:-.042em;margin:0;text-shadow:var(--heading-shadow)}
+    .panel-h .meta{font-size:12.5px;color:var(--text-faint);font-weight:620}
+    .panel-b{padding:0 24px 24px}
     .panel-b>:first-child{margin-top:0}
     /* The learner table carries three columns; the level bars beside it carry
        one. An even split starved the table and left the right panel padded with
-       empty space, which is also why V2 gave the table the larger share. */
+       empty space. */
     .grid2{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;align-items:start}
-    @media (max-width:820px){.grid2{grid-template-columns:1fr}}
+    @media (max-width:860px){.grid2{grid-template-columns:1fr}}
     .grid2>.panel{margin-bottom:0}
 
     /* ---------- search ---------- */
-    .search{display:flex;align-items:center;gap:9px;background:var(--surface-2);
-      border:var(--bw) solid var(--border);border-radius:11px;padding:9px 13px;width:280px;max-width:100%}
+    .search{display:flex;align-items:center;gap:9px;background:var(--inner);
+      border:var(--bw) solid var(--inner-line);border-radius:15px;padding:10px 14px;width:290px;max-width:100%}
     .search input{border:0;background:transparent;color:var(--text);font:inherit;font-size:14px;width:100%;outline:none}
     .search input::placeholder{color:var(--text-faint)}
     .search svg{color:var(--text-faint);flex:none}
@@ -159,179 +247,236 @@
     .tbl-scroll{max-height:620px;overflow:auto}
     .scroll{overflow-x:auto}
     .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
-    .tbl thead th{position:sticky;top:0;z-index:1;text-align:left;font-size:11px;letter-spacing:.06em;
-      text-transform:uppercase;color:var(--text-faint);font-weight:700;padding:10px 22px;
-      border-bottom:var(--bw) solid var(--border);background:var(--surface-2);white-space:nowrap}
+    .tbl thead th{position:sticky;top:0;z-index:1;text-align:left;font-size:10.5px;letter-spacing:.07em;
+      text-transform:uppercase;color:var(--text-faint);font-weight:720;padding:11px 24px;
+      border-bottom:var(--bw) solid var(--inner-line);background:var(--head-bg);white-space:nowrap}
     .tbl thead th.num,.tbl tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
-    .tbl tbody td{padding:12px 22px;border-bottom:var(--bw) solid var(--border);vertical-align:middle}
-    .tbl tbody tr:hover{background:var(--surface-2)}
+    .tbl tbody td{padding:13px 24px;border-bottom:var(--bw) solid var(--inner-line);vertical-align:middle}
+    .tbl tbody tr:last-child td{border-bottom:0}
+    .tbl tbody tr:hover{background:var(--inner)}
     .tbl tbody tr.sel{background:var(--accent-soft)}
     .tbl.rows tbody tr{cursor:pointer;transition:background .12s}
     /* Dense skin for the generic "every stored column" tables. */
     .tbl.compact{font-size:13px}
     .tbl.compact thead th{position:static;padding:9px 14px}
     .tbl.compact tbody td{padding:9px 14px;vertical-align:top;white-space:nowrap}
-    .tbl.compact tbody th{padding:9px 14px;border-bottom:var(--bw) solid var(--border);text-align:left;
-      font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);font-weight:700;
+    .tbl.compact tbody th{padding:9px 14px;border-bottom:var(--bw) solid var(--inner-line);text-align:left;
+      font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--text-faint);font-weight:720;
       white-space:nowrap;vertical-align:top}
     .who{display:flex;align-items:center;gap:11px}
-    .ava{width:34px;height:34px;border-radius:10px;flex:none;display:grid;place-items:center;
-      color:var(--on-lv);font-weight:700;font-size:13px;background:var(--lv-none)}
+    .ava{width:35px;height:35px;border-radius:12px;flex:none;display:grid;place-items:center;
+      color:var(--on-lv);font-weight:700;font-size:13px;background:var(--lv-none);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
     .ava.lv-foundation{background:var(--lv-foundation)}
     .ava.lv-explorer{background:var(--lv-explorer)}
     .ava.lv-builder{background:var(--lv-builder)}
     /* The text column must be allowed to shrink, or a flex item refuses to go
        below its content width and a long address breaks apart mid-word. */
     .who .tx{min-width:0}
-    .who .nm{font-weight:600;color:var(--text)}
+    .who .nm{font-weight:640;color:var(--text)}
     /* Capped, or a single long address stretches the table cell and pushes the
        other columns out of view. Truncated addresses keep their full value in a
        title attribute. */
     .who .em{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:30ch}
-    .lvl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+    .lvl{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:720;padding:5px 11px;border-radius:999px;
+      border:var(--bw) solid var(--inner-line)}
     .lvl.lv-foundation{color:var(--warn-ink);background:var(--warn-soft)}
     .lvl.lv-explorer{color:var(--accent-ink);background:var(--accent-soft)}
     .lvl.lv-builder{color:var(--good-ink);background:var(--good-soft)}
     .lprog{display:flex;align-items:center;gap:9px}
-    .lprog .track{width:70px;height:7px;border-radius:999px;background:var(--surface-2);
-      border:var(--bw) solid var(--border);overflow:hidden;flex:none}
+    .lprog .track{width:70px;height:8px;border-radius:999px;background:var(--inner-2);
+      border:var(--bw) solid var(--inner-line);overflow:hidden;flex:none}
     .lprog .fill{height:100%;background:var(--accent)}
-    .lprog .n{font-size:12px;color:var(--text-dim);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .lprog .n{font-size:12px;color:var(--text-dim);font-weight:620;font-variant-numeric:tabular-nums;white-space:nowrap}
     .seen{color:var(--text-dim)}
     .seen.cold{color:var(--bad-ink)}
-    .empty{padding:26px 22px;text-align:center;color:var(--text-faint);font-size:14px;line-height:1.6}
+    .empty{padding:26px 24px;text-align:center;color:var(--text-faint);font-size:14px;line-height:1.6}
     .empty.left{text-align:left;padding:18px 0}
     .dash{color:var(--text-faint)}
     .mono{font-family:var(--font-mono);font-size:.92em}
 
     /* ---------- learner detail ---------- */
-    .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:4px 22px 20px}
-    @media (max-width:600px){.detail-grid{grid-template-columns:1fr 1fr}}
-    .dcell{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:13px 15px;
+    .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:4px 24px 22px}
+    @media (max-width:620px){.detail-grid{grid-template-columns:1fr 1fr}}
+    .dcell{background:var(--inner);border:var(--bw) solid var(--inner-line);border-radius:17px;padding:14px 16px;
       min-width:0;overflow-wrap:anywhere}
-    .dcell .l{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--text-faint);font-weight:700}
-    .dcell .v{font-size:15px;font-weight:600;margin-top:5px}
+    .dcell .l{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);font-weight:720}
+    .dcell .v{font-size:15px;font-weight:620;margin-top:5px}
     .dcell .v.mono{font-family:var(--font-mono);font-size:13px}
 
     /* ---------- distributions ---------- */
-    .dist{padding:8px 22px 22px;display:grid;gap:16px}
-    .dist-row .top{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:600;margin-bottom:7px}
+    .dist{padding:8px 24px 24px;display:grid;gap:16px}
+    .dist-row .top{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;font-weight:640;margin-bottom:7px}
     .dist-row .top .c{color:var(--text-faint);white-space:nowrap;font-variant-numeric:tabular-nums}
-    .dist-row .track{height:14px;border-radius:999px;background:var(--surface-2);overflow:hidden;
-      border:var(--bw) solid var(--border)}
+    .dist-row .track{height:14px;border-radius:999px;background:var(--inner-2);overflow:hidden;
+      border:var(--bw) solid var(--inner-line)}
     .dist-row .fill{height:100%;border-radius:999px;background:var(--accent)}
     .dist-row .fill.lv-foundation{background:var(--lv-foundation)}
     .dist-row .fill.lv-explorer{background:var(--lv-explorer)}
     .dist-row .fill.lv-builder{background:var(--lv-builder)}
-    .age-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 22px 22px}
-    @media (max-width:600px){.age-grid{grid-template-columns:1fr 1fr}}
-    .agecell{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:13px 15px}
-    .agecell .n{font-family:var(--font-serif);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums}
-    .agecell .l{font-size:12px;color:var(--text-dim);margin-top:2px}
+    .age-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 24px 24px}
+    @media (max-width:620px){.age-grid{grid-template-columns:1fr 1fr}}
+    .agecell{background:var(--inner);border:var(--bw) solid var(--inner-line);border-radius:17px;padding:14px 16px}
+    .agecell .n{font-size:24px;font-weight:520;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+    .agecell .l{font-size:12px;color:var(--text-dim);margin-top:3px}
 
     /* ---------- questions ---------- */
-    .subtabs{display:flex;gap:7px;padding:4px 22px 16px;flex-wrap:wrap}
-    .subtabs button{border:var(--bw) solid var(--border);background:var(--surface);color:var(--text-dim);
-      font:inherit;font-size:13px;font-weight:600;padding:7px 13px;border-radius:999px;cursor:pointer}
+    .subtabs{display:flex;gap:7px;padding:4px 24px 16px;flex-wrap:wrap}
+    .subtabs button{border:var(--bw) solid var(--inner-line);background:var(--inner);color:var(--text-dim);
+      font:inherit;font-size:13px;font-weight:640;padding:8px 14px;border-radius:999px;cursor:pointer}
     .subtabs button:hover{border-color:var(--accent);color:var(--accent-ink)}
     .subtabs button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-    .qbody{padding:0 22px 24px}
-    .qbody .qt{font-family:var(--font-serif);font-weight:500;font-size:22px;line-height:1.25;
-      margin:4px 0 18px;max-width:60ch}
+    .qbody{padding:0 24px 26px}
+    .qbody .qt{font-weight:540;font-size:23px;line-height:1.25;letter-spacing:-.035em;
+      margin:4px 0 18px;max-width:60ch;text-shadow:var(--heading-shadow)}
     .qopt-dist{display:grid;gap:11px}
-    .qopt-row{display:grid;grid-template-columns:26px 1fr;gap:13px;align-items:start}
-    .qopt-row .letter{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:12px;
-      font-weight:700;background:var(--surface-2);color:var(--text-dim);border:var(--bw) solid var(--border)}
+    .qopt-row{display:grid;grid-template-columns:27px 1fr;gap:13px;align-items:start}
+    .qopt-row .letter{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;font-size:12px;
+      font-weight:720;background:var(--inner);color:var(--text-dim);border:var(--bw) solid var(--inner-line)}
     .qopt-row.best .letter{background:var(--good-solid);color:var(--on-solid);border-color:var(--good-solid)}
     .qopt-row .body .txt{font-size:14px;line-height:1.45;margin-bottom:7px}
-    .qopt-row .body .txt .strongest{color:var(--good-ink);font-weight:700}
+    .qopt-row .body .txt .strongest{color:var(--good-ink);font-weight:720}
     .qopt-row .body .meter{display:flex;align-items:center;gap:10px}
-    .qopt-row .body .track{flex:1;height:12px;border-radius:999px;background:var(--surface-2);overflow:hidden;
-      border:var(--bw) solid var(--border)}
+    .qopt-row .body .track{flex:1;height:12px;border-radius:999px;background:var(--inner-2);overflow:hidden;
+      border:var(--bw) solid var(--inner-line)}
     .qopt-row .body .fill{height:100%;background:var(--accent);border-radius:999px}
     .qopt-row.best .body .fill{background:var(--good-solid)}
-    .qopt-row .body .pct{font-size:12.5px;font-weight:700;color:var(--text-dim);min-width:76px;text-align:right;
+    .qopt-row .body .pct{font-size:12.5px;font-weight:720;color:var(--text-dim);min-width:78px;text-align:right;
       font-variant-numeric:tabular-nums}
     .qnote{font-size:12.5px;color:var(--text-faint);margin:18px 0 0;line-height:1.55}
 
     /* ---------- visits ---------- */
-    .spark{display:flex;align-items:flex-end;gap:10px;height:200px;padding:20px 24px 8px}
+    .spark{display:flex;align-items:flex-end;gap:10px;height:200px;padding:20px 26px 8px}
     .spark .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;height:100%;justify-content:flex-end}
-    .spark .col .bar-fill{width:100%;max-width:48px;background:var(--accent);border-radius:6px 6px 0 0}
-    .spark .col .bv{font-size:12px;font-weight:700;color:var(--text-dim);font-variant-numeric:tabular-nums}
-    .spark .col .bx{font-size:12px;color:var(--text-faint);font-weight:600}
-    .vstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:8px 24px 24px}
-    @media (max-width:680px){.vstats{grid-template-columns:repeat(2,1fr)}}
-    .vstat{background:var(--surface-2);border:var(--bw) solid var(--border);border-radius:12px;padding:14px 16px}
-    .vstat .n{font-family:var(--font-serif);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
-    .vstat .l{font-size:12px;color:var(--text-dim);margin-top:3px;line-height:1.35}
+    .spark .col .bar-fill{width:100%;max-width:48px;background:var(--accent);border-radius:7px 7px 0 0;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.32)}
+    .spark .col .bv{font-size:12px;font-weight:720;color:var(--text-dim);font-variant-numeric:tabular-nums}
+    .spark .col .bx{font-size:12px;color:var(--text-faint);font-weight:620}
+    .vstats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:8px 26px 26px}
+    @media (max-width:700px){.vstats{grid-template-columns:repeat(2,1fr)}}
+    .vstat{background:var(--inner);border:var(--bw) solid var(--inner-line);border-radius:17px;padding:15px 17px}
+    .vstat .n{font-size:25px;font-weight:520;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+    .vstat .l{font-size:12px;color:var(--text-dim);margin-top:4px;line-height:1.4}
 
     /* ---------- connection diagnostics ---------- */
-    .diag{padding:6px 24px 24px}
-    .diag .url{font-family:var(--font-mono);font-size:12.5px;color:var(--text-dim);background:var(--surface-2);
-      border:var(--bw) solid var(--border);border-radius:9px;padding:10px 13px;margin-bottom:16px;word-break:break-all}
-    .check{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:var(--bw) solid var(--border)}
-    .check:last-child{border-bottom:0}
-    .check .ic{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;
-      color:var(--on-solid);font-size:12px;font-weight:700}
-    .check .ic.ok{background:var(--good-solid)}
-    .check .ic.bad{background:var(--bad-solid)}
-    .check .ic.warn{background:var(--warn-solid)}
-    .check .ic.pend{background:var(--surface-2);color:var(--text-faint);border:var(--bw) solid var(--border)}
-    .check .tx{flex:1;min-width:0}
-    .check .tx .t{font-size:14px;font-weight:600}
-    .check .tx .s{font-size:12.5px;color:var(--text-faint);margin-top:2px;line-height:1.4;overflow-wrap:anywhere}
-    .check .ms{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);white-space:nowrap}
+    .diag{padding:6px 26px 26px}
+    .diag .url{font-family:var(--font-mono);font-size:12.5px;color:var(--text-dim);background:var(--inner);
+      border:var(--bw) solid var(--inner-line);border-radius:13px;padding:11px 14px;margin-bottom:16px;word-break:break-all}
+    .dcheck{display:flex;align-items:center;gap:13px;padding:14px 0;border-bottom:var(--bw) solid var(--inner-line)}
+    .dcheck:last-child{border-bottom:0}
+    .dcheck .ic{width:25px;height:25px;border-radius:50%;flex:none;display:grid;place-items:center;
+      color:var(--on-solid);font-size:12px;font-weight:720}
+    .dcheck .ic.ok{background:var(--good-solid)}
+    .dcheck .ic.bad{background:var(--bad-solid)}
+    .dcheck .ic.warn{background:var(--warn-solid)}
+    .dcheck .ic.pend{background:var(--inner);color:var(--text-faint);border:var(--bw) solid var(--inner-line)}
+    .dcheck .tx{flex:1;min-width:0}
+    .dcheck .tx .t{font-size:14px;font-weight:640}
+    .dcheck .tx .s{font-size:12.5px;color:var(--text-faint);margin-top:2px;line-height:1.4;overflow-wrap:anywhere}
+    .dcheck .ms{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);white-space:nowrap}
     .diag-note{font-size:12.5px;color:var(--text-faint);margin-top:16px;line-height:1.55}
 
     /* ---------- buttons, notes, prose ---------- */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:11px;font:inherit;
-      font-size:14px;font-weight:600;cursor:pointer;border:var(--bw) solid transparent}
-    .btn-primary{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-    .btn-ghost{background:transparent;color:var(--text);border-color:var(--border)}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:15px;font:inherit;
+      font-size:14px;font-weight:650;cursor:pointer;border:var(--bw) solid transparent}
+    .btn-primary{background:#26312d;color:#fff;border-color:#26312d;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px rgba(29,35,33,.15)}
+    html[data-theme="dark"] .btn-primary{background:#e9e5da;color:#191d1b;border-color:#e9e5da}
+    .btn-ghost{background:var(--inner);color:var(--text);border-color:var(--inner-line)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
-    .btn-sm{padding:8px 13px;font-size:13px;border-radius:10px}
-    button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{
-      outline:3px solid var(--accent);outline-offset:2px}
-    .glance{margin:22px 0 0;font-size:17px;font-weight:500;line-height:1.55;letter-spacing:-.01em}
+    .btn-sm{padding:9px 14px;font-size:13px;border-radius:13px}
+    /* render() appends the raw-JSON disclosure as a sibling of the panels, so
+       each of these lands directly on the photograph. Every one gets glass. */
+    .glance,.foot,#overviewRaw:not(:empty),
+    #learners>details,#lessons>details,#assessment>details,#health>details{
+      border:var(--bw) solid var(--glass-line);background:var(--glass-bg);
+      box-shadow:var(--glass-shadow);backdrop-filter:blur(25px) saturate(1.6);
+      -webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .glance{margin:22px 0 0;padding:21px 26px;border-radius:24px;font-size:17px;font-weight:500;
+      line-height:1.55;letter-spacing:-.018em}
+    .glance:empty{display:none}
     .glance em{font-style:normal;font-weight:500;color:var(--text-dim)}
+    #overviewRaw:not(:empty),
+    #learners>details,#lessons>details,#assessment>details,#health>details{
+      margin-top:18px;padding:15px 24px;border-radius:22px}
+    #overviewRaw details{margin-top:0}
     /* Why a table is empty is as much a finding as a row would have been. */
-    .note{margin:14px 0 0;padding:12px 15px;border:var(--bw) solid color-mix(in srgb,var(--warn) 30%,var(--border));
-      border-left:3px solid var(--warn);border-radius:0 12px 12px 0;background:var(--warn-soft);
+    .note{margin:14px 0 0;padding:13px 16px;border:var(--bw) solid var(--inner-line);
+      border-left:3px solid var(--warn-solid);border-radius:0 15px 15px 0;background:var(--warn-soft);
       color:var(--text-dim);font-size:12.5px;line-height:1.6}
-    .note b{color:var(--text);font-weight:700}
+    .note b{color:var(--text);font-weight:720}
     .lede{margin:0 0 12px;font-size:13.5px;line-height:1.6;color:var(--text)}
-    h3.subhead{margin:22px 0 8px;color:var(--text-faint);font-size:10px;font-weight:700;
-      letter-spacing:.07em;text-transform:uppercase}
+    h3.subhead{margin:24px 0 8px;color:var(--text-faint);font-size:10px;font-weight:740;
+      letter-spacing:.08em;text-transform:uppercase}
     h3.subhead:first-child{margin-top:0}
     details{margin-top:12px}
-    details summary{cursor:pointer;color:var(--text-faint);font-size:12.5px;font-weight:600}
+    details summary{cursor:pointer;color:var(--text-faint);font-size:12.5px;font-weight:620}
     details[open] summary{margin-bottom:6px}
-    pre{overflow:auto;margin:10px 0 0;padding:12px;border-radius:10px;background:var(--surface-2);
+    pre{overflow:auto;margin:10px 0 0;padding:13px;border-radius:15px;background:var(--inner);
+      border:var(--bw) solid var(--inner-line);
       color:var(--text-dim);font-size:12px;line-height:1.5;font-family:var(--font-mono)}
-    code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-family:var(--font-mono);font-size:.92em}
+    code{background:var(--inner-2);padding:1px 5px;border-radius:6px;font-family:var(--font-mono);font-size:.92em}
     a{color:var(--accent-ink)}
     label.field{display:grid;gap:6px;margin-bottom:12px;color:var(--text-dim);font-size:11px;
-      font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-    label.field input{height:44px;padding:0 13px;border:var(--bw) solid var(--border);border-radius:11px;
-      background:var(--surface-2);color:var(--text);font:inherit;font-size:14px}
+      font-weight:720;letter-spacing:.05em;text-transform:uppercase}
+    label.field input{height:46px;padding:0 14px;border:var(--bw) solid var(--inner-line);border-radius:15px;
+      background:var(--inner-2);color:var(--text);font:inherit;font-size:14px}
     .status{min-height:20px;margin:12px 0 0;color:var(--text-dim);font-size:13px;line-height:1.6}
     .status.bad{color:var(--bad-ink)}
-    .foot{margin-top:22px;font-size:12.5px;color:var(--text-faint);line-height:1.6}
+    .foot{margin-top:20px;padding:16px 24px;border-radius:22px;font-size:12.5px;color:var(--text-faint);line-height:1.6}
     .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    /* theme.css already supplies the site focus ring; this keeps it correct if
+       the stylesheet is ever unavailable. */
+    button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{
+      outline:3px solid #17231f;outline-offset:3px}
+    html[data-theme="dark"] button:focus-visible,html[data-theme="dark"] input:focus-visible,
+    html[data-theme="dark"] summary:focus-visible,html[data-theme="dark"] a:focus-visible{
+      outline-color:#f0ead9 !important}
+    /* Where the glass cannot be drawn — or the reader has asked for less of it —
+       every one of those surfaces falls back to the same near-opaque paper
+       colour, so nothing ever ends up as text on the photograph. */
+    @media (prefers-reduced-transparency: reduce){
+      .bar-in,.tabnav,.kpi,.panel,.head,.glance,.foot,#overviewRaw:not(:empty),
+      #learners>details,#lessons>details,#assessment>details,#health>details{
+        background:rgba(247,245,239,.97);backdrop-filter:none;-webkit-backdrop-filter:none}
+      html[data-theme="dark"] .bar-in,html[data-theme="dark"] .tabnav,html[data-theme="dark"] .kpi,
+      html[data-theme="dark"] .panel,html[data-theme="dark"] .head,html[data-theme="dark"] .glance,
+      html[data-theme="dark"] .foot,html[data-theme="dark"] #overviewRaw:not(:empty),
+      html[data-theme="dark"] #learners>details,html[data-theme="dark"] #lessons>details,
+      html[data-theme="dark"] #assessment>details,html[data-theme="dark"] #health>details{background:rgba(24,28,26,.97)}
+    }
+    @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+      .bar-in,.tabnav,.kpi,.panel,.head,.glance,.foot,#overviewRaw:not(:empty),
+      #learners>details,#lessons>details,#assessment>details,#health>details{background:rgba(248,246,240,.96)}
+      html[data-theme="dark"] .bar-in,html[data-theme="dark"] .tabnav,html[data-theme="dark"] .kpi,
+      html[data-theme="dark"] .panel,html[data-theme="dark"] .head,html[data-theme="dark"] .glance,
+      html[data-theme="dark"] .foot,html[data-theme="dark"] #overviewRaw:not(:empty),
+      html[data-theme="dark"] #learners>details,html[data-theme="dark"] #lessons>details,
+      html[data-theme="dark"] #assessment>details,html[data-theme="dark"] #health>details{background:rgba(24,28,26,.96)}
+    }
     @media(max-width:640px){
-      .bar-in,.canvas{padding-left:16px;padding-right:16px}
-      .panel-h,.panel-b,.detail-grid,.dist,.age-grid,.qbody,.subtabs{padding-left:16px;padding-right:16px}
+      .bar{padding:8px 10px 4px}
+      .canvas{padding-left:12px;padding-right:12px}
+      .bar-in{padding:8px 9px;gap:10px}
+      .panel-h,.panel-b,.detail-grid,.dist,.age-grid,.qbody,.subtabs,.diag,.spark,.vstats{
+        padding-left:16px;padding-right:16px}
       .tbl thead th,.tbl tbody td{padding-left:16px;padding-right:16px}
-      .glance{font-size:16px}
+      .head{padding:26px 20px 22px}
+      .glance{font-size:16px;padding:18px 20px}
+      .foot,#overviewRaw:not(:empty){padding-left:20px;padding-right:20px}
+      .kpis{gap:10px}
+    }
+    @media(forced-colors:active){
+      .bar-in,.tabnav,.kpi,.panel,.head,.glance,.foot,.dcell,.vstat,.agecell{border:1px solid CanvasText}
+      .tabnav button.on{border:2px solid Highlight}
     }
   </style>
 </head>
 <body>
 
 <div class="bar"><div class="bar-in">
-  <div class="brand">
+  <div class="cbrand">
     <span class="mk" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 14h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM6 7h.01M6 18h.01"></path></svg></span>
     <span>Learning AI</span>
     <span class="sub">Backend Console</span>
@@ -341,8 +486,8 @@
     <span class="dot"></span><span id="connLabel">Connection: not tested</span>
   </button>
   <div class="seg" role="group" aria-label="Colour theme">
-    <button type="button" data-theme-set="light" class="on">Light</button>
-    <button type="button" data-theme-set="dark">Dark</button>
+    <button type="button" data-theme-set="light" class="on" aria-pressed="true">Light</button>
+    <button type="button" data-theme-set="dark" aria-pressed="false">Dark</button>
   </div>
 </div></div>
 
@@ -350,12 +495,12 @@
 
   <div class="head">
     <div>
-      <div class="kick">Admin · learning analytics</div>
+      <p class="eyebrow">Admin · learning analytics</p>
       <h1>Backend Console</h1>
       <div class="env" id="env">env: <b>production</b> · <span id="envHost">learningai4you.com</span> · read-only</div>
     </div>
     <div class="head-side">
-      <span class="meta" id="who" style="font-size:12.5px;color:var(--text-faint);font-weight:600"></span>
+      <span class="meta" id="who" style="font-size:12.5px;color:var(--text-faint);font-weight:620"></span>
       <span class="live-flag" id="liveFlag">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
         Live production data
@@ -368,7 +513,7 @@
     </div>
   </div>
 
-  <section class="panel" id="loginCard" style="margin-top:22px">
+  <section class="panel" id="loginCard" style="margin-top:24px">
     <div class="panel-h"><h2>Sign in</h2><span class="meta">admin only</span></div>
     <div class="panel-b">
       <p class="lede">Use the ADMIN_EMAIL and ADMIN_PASSWORD set on the <code>learning-ai-api</code> service in Railway.</p>
@@ -404,18 +549,50 @@
 /* Renders whatever the API returns, but never as-is: raw column names, ISO
    timestamps and bare uuids are a data dump, not a tool. Every renderer is
    defensive — if a payload arrives in an unexpected shape the section falls
-   back to the raw JSON disclosure rather than going blank. */
+   back to the raw JSON disclosure rather than going blank.
+
+   The shapes below are the ones the deployed backend actually returns, checked
+   against coolify-backend/server.mjs and coolify-backend/db.mjs:
+
+     GET /api/admin/overview   → FLAT: { ok, total, activeWeek, newThisWeek,
+                                 avgLesson, medianVisits, medianActiveDays,
+                                 levels:[{level,n}], learners:[snake_case],
+                                 questions, questionOrder, ...visitAnalytics }
+                                 (server.mjs — `{ ok:true, ...buildAdminOverview(...) }`)
+     GET /api/admin/learners   → { ok, learners:[camelCase] } with
+                                 completedLessons + completionPercent
+     GET /api/admin/lesson-analytics    → { ok, lessons:[…] }
+     GET /api/admin/assessment-analytics→ { ok, analytics:{ attempts, responses,
+                                 summaryByQuestion, summaryByAnswer, summaryByAge } }
+     GET /api/health           → { ok, buildSha, buildTime, env, dbStatus, … } */
+
 const $ = s => document.querySelector(s);
 const loginStatus = $('#loginStatus');
 
+/* The course is fifty lessons. Both halves of the backend hardcode the same
+   constant (server.mjs `const COURSE_LESSON_COUNT = 50`, db.mjs likewise, where
+   completionPercent is computed as completed_lessons / COURSE_LESSON_COUNT), so
+   progress is measured against the course — never against however many rows
+   /api/admin/lesson-analytics happened to return. */
+const COURSE_LESSON_COUNT = 50;
+
+/* Admin POSTs are CSRF-checked server-side. /api/admin/logout in particular runs
+   requireAdmin(..., { csrf: true }), so without this header sign-out is refused
+   with 403 and the session stays alive on the server. Both /api/admin/login and
+   /api/admin/me hand back a token; /api/admin/me rotates it. */
+let CSRF = '';
+
 async function api(path, options = {}) {
+  const method = String(options.method || 'GET').toUpperCase();
+  const headers = { 'content-type': 'application/json', ...(options.headers || {}) };
+  if (method !== 'GET' && CSRF) headers['x-csrf-token'] = CSRF;
   try {
-    const response = await fetch(path, {
-      credentials: 'include',
-      headers: { 'content-type': 'application/json' },
-      ...options
-    });
-    const data = await response.json().catch(() => ({}));
+    const response = await fetch(path, { credentials: 'include', ...options, headers });
+    const body = await response.json().catch(() => ({}));
+    /* A payload that is not a plain object (a bare number, a string, an array)
+       is kept whole under `data` rather than spread into nonsense keys. */
+    const data = (body && typeof body === 'object' && !Array.isArray(body)) ? body : { data: body };
+    if (typeof data.csrfToken === 'string' && data.csrfToken) CSRF = data.csrfToken;
     return { ...data, ok: response.ok && data.ok !== false, status: response.status };
   } catch (error) {
     return { ok: false, error: 'network_error', status: 0 };
@@ -427,13 +604,15 @@ const esc = value => String(value ?? '').replace(/[<>&"']/g, c =>
 
 /* ---------- theme ------------------------------------------------------- */
 
-/* V2 defaults to light and offers the segmented control; the choice sticks so
-   an admin who prefers dark does not re-pick it every session. */
+/* The site is light-first; dark is the same paper photograph under a dark wash,
+   the way theme.css's onyx does it, so the glass still reads as glass. */
 function setTheme(value) {
   const theme = value === 'dark' ? 'dark' : 'light';
   document.documentElement.dataset.theme = theme;
   document.querySelectorAll('[data-theme-set]').forEach(button => {
-    button.classList.toggle('on', button.dataset.themeSet === theme);
+    const on = button.dataset.themeSet === theme;
+    button.classList.toggle('on', on);
+    button.setAttribute('aria-pressed', String(on));
   });
   try { localStorage.setItem('console-theme', theme); } catch (error) { /* private mode */ }
 }
@@ -454,6 +633,7 @@ const ICONS = {
   target: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
   list: 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
   clock: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2',
+  calendar: 'M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z',
   refresh: 'M23 4v6h-6M1 20v-6h6M3.5 9a9 9 0 0 1 14.8-3.4L23 10M1 14l4.7 4.4A9 9 0 0 0 20.5 15',
   server: 'M5 3h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM5 14h14a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM6 7h.01M6 18h.01',
   search: 'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
@@ -727,6 +907,7 @@ function latestDate(rows, keys) {
 }
 
 const plural = (n, word, many) => `${Number(n).toLocaleString()} ${Number(n) === 1 ? word : (many || `${word}s`)}`;
+const clampPercent = value => Math.max(0, Math.min(100, Number(value) || 0));
 
 /* Draw a section, but never let one bad payload blank the page. */
 function render(el, build, payload) {
@@ -745,6 +926,7 @@ function render(el, build, payload) {
 const CONSENT_NOTE = '<b>Minutes, visits and active days are consent-gated.</b> Time and page tracking are off unless a learner turns them on, so these columns stay at zero for everyone who has not opted in. That is the privacy setting working, not a broken counter.';
 const ANSWER_NOTE = '<b>Nothing to show yet.</b> Recording of in-lesson answers and quiz submissions was only wired up on 25 July 2026, so nothing was saved before then. Rows appear here after the next lesson anyone completes.';
 const VISITS_NOTE = '<b>Nothing has been written to <code>page_visits</code>.</b> Page visits are consent-gated: nothing is recorded until a learner opts in to analytics, so this chart stays empty until someone does. An empty chart here is the privacy default holding, not a broken counter.';
+const OVERVIEW_ONLY_NOTE = '<b>/api/admin/learners did not answer, so these rows come from the overview instead.</b> That payload carries the lesson each learner is currently on but not how many they have finished, so completion is genuinely unavailable here — not zero.';
 
 /* The DB stores diagnostic levels free-form. Anything that is not recognisably
    Explorer or Builder is Foundation — but an absent attempt is *not* a level,
@@ -758,8 +940,8 @@ function levelOf(value) {
 }
 const levelClass = level => 'lv-' + String(level || 'none').toLowerCase();
 
-/* V2 draws initials in the avatar. Real display names are frequently one word
-   or missing entirely, so the email is the fallback rather than a blank chip. */
+/* Real display names are frequently one word or missing entirely, so the email
+   is the fallback rather than a blank chip. */
 function initials(name, email) {
   const source = String(name || '').trim() || String(email || '').split('@')[0].replace(/[._-]+/g, ' ');
   const words = source.split(/\s+/).filter(Boolean);
@@ -771,7 +953,7 @@ function initials(name, email) {
 /* ---------- the at-a-glance line --------------------------------------- */
 
 function glanceLine(context) {
-  const { learnerRows, attemptRows, lessonRows, overview } = context;
+  const { learnerRows, attemptRows, lessonRows, overview, learnersFromOverview } = context;
   const count = learnerRows.length || Number(overview?.total) || 0;
   if (!count && !attemptRows.length) {
     return 'No one has signed up yet. The moment somebody creates an account, they show up here.';
@@ -780,9 +962,12 @@ function glanceLine(context) {
   const last = latestDate(learnerRows, ['lastActiveAt', 'last_seen', 'lastSeen', 'last_active_at', 'createdAt', 'created_at']);
   parts.push(last ? `${plural(count, 'learner')}, last active ${relative(last)}.` : `${plural(count, 'learner')}.`);
 
-  const done = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
+  /* There is no completion total in /api/admin/overview. This is the sum of
+     completedLessons across /api/admin/learners — so it counts lessons finished
+     across everybody, not lessons finished by one person. */
+  const done = learnersFromOverview ? null : sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
   const doneFallback = done === null ? sumBy(lessonRows, ['learnersCompleted', 'learners_completed']) : done;
-  if (doneFallback !== null) parts.push(`${plural(doneFallback, 'lesson')} completed.`);
+  if (doneFallback !== null) parts.push(`${plural(doneFallback, 'lesson')} completed across everybody.`);
 
   if (attemptRows.length) parts.push(`${plural(attemptRows.length, 'questionnaire')} finished.`);
 
@@ -794,9 +979,11 @@ function glanceLine(context) {
 /* ---------- KPI tiles --------------------------------------------------- */
 
 /* Curated, named figures. Ids, tokens and anything that is only meaningful to
-   the database are deliberately left out — the raw JSON is one click away. */
+   the database are deliberately left out — the raw JSON is one click away.
+   Every label here names exactly the quantity underneath it: where the backend
+   and a nicer caption disagree, the caption is what changed. */
 function statList(context) {
-  const { overview, learnerRows, lessonRows, attemptRows, lessonTotal } = context;
+  const { overview, learnerRows, lessonRows, attemptRows, learnersFromOverview } = context;
   const stats = [];
   const add = (name, value, detail, ic) => {
     if (value === null || value === undefined || !Number.isFinite(Number(value))) return;
@@ -805,35 +992,57 @@ function statList(context) {
 
   const total = learnerRows.length || Number(overview?.total) || 0;
   const joined = Number(overview?.newThisWeek);
-  add('Learners', total, Number.isFinite(joined) && joined > 0 ? `+${joined.toLocaleString()} this week` : '', 'users');
+  add('Learners', total, Number.isFinite(joined) && joined > 0 ? `+${joined.toLocaleString()} signed up this week` : '', 'users');
 
   const active = Number(overview?.activeWeek);
-  add('Active this week', active,
+  add('Active in the last 7 days', active,
     Number.isFinite(active) && total ? `${Math.round((active / total) * 100)}% of all learners` : '', 'pulse');
 
+  /* buildAdminOverview() averages current_lesson — the lesson each learner is
+     sitting on right now, floored at 1 for everyone with an account. It is a
+     position in the course, not an amount of work finished, and the label has
+     to say so. */
   const avgLesson = Number(overview?.avgLesson);
   if (Number.isFinite(avgLesson) && avgLesson > 0) {
-    stats.push({ name: 'Average lesson reached', value: avgLesson, detail: `of ${lessonTotal}`, icon: 'book' });
+    stats.push({
+      name: 'Average lesson reached',
+      value: avgLesson,
+      detail: `of ${COURSE_LESSON_COUNT} · where learners are now, not how many they finished`,
+      icon: 'book'
+    });
   }
 
+  /* medianVisits and medianActiveDays are two independent medians over two
+     different distributions. Presented as one line ("6 · over ~4 active days")
+     they read as one learner's history, which is a relationship that does not
+     hold — so they are two tiles. */
   const medianVisits = Number(overview?.medianVisits);
-  const medianDays = Number(overview?.medianActiveDays);
   if (Number.isFinite(medianVisits) && medianVisits > 0) {
-    add('Median visits / learner', medianVisits,
-      Number.isFinite(medianDays) && medianDays > 0 ? `over ~${medianDays} active days` : '', 'clock');
+    add('Median visits per learner', medianVisits, 'median across all learners', 'clock');
+  }
+  const medianDays = Number(overview?.medianActiveDays);
+  if (Number.isFinite(medianDays) && medianDays > 0) {
+    add('Median active days per learner', medianDays, 'a separate median, not these visits', 'calendar');
   }
 
-  const completed = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
-  add('Lessons completed', completed !== null ? completed : sumBy(lessonRows, ['learnersCompleted']), '', 'check');
-  const started = sumBy(learnerRows, ['startedLessons', 'started_lessons']);
-  if (started !== null) add('Lessons started', started, '', 'book');
+  /* No completion total exists in the overview payload. This one is summed here
+     from /api/admin/learners, and says so. */
+  const completed = learnersFromOverview ? null : sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
+  if (completed !== null) {
+    add('Lessons completed', completed, 'summed across every learner', 'check');
+  } else {
+    const byLesson = sumBy(lessonRows, ['learnersCompleted']);
+    if (byLesson !== null) add('Lessons completed', byLesson, 'summed across the curriculum', 'check');
+  }
+  const started = learnersFromOverview ? null : sumBy(learnerRows, ['startedLessons', 'started_lessons']);
+  if (started !== null) add('Lessons started', started, 'summed across every learner', 'book');
 
-  add('Questionnaires done', attemptRows.length, '', 'list');
+  add('Questionnaires finished', attemptRows.length, 'the starting diagnostic', 'list');
 
-  const minutes = sumBy(learnerRows, ['totalMinutes', 'total_minutes']);
-  if (minutes) add('Minutes recorded', minutes, '', 'clock');
+  const minutes = learnersFromOverview ? null : sumBy(learnerRows, ['totalMinutes', 'total_minutes']);
+  if (minutes) add('Minutes recorded', minutes, 'only from learners who opted in', 'clock');
   const wrong = sumBy(lessonRows, ['incorrectAnswers', 'incorrect_answers']);
-  if (wrong) add('Wrong answers', wrong, '', 'alert');
+  if (wrong) add('Wrong answers', wrong, 'across all lessons', 'alert');
 
   if (!stats.length) { // degrade rather than show an empty grid
     const fallback = Object.entries(overview || {})
@@ -860,13 +1069,14 @@ function kpisHtml(context) {
 
 /* ---------- learner rows ------------------------------------------------ */
 
-/* One learner row in V2's vocabulary, assembled from up to three payloads:
-   /api/admin/learners has the stored columns, /api/admin/overview has the
-   normalised current lesson, and the assessment attempts carry the diagnostic
-   level. A learner with no attempt gets no level pill — the overview endpoint
-   defaults an absent level to "Foundation", which would be a fabrication here. */
+/* One learner row, assembled from up to three payloads: /api/admin/learners has
+   the stored columns in camelCase, /api/admin/overview has the same people in
+   snake_case with a normalised current lesson, and the assessment attempts carry
+   the diagnostic level. A learner with no attempt gets no level pill — the
+   overview endpoint defaults an absent level to "Foundation", which would be a
+   fabrication here. */
 function learnerViews(context) {
-  const { learnerRows, overviewById, attemptsById, lessonTotal } = context;
+  const { learnerRows, overviewById, attemptsById } = context;
   return learnerRows.map((row, index) => {
     const safe = (row && typeof row === 'object' && !Array.isArray(row)) ? row : { value: row };
     const id = pick(safe, ['id', 'userId', 'user_id']);
@@ -876,13 +1086,23 @@ function learnerViews(context) {
     const attempt = id !== undefined ? attemptsById.get(id) : undefined;
     const level = attempt ? levelOf(attempt.level) : null;
 
+    /* completionPercent comes ready-made from db.mjs, computed against the
+       fifty-lesson course. Preferring it means the bar never quietly rescales
+       itself to however many lesson rows the analytics query returned. */
     const done = Number(pick(safe, ['completedLessons', 'completed_lessons']));
+    const percent = Number(pick(safe, ['completionPercent', 'completion_percent']));
     const current = Number(pick(safe, ['current_lesson']) ?? pick(extra, ['current_lesson']));
     let progress = null;
     if (Number.isFinite(done)) {
-      progress = { fill: lessonTotal ? Math.max(0, Math.min(100, (done / lessonTotal) * 100)) : 0, text: `${done}/${lessonTotal}` };
+      progress = {
+        bar: true,
+        fill: clampPercent(Number.isFinite(percent) ? percent : (done / COURSE_LESSON_COUNT) * 100),
+        text: `${done} of ${COURSE_LESSON_COUNT}`
+      };
     } else if (Number.isFinite(current) && current > 0) {
-      progress = { fill: lessonTotal ? Math.max(0, Math.min(100, (current / lessonTotal) * 100)) : 0, text: `Lesson ${current}` };
+      /* Only the overview's current_lesson is available for this learner. A
+         filled bar would read as completion, so this states the position. */
+      progress = { bar: false, text: `On lesson ${current}` };
     }
 
     const visits = Number(pick(safe, ['visitCount', 'visits', 'visit_count']));
@@ -902,6 +1122,16 @@ function learnerViews(context) {
   });
 }
 
+function progressHtml(progress) {
+  if (!progress) return '<span class="dash" title="No lesson progress recorded for this learner.">—</span>';
+  if (!progress.bar) {
+    return `<span class="n" title="This payload records the lesson they are on, not how many they have finished.">${esc(progress.text)}</span>`;
+  }
+  return '<div class="lprog">'
+    + `<div class="track"><div class="fill" style="width:${Math.round(progress.fill)}%"></div></div>`
+    + `<span class="n">${esc(progress.text)}</span></div>`;
+}
+
 function learnerRowHtml(view, selected) {
   const cls = levelClass(view.level);
   const who = '<div class="who">'
@@ -913,29 +1143,24 @@ function learnerRowHtml(view, selected) {
   const lvl = view.level
     ? `<span class="lvl ${cls}">${esc(view.level)}</span>`
     : '<span class="dash" title="This learner has not finished the starting questionnaire, so there is no diagnostic level to show.">—</span>';
-  const prog = view.progress
-    ? '<div class="lprog">'
-      + `<div class="track"><div class="fill" style="width:${Math.round(view.progress.fill)}%"></div></div>`
-      + `<span class="n">${esc(view.progress.text)}</span></div>`
-    : '<span class="dash">—</span>';
   const visits = view.visits === null ? '<span class="dash">—</span>' : esc(view.visits.toLocaleString());
   const seen = view.seenText
     ? `<span title="${esc(view.seenTitle)}">${esc(view.seenText)}</span>`
     : '<span class="dash">—</span>';
   return `<tr data-lrow="${view.index}"${selected ? ' class="sel"' : ''}>`
-    + `<td>${who}</td><td>${lvl}</td><td>${prog}</td>`
+    + `<td>${who}</td><td>${lvl}</td><td>${progressHtml(view.progress)}</td>`
     + `<td class="num">${visits}</td><td class="num seen${view.cold ? ' cold' : ''}">${seen}</td></tr>`;
 }
 
 function learnerTableHtml(views, selectedIndex) {
   if (!views.length) return '<div class="empty">No learners match that search.</div>';
-  const head = '<thead><tr><th>Learner</th><th>Diagnostic</th><th>Progress</th>'
+  const head = '<thead><tr><th>Learner</th><th>Diagnostic</th><th>Lessons completed</th>'
     + '<th class="num">Visits</th><th class="num">Last seen</th></tr></thead>';
   const body = views.map(view => learnerRowHtml(view, view.index === selectedIndex)).join('');
   return `<div class="tbl-scroll"><table class="tbl rows">${head}<tbody>${body}</tbody></table></div>`;
 }
 
-/* The detail grid is also where every column V2's row has no slot for stays
+/* The detail grid is also where every column the row above has no slot for stays
    reachable — toolkit cards, name changes, minutes and the rest. */
 function learnerDetailHtml(view) {
   if (!view) return '';
@@ -965,7 +1190,7 @@ function learnerDetailHtml(view) {
   for (const [key, value] of Object.entries(view.extra || {})) push(key, value);
   if (!cells.length) cells.push('<div class="dcell"><div class="l">Stored</div><div class="v">Nothing beyond the row above.</div></div>');
 
-  return '<div class="panel-h" style="border-top:var(--bw) solid var(--border)">'
+  return '<div class="panel-h" style="border-top:var(--bw) solid var(--inner-line)">'
     + `<h2>${esc(view.name || view.email || 'Learner')}</h2>`
     + '<span class="meta">what the backend stores for one learner</span></div>'
     + `<div class="detail-grid">${cells.join('')}</div>`;
@@ -1023,9 +1248,10 @@ function learnersHtml(context) {
   const levelNote = withLevel === 0
     ? note('<b>No diagnostic levels yet.</b> The level column stays empty until a learner finishes the starting questionnaire. Nobody is shown as Foundation by default — an unanswered questionnaire is not a level.')
     : '';
+  const sourceNote = context.learnersFromOverview ? note(OVERVIEW_ONLY_NOTE) : '';
 
   /* The ~60-entry label map earns its keep on the full column dump, which is
-     where every field V2's row has no slot for is still readable as a table. */
+     where every field the row above has no slot for is still readable. */
   const full = table(context.learnerRows, {
     columns: ['displayName', 'display_name', 'email', 'completedLessons', 'completionPercent', 'currentLesson',
       'startedLessons', 'interactions', 'totalMinutes', 'visitCount', 'activeDays', 'lastActiveAt', 'last_seen',
@@ -1036,13 +1262,13 @@ function learnersHtml(context) {
 
   return '<div class="panel">'
     + `<div class="panel-h"><h2>Learners</h2>${search}</div>`
-    + '<div id="learnerInfo" style="padding:0 22px 10px;font-size:12.5px;color:var(--text-faint);font-weight:600"></div>'
+    + '<div id="learnerInfo" style="padding:0 24px 10px;font-size:12.5px;color:var(--text-faint);font-weight:620"></div>'
     + '<div id="learnerList"></div>'
     + '<div id="learnerDetail"></div>'
     + '</div>'
     + '<div class="panel"><div class="panel-h"><h2>Everything stored</h2>'
     + `<span class="meta">${esc(String(context.learnerRows.length))} rows · every column</span></div>`
-    + `<div class="panel-b">${full}${quiet ? note(CONSENT_NOTE) : ''}${levelNote}</div></div>`;
+    + `<div class="panel-b">${full}${sourceNote}${quiet ? note(CONSENT_NOTE) : ''}${levelNote}</div></div>`;
 }
 
 /* ---------- lessons tab ------------------------------------------------- */
@@ -1134,7 +1360,7 @@ function questionBodyHtml() {
   return `<div class="qt">${esc(title)}</div>`
     + `<div class="qopt-dist">${rows}</div>`
     + `<p class="qnote">There is no &quot;right&quot; answer — each option is what a learner thinks. D is the most sophisticated view, the one the course builds toward; A is the most basic. `
-    + `${esc(total ? `${total} answers recorded for this question.` : 'No answers recorded for this question yet.')} `
+    + `${esc(total ? `${plural(total, 'answer')} recorded for this question.` : 'No answers recorded for this question yet.')} `
     + 'The option wording lives in the course, not in the database, so only the counts are shown here — the full per-answer breakdown is in the tables below.</p>';
 }
 
@@ -1147,6 +1373,13 @@ function paintQuestions() {
 }
 
 function questionsPanelHtml(context) {
+  /* Cleared first: a refresh that comes back with nothing must not leave the
+     previous load's keys standing. */
+  QUESTION_KEYS = [];
+  QUESTION_DATA = {};
+  QUESTION_TOTAL = 0;
+  QUESTION_INDEX = 0;
+
   const questions = (context.overview && typeof context.overview.questions === 'object' && context.overview.questions) || {};
   const order = Array.isArray(context.overview?.questionOrder)
     ? context.overview.questionOrder.filter(key => Array.isArray(questions[key]))
@@ -1159,7 +1392,6 @@ function questionsPanelHtml(context) {
   QUESTION_KEYS = order;
   QUESTION_DATA = questions;
   QUESTION_TOTAL = answered;
-  QUESTION_INDEX = 0;
 
   const subtabs = order.map((key, i) =>
     `<button type="button" data-qtab="${i}" class="${i === 0 ? 'on' : ''}">Q${i + 1}</button>`).join('');
@@ -1187,7 +1419,7 @@ function assessmentHtml(context) {
 
   let html = questionsPanelHtml(context);
 
-  if (context.levelRows.length) html += levelsPanelHtml(context);
+  html += levelsPanelHtml(context);
 
   if (byAge.length) {
     const cells = byAge.map(row =>
@@ -1237,38 +1469,41 @@ function assessmentHtml(context) {
 /* ---------- level distribution ------------------------------------------ */
 
 function levelsPanelHtml(context) {
-  const rows = context.levelRows;
-  const total = rows.reduce((sum, row) => sum + row.n, 0);
+  const rows = Array.isArray(context.levelRows) ? context.levelRows : [];
+  const total = rows.reduce((sum, row) => sum + (Number(row?.n) || 0), 0);
+  const head = '<div class="panel-h"><h2>Where they land</h2>'
+    + `<span class="meta">${esc(total ? plural(total, 'diagnostic') : 'diagnostic level')}</span></div>`;
   if (!total) {
-    return '<div class="panel"><div class="panel-h"><h2>Where they land</h2>'
-      + '<span class="meta">diagnostic level</span></div>'
-      + emptyBox('Nobody has finished the starting questionnaire, so there is no diagnostic level to place anyone at.')
+    return `<div class="panel">${head}`
+      + emptyBox('Nobody has finished the starting questionnaire, so there is no diagnostic level to place anyone at. This counts real attempts only — the overview endpoint reports everyone as Foundation by default, which would mean counting people who have never answered a question.')
       + '</div>';
   }
   const bars = rows.map(row => {
-    const pct = Math.round((row.n / total) * 100);
+    const n = Number(row?.n) || 0;
+    const pct = Math.round((n / total) * 100);
     return '<div class="dist-row">'
       + `<div class="top"><span>${esc(row.level)}</span>`
-      + `<span class="c">${esc(plural(row.n, 'learner'))} · ${pct}%</span></div>`
+      + `<span class="c">${esc(plural(n, 'learner'))} · ${pct}%</span></div>`
       + `<div class="track"><div class="fill ${levelClass(row.level)}" style="width:${pct}%"></div></div></div>`;
   }).join('');
-  return '<div class="panel"><div class="panel-h"><h2>Where they land</h2>'
-    + `<span class="meta">${esc(plural(total, 'diagnostic'))}</span></div>`
-    + `<div class="dist">${bars}</div></div>`;
+  return `<div class="panel">${head}<div class="dist">${bars}</div></div>`;
 }
 
 /* ---------- visits ------------------------------------------------------ */
 
+/* adminVisitAnalytics() returns visitsByDay as [{ label:'Mon', count:0 }, …] —
+   seven fixed weekday buckets — and returnedWithin7 already divided by the
+   learner count and multiplied by 100. It is a percentage on arrival. */
 function visitsPanelHtml(context) {
   const overview = context.overview || {};
   const byDay = Array.isArray(overview.visitsByDay) ? overview.visitsByDay : [];
   const counts = byDay.map(row => Number(row?.count) || 0);
   const total = counts.reduce((a, b) => a + b, 0);
   const head = '<div class="panel-h"><h2>Visits this week</h2>'
-    + `<span class="meta">${esc(total ? `${total.toLocaleString()} sessions` : 'sessions per day')}</span></div>`;
+    + `<span class="meta">${esc(total ? `${total.toLocaleString()} visits` : 'visits per day')}</span></div>`;
 
   if (!byDay.length || !total) {
-    return `<div class="panel">${head}${emptyBox('No sessions recorded this week.')}`
+    return `<div class="panel">${head}${emptyBox('No page visits recorded this week.')}`
       + `<div class="panel-b" style="padding-top:0">${note(VISITS_NOTE)}</div></div>`;
   }
 
@@ -1283,13 +1518,14 @@ function visitsPanelHtml(context) {
   }).join('');
 
   const stats = [];
-  stats.push([total.toLocaleString(), 'sessions this week']);
+  stats.push([total.toLocaleString(), 'page visits in the last 7 days']);
   const gap = Number(overview.avgGapDays);
-  if (Number.isFinite(gap) && gap > 0) stats.push([String(gap), 'avg days between visits']);
+  if (Number.isFinite(gap) && gap > 0) stats.push([String(gap), 'average days between one learner\u2019s visits']);
   const returned = Number(overview.returnedWithin7);
-  if (Number.isFinite(returned)) stats.push([`${returned}%`, 'returned within 7 days']);
+  /* Already a percentage — multiplying again is the classic way this tile lies. */
+  if (Number.isFinite(returned)) stats.push([`${returned}%`, 'of visitors came back within 7 days of their first visit']);
   const busiest = byDay[counts.indexOf(max)];
-  if (busiest && busiest.label) stats.push([String(busiest.label), 'busiest day']);
+  if (busiest && busiest.label) stats.push([String(busiest.label), 'busiest weekday']);
   const statCells = stats.map(([n, l]) =>
     `<div class="vstat"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div></div>`).join('');
 
@@ -1318,9 +1554,9 @@ function recentLearnersPanelHtml(context) {
   }).join('');
   return `<div class="panel">${head}`
     + '<div class="tbl-scroll" style="max-height:none"><table class="tbl">'
-    + '<thead><tr><th>Learner</th><th>Diagnostic</th><th class="num">Progress</th></tr></thead>'
+    + '<thead><tr><th>Learner</th><th>Diagnostic</th><th class="num">Lessons completed</th></tr></thead>'
     + `<tbody>${rows}</tbody></table></div>`
-    + '<div style="padding:14px 22px;border-top:var(--bw) solid var(--border);text-align:right">'
+    + '<div style="padding:14px 24px;border-top:var(--bw) solid var(--inner-line);text-align:right">'
     + '<button type="button" class="btn btn-ghost btn-sm" data-goto="learners">View all learners →</button></div></div>';
 }
 
@@ -1331,9 +1567,8 @@ function overviewPanelsHtml(context) {
 
 /* ---------- connection tab ---------------------------------------------- */
 
-/* V2's diagnostics card, but the six invented Cloudflare probes are replaced by
-   the checks this deployment can actually answer from /api/health and the admin
-   session it already holds. Nothing here is simulated. */
+/* Real checks only: each row is a value this deployment can actually answer
+   from /api/health or from the admin session the page already holds. */
 function healthChecks(context) {
   const health = context.health;
   const checks = [];
@@ -1392,6 +1627,15 @@ function healthChecks(context) {
     ms: '—'
   });
 
+  checks.push({
+    status: CSRF ? 'ok' : 'warn',
+    t: 'CSRF token held',
+    s: CSRF
+      ? 'Sign-out and any future write will carry x-csrf-token, which the API requires.'
+      : 'No CSRF token was issued for this session, so sign-out will be refused with 403.',
+    ms: '—'
+  });
+
   return checks;
 }
 
@@ -1399,7 +1643,7 @@ function checkRowHtml(check) {
   const mark = check.status === 'ok' ? icon('check', 13)
     : check.status === 'bad' ? icon('x', 13)
       : check.status === 'warn' ? '!' : '';
-  return '<div class="check">'
+  return '<div class="dcheck">'
     + `<span class="ic ${esc(check.status)}">${mark}</span>`
     + `<div class="tx"><div class="t">${esc(check.t)}</div><div class="s">${esc(check.s)}</div></div>`
     + `<span class="ms">${esc(check.ms)}</span></div>`;
@@ -1444,7 +1688,7 @@ function paintTabs(counts) {
   nav.innerHTML = TABS.map(tab => {
     const count = counts ? counts[tab.key] : undefined;
     const badge = Number.isFinite(Number(count))
-      ? `<span class="badge">${esc(Number(count).toLocaleString())}</span>` : '';
+      ? `<span class="tcount">${esc(Number(count).toLocaleString())}</span>` : '';
     return `<button type="button" data-tab="${tab.key}" class="${tab.key === ACTIVE_TAB ? 'on' : ''}"`
       + ` aria-current="${tab.key === ACTIVE_TAB ? 'page' : 'false'}">`
       + icon(tab.icon, 15) + esc(tab.name) + badge + '</button>';
@@ -1515,11 +1759,17 @@ async function load() {
     api('/api/health')
   ]);
   const healthMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - started;
-  if (!overview.ok && overview.status === 401) return showLogin('Your admin session expired. Sign in again.');
+  if (!overview.ok && overview.status === 401) return showLogin('Your admin session expired. Sign in again.', true);
 
-  const learnerRows = pickRows(learners, ['learners']).length
-    ? pickRows(learners, ['learners'])
-    : (Array.isArray(overview?.learners) ? overview.learners : []);
+  /* /api/admin/learners is the camelCase payload with completedLessons and
+     completionPercent. overview.learners is the same people in snake_case
+     *without* any completion figure, so it is only a fallback for names and the
+     current lesson — never the source of progress. */
+  const apiLearnerRows = pickRows(learners, ['learners']);
+  const overviewLearnerRows = Array.isArray(overview?.learners) ? overview.learners : [];
+  const learnersFromOverview = !apiLearnerRows.length && overviewLearnerRows.length > 0;
+  const learnerRows = apiLearnerRows.length ? apiLearnerRows : overviewLearnerRows;
+
   const lessonRows = pickRows(lessons, ['lessons', 'analytics']);
   /* /api/admin/assessment-analytics nests its payload under `analytics`; older
      builds returned it flat. Accept both. */
@@ -1530,8 +1780,8 @@ async function load() {
   const attemptRows = Array.isArray(assessmentData?.attempts) ? assessmentData.attempts : [];
 
   const overviewById = new Map();
-  if (Array.isArray(overview?.learners)) {
-    for (const row of overview.learners) if (row && row.id !== undefined) overviewById.set(row.id, row);
+  for (const row of overviewLearnerRows) {
+    if (row && typeof row === 'object' && row.id !== undefined) overviewById.set(row.id, row);
   }
   const attemptsById = new Map();
   for (const attempt of attemptRows) {
@@ -1539,29 +1789,21 @@ async function load() {
     if (key !== undefined && key !== null && !attemptsById.has(key)) attemptsById.set(key, attempt);
   }
 
-  /* The denominator for "how far did they get" comes from the curriculum the
-     API just returned, not from a number typed into this page. */
-  const lessonTotal = lessonRows.length || Number(overview?.lessonCount) || 50;
-
-  /* Level counts: prefer the overview's own tally, but only trust it when it
-     is non-empty; otherwise count the attempts this page can see. */
-  let levelRows = Array.isArray(overview?.levels)
-    ? overview.levels
-      .filter(row => row && row.level)
-      .map(row => ({ level: String(row.level), n: Number(row.n) || 0 }))
-    : [];
-  if (!levelRows.length || !levelRows.some(row => row.n > 0)) {
-    const tally = { Foundation: 0, Explorer: 0, Builder: 0 };
-    for (const attempt of attemptsById.values()) {
-      const level = levelOf(attempt?.level);
-      if (level) tally[level] += 1;
-    }
-    levelRows = Object.entries(tally).map(([level, n]) => ({ level, n }));
+  /* Diagnostic levels are counted from real attempts and nothing else.
+     overview.levels cannot be used: buildAdminOverview() puts every learner
+     through consoleLevel(), which returns 'Foundation' for a *missing* result
+     (`const attempt = latestAttemptByUser.get(row.id) || {}`), so that array
+     reports people as Foundation who have never opened the questionnaire. */
+  const tally = { Foundation: 0, Explorer: 0, Builder: 0 };
+  for (const attempt of attemptsById.values()) {
+    const level = levelOf(attempt?.level);
+    if (level) tally[level] += 1;
   }
+  const levelRows = Object.entries(tally).map(([level, n]) => ({ level, n }));
 
   const context = {
     overview, learners, lessons, assessment, assessmentData, health, healthMs,
-    learnerRows, lessonRows, attemptRows, overviewById, attemptsById, lessonTotal, levelRows,
+    learnerRows, lessonRows, attemptRows, overviewById, attemptsById, levelRows, learnersFromOverview,
     sessionOk: overview.ok === true || learners.ok === true
   };
 
@@ -1612,14 +1854,14 @@ async function load() {
 
 /* ---------- session ----------------------------------------------------- */
 
-function showLogin(message) {
+function showLogin(message, isError) {
   $('#app').hidden = true;
   $('#loginCard').hidden = false;
   $('#refresh').hidden = true;
   $('#signout').hidden = true;
   $('#who').textContent = '';
   loginStatus.textContent = message || '';
-  loginStatus.className = message ? 'status bad' : 'status';
+  loginStatus.className = (message && isError) ? 'status bad' : 'status';
   paintConn('', 'Connection: not tested');
 }
 
@@ -1653,8 +1895,15 @@ $('#loginForm').addEventListener('submit', async event => {
 
 $('#refresh').addEventListener('click', load);
 $('#signout').addEventListener('click', async () => {
-  await api('/api/admin/logout', { method: 'POST' });
-  showLogin('Signed out.');
+  const result = await api('/api/admin/logout', { method: 'POST' });
+  CSRF = '';
+  /* The API deletes the session only if the CSRF header checked out. Saying
+     "signed out" when it refused would leave an open session behind a page that
+     claims otherwise. */
+  showLogin(
+    result.ok ? 'Signed out.' : 'The server refused the sign-out, so your session may still be open. Reload the page and try again.',
+    !result.ok
+  );
 });
 
 /* Opened straight off disk, every fetch('/api/...') resolves against file://
