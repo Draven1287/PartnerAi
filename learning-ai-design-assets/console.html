@@ -53,22 +53,40 @@
     .status.bad{color:var(--bad)}
     .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
     .tile{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:var(--surface-2)}
-    .tile b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em}
+    .tile b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
     .tile span{display:block;margin-top:4px;color:var(--text-dim);font-size:11px;
       letter-spacing:.04em;text-transform:uppercase}
+    /* The one-line answer to "is anyone using this?" — sits above the numbers so
+       it can be read without decoding a grid of tiles. */
+    .glance{margin:0 0 16px;font-size:16px;font-weight:600;line-height:1.55;letter-spacing:-.01em}
+    .glance em{font-style:normal;font-weight:500;color:var(--text-dim)}
     .scroll{overflow-x:auto}
     table{width:100%;border-collapse:collapse;font-size:13px}
-    th,td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+    th,td{padding:9px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;vertical-align:top}
     th{color:var(--text-faint);font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+    th.num,td.num{text-align:right;font-variant-numeric:tabular-nums}
     tbody tr:hover{background:var(--accent-soft)}
-    .empty{padding:14px;border:1px dashed var(--border);border-radius:10px;color:var(--text-faint);font-size:13px}
+    .empty{padding:14px;border:1px dashed var(--border);border-radius:10px;color:var(--text-dim);
+      font-size:13px;line-height:1.6;white-space:normal}
+    /* Why a table is empty is as much a finding as a row would have been. */
+    .note{margin:12px 0 0;padding:11px 14px;border:1px solid var(--border);border-left:3px solid var(--accent);
+      border-radius:0 10px 10px 0;background:var(--surface-2);color:var(--text-dim);
+      font-size:12.5px;line-height:1.6;white-space:normal}
+    .note b{color:var(--text);font-weight:700}
+    h3.subhead{margin:20px 0 8px;color:var(--text-faint);font-size:10px;font-weight:700;
+      letter-spacing:.07em;text-transform:uppercase}
+    h3.subhead:first-child{margin-top:0}
+    .dash{color:var(--text-faint)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.92em}
+    .lede{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--text);white-space:normal}
     details summary{cursor:pointer;color:var(--text-faint);font-size:12px;margin-top:10px}
+    details summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     pre{overflow:auto;margin:10px 0 0;padding:12px;border-radius:10px;background:var(--surface-2);
       color:var(--text-dim);font-size:12px;line-height:1.5}
     code{background:var(--surface-2);padding:1px 5px;border-radius:5px;font-size:.92em}
     a{color:var(--accent)}
     #app[hidden]{display:none}
-    @media(max-width:640px){.bar-inner,main{padding:0 16px}.card{padding:18px}}
+    @media(max-width:640px){.bar-inner,main{padding:0 16px}.card{padding:18px}.glance{font-size:15px}}
   </style>
 </head>
 <body>
@@ -98,22 +116,26 @@
           <button class="ghost" id="signout" type="button">Sign out</button>
         </div>
       </div>
+      <p class="glance" id="glance" aria-live="polite"></p>
       <div class="tiles" id="tiles"></div>
+      <div id="overviewRaw"></div>
     </section>
-    <section class="card"><h2>Learners</h2><div class="scroll" id="learners"></div></section>
-    <section class="card"><h2>Lesson analytics</h2><div class="scroll" id="lessons"></div></section>
-    <section class="card"><h2>Questionnaire answers</h2><div class="scroll" id="assessment"></div></section>
+    <section class="card"><h2>Learners</h2><p class="hint">Who signed up and how far they got.</p><div class="scroll" id="learners"></div></section>
+    <section class="card"><h2>Lessons</h2><p class="hint">Where people are getting stuck.</p><div class="scroll" id="lessons"></div></section>
+    <section class="card"><h2>Questionnaire answers</h2><p class="hint">What the starting questionnaire says about them.</p><div class="scroll" id="assessment"></div></section>
     <section class="card">
       <h2>Health</h2>
+      <p class="hint">Is the API up and which build is live.</p>
       <div class="scroll" id="health"></div>
     </section>
   </div>
 </main>
 
 <script>
-/* Deliberately renders whatever the API returns rather than assuming a fixed
-   shape. The previous consoles were templates whose placeholders nothing ever
-   filled, so they shipped as literal "{{ head }}" text. */
+/* Renders whatever the API returns, but never as-is: raw column names, ISO
+   timestamps and bare uuids are a data dump, not a tool. Every renderer is
+   defensive — if a payload arrives in an unexpected shape the section falls
+   back to the raw JSON disclosure rather than going blank. */
 const $ = s => document.querySelector(s);
 const loginStatus = $('#loginStatus');
 
@@ -131,39 +153,449 @@ async function api(path, options = {}) {
   }
 }
 
-const esc = value => String(value ?? '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
+const esc = value => String(value ?? '').replace(/[<>&"']/g, c =>
+  ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' }[c]));
 
-function table(rows) {
-  if (!Array.isArray(rows) || !rows.length) return '<p class="empty">Nothing recorded yet.</p>';
-  const cols = [...new Set(rows.flatMap(r => Object.keys(r || {})))];
-  const head = cols.map(c => `<th>${esc(c)}</th>`).join('');
-  const body = rows.slice(0, 200).map(r => '<tr>' + cols.map(c => {
-    let v = r?.[c];
-    if (v && typeof v === 'object') v = JSON.stringify(v);
-    if (typeof v === 'string' && /^\d{4}-\d\d-\d\dT/.test(v)) v = v.slice(0, 16).replace('T', ' ');
-    return `<td>${esc(v)}</td>`;
-  }).join('') + '</tr>').join('');
-  const more = rows.length > 200 ? `<p class="hint">Showing 200 of ${rows.length}.</p>` : '';
+/* ---------- column names ---------------------------------------------- */
+
+/* Keys arrive both snake_case (overview.learners) and camelCase (everything
+   else), so labels are looked up on a squashed lowercase form. */
+const normKey = key => String(key ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+
+const LABELS = {
+  id: 'ID', userid: 'Learner ID', attemptid: 'Attempt ID',
+  displayname: 'Name', name: 'Name', email: 'Email',
+  createdat: 'Joined', lastactiveat: 'Last active', lastseen: 'Last active',
+  totalminutes: 'Minutes', completionpercent: 'Complete',
+  startedlessons: 'Lessons started', completedlessons: 'Lessons done',
+  visitcount: 'Visits', activedays: 'Active days', visits: 'Visits',
+  interactions: 'Answers', toolkitcards: 'Toolkit cards', savednotecount: 'Saved notes',
+  lasttoolkitsavedat: 'Last note saved', namechangecount: 'Name changes',
+  lastnamechangedat: 'Last renamed', currentlesson: 'Current lesson',
+  currentlessonid: 'Current lesson', currentstep: 'Step', disabled: 'Disabled',
+  lessonid: 'Lesson', num: '#', arc: 'Arc', title: 'Title',
+  learnersstarted: 'Started', learnerscompleted: 'Finished',
+  incorrectanswers: 'Wrong answers', lastactivityat: 'Last activity',
+  difficultsteps: 'Hardest steps', stepindex: 'Step', kind: 'Type',
+  attempts: 'Attempts', incorrect: 'Wrong', incorrectrate: 'Wrong rate',
+  scorepercent: 'Score', averagescore: 'Average score', averagescorepercent: 'Average score',
+  completedat: 'Finished', level: 'Level', agerange: 'Age group',
+  questionkey: 'Question', category: 'Section', selectedvalue: 'Answer value',
+  selectedlabel: 'Answer', score: 'Score', freetext: 'In their words',
+  responses: 'Responses', percentage: 'Share', n: 'Learners', label: 'Label', count: 'Count',
+  ok: 'Reachable', status: 'HTTP status', dbstatus: 'Database',
+  migrationversion: 'Schema version', buildsha: 'Build', buildtime: 'Built',
+  env: 'Environment', passwordresetemailconfigured: 'Reset email configured',
+  value: 'Value', field: 'Field'
+};
+
+/* Anything unmapped is still title-cased — snake_case must never reach the DOM. */
+function label(key) {
+  const mapped = LABELS[normKey(key)];
+  if (mapped) return mapped;
+  const words = String(key ?? '')
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_\-.]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!words) return 'Value';
+  return words
+    .replace(/^./, c => c.toUpperCase())
+    .replace(/\b(id|url|ai|api|db|sha|csv)\b/gi, m => m.toUpperCase());
+}
+
+/* ---------- values ------------------------------------------------------ */
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ISO_DATE = /^\d{4}-\d\d-\d\d([T ]\d\d:\d\d|$)/;
+const PERCENT_KEY = /(percent|percentage|rate|share)$/;
+
+function toDate(value) {
+  if (value instanceof Date) return isNaN(value.getTime()) ? null : value;
+  if (typeof value !== 'string' || !ISO_DATE.test(value)) return null;
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+function relative(date) {
+  const diff = Date.now() - date.getTime();
+  const units = [[31536000000, 'year'], [2592000000, 'month'], [86400000, 'day'], [3600000, 'hour'], [60000, 'minute']];
+  for (const [ms, unit] of units) {
+    if (Math.abs(diff) >= ms) {
+      const n = Math.round(Math.abs(diff) / ms);
+      return `${n} ${unit}${n === 1 ? '' : 's'} ${diff >= 0 ? 'ago' : 'from now'}`;
+    }
+  }
+  return 'just now';
+}
+
+function shortDate(date) {
+  try {
+    return date.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch (error) {
+    return date.toISOString().slice(0, 10);
+  }
+}
+
+/* Recent things read better as "3 hours ago"; older ones as a real date. The
+   full timestamp is always on the title attribute. */
+function dateText(date) {
+  return Math.abs(Date.now() - date.getTime()) < 6 * 86400000 ? relative(date) : shortDate(date);
+}
+
+function fullDate(date) {
+  try { return `${date.toLocaleString()} · ${relative(date)}`; } catch (error) { return date.toISOString(); }
+}
+
+const isNumericString = value =>
+  typeof value === 'string' && value.trim() !== '' && /^-?\d+(\.\d+)?$/.test(value.trim());
+
+function formatNumber(n, key) {
+  if (PERCENT_KEY.test(normKey(key))) return `${Math.round(n * 10) / 10}%`;
+  return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+/* Returns { html, numeric, blank } so the table can decide alignment from the
+   data rather than from a hardcoded list of column names. */
+function cell(key, value) {
+  const dash = { html: '<span class="dash" title="No value recorded">—</span>', numeric: false, blank: true };
+  if (value === null || value === undefined || value === '') return dash;
+  if (typeof value === 'boolean') return { html: value ? 'Yes' : 'No', numeric: false, blank: false };
+
+  if (Array.isArray(value)) {
+    if (!value.length) return dash;
+    if (normKey(key) === 'difficultsteps') {
+      const html = value.map(step => {
+        const attempts = Number(step?.attempts) || 0;
+        const wrong = Number(step?.incorrect) || 0;
+        return esc(`Step ${step?.stepIndex ?? '?'} · ${wrong}/${attempts} wrong`);
+      }).join('<br>');
+      return { html, numeric: false, blank: false };
+    }
+    const json = JSON.stringify(value);
+    return {
+      html: `<span title="${esc(json.slice(0, 800))}">${value.length} item${value.length === 1 ? '' : 's'}</span>`,
+      numeric: true, blank: false
+    };
+  }
+
+  if (typeof value === 'object') {
+    const json = JSON.stringify(value);
+    const short = json.length > 60 ? `${json.slice(0, 57)}…` : json;
+    return { html: `<span title="${esc(json.slice(0, 800))}">${esc(short)}</span>`, numeric: false, blank: false };
+  }
+
+  const date = toDate(value);
+  if (date) return { html: `<span title="${esc(fullDate(date))}">${esc(dateText(date))}</span>`, numeric: false, blank: false };
+
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return { html: esc(formatNumber(value, key)), numeric: true, blank: false };
+  }
+  if (isNumericString(value)) {
+    return { html: esc(formatNumber(Number(value), key)), numeric: true, blank: false };
+  }
+
+  const text = String(value);
+  if (normKey(key) === 'level') { // the DB stores these lowercase; the product shows them capitalised
+    return { html: esc(text.replace(/^./, c => c.toUpperCase())), numeric: false, blank: false };
+  }
+  if (UUID.test(text) || (/^[A-Za-z0-9_-]{28,}$/.test(text) && !text.includes(' '))) {
+    return { html: `<span class="mono" title="${esc(text)}">${esc(text.slice(0, 8))}…</span>`, numeric: false, blank: false };
+  }
+  return { html: esc(text), numeric: false, blank: false };
+}
+
+/* ---------- tables ------------------------------------------------------ */
+
+const emptyBox = message => `<p class="empty">${message || 'Nothing here yet.'}</p>`;
+
+function orderColumns(cols, preferred = []) {
+  const rank = new Map(preferred.map((key, index) => [normKey(key), index]));
+  return cols.slice().sort((a, b) => {
+    const ra = rank.has(normKey(a)) ? rank.get(normKey(a)) : 999;
+    const rb = rank.has(normKey(b)) ? rank.get(normKey(b)) : 999;
+    return ra - rb;
+  });
+}
+
+function table(rows, options = {}) {
+  if (!Array.isArray(rows) || !rows.length) return emptyBox(options.empty);
+
+  let data = rows;
+  let cols = [...new Set(data.flatMap(row => (row && typeof row === 'object' && !Array.isArray(row)) ? Object.keys(row) : []))];
+  if (!cols.length) { // an array of primitives still deserves a table
+    data = data.map(value => ({ value }));
+    cols = ['value'];
+  }
+  const hide = new Set((options.hide || []).map(normKey));
+  cols = orderColumns(cols.filter(col => !hide.has(normKey(col))), options.columns);
+  if (!cols.length) return emptyBox(options.empty);
+
+  const shown = data.slice(0, 200);
+  const cells = shown.map(row => cols.map(col => cell(col, (row && typeof row === 'object') ? row[col] : row)));
+  const numeric = cols.map((col, index) => {
+    let counted = 0;
+    let numbers = 0;
+    for (const row of cells) {
+      if (row[index].blank) continue;
+      counted += 1;
+      if (row[index].numeric) numbers += 1;
+    }
+    return counted > 0 && numbers / counted >= 0.6;
+  });
+
+  const head = cols.map((col, i) => `<th${numeric[i] ? ' class="num"' : ''}>${esc(label(col))}</th>`).join('');
+  const body = cells.map(row =>
+    '<tr>' + row.map((c, i) => `<td${numeric[i] ? ' class="num"' : ''}>${c.html}</td>`).join('') + '</tr>'
+  ).join('');
+  const more = data.length > 200 ? `<p class="hint">Showing the first 200 of ${data.length} rows.</p>` : '';
   return `<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>${more}`;
 }
 
-function tiles(overview) {
-  const skip = new Set(['ok', 'csrfToken', 'status']);
-  const entries = Object.entries(overview || {})
-    .filter(([k, v]) => !skip.has(k) && (typeof v === 'number' || typeof v === 'string'));
-  if (!entries.length) return '<p class="empty">No summary figures returned.</p>';
-  return entries.map(([k, v]) =>
-    `<div class="tile"><b>${esc(v)}</b><span>${esc(k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase())}</span></div>`
+/* Wide single-object payloads (health) read better vertically. */
+function kvTable(object, options = {}) {
+  if (!object || typeof object !== 'object') return emptyBox(options.empty);
+  const hide = new Set((options.hide || []).map(normKey));
+  const entries = Object.entries(object).filter(([key]) => !hide.has(normKey(key)));
+  if (!entries.length) return emptyBox(options.empty);
+  const body = entries.map(([key, value]) => {
+    const c = cell(key, value);
+    return `<tr><th scope="row">${esc(label(key))}</th><td${c.numeric ? ' class="num"' : ''}>${c.html}</td></tr>`;
+  }).join('');
+  return `<table><tbody>${body}</tbody></table>`;
+}
+
+const raw = payload =>
+  `<details><summary>Raw response</summary><pre>${esc(JSON.stringify(payload, null, 2) || 'null').slice(0, 6000)}</pre></details>`;
+
+const note = html => `<p class="note">${html}</p>`;
+
+/* ---------- payload shapes --------------------------------------------- */
+
+function pickRows(payload, keys = []) {
+  for (const key of keys) if (Array.isArray(payload?.[key])) return payload[key];
+  if (Array.isArray(payload)) return payload;
+  const found = Object.values(payload || {}).find(Array.isArray);
+  return Array.isArray(found) ? found : [];
+}
+
+const pick = (row, keys) => {
+  for (const key of keys) {
+    if (row && row[key] !== undefined && row[key] !== null && row[key] !== '') return row[key];
+  }
+  return undefined;
+};
+
+function sumBy(rows, keys) {
+  let total = 0;
+  let seen = false;
+  for (const row of rows || []) {
+    const value = Number(pick(row, keys));
+    if (Number.isFinite(value)) { total += value; seen = true; }
+  }
+  return seen ? total : null;
+}
+
+function latestDate(rows, keys) {
+  let best = null;
+  for (const row of rows || []) {
+    const date = toDate(pick(row, keys));
+    if (date && (!best || date > best)) best = date;
+  }
+  return best;
+}
+
+const plural = (n, word, many) => `${Number(n).toLocaleString()} ${Number(n) === 1 ? word : (many || `${word}s`)}`;
+
+/* Draw a section, but never let one bad payload blank the page. */
+function render(el, build, payload) {
+  if (!el) return;
+  let html = '';
+  try {
+    html = build();
+  } catch (error) {
+    html = emptyBox('This section could not be drawn — the API returned a shape this page does not recognise. The raw response below is the whole truth.');
+  }
+  el.innerHTML = html + raw(payload);
+}
+
+/* ---------- the three questions ---------------------------------------- */
+
+const CONSENT_NOTE = '<b>Minutes, visits and active days are consent-gated.</b> Time and page tracking are off unless a learner turns them on, so these columns stay at zero for everyone who has not opted in. That is the privacy setting working, not a broken counter.';
+const ANSWER_NOTE = '<b>Nothing to show yet.</b> Recording of in-lesson answers and quiz submissions was only wired up on 25 July 2026, so nothing was saved before then. Rows appear here after the next lesson anyone completes.';
+
+function glanceLine(context) {
+  const { learnerRows, attemptRows, lessonRows, overview } = context;
+  const count = learnerRows.length || Number(overview?.total) || 0;
+  if (!count && !attemptRows.length) {
+    return 'No one has signed up yet. The moment somebody creates an account, they show up here.';
+  }
+  const parts = [];
+  const last = latestDate(learnerRows, ['lastActiveAt', 'last_seen', 'lastSeen', 'last_active_at', 'createdAt', 'created_at']);
+  parts.push(last ? `${plural(count, 'learner')}, last active ${relative(last)}.` : `${plural(count, 'learner')}.`);
+
+  const done = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
+  const doneFallback = done === null ? sumBy(lessonRows, ['learnersCompleted', 'learners_completed']) : done;
+  if (doneFallback !== null) parts.push(`${plural(doneFallback, 'lesson')} completed.`);
+
+  if (attemptRows.length) parts.push(`${plural(attemptRows.length, 'questionnaire')} finished.`);
+
+  const active = Number(overview?.activeWeek);
+  if (Number.isFinite(active) && count) parts.push(`<em>${plural(active, 'learner')} active in the last 7 days.</em>`);
+  return parts.join(' ');
+}
+
+/* Curated, named figures. Ids, tokens and anything that is only meaningful to
+   the database are deliberately left out — the raw JSON is one click away. */
+function statTiles(context) {
+  const { overview, learnerRows, lessonRows, attemptRows } = context;
+  const stats = [];
+  const add = (name, value) => {
+    if (value === null || value === undefined || !Number.isFinite(Number(value))) return;
+    stats.push({ name, value: Number(value) });
+  };
+
+  add('Learners', learnerRows.length || Number(overview?.total) || 0);
+  add('Active this week', overview?.activeWeek);
+  if (Number(overview?.newThisWeek)) add('Joined this week', overview.newThisWeek);
+
+  const completed = sumBy(learnerRows, ['completedLessons', 'completed_lessons']);
+  add('Lessons completed', completed !== null ? completed : sumBy(lessonRows, ['learnersCompleted']));
+  const started = sumBy(learnerRows, ['startedLessons', 'started_lessons']);
+  if (started !== null) add('Lessons started', started);
+
+  add('Questionnaires done', attemptRows.length);
+
+  const avgLesson = Number(overview?.avgLesson);
+  if (Number.isFinite(avgLesson) && avgLesson > 0) stats.push({ name: 'Average lesson reached', value: avgLesson });
+
+  const minutes = sumBy(learnerRows, ['totalMinutes', 'total_minutes']);
+  if (minutes) add('Minutes recorded', minutes);
+  const wrong = sumBy(lessonRows, ['incorrectAnswers', 'incorrect_answers']);
+  if (wrong) add('Wrong answers', wrong);
+
+  if (!stats.length) { // degrade rather than show an empty grid
+    const fallback = Object.entries(overview || {})
+      .filter(([key, value]) => typeof value === 'number' && !/id$|token/i.test(key))
+      .map(([key, value]) => ({ name: label(key), value }));
+    if (!fallback.length) return emptyBox('No summary figures came back from /api/admin/overview. The raw response is below.');
+    stats.push(...fallback);
+  }
+
+  return stats.map(stat =>
+    `<div class="tile"><b>${esc(stat.value.toLocaleString())}</b><span>${esc(stat.name)}</span></div>`
   ).join('');
 }
 
-function section(el, payload, key) {
-  const rows = Array.isArray(payload?.[key]) ? payload[key]
-    : Array.isArray(payload) ? payload
-    : Object.values(payload || {}).find(Array.isArray);
-  el.innerHTML = table(rows) +
-    `<details><summary>Raw response</summary><pre>${esc(JSON.stringify(payload, null, 2)).slice(0, 6000)}</pre></details>`;
+function learnersHtml(context) {
+  const rows = context.learnerRows;
+  if (!rows.length) {
+    return emptyBox('No learners yet. Anyone who signs up on learningai4you.com appears here straight away, with the lessons they have finished.');
+  }
+  const html = table(rows, {
+    columns: ['displayName', 'display_name', 'email', 'completedLessons', 'completionPercent', 'currentLesson',
+      'startedLessons', 'interactions', 'totalMinutes', 'visitCount', 'activeDays', 'lastActiveAt', 'last_seen',
+      'createdAt', 'toolkitCards', 'savedNoteCount', 'disabled', 'id'],
+    hide: ['currentStep', 'nameChangeCount', 'lastNameChangedAt', 'lastToolkitSavedAt'],
+    empty: 'No learners yet.'
+  });
+  const quiet = !sumBy(rows, ['totalMinutes', 'total_minutes']) && !sumBy(rows, ['visitCount', 'visits']);
+  return html + (quiet ? note(CONSENT_NOTE) : '');
 }
+
+function lessonsHtml(context) {
+  const rows = context.lessonRows;
+  if (!rows.length) {
+    return emptyBox('No lesson rows came back. Either the curriculum has not been seeded or nobody has opened a lesson yet.') + note(ANSWER_NOTE);
+  }
+  const touched = rows.filter(row =>
+    Number(pick(row, ['learnersStarted'])) > 0 ||
+    Number(pick(row, ['learnersCompleted'])) > 0 ||
+    Number(pick(row, ['interactions'])) > 0);
+  const columns = ['num', 'title', 'arc', 'learnersStarted', 'learnersCompleted', 'interactions',
+    'incorrectAnswers', 'difficultSteps', 'lastActivityAt', 'lessonId'];
+
+  const hardest = rows
+    .map(row => ({ row, wrong: Number(pick(row, ['incorrectAnswers'])) || 0, tries: Number(pick(row, ['interactions'])) || 0 }))
+    .filter(item => item.wrong > 0)
+    .sort((a, b) => b.wrong - a.wrong)
+    .slice(0, 3);
+
+  let html = '';
+  if (hardest.length) {
+    const list = hardest.map(item => {
+      const name = pick(item.row, ['title', 'lessonId']) || 'Untitled lesson';
+      const num = pick(item.row, ['num']);
+      const rate = item.tries ? ` (${Math.round((item.wrong / item.tries) * 100)}% of answers)` : '';
+      return `${esc(num !== undefined ? `Lesson ${num}: ` : '')}<b>${esc(name)}</b> — ${item.wrong} wrong${esc(rate)}`;
+    }).join('; ');
+    html += `<p class="lede">Most wrong answers right now: ${list}.</p>`;
+  }
+
+  html += '<h3 class="subhead">Lessons someone has opened</h3>';
+  html += touched.length
+    ? table(touched, { columns })
+    : emptyBox('Nobody has opened a lesson yet, so there is nothing to be confused by.');
+
+  if (!hardest.length) html += note(ANSWER_NOTE);
+
+  if (rows.length > touched.length) {
+    html += `<details><summary>Show all ${rows.length} lessons in the curriculum</summary>${table(rows, { columns })}</details>`;
+  }
+  return html;
+}
+
+function assessmentHtml(context) {
+  const { assessment, attemptRows } = context;
+  const byQuestion = Array.isArray(assessment?.summaryByQuestion) ? assessment.summaryByQuestion : [];
+  const byAnswer = Array.isArray(assessment?.summaryByAnswer) ? assessment.summaryByAnswer : [];
+  const responses = Array.isArray(assessment?.responses) ? assessment.responses : [];
+
+  if (!attemptRows.length && !byQuestion.length && !responses.length) {
+    const fallback = pickRows(assessment);
+    if (fallback.length) return table(fallback);
+    return emptyBox('Nobody has finished the starting questionnaire yet. It runs before lesson one, so the first answers arrive with the first learner who gets that far.');
+  }
+
+  let html = '';
+  if (attemptRows.length) {
+    html += '<h3 class="subhead">Who has taken it</h3>';
+    html += table(attemptRows, {
+      columns: ['displayName', 'email', 'level', 'ageRange', 'scorePercent', 'completedAt'],
+      hide: ['id', 'userId']
+    });
+  }
+  if (byQuestion.length) {
+    html += '<h3 class="subhead">How each question went</h3>';
+    html += table(byQuestion, {
+      columns: ['category', 'questionKey', 'responses', 'averageScore', 'percentage'],
+      hide: ['scoreTotal', 'scored']
+    });
+  }
+  if (byAnswer.length) {
+    html += `<details><summary>Every answer chosen (${byAnswer.length})</summary>${table(byAnswer, {
+      columns: ['questionKey', 'selectedLabel', 'ageRange', 'responses', 'averageScore', 'percentage'],
+      hide: ['selectedValue', 'category', 'scoreTotal', 'scored']
+    })}</details>`;
+  }
+  if (responses.length) {
+    html += `<details><summary>Individual responses (${responses.length})</summary>${table(responses, {
+      columns: ['displayName', 'category', 'questionKey', 'selectedLabel', 'score', 'freeText', 'completedAt'],
+      hide: ['attemptId', 'userId', 'email', 'selectedValue', 'scorePercent']
+    })}</details>`;
+  }
+  return html;
+}
+
+function healthHtml(health) {
+  if (!health || typeof health !== 'object') return emptyBox('The health endpoint did not answer.');
+  const head = health.ok
+    ? '<p class="lede">The API answered and the database is reachable.</p>'
+    : `<p class="lede">The API did not answer cleanly${health.status ? ` (HTTP ${esc(health.status)})` : ''}. Everything above may be stale.</p>`;
+  return head + kvTable(health, { hide: ['csrfToken'], empty: 'The health endpoint returned nothing.' });
+}
+
+/* ---------- load -------------------------------------------------------- */
 
 async function load() {
   $('#refresh').disabled = true;
@@ -175,11 +607,30 @@ async function load() {
     api('/api/health')
   ]);
   if (!overview.ok && overview.status === 401) return showLogin('Your admin session expired. Sign in again.');
-  $('#tiles').innerHTML = tiles(overview);
-  section($('#learners'), learners, 'learners');
-  section($('#lessons'), lessons, 'analytics');
-  section($('#assessment'), assessment, 'analytics');
-  $('#health').innerHTML = table([health]);
+
+  const learnerRows = pickRows(learners, ['learners']).length
+    ? pickRows(learners, ['learners'])
+    : (Array.isArray(overview?.learners) ? overview.learners : []);
+  const lessonRows = pickRows(lessons, ['lessons', 'analytics']);
+  const attemptRows = Array.isArray(assessment?.attempts) ? assessment.attempts : [];
+  const context = { overview, learners, lessons, assessment, learnerRows, lessonRows, attemptRows };
+
+  try {
+    $('#glance').innerHTML = glanceLine(context);
+  } catch (error) {
+    $('#glance').textContent = 'Signed in. The figures below are straight from the API.';
+  }
+  try {
+    $('#tiles').innerHTML = statTiles(context);
+  } catch (error) {
+    $('#tiles').innerHTML = emptyBox('The overview could not be summarised. The raw response is below.');
+  }
+  $('#overviewRaw').innerHTML = raw(overview);
+
+  render($('#learners'), () => learnersHtml(context), learners);
+  render($('#lessons'), () => lessonsHtml(context), lessons);
+  render($('#assessment'), () => assessmentHtml(context), assessment);
+  render($('#health'), () => healthHtml(health), health);
   $('#refresh').disabled = false;
 }
 
