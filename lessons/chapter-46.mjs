@@ -8,7 +8,7 @@ export default {
   "title": "What It Is Allowed To Touch",
   "coreQuestion": "When AI can do things for me, how do I stay in charge of what it can see and change?",
   "blurb": "Give it the least it needs. Written promises are not locks, so look for controls you can actually see.",
-  "minutes": 10,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

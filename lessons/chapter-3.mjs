@@ -8,7 +8,7 @@ export default {
   "title": "Change One Clue, Change the Answer",
   "coreQuestion": "Why do the words around your question change the answer, and why can a likely answer still be wrong?",
   "blurb": "Change one clue, watch the answer move, and see why a good guess is not proof.",
-  "minutes": 9,
+  "minutes": 13,
   "resources": [],
   "steps": [
     {

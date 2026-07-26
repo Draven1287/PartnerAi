@@ -8,7 +8,7 @@ export default {
   "title": "Thinking Partner, Not Answer Machine",
   "coreQuestion": "How do I finish smarter, instead of just holding an answer I cannot explain?",
   "blurb": "The best thing you get from AI is not the answer. It is your own thinking pushed further than you would push it alone.",
-  "minutes": 10,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

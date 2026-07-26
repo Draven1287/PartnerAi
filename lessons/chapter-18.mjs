@@ -8,7 +8,7 @@ export default {
   "title": "A Daily Habit, Not a Crutch",
   "coreQuestion": "How do I use AI every day so my own thinking gets sharper instead of switching off?",
   "blurb": "Use AI often, without handing over the part you wanted your own brain to learn.",
-  "minutes": 8,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

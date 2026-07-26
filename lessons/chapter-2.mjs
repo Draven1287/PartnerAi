@@ -8,7 +8,7 @@ export default {
   "title": "What Is Actually Happening",
   "coreQuestion": "When AI gives you an answer, what are the pieces behind it, and which part is still your job?",
   "blurb": "See the few simple parts behind any AI answer, so you always know which part you still decide.",
-  "minutes": 9,
+  "minutes": 13,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Three Pages Can All Be Wrong",
   "coreQuestion": "When sources disagree, or all repeat the same near-truth, how do I work out what the evidence really supports?",
   "blurb": "Split the answer into separate facts, find where each one came from, compare the dates, and settle what actually holds.",
-  "minutes": 11,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

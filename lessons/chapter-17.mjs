@@ -8,7 +8,7 @@ export default {
   "title": "AI Is Already in Your Apps",
   "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
   "blurb": "Spot the quiet AI bits in apps you already use. Read what the app itself says they do. Check harder when a mistake would cost you.",
-  "minutes": 9,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

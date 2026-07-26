@@ -8,7 +8,7 @@ export default {
   "title": "What Its Words Do Not Prove",
   "coreQuestion": "When an AI sounds kind, sure, or close to me, what has it actually proved?",
   "blurb": "Warm words can help, and the feeling is real. Keep what helps without mistaking a written line for a friendship.",
-  "minutes": 8,
+  "minutes": 14,
   "resources": [],
   "steps": [
     {

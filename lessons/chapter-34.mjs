@@ -8,7 +8,7 @@ export default {
   "title": "Study with AI: Be Quizzed, Not Told",
   "coreQuestion": "How do I use AI to actually learn something, instead of letting it do the knowing for me?",
   "blurb": "Turn it into a quizmaster. It asks, you answer first, and your gaps show up while there is still time.",
-  "minutes": 9,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

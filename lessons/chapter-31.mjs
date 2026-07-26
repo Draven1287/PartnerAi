@@ -8,7 +8,7 @@ export default {
   "title": "When It Feels Like a Friend",
   "coreQuestion": "Why does this app feel like a friend, and how do I stop it taking the place of one?",
   "blurb": "Spot the parts built to keep you there. Then set a limit you can actually check next week.",
-  "minutes": 10,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

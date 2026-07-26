@@ -8,7 +8,7 @@ export default {
   "title": "Hand Over the Work, Keep the Calls",
   "coreQuestion": "Which parts of a real job can I hand over, and which parts have to stay mine?",
   "blurb": "Hand over the typing and the first draft. Keep the calls only you should be making.",
-  "minutes": 9,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

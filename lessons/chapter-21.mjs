@@ -8,7 +8,7 @@ export default {
   "title": "Three Dials You Can Turn",
   "coreQuestion": "How do the hat, the reader, and the shape each move an answer, and why turn one at a time?",
   "blurb": "Three separate dials, not one. Turn each on purpose and watch the answer move.",
-  "minutes": 10,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Where Did This Come From?",
   "coreQuestion": "When AI makes a picture, some writing, or a voice, how can I tell where it really came from?",
   "blurb": "Learn why you cannot tell how something was made just by looking at it, and what to check instead.",
-  "minutes": 10,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

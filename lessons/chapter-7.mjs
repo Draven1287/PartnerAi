@@ -8,7 +8,7 @@ export default {
   "title": "Sure-Sounding and Still Wrong",
   "coreQuestion": "Why can AI sound totally certain and still be wrong, and what should I do about it?",
   "blurb": "A made-up detail sounds exactly as sure as a true one. You cannot feel the difference. You have to check.",
-  "minutes": 8,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

@@ -78,6 +78,14 @@
 
     const previewName=new URLSearchParams(location.search).get('name')||window.LearningAIUser?.displayName||'Learner';document.querySelector('#greeting').textContent=window.LearningAIGreeting?.navText(previewName)||`Welcome, ${previewName}`;
     const lessons=Array.isArray(window.LESSONS)?window.LESSONS:[];const arcs=[...new Set(lessons.map(l=>l.arc))];const courseState=window.LearningAICourseState.snapshot();
+    /* Lesson 01 in this catalog opens ./lesson-one.html, the bespoke free lesson,
+       not the V2 engine's chapter-1. It is different content and a different
+       length, so the row and the arc total must quote lesson-one's own figure or
+       the catalog promises a lesson that does not exist at that link.
+       Both numbers come from tools/estimate-lesson-time.mjs; `--apply` rewrites
+       the literal below and `--check` fails if it drifts. */
+    const LESSON_ONE_MINUTES=17;
+    const minutesFor=lesson=>lesson.num===1?LESSON_ONE_MINUTES:(Number(lesson.minutes)||0);
     const jump=document.querySelector('#arcJump');const catalog=document.querySelector('#catalog');const unitRail=document.querySelector('#unitRail');
     document.querySelector('#catalogPercent').textContent=`${courseState.percentage}%`;document.querySelector('#catalogCount').textContent=`${courseState.completedCount} of ${courseState.total} lessons complete`;const catalogProgress=document.querySelector('#catalogProgress');catalogProgress.setAttribute('aria-valuenow',String(courseState.completedCount));catalogProgress.setAttribute('aria-valuetext',`${courseState.completedCount} of ${courseState.total} lessons complete`);catalogProgress.querySelector('span').style.width=`${courseState.percentage}%`;
     const reviewMode=new URLSearchParams(location.search).get('review')==='1';const readDraft=lesson=>{if(reviewMode)return null;try{const draft=JSON.parse(localStorage.getItem(`learningai-lesson-draft:${lesson.id}`)||'null');return draft&&Number.isInteger(Number(draft.index))?draft:null}catch{return null}};const savedLabel=value=>{const date=new Date(value);return Number.isNaN(date.getTime())?'saved recently':`saved ${date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`};
@@ -93,7 +101,7 @@
       catalog.replaceChildren();
       const section=document.createElement('section');section.className='arc';section.setAttribute('role','tabpanel');section.setAttribute('aria-labelledby',`arc-tab-${index+1}`);
       const arcReady=inArc.some(lesson=>courseState.isUnlocked(lesson)),arcDone=inArc.filter(lesson=>courseState.isDone(lesson.id)).length;
-      section.innerHTML=`<div class="arc-meta"><span class="arc-number">${String(index+1).padStart(2,'0')}</span><h2 tabindex="-1">${arc}</h2><p>${inArc.length} lessons · ${inArc.reduce((n,lesson)=>n+(Number(lesson.minutes)||0),0)} minutes</p><span class="arc-state ${arcReady?'ready':''}">${arcDone===inArc.length?'Arc complete':arcDone?`${arcDone} of ${inArc.length} complete`:arcReady?'Next lesson ready':'Locked until the previous arc'}</span></div><div class="lesson-list"></div>`;
+      section.innerHTML=`<div class="arc-meta"><span class="arc-number">${String(index+1).padStart(2,'0')}</span><h2 tabindex="-1">${arc}</h2><p>${inArc.length} lessons · ${inArc.reduce((n,lesson)=>n+minutesFor(lesson),0)} minutes</p><span class="arc-state ${arcReady?'ready':''}">${arcDone===inArc.length?'Arc complete':arcDone?`${arcDone} of ${inArc.length} complete`:arcReady?'Next lesson ready':'Locked until the previous arc'}</span></div><div class="lesson-list"></div>`;
       const list=section.querySelector('.lesson-list');
       inArc.forEach(lesson=>{
         const available=reviewMode||courseState.isUnlocked(lesson),done=courseState.isDone(lesson.id),draft=available&&!done?readDraft(lesson):null;
@@ -101,9 +109,9 @@
         if(available){
           const link=document.createElement('a');link.className='lesson is-ready';link.href=lesson.num===1?'./lesson-one.html':`./lesson.html?id=${lesson.id}`;
           const statusText=done?'Review →':resume||(lesson.num===1?'Start free →':'Start →');
-          link.innerHTML=`<span class="lesson-num">${String(lesson.num).padStart(2,'0')}</span><span><span class="lesson-title">${lesson.title}</span><span class="lesson-question">${lesson.coreQuestion}</span></span><span class="lesson-time">${lesson.minutes} min <span class="lesson-status">${statusText}</span></span>`;list.append(link);return;
+          link.innerHTML=`<span class="lesson-num">${String(lesson.num).padStart(2,'0')}</span><span><span class="lesson-title">${lesson.title}</span><span class="lesson-question">${lesson.coreQuestion}</span></span><span class="lesson-time">${minutesFor(lesson)} min <span class="lesson-status">${statusText}</span></span>`;list.append(link);return;
         }
-        const locked=document.createElement('div');locked.className='lesson is-locked';locked.tabIndex=0;locked.setAttribute('role','group');locked.setAttribute('aria-label',`Lesson ${lesson.num}: ${lesson.title}. Locked. Complete lesson ${lesson.num-1} to unlock.`);locked.innerHTML=`<span class="lesson-num">${String(lesson.num).padStart(2,'0')}</span><span><span class="lesson-title">${lesson.title}</span><span class="lesson-question">${lesson.coreQuestion}</span></span><span class="lesson-time">${lesson.minutes} min <span class="lesson-status">◌ Complete ${lesson.num-1} first</span></span>`;list.append(locked);
+        const locked=document.createElement('div');locked.className='lesson is-locked';locked.tabIndex=0;locked.setAttribute('role','group');locked.setAttribute('aria-label',`Lesson ${lesson.num}: ${lesson.title}. Locked. Complete lesson ${lesson.num-1} to unlock.`);locked.innerHTML=`<span class="lesson-num">${String(lesson.num).padStart(2,'0')}</span><span><span class="lesson-title">${lesson.title}</span><span class="lesson-question">${lesson.coreQuestion}</span></span><span class="lesson-time">${minutesFor(lesson)} min <span class="lesson-status">◌ Complete ${lesson.num-1} first</span></span>`;list.append(locked);
       });
       catalog.append(section);
       /* Measure the natural height with the pin released, then re-apply it so the

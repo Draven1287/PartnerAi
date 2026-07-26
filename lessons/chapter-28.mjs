@@ -8,7 +8,7 @@ export default {
   "title": "When a Voice Is Not Proof",
   "coreQuestion": "If a familiar voice or face can be faked, how do I check that an urgent message is really from that person?",
   "blurb": "A voice or a face is no longer proof. Reach the real person a way you already trusted before the message arrived.",
-  "minutes": 10,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Teach Someone Else",
   "coreQuestion": "How do I know I can explain an AI idea clearly, correctly, and in my own words?",
   "blurb": "Teach one idea by writing, by a private recording, by a simulation with a made-up learner, or to a willing listener. The proof is the same either way.",
-  "minutes": 10,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

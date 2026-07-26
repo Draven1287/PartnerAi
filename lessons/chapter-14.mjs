@@ -8,7 +8,7 @@ export default {
   "title": "The One Privacy Rule",
   "coreQuestion": "What is the one question to ask before you send, and what should you take out first?",
   "blurb": "Before you send, ask: would I be fine if this were public? Then scrub whatever you would not.",
-  "minutes": 8,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

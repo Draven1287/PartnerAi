@@ -8,7 +8,7 @@ export default {
   "title": "Your First Real Question",
   "coreQuestion": "What should I bring to AI first: a clever test, or one small real thing from my own week?",
   "blurb": "Hand AI one small real job from your own week. Then actually use the answer and finish it.",
-  "minutes": 9,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Your Toolkit and Where to Go Next",
   "coreQuestion": "How do I get everything I learned onto one page, and prove it works on a job I have never seen?",
   "blurb": "Turn fifty lessons into one page you can open and use. Then finish.",
-  "minutes": 11,
+  "minutes": 20,
   "resources": [],
   "steps": [
     {

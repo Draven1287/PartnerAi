@@ -8,7 +8,7 @@ export default {
   "title": "Write It Once, Reuse It Forever",
   "coreQuestion": "How do I turn a request I type over and over into a saved recipe where only one thing changes?",
   "blurb": "Stop retyping the same request. Write the steps once, and swap in the new bit each time.",
-  "minutes": 10,
+  "minutes": 20,
   "resources": [],
   "steps": [
     {

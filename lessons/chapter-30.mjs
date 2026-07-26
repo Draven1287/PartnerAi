@@ -8,7 +8,7 @@ export default {
   "title": "When NOT to Use AI",
   "coreQuestion": "When should I put AI down instead of reaching for it?",
   "blurb": "Being good with AI includes knowing the moments to close it.",
-  "minutes": 9,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

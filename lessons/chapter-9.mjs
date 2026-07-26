@@ -8,7 +8,7 @@ export default {
   "title": "Pause Before You Allow It",
   "coreQuestion": "Before I sign in, upload, download, pay, post, or let AI act for me, what should I check?",
   "blurb": "Safety is not one magic word on a page. Check who is asking, what they get, and whether you can undo it.",
-  "minutes": 10,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

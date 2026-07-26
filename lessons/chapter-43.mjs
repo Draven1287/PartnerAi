@@ -8,7 +8,7 @@ export default {
   "title": "Keeping Your Voice and Being Honest",
   "coreQuestion": "When AI helps me write, how do I stay the real writer and stay honest about the help?",
   "blurb": "Edit it back into your own words. Then decide who needs to know that AI helped.",
-  "minutes": 10,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

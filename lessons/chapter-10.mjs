@@ -8,7 +8,7 @@ export default {
   "title": "Type It, Say It, or Show It",
   "coreQuestion": "When should I type, talk, or show a photo — and how do I give away as little as possible?",
   "blurb": "Three ways into one task. Pick the one that shows least, expect mistakes, and never need a camera to finish.",
-  "minutes": 9,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

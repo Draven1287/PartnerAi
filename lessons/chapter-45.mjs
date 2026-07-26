@@ -8,7 +8,7 @@ export default {
   "title": "Designing and Making",
   "coreQuestion": "How do I design a tiny tool with AI, test it properly, and still understand what I made?",
   "blurb": "Start with one small annoyance. Test the case where it breaks. Keep a way back to what worked.",
-  "minutes": 15,
+  "minutes": 19,
   "resources": [],
   "steps": [
     {

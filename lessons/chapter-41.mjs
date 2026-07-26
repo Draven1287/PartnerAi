@@ -8,7 +8,7 @@ export default {
   "title": "Planning a Big Project Together",
   "coreQuestion": "How do I turn something too big to start into a plan I actually own?",
   "blurb": "Feeling stuck is usually a planning problem, not a you problem. Cut the mountain into stairs, then pick the first one.",
-  "minutes": 10,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

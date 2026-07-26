@@ -8,7 +8,7 @@ export default {
   "title": "It Said It Did It",
   "coreQuestion": "Did it guess some words, really use a helper, or take steps on its own? How would I know?",
   "blurb": "Look for proof of what actually ran, what it was allowed to touch, and who had to say yes before anything changed.",
-  "minutes": 10,
+  "minutes": 19,
   "resources": [],
   "steps": [
     {

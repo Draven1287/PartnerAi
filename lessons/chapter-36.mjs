@@ -8,7 +8,7 @@ export default {
   "title": "Everyday Wins: Finish the Small Stuff",
   "coreQuestion": "How do I use AI to finish the small messages and plans I keep putting off?",
   "blurb": "Get a draft in ten seconds. Make it sound like you. Then actually send it.",
-  "minutes": 8,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

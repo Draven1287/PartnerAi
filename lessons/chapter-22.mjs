@@ -8,7 +8,7 @@ export default {
   "title": "Limits That Actually Stick",
   "coreQuestion": "Why do some limits I set get ignored while others hold, and how do I make one stick?",
   "blurb": "\"Keep it short\" slides straight off. \"Exactly 3 bullet points\" holds, because you can count them.",
-  "minutes": 9,
+  "minutes": 19,
   "resources": [],
   "steps": [
     {

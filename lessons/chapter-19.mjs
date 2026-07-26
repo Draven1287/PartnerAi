@@ -8,7 +8,7 @@ export default {
   "title": "When It Seems to Remember",
   "coreQuestion": "When an AI seems to remember me, what is actually going on, and what can I really check?",
   "blurb": "Five different things all get called memory. Telling them apart stops an empty Memory screen from feeling like a promise.",
-  "minutes": 11,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

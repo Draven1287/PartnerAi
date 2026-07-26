@@ -8,7 +8,7 @@ export default {
   "title": "Health and Other Big Questions",
   "coreQuestion": "How do I use AI to understand something serious, without letting it decide anything for me?",
   "blurb": "Use it to walk in prepared. Understanding is fine. Deciding belongs to a person who is answerable.",
-  "minutes": 10,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

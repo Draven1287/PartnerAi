@@ -8,7 +8,7 @@
       "title": "Use AI Safely Once",
       "coreQuestion": "How can I use an AI assistant without handing over my privacy, voice, or final decision?",
       "blurb": "Make several realistic choices, see what the system is actually doing, and leave with one control rule you can use immediately.",
-      "minutes": 10,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -151,7 +151,7 @@
       "title": "What Is Actually Happening",
       "coreQuestion": "When AI gives you an answer, what are the pieces behind it, and which part is still your job?",
       "blurb": "See the few simple parts behind any AI answer, so you always know which part you still decide.",
-      "minutes": 9,
+      "minutes": 13,
       "resources": [],
       "steps": [
         {
@@ -283,7 +283,7 @@
       "title": "Change One Clue, Change the Answer",
       "coreQuestion": "Why do the words around your question change the answer, and why can a likely answer still be wrong?",
       "blurb": "Change one clue, watch the answer move, and see why a good guess is not proof.",
-      "minutes": 9,
+      "minutes": 13,
       "resources": [],
       "steps": [
         {
@@ -419,7 +419,7 @@
       "title": "A Typo Costs Nothing. This Costs a Lot.",
       "coreQuestion": "If a messy message cannot hurt the machine, what can careless use cost me?",
       "blurb": "Type badly without fear. Guard your private details, your time, your voice, and the final call.",
-      "minutes": 9,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -555,7 +555,7 @@
       "title": "Check It, Then Decide",
       "coreQuestion": "How do I work out what needs checking, find proof somewhere else, and make the call myself?",
       "blurb": "Turn one confident-sounding answer into a checked decision that you actually own.",
-      "minutes": 10,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -704,7 +704,7 @@
       "title": "Where Did This Come From?",
       "coreQuestion": "When AI makes a picture, some writing, or a voice, how can I tell where it really came from?",
       "blurb": "Learn why you cannot tell how something was made just by looking at it, and what to check instead.",
-      "minutes": 10,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -845,7 +845,7 @@
       "title": "Sure-Sounding and Still Wrong",
       "coreQuestion": "Why can AI sound totally certain and still be wrong, and what should I do about it?",
       "blurb": "A made-up detail sounds exactly as sure as a true one. You cannot feel the difference. You have to check.",
-      "minutes": 8,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -992,7 +992,7 @@
       "title": "What Its Words Do Not Prove",
       "coreQuestion": "When an AI sounds kind, sure, or close to me, what has it actually proved?",
       "blurb": "Warm words can help, and the feeling is real. Keep what helps without mistaking a written line for a friendship.",
-      "minutes": 8,
+      "minutes": 14,
       "resources": [],
       "steps": [
         {
@@ -1130,7 +1130,7 @@
       "title": "Pause Before You Allow It",
       "coreQuestion": "Before I sign in, upload, download, pay, post, or let AI act for me, what should I check?",
       "blurb": "Safety is not one magic word on a page. Check who is asking, what they get, and whether you can undo it.",
-      "minutes": 10,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -1284,7 +1284,7 @@
       "title": "Type It, Say It, or Show It",
       "coreQuestion": "When should I type, talk, or show a photo — and how do I give away as little as possible?",
       "blurb": "Three ways into one task. Pick the one that shows least, expect mistakes, and never need a camera to finish.",
-      "minutes": 9,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -1433,7 +1433,7 @@
       "title": "Your First Real Question",
       "coreQuestion": "What should I bring to AI first: a clever test, or one small real thing from my own week?",
       "blurb": "Hand AI one small real job from your own week. Then actually use the answer and finish it.",
-      "minutes": 9,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -1565,7 +1565,7 @@
       "title": "How to Ask So It Actually Helps",
       "coreQuestion": "How do I turn a vague ask into one that gets a genuinely useful answer?",
       "blurb": "An ask is an instruction, not a wish. Add four things and watch the answer sharpen.",
-      "minutes": 9,
+      "minutes": 25,
       "resources": [],
       "steps": [
         {
@@ -1708,7 +1708,7 @@
       "title": "Fix It With One Reply",
       "coreQuestion": "When an answer is almost right, how do I fix it with one short reply instead of starting again?",
       "blurb": "Nudge a nearly-right answer with one line. No deleting, no retyping.",
-      "minutes": 8,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -1842,7 +1842,7 @@
       "title": "The One Privacy Rule",
       "coreQuestion": "What is the one question to ask before you send, and what should you take out first?",
       "blurb": "Before you send, ask: would I be fine if this were public? Then scrub whatever you would not.",
-      "minutes": 8,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -1966,7 +1966,7 @@
       "title": "Who Is in Charge",
       "coreQuestion": "If the AI writes it, who is actually in charge, and which part is still my job?",
       "blurb": "AI can do the middle of a job. You keep the goal, the way you want it, and the last look.",
-      "minutes": 9,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -2098,7 +2098,7 @@
       "title": "Check It Before You Trust It",
       "coreQuestion": "How do I tell whether the source an AI gives me really backs up what it said?",
       "blurb": "A link proves nothing until you open it and find the fact sitting there on the page.",
-      "minutes": 9,
+      "minutes": 20,
       "resources": [],
       "steps": [
         {
@@ -2217,7 +2217,7 @@
       "title": "AI Is Already in Your Apps",
       "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
       "blurb": "Spot the quiet AI bits in apps you already use. Read what the app itself says they do. Check harder when a mistake would cost you.",
-      "minutes": 9,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -2358,7 +2358,7 @@
       "title": "A Daily Habit, Not a Crutch",
       "coreQuestion": "How do I use AI every day so my own thinking gets sharper instead of switching off?",
       "blurb": "Use AI often, without handing over the part you wanted your own brain to learn.",
-      "minutes": 8,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -2469,7 +2469,7 @@
       "title": "When It Seems to Remember",
       "coreQuestion": "When an AI seems to remember me, what is actually going on, and what can I really check?",
       "blurb": "Five different things all get called memory. Telling them apart stops an empty Memory screen from feeling like a promise.",
-      "minutes": 11,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -2613,7 +2613,7 @@
       "title": "It Said It Did It",
       "coreQuestion": "Did it guess some words, really use a helper, or take steps on its own? How would I know?",
       "blurb": "Look for proof of what actually ran, what it was allowed to touch, and who had to say yes before anything changed.",
-      "minutes": 10,
+      "minutes": 19,
       "resources": [],
       "steps": [
         {
@@ -2760,7 +2760,7 @@
       "title": "Three Dials You Can Turn",
       "coreQuestion": "How do the hat, the reader, and the shape each move an answer, and why turn one at a time?",
       "blurb": "Three separate dials, not one. Turn each on purpose and watch the answer move.",
-      "minutes": 10,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -2888,7 +2888,7 @@
       "title": "Limits That Actually Stick",
       "coreQuestion": "Why do some limits I set get ignored while others hold, and how do I make one stick?",
       "blurb": "\"Keep it short\" slides straight off. \"Exactly 3 bullet points\" holds, because you can count them.",
-      "minutes": 9,
+      "minutes": 19,
       "resources": [],
       "steps": [
         {
@@ -3015,7 +3015,7 @@
       "title": "Show It, Don't Describe It",
       "coreQuestion": "Why does pasting one example of the style I want beat describing that style in words?",
       "blurb": "Pick one safe example of the style you want and paste it in. Then decide what still needs to sound like you.",
-      "minutes": 9,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -3108,7 +3108,7 @@
       "title": "Get It to Teach You",
       "coreQuestion": "How do I use AI to actually learn something, instead of getting an answer I forget by tomorrow?",
       "blurb": "Turn a wall of answer into a lesson in small steps, then prove it stuck by saying it back.",
-      "minutes": 10,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -3220,7 +3220,7 @@
       "title": "Make the Answer Checkable",
       "coreQuestion": "How do I ask for working I can actually look at, without pretending the AI can show me its private thoughts?",
       "blurb": "Ask for what it assumed, where the facts came from, and the sums it did. Then check one of them yourself.",
-      "minutes": 9,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -3315,7 +3315,7 @@
       "title": "Three Pages Can All Be Wrong",
       "coreQuestion": "When sources disagree, or all repeat the same near-truth, how do I work out what the evidence really supports?",
       "blurb": "Split the answer into separate facts, find where each one came from, compare the dates, and settle what actually holds.",
-      "minutes": 11,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -3449,7 +3449,7 @@
       "title": "Whose Voice Is Missing?",
       "coreQuestion": "If an answer sounds calm and balanced, does that make it fair and complete?",
       "blurb": "A smooth, even tone is not the same as the whole picture. Learn to ask who got left out.",
-      "minutes": 9,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -3561,7 +3561,7 @@
       "title": "When a Voice Is Not Proof",
       "coreQuestion": "If a familiar voice or face can be faked, how do I check that an urgent message is really from that person?",
       "blurb": "A voice or a face is no longer proof. Reach the real person a way you already trusted before the message arrived.",
-      "minutes": 10,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -3695,7 +3695,7 @@
       "title": "What Is Real Online Now",
       "coreQuestion": "How do I decide what to believe online when anything could have been made by a computer?",
       "blurb": "Stop trusting how real something looks. Ask who put it out, and whether anyone separate says the same thing.",
-      "minutes": 9,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -3828,7 +3828,7 @@
       "title": "When NOT to Use AI",
       "coreQuestion": "When should I put AI down instead of reaching for it?",
       "blurb": "Being good with AI includes knowing the moments to close it.",
-      "minutes": 9,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -3951,7 +3951,7 @@
       "title": "When It Feels Like a Friend",
       "coreQuestion": "Why does this app feel like a friend, and how do I stop it taking the place of one?",
       "blurb": "Spot the parts built to keep you there. Then set a limit you can actually check next week.",
-      "minutes": 10,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -4093,7 +4093,7 @@
       "title": "Feelings, Support, and Its Limits",
       "coreQuestion": "Can AI help me with how I feel, and where does it stop and a real person start?",
       "blurb": "AI can help you find words for a feeling. It cannot care about you, and it cannot keep you safe.",
-      "minutes": 9,
+      "minutes": 13,
       "resources": [],
       "steps": [
         {
@@ -4207,7 +4207,7 @@
       "title": "Attention and Habits",
       "coreQuestion": "How do I catch myself reaching for AI without deciding to, and set a limit that protects my focus?",
       "blurb": "You choose when the chat opens and when it closes. Catching the reach is what puts you back in charge.",
-      "minutes": 9,
+      "minutes": 13,
       "resources": [],
       "steps": [
         {
@@ -4326,7 +4326,7 @@
       "title": "Study with AI: Be Quizzed, Not Told",
       "coreQuestion": "How do I use AI to actually learn something, instead of letting it do the knowing for me?",
       "blurb": "Turn it into a quizmaster. It asks, you answer first, and your gaps show up while there is still time.",
-      "minutes": 9,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -4440,7 +4440,7 @@
       "title": "Your Words, and Facts You Checked",
       "coreQuestion": "When AI helps me write something, which parts of the job are still mine?",
       "blurb": "It can hand you a smooth paragraph and a smart-looking source in seconds. The words and the facts are still yours.",
-      "minutes": 10,
+      "minutes": 21,
       "resources": [],
       "steps": [
         {
@@ -4576,7 +4576,7 @@
       "title": "Everyday Wins: Finish the Small Stuff",
       "coreQuestion": "How do I use AI to finish the small messages and plans I keep putting off?",
       "blurb": "Get a draft in ten seconds. Make it sound like you. Then actually send it.",
-      "minutes": 8,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -4696,7 +4696,7 @@
       "title": "Money, Shopping and Travel",
       "coreQuestion": "How do I use AI to weigh up spending real money, without trusting a price it may have got wrong?",
       "blurb": "Let it lay out your choices. Then check the price yourself, on the page that takes your money.",
-      "minutes": 10,
+      "minutes": 19,
       "resources": [],
       "steps": [
         {
@@ -4821,7 +4821,7 @@
       "title": "Health and Other Big Questions",
       "coreQuestion": "How do I use AI to understand something serious, without letting it decide anything for me?",
       "blurb": "Use it to walk in prepared. Understanding is fine. Deciding belongs to a person who is answerable.",
-      "minutes": 10,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -4937,7 +4937,7 @@
       "title": "Thinking Partner, Not Answer Machine",
       "coreQuestion": "How do I finish smarter, instead of just holding an answer I cannot explain?",
       "blurb": "The best thing you get from AI is not the answer. It is your own thinking pushed further than you would push it alone.",
-      "minutes": 10,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -5049,7 +5049,7 @@
       "title": "Draft, Pick It Apart, Do It Again",
       "coreQuestion": "How do I get genuinely better work out of AI, by going round the loop instead of asking once?",
       "blurb": "Good work comes from going round again. Draft it, have it picked apart, fix it yourself, repeat.",
-      "minutes": 10,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -5143,7 +5143,7 @@
       "title": "Planning a Big Project Together",
       "coreQuestion": "How do I turn something too big to start into a plan I actually own?",
       "blurb": "Feeling stuck is usually a planning problem, not a you problem. Cut the mountain into stairs, then pick the first one.",
-      "minutes": 10,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -5242,7 +5242,7 @@
       "title": "Hand Over the Work, Keep the Calls",
       "coreQuestion": "Which parts of a real job can I hand over, and which parts have to stay mine?",
       "blurb": "Hand over the typing and the first draft. Keep the calls only you should be making.",
-      "minutes": 9,
+      "minutes": 15,
       "resources": [],
       "steps": [
         {
@@ -5358,7 +5358,7 @@
       "title": "Keeping Your Voice and Being Honest",
       "coreQuestion": "When AI helps me write, how do I stay the real writer and stay honest about the help?",
       "blurb": "Edit it back into your own words. Then decide who needs to know that AI helped.",
-      "minutes": 10,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -5470,7 +5470,7 @@
       "title": "Write It Once, Reuse It Forever",
       "coreQuestion": "How do I turn a request I type over and over into a saved recipe where only one thing changes?",
       "blurb": "Stop retyping the same request. Write the steps once, and swap in the new bit each time.",
-      "minutes": 10,
+      "minutes": 20,
       "resources": [],
       "steps": [
         {
@@ -5601,7 +5601,7 @@
       "title": "Designing and Making",
       "coreQuestion": "How do I design a tiny tool with AI, test it properly, and still understand what I made?",
       "blurb": "Start with one small annoyance. Test the case where it breaks. Keep a way back to what worked.",
-      "minutes": 15,
+      "minutes": 19,
       "resources": [],
       "steps": [
         {
@@ -5731,7 +5731,7 @@
       "title": "What It Is Allowed To Touch",
       "coreQuestion": "When AI can do things for me, how do I stay in charge of what it can see and change?",
       "blurb": "Give it the least it needs. Written promises are not locks, so look for controls you can actually see.",
-      "minutes": 10,
+      "minutes": 17,
       "resources": [],
       "steps": [
         {
@@ -5873,7 +5873,7 @@
       "title": "Build One Small Thing That Lasts",
       "coreQuestion": "How do I turn everything I have learned into one small tool I will actually use again?",
       "blurb": "Build it in three stages you can save. Design it, test it where it hurts, then keep proof of what changed.",
-      "minutes": 35,
+      "minutes": 26,
       "resources": [],
       "steps": [
         {
@@ -5982,7 +5982,7 @@
       "title": "Teach Someone Else",
       "coreQuestion": "How do I know I can explain an AI idea clearly, correctly, and in my own words?",
       "blurb": "Teach one idea by writing, by a private recording, by a simulation with a made-up learner, or to a willing listener. The proof is the same either way.",
-      "minutes": 10,
+      "minutes": 18,
       "resources": [],
       "steps": [
         {
@@ -6108,7 +6108,7 @@
       "title": "The Bigger Picture",
       "coreQuestion": "AI is going to change things. How do I plan my own move instead of waiting to see what happens?",
       "blurb": "Skip the panic and the shrug. Write a three-line plan for one thing you care about, then prove it works anywhere.",
-      "minutes": 10,
+      "minutes": 16,
       "resources": [],
       "steps": [
         {
@@ -6220,7 +6220,7 @@
       "title": "Your Toolkit and Where to Go Next",
       "coreQuestion": "How do I get everything I learned onto one page, and prove it works on a job I have never seen?",
       "blurb": "Turn fifty lessons into one page you can open and use. Then finish.",
-      "minutes": 11,
+      "minutes": 20,
       "resources": [],
       "steps": [
         {

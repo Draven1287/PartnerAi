@@ -8,7 +8,7 @@ export default {
   "title": "Draft, Pick It Apart, Do It Again",
   "coreQuestion": "How do I get genuinely better work out of AI, by going round the loop instead of asking once?",
   "blurb": "Good work comes from going round again. Draft it, have it picked apart, fix it yourself, repeat.",
-  "minutes": 10,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

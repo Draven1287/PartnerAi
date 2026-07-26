@@ -8,7 +8,7 @@ export default {
   "title": "Show It, Don't Describe It",
   "coreQuestion": "Why does pasting one example of the style I want beat describing that style in words?",
   "blurb": "Pick one safe example of the style you want and paste it in. Then decide what still needs to sound like you.",
-  "minutes": 9,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

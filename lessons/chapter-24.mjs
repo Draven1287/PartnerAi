@@ -8,7 +8,7 @@ export default {
   "title": "Get It to Teach You",
   "coreQuestion": "How do I use AI to actually learn something, instead of getting an answer I forget by tomorrow?",
   "blurb": "Turn a wall of answer into a lesson in small steps, then prove it stuck by saying it back.",
-  "minutes": 10,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Build One Small Thing That Lasts",
   "coreQuestion": "How do I turn everything I have learned into one small tool I will actually use again?",
   "blurb": "Build it in three stages you can save. Design it, test it where it hurts, then keep proof of what changed.",
-  "minutes": 35,
+  "minutes": 26,
   "resources": [],
   "steps": [
     {

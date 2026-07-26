@@ -8,7 +8,7 @@ export default {
   "title": "Feelings, Support, and Its Limits",
   "coreQuestion": "Can AI help me with how I feel, and where does it stop and a real person start?",
   "blurb": "AI can help you find words for a feeling. It cannot care about you, and it cannot keep you safe.",
-  "minutes": 9,
+  "minutes": 13,
   "resources": [],
   "steps": [
     {

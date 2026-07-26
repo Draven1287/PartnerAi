@@ -8,7 +8,7 @@ export default {
   "title": "What Is Real Online Now",
   "coreQuestion": "How do I decide what to believe online when anything could have been made by a computer?",
   "blurb": "Stop trusting how real something looks. Ask who put it out, and whether anyone separate says the same thing.",
-  "minutes": 9,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {

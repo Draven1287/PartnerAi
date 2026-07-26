@@ -8,7 +8,7 @@ export default {
   "title": "Make the Answer Checkable",
   "coreQuestion": "How do I ask for working I can actually look at, without pretending the AI can show me its private thoughts?",
   "blurb": "Ask for what it assumed, where the facts came from, and the sums it did. Then check one of them yourself.",
-  "minutes": 9,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

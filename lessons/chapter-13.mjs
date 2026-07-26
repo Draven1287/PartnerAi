@@ -8,7 +8,7 @@ export default {
   "title": "Fix It With One Reply",
   "coreQuestion": "When an answer is almost right, how do I fix it with one short reply instead of starting again?",
   "blurb": "Nudge a nearly-right answer with one line. No deleting, no retyping.",
-  "minutes": 8,
+  "minutes": 17,
   "resources": [],
   "steps": [
     {

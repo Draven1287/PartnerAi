@@ -8,7 +8,7 @@ export default {
   "title": "A Typo Costs Nothing. This Costs a Lot.",
   "coreQuestion": "If a messy message cannot hurt the machine, what can careless use cost me?",
   "blurb": "Type badly without fear. Guard your private details, your time, your voice, and the final call.",
-  "minutes": 9,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

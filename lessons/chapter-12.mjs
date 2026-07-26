@@ -8,7 +8,7 @@ export default {
   "title": "How to Ask So It Actually Helps",
   "coreQuestion": "How do I turn a vague ask into one that gets a genuinely useful answer?",
   "blurb": "An ask is an instruction, not a wish. Add four things and watch the answer sharpen.",
-  "minutes": 9,
+  "minutes": 25,
   "resources": [],
   "steps": [
     {

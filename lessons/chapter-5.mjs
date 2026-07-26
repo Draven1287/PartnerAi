@@ -8,7 +8,7 @@ export default {
   "title": "Check It, Then Decide",
   "coreQuestion": "How do I work out what needs checking, find proof somewhere else, and make the call myself?",
   "blurb": "Turn one confident-sounding answer into a checked decision that you actually own.",
-  "minutes": 10,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

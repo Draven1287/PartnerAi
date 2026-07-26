@@ -8,7 +8,7 @@ export default {
   "title": "Attention and Habits",
   "coreQuestion": "How do I catch myself reaching for AI without deciding to, and set a limit that protects my focus?",
   "blurb": "You choose when the chat opens and when it closes. Catching the reach is what puts you back in charge.",
-  "minutes": 9,
+  "minutes": 13,
   "resources": [],
   "steps": [
     {

@@ -8,7 +8,7 @@ export default {
   "title": "Money, Shopping and Travel",
   "coreQuestion": "How do I use AI to weigh up spending real money, without trusting a price it may have got wrong?",
   "blurb": "Let it lay out your choices. Then check the price yourself, on the page that takes your money.",
-  "minutes": 10,
+  "minutes": 19,
   "resources": [],
   "steps": [
     {

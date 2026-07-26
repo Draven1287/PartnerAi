@@ -8,7 +8,7 @@ export default {
   "title": "Your Words, and Facts You Checked",
   "coreQuestion": "When AI helps me write something, which parts of the job are still mine?",
   "blurb": "It can hand you a smooth paragraph and a smart-looking source in seconds. The words and the facts are still yours.",
-  "minutes": 10,
+  "minutes": 21,
   "resources": [],
   "steps": [
     {

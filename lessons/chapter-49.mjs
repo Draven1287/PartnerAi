@@ -8,7 +8,7 @@ export default {
   "title": "The Bigger Picture",
   "coreQuestion": "AI is going to change things. How do I plan my own move instead of waiting to see what happens?",
   "blurb": "Skip the panic and the shrug. Write a three-line plan for one thing you care about, then prove it works anywhere.",
-  "minutes": 10,
+  "minutes": 16,
   "resources": [],
   "steps": [
     {

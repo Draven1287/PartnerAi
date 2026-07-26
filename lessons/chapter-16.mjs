@@ -8,7 +8,7 @@ export default {
   "title": "Check It Before You Trust It",
   "coreQuestion": "How do I tell whether the source an AI gives me really backs up what it said?",
   "blurb": "A link proves nothing until you open it and find the fact sitting there on the page.",
-  "minutes": 9,
+  "minutes": 20,
   "resources": [],
   "steps": [
     {

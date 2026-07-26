@@ -8,7 +8,7 @@ export default {
   "title": "Whose Voice Is Missing?",
   "coreQuestion": "If an answer sounds calm and balanced, does that make it fair and complete?",
   "blurb": "A smooth, even tone is not the same as the whole picture. Learn to ask who got left out.",
-  "minutes": 9,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

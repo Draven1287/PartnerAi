@@ -8,7 +8,7 @@ export default {
   "title": "Use AI Safely Once",
   "coreQuestion": "How can I use an AI assistant without handing over my privacy, voice, or final decision?",
   "blurb": "Make several realistic choices, see what the system is actually doing, and leave with one control rule you can use immediately.",
-  "minutes": 10,
+  "minutes": 15,
   "resources": [],
   "steps": [
     {

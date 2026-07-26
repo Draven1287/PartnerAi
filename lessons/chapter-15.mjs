@@ -8,7 +8,7 @@ export default {
   "title": "Who Is in Charge",
   "coreQuestion": "If the AI writes it, who is actually in charge, and which part is still my job?",
   "blurb": "AI can do the middle of a job. You keep the goal, the way you want it, and the last look.",
-  "minutes": 9,
+  "minutes": 18,
   "resources": [],
   "steps": [
     {
