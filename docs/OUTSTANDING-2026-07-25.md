@@ -31,23 +31,29 @@ is correct, because HSTS cannot be revoked quickly.
 
 ## 3. UI / UX raised but not fixed
 
-- **Badges (Focus page)** — click-to-flip does not work alongside drag; shadows
-  on the front face look wrong; a medal does not return to the front.
-- **About page** — empty grid cell in the middle ("For adults" sits alone in the
-  left column with nothing beside it).
-- **Glass ↔ non-glass scroll transition** — not smooth enough on scroll.
+- ~~Badges (Focus page)~~ **DONE** — dark inner vignette removed from both
+  faces; a tap now settles on an absolute face (0 or 180) instead of adding a
+  turn onto whatever the drag left; medals settle level rather than at 4°.
+- ~~About page empty grid cell~~ **DONE** — a trailing odd card spans the width.
+- **Glass ↔ non-glass scroll transition** — not smooth enough on scroll. STILL OPEN.
 - **Progress page** — arc names should sit *inside* the coloured boxes; there is
   a "Start" control with nothing in it that just navigates back.
-- **Start / landing page** — Aarav wants an explicit "you get one lesson free,
-  then you sign in" framing before Lesson 1, rather than dropping straight in.
+- ~~Start / landing page~~ **DONE** — index.html is now a single glass panel:
+  one line of what this is, one of what happens after the first lesson, one
+  primary action, one quiet sign-in link. Returning learners bypass it. The
+  two-option lesson-length picker was also removed; there is one 7-step path.
 - **Age range control** — should not be a plain dropdown; wants something nicer.
 - **The questionnaire gives the learner nothing.** Aarav asked whether it could
   award something. Currently it records a level that nothing reads.
-- **Backend console UI/UX** — now restyled to V2 tokens, but not reviewed.
+- **Backend console UI/UX** — restyled to V2 tokens, NOT yet reviewed with
+  Aarav. He explicitly asked for a UX pass on the console. STILL OPEN.
+- **Safari "not secure"** — RESOLVED, not a real issue. Aarav confirmed Safari
+  says nothing. The red icon was Arc's tracker-blocker shield. Certificate is
+  valid, no mixed content, http redirects, HSTS now set. Do not re-investigate.
 
 ## 4. Content
 
-- **`lesson-one.html` has never been rewritten.** All 50 curriculum lessons are
+- **`lesson-one.html` has never been rewritten. HIGHEST-VALUE REMAINING FIX.** All 50 curriculum lessons are
   now plain-language, but the bespoke free first lesson — the first thing a
   stranger ever sees — still uses roughly **nine undefined technical terms**
   (context, evidence, permission, prediction, prompt …). This is the single
