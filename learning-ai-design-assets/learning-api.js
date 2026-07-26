@@ -282,6 +282,12 @@
     saveMinutes: entry => request('/api/v2/minutes', { method: 'POST', body: entry }),
     queueMinutes,
     flushMinuteQueue,
+    /* The backend has recorded these since day one and the tables were empty,
+       because nothing on the client ever called them. Which answer a learner
+       actually chose is the one signal that shows WHICH lesson confuses people. */
+    saveInteraction: body => request('/api/v2/interaction', { method: 'POST', body }),
+    submitQuizAnswer: body => request('/api/v2/quiz-answer', { method: 'POST', body }),
+    completeActivity: body => request('/api/v2/activity-complete', { method: 'POST', body }),
     queueProgress,
     flushProgressQueue,
     pendingProgressCount,
