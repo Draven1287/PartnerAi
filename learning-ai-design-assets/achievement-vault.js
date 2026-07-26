@@ -338,9 +338,12 @@
     const pose = poses.get(object);
     if (!pose) return;
     const next = direction
-      ? (faceFor(pose.y) === 'front' ? (direction > 0 ? 180 : -180) : 0)
+      /* A tap must land on an absolute face, not add another turn onto whatever
+         a drag left behind. pose.y can sit well outside [-180,180] after a few
+         drags, which is why "flip" stopped coming back to the front. */
+      ? (faceFor(pose.y) === 'front' ? 180 : 0)
       : Math.max(-180, Math.min(180, Math.round(pose.y / 180) * 180));
-    setPose(object, 4, next, true);
+    setPose(object, 0, next, true);
     object.classList.remove('is-turning');
   }
 

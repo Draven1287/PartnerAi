@@ -293,8 +293,7 @@
   /* The artwork is already rendered with depth and lighting. Painting another
      bevel over it flattened it into a sticker. Keep only a thin rim. */
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .5),
-    inset 0 0 22px rgba(24, 30, 28, .18);
+    inset 0 0 0 1px rgba(255, 255, 255, .5);
   transform: translateZ(calc(var(--medal-depth) / 2));
 }
 
@@ -333,8 +332,7 @@
   background-position: center;
   background-size: cover;
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, .5),
-    inset 0 0 22px rgba(24, 30, 28, .2);
+    inset 0 0 0 1px rgba(255, 255, 255, .5);
   color: #2f3432;
   text-shadow: 0 1px 0 rgba(255, 255, 255, .68);
   transform: rotateY(180deg) translateZ(calc(var(--medal-depth) / 2));
