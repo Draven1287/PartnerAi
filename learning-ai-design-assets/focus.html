@@ -4,12 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Focus · LearningAI</title>
-  <link rel="stylesheet" href="./glass-finish.css">
-  <link rel="stylesheet" href="./theme.css?v=2026-07-26b">
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26c">
   <link rel="stylesheet" href="./dashboard.css?v=2026-07-26e">
   <link rel="stylesheet" href="./focus.css?v=2026-07-26e">
-  <link rel="stylesheet" href="./focus-refinement.css?v=2026-07-26e">
-  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26e">
+  <link rel="stylesheet" href="./focus-refinement.css?v=2026-07-26f">
+  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26f">
 </head>
 <body>
   <div class="nav-stage">
@@ -23,7 +23,6 @@
           <a href="./focus.html" aria-current="page">Focus</a>
           <a href="./projects.html">Projects</a>
           <a href="./about.html">About</a>
-          <a href="./about.html#teaching">Teaching AI</a>
         </nav>
         <div class="welcome"><span class="greeting" id="greeting">Welcome back, Learner</span></div>
         <a class="settings" href="./settings.html" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1v-4a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v.09a1.7 1.7 0 0 0 1.4 1.51 1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1v4a1.7 1.7 0 0 0-.6 1Z"/></svg></a>
@@ -190,6 +189,24 @@
         <div class="vault-rail milestone-rail" id="milestoneGrid" role="group" tabindex="0" aria-label="Learning milestone pins. Scroll sideways to see all twelve."></div>
         <div class="rail-preview" id="milestonePreview" role="group" aria-label="Jump to a pin"></div>
       </div>
+
+      <!-- The turn control sits with the medals, not in the panel below: it is
+           the control for the object above it, and the two were never on screen
+           together while it lived in "The medal you selected". One control
+           serves both collections, so it is outside the two tab panels. -->
+      <div class="vault-turn">
+        <p class="vault-turn-head">
+          <label for="badgeRotation">Turn <b id="turnTargetName">First Signal</b></label>
+          <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
+        </p>
+        <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="badgeTurnHelp">
+        <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
+        <div class="rotation-actions" aria-label="Quick badge rotation controls">
+          <button id="badgeShowFront" type="button">Show front</button>
+          <button id="badgeShowBack" type="button">Show back</button>
+        </div>
+        <p class="turn-help" id="badgeTurnHelp">Drag a medal sideways with a mouse, trackpad, or finger—a vertical finger gesture still scrolls the page. Press Enter to flip it, or use this slider. Let the slider go and the medal settles on whichever face is nearer.</p>
+      </div>
     </section>
 
     <!-- This panel used to sit at the very bottom, under a second collapsed
@@ -212,20 +229,6 @@
             <div><dt>Engraving</dt><dd id="selectedBadgeEarned">Not engraved yet</dd></div>
           </dl>
         </aside>
-        <div class="turn-controls">
-          <p class="eyebrow">Turn it over</p>
-          <p class="turn-help">Drag a medal sideways with a mouse, trackpad, or finger—a vertical finger gesture still scrolls the page. Press Enter to flip it, or use this slider. Let the slider go and the medal settles on whichever face is nearer.</p>
-          <label for="badgeRotation">
-            <span>Rotation</span>
-            <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
-          </label>
-          <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="rotationTitle">
-          <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
-          <div class="rotation-actions" aria-label="Quick badge rotation controls">
-            <button id="badgeShowFront" type="button">Show front</button>
-            <button id="badgeShowBack" type="button">Show back</button>
-          </div>
-        </div>
       </div>
     </section>
   </main>
@@ -244,11 +247,11 @@
     </div>
   </dialog>
 
-  <script src="./theme.js?v=2026-07-26b"></script>
+  <script src="./theme.js?v=2026-07-26c"></script>
   <script src="./nav-behavior.js?v=2026-07-25w"></script>
   <script src="../v2/lessons.js?v=2026-07-25w"></script>
   <script src="./course-state.js?v=2026-07-25w"></script>
   <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-26e"></script>
-  <script src="./achievement-vault.js?v=2026-07-26e"></script>
+  <script src="./achievement-vault.js?v=2026-07-26f"></script>
 </body>
 </html>

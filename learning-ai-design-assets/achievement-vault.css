@@ -119,12 +119,13 @@
   opacity: .93;
 }
 
-.achievement-item.is-earned .achievement-stage {
-  filter:
-    saturate(1.04) contrast(1.025)
-    drop-shadow(0 0 8px color-mix(in oklab, var(--accent, #b58c45) 24%, transparent))
-    drop-shadow(0 16px 14px rgba(38, 44, 41, .14));
-}
+/* An earned medal used to carry two stacked drop-shadows here — an 8px accent
+   glow and a 16px dark one. drop-shadow filters compose in sequence, so the
+   second one cast a copy of the first: the accent haze was smeared 16px down
+   and spread past 30px from the rim, above the medal as well as below it. That
+   is the smudge on the paper. Earned and locked now share one treatment, and
+   the only shadow a medal casts is the contact shadow on .achievement-stage
+   ::after. The accent still reads, on the specular below and on the card. */
 
 .achievement-item.is-earned .achievement-front::after {
   background:
@@ -230,21 +231,29 @@
      transform-style to flat, so while it sat on the coin every child was
      flattened into one plane: the faces' translateZ did nothing and the medal
      was a flipping card with no thickness. The stage is already the flattening
-     boundary (it holds the perspective), so the same look costs no depth. */
-  filter: saturate(1.04) contrast(1.025) drop-shadow(0 10px 10px rgba(31, 36, 34, .12));
+     boundary (it holds the perspective), so the same look costs no depth.
+     It no longer carries a drop-shadow: a drop-shadow traces the silhouette, so
+     it appeared above the medal as well as below it and read as grime rather
+     than as depth. Depth is the contact shadow below plus the card's own glass
+     shadow — one shadow each, not three. */
+  filter: saturate(1.04) contrast(1.025);
 }
 
+/* The contact shadow. It used to sit at bottom:1% — inside the disc, hidden
+   behind the coin — and measured out at a 0.05 mean difference on screen, so
+   the medal effectively cast nothing of its own and the drop-shadow filter was
+   doing all the work. It now sits just below the disc where a shadow on the
+   glass belongs, and it is identical for every medal, earned or locked. */
 .achievement-stage::after {
   content: "";
   position: absolute;
-  z-index: -2;
-  width: 68%;
-  height: 10%;
-  bottom: 1%;
+  z-index: -1;
+  left: 17%;
+  right: 17%;
+  bottom: -5.5%;
+  height: 11%;
   border-radius: 50%;
-  background: radial-gradient(ellipse, rgba(35, 42, 39, .22), transparent 72%);
-  filter: blur(8px);
-  opacity: .38;
+  background: radial-gradient(closest-side, rgba(36, 42, 39, .26), rgba(36, 42, 39, .12) 58%, transparent 76%);
   pointer-events: none;
 }
 
@@ -288,8 +297,13 @@
   background-color: #e8e5de;
   background-image: var(--front-image);
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
+  /* --front-zoom/--front-dx/--front-dy frame the artwork; see the measured
+     table at the end of this file. Percentages and a fraction of --object-size
+     rather than pixels, so the crop survives every medal size. */
+  background-position:
+    calc(50% + var(--front-dx, 0) * var(--object-size))
+    calc(50% + var(--front-dy, 0) * var(--object-size));
+  background-size: var(--front-zoom, cover);
   /* The artwork is already rendered with depth and lighting. Painting another
      bevel over it flattened it into a sticker. Keep only a thin rim. */
   box-shadow:
@@ -329,8 +343,10 @@
   background-color: #c9cdcb;
   background-image: var(--back-image);
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
+  background-position:
+    calc(50% + var(--back-dx, 0) * var(--object-size))
+    calc(50% + var(--back-dy, 0) * var(--object-size));
+  background-size: var(--back-zoom, cover);
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, .5);
   color: #2f3432;
@@ -881,45 +897,10 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
 .selected-achievement-detail dt{color:#545b57;font-size:11px;letter-spacing:.07em}
 .selected-achievement-detail dd{font-size:14px}
 
-.turn-controls{
-  display:grid;gap:14px;align-content:start;padding:24px 26px;
-  border:1px solid rgba(255,255,255,.72);border-radius:22px;
-  background:linear-gradient(145deg,rgba(255,255,255,.42),rgba(239,238,233,.15));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.86),0 12px 26px rgba(35,40,38,.07);
-}
+/* The .turn-controls panel that used to hold the rotation slider is gone — the
+   control moved up to sit with the medals; see .vault-turn at the end of this
+   file. Only .turn-help survives, because the help text moved with it. */
 .turn-help{max-width:52ch;margin:0;color:#545b57;font-size:12.5px;line-height:1.55}
-.turn-controls label{
-  display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;justify-content:space-between;
-  margin:0;color:#343a37;font-size:12px;font-weight:720;
-}
-.turn-controls output{color:#4f5652;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
-/* The old rule set this track to `background:transparent` at 34px tall, so the
-   control was an empty outline with a gold bead floating in it. */
-.turn-controls input[type="range"]{
-  width:100%;height:13px;margin:0;appearance:none;-webkit-appearance:none;
-  border:1px solid rgba(41,47,44,.17);border-radius:999px;
-  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
-  box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
-  cursor:pointer;
-}
-.turn-controls input[type="range"]::-webkit-slider-thumb{
-  width:30px;height:30px;appearance:none;-webkit-appearance:none;
-  border:1px solid rgba(255,255,255,.82);border-radius:50%;
-  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
-  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
-}
-.turn-controls input[type="range"]::-moz-range-thumb{
-  width:28px;height:28px;border:1px solid rgba(255,255,255,.82);border-radius:50%;
-  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
-  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
-}
-.turn-controls input[type="range"]:focus-visible{outline:3px solid #17231f;outline-offset:5px}
-.turn-controls .rotation-stops,
-.turn-controls .rotation-actions{grid-column:auto}
-.turn-controls .rotation-actions{justify-content:flex-start}
-/* Back · Front · Back label the two ends and the middle of the slider, so they
-   have to sit over the points they name. */
-.turn-controls .rotation-stops{justify-content:space-between;color:#4f5652;font-size:11px}
 
 @media(max-width:900px){
   .medal-inspector{padding:32px 24px}
@@ -948,3 +929,155 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
    the ring, because that is the award the inspector below is describing. */
 .preview-chip.is-visible{background:rgba(255,255,255,.40)}
 .preview-chip.is-visible i{box-shadow:inset 0 1px rgba(255,255,255,.7),0 1px 3px rgba(30,36,33,.18)}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Medal framing, one shadow, and the turn control — 26 July 2026
+
+   The complaint was "these badges just need to change the shadow around
+   them", and "number three has its own kind of shadow". Two separate causes,
+   both measured:
+
+   1. CSS.  Every medal sat inside a drop-shadow filter on .achievement-stage.
+      For an earned medal that filter was two stacked drop-shadows, and because
+      drop-shadow filters compose in sequence the second cast a copy of the
+      first: the accent glow was re-shadowed 16px downward and washed the card
+      more than 30px out from the rim, above the medal as well as below. Both
+      drop-shadows are gone; a medal now casts one contact shadow, the same for
+      every medal in both collections.
+
+   2. The artwork.  Each face is a 384px square with the medal rendered inside
+      it on paper, with its own baked ground shadow — and the medal is not in
+      the same place in any two files. Fitting the disc in each gives centres
+      from x=190 to x=218 and radii from 169 to 183, against a CSS clip that is
+      always a circle of radius 192 at (192,192). So `background-size:cover`
+      left a crescent of artwork paper and baked shadow inside the clip, in a
+      different place and a different width on every medal: 6px evenly around
+      Arc 1, 19px down the left of Arc 3. That is the shadow he was pointing
+      at, and it is why it looked like a different shadow on each one.
+
+      --*-zoom/--*-dx/--*-dy below frame each face so the artwork's own disc is
+      centred in the clip and 2% larger than it, which puts the paper and the
+      baked shadow outside the crop on all twenty faces. Measured by fitting a
+      circle to the rim of each image; the numbers are that fit, not taste.
+   ───────────────────────────────────────────────────────────────────────── */
+[data-card="arc-1"] {--front-zoom:111.1%;--front-dx:.0049;--front-dy:-.0040;--back-zoom:110.1%;--back-dx:.0006;--back-dy:.0029}
+[data-card="arc-2"] {--front-zoom:111.0%;--front-dx:-.0023;--front-dy:-.0303;--back-zoom:110.6%;--back-dx:-.0058;--back-dy:-.0308}
+[data-card="arc-3"] {--front-zoom:115.1%;--front-dx:-.0792;--front-dy:-.0237;--back-zoom:113.9%;--back-dx:.0576;--back-dy:-.0225}
+[data-card="arc-4"] {--front-zoom:109.2%;--front-dx:-.0256;--front-dy:-.0196;--back-zoom:106.8%;--back-dx:.0159;--back-dy:-.0081}
+[data-card="arc-5"] {--front-zoom:111.2%;--front-dx:-.0217;--front-dy:-.0226;--back-zoom:107.4%;--back-dx:.0176;--back-dy:-.0224}
+[data-card="arc-6"] {--front-zoom:115.5%;--front-dx:-.0533;--front-dy:-.0358;--back-zoom:113.3%;--back-dx:.0498;--back-dy:-.0283}
+[data-card="arc-7"] {--front-zoom:107.1%;--front-dx:-.0086;--front-dy:-.0165;--back-zoom:108.0%;--back-dx:.0039;--back-dy:-.0118}
+[data-card="arc-8"] {--front-zoom:115.9%;--front-dx:-.0727;--front-dy:-.0250;--back-zoom:110.7%;--back-dx:.0262;--back-dy:-.0133}
+[data-card="arc-9"] {--front-zoom:112.7%;--front-dx:-.0540;--front-dy:-.0153;--back-zoom:111.7%;--back-dx:.0488;--back-dy:-.0186}
+[data-card="arc-10"]{--front-zoom:110.4%;--front-dx:-.0423;--front-dy:-.0181;--back-zoom:109.3%;--back-dx:.0359;--back-dy:-.0145}
+
+/* A milestone pin's back was drawn with `cover`, so all twelve pins from the
+   contact sheet were squeezed into one 104px disc. achievement-vault.js has
+   always emitted --back-position and --back-size for this; no rule ever read
+   them. This is that rule. */
+.milestone-back{
+  background-image:var(--back-image);
+  background-position:var(--back-position,center);
+  background-size:var(--back-size,cover);
+}
+
+/* ── The engraving plate ────────────────────────────────────────────────────
+   Every back image has "EARNED JUL 23 2026 · 9:56 AM" engraved into it — the
+   same fabricated moment on all ten arc backs and all twelve pin backs. The
+   plate carries the learner's real status, and it used to sit at the bottom of
+   the face, half of it clipped off by the round edge, leaving the fabricated
+   date fully legible above it. Two dates, one of them untrue.
+
+   Measured on the cropped faces: the engraved meaning ends by 66% of the face
+   height and the engraved date block runs 68%–82.5%, x 27.5%–73%. The plate
+   now covers 66%–85% × 17%–83%, which hides the fabricated date on every back
+   and still sits inside the disc (at y=85% the circle allows 14.3%–85.7%). */
+.achievement-back .engraving-plate{
+  position:absolute;
+  left:17%;right:17%;top:66%;bottom:15%;
+  width:auto;min-height:0;margin:0;
+  padding:0 6px;
+  align-content:center;
+}
+/* The pin backs bake a name and a date too, but the pin sits left of centre in
+   its sprite cell, so its engraved name runs from 9.9% to 74% across the disc.
+   A plate wide enough to cover that would have to be wider than the disc is at
+   that height and would come back clipped — which is how the plate looked
+   before. So on a pin the plate covers the fabricated date only (measured at
+   75.2%–81.4% down, 25%–62.2% across), and the engraved name stays: it is the
+   pin's real name, and only the date was invented. Fixing the framing so a pin
+   is centred in its disc needs the sprite cells re-measured or the sheet
+   re-rendered; both are noted in the handover. */
+.milestone-item .achievement-back .engraving-plate{
+  left:16%;right:16%;top:73%;bottom:14%;
+  padding:0 4px;
+}
+.milestone-item .achievement-back .engraving-plate strong{display:none}
+
+/* ── 1 · The turn control, moved to the medals ──────────────────────────────
+   It used to live in the panel below, so the control and the object it turns
+   were never on screen together. It is now the last row of the collection
+   panel, directly under the rail, and it drives whichever medal is selected. */
+.vault-turn{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:20px;padding:18px 20px;
+  border:1px solid rgba(255,255,255,.78);border-radius:17px;
+  background:rgba(255,255,255,.27);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.86);
+}
+/* .rotation-stops and .rotation-actions still carry `grid-column:2` from the
+   two-column console this control used to live in, and that selector is not
+   scoped to it. Without this the stops and the buttons open an implicit second
+   column and the block lays out sideways. */
+.vault-turn > *{grid-column:1}
+.vault-turn-head{
+  display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between;
+  margin:0;color:#343a37;font-size:12px;font-weight:720;
+}
+.vault-turn-head b{color:#1b211e;font-weight:760}
+.vault-turn-head output{color:#404643;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+/* The input box is the hit area, so it is 44px tall; the track is painted on
+   ::-webkit-slider-runnable-track / ::-moz-range-track at its real 13px. The
+   previous rule put the 13px on the input itself, which made the whole control
+   a 13px target — the earlier 34px version painted the gradient over the full
+   height instead, which is why it was reduced. This keeps both. */
+.vault-turn input[type="range"]{
+  width:100%;height:44px;margin:0;appearance:none;-webkit-appearance:none;
+  border:0;background:transparent;cursor:pointer;
+}
+.vault-turn input[type="range"]::-webkit-slider-runnable-track{
+  height:13px;
+  border:1px solid rgba(41,47,44,.17);border-radius:999px;
+  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
+  box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
+}
+.vault-turn input[type="range"]::-moz-range-track{
+  height:13px;
+  border:1px solid rgba(41,47,44,.17);border-radius:999px;
+  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
+  box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
+}
+.vault-turn input[type="range"]::-webkit-slider-thumb{
+  width:30px;height:30px;margin-top:-8.5px;appearance:none;-webkit-appearance:none;
+  border:1px solid rgba(255,255,255,.82);border-radius:50%;
+  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+}
+.vault-turn input[type="range"]::-moz-range-thumb{
+  width:28px;height:28px;border:1px solid rgba(255,255,255,.82);border-radius:50%;
+  background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+}
+.vault-turn input[type="range"]:focus-visible{outline:3px solid #17231f;outline-offset:5px}
+.vault-turn .rotation-stops{justify-content:space-between;margin:-6px 0 0;color:#4f5652;font-size:11px}
+.vault-turn .rotation-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0;justify-content:flex-start}
+.vault-turn .rotation-actions button{min-height:44px;padding:0 18px}
+.vault-turn .turn-help{max-width:74ch;margin:0;color:#4f5652;font-size:12px;line-height:1.5}
+@media(max-width:640px){
+  .vault-turn{padding:16px 14px}
+  .vault-turn .rotation-actions button{flex:1 1 auto}
+}
+
+/* The inspector keeps the description and loses the controls, so it is one
+   column of prose now rather than a two-column panel with an empty half. */
+.medal-inspector .inspector-body{grid-template-columns:minmax(0,1fr)}
+.medal-inspector .selected-achievement-detail{max-width:none}

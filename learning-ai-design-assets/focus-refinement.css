@@ -545,6 +545,6 @@ html[data-motion="none"] .medal[aria-pressed="true"] .medal-front {
 .vault-head > p.vault-count{color:#565d59}
 .switch-option small{color:#545b57}
 .selected-achievement-detail dt{color:#545b57}
-.turn-controls .rotation-stops{color:#4f5652}
+.vault-turn .rotation-stops{color:#4f5652}
 .learning-rhythm .focus-time span,.learning-rhythm .focus-feedback{color:#4f5652;font-size:11px}
 .turn-hint b{color:color-mix(in oklab,var(--accent,#8d7445) 58%,#1b211e)}

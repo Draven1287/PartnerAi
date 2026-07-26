@@ -7,6 +7,9 @@
   const EARNED_KEY = 'learningai-achievements-v2';
   const RHYTHM_KEY = 'learningai-learning-rhythm-v1';
   const selectedName = document.querySelector('#selectedBadgeName');
+  /* The turn control now sits with the medals, so it names the medal it turns
+     rather than relying on a heading two panels away. */
+  const turnTargetName = document.querySelector('#turnTargetName');
   const selectedDetailName = document.querySelector('#selectedBadgeDetailName');
   const selectedMeaning = document.querySelector('#selectedBadgeMeaning');
   const selectedRequirement = document.querySelector('#selectedBadgeRequirement');
@@ -391,6 +394,7 @@
     document.querySelectorAll('.achievement-item').forEach(card => card.classList.toggle('is-selected', card.contains(object)));
     const item = [...capabilities, ...milestones].find(entry => entry.id === object.dataset.achievement);
     selectedName.textContent = item?.name || 'badge';
+    if (turnTargetName) turnTargetName.textContent = item?.name || 'this medal';
     updateInspector(item);
     const pose = poses.get(object);
     if (pose) {
@@ -431,8 +435,32 @@
     poses.set(object, pose);
     setPose(object, pose.x, pose.y, true);
 
+    /* One place that ends a gesture, so every way of losing the pointer — a
+       release outside the window, another element taking capture, the tab
+       losing focus — lands the medal on a face instead of stranding it
+       mid-turn at whatever angle it happened to hold. */
+    function endGesture(settle = true) {
+      const idle = pose.pointerId === null && pose.intent === 'none';
+      if (pose.pointerId !== null && object.hasPointerCapture(pose.pointerId)) {
+        object.releasePointerCapture(pose.pointerId);
+      }
+      const wasDragging = pose.intent === 'rotate' && pose.moved;
+      const wasScroll = pose.intent === 'scroll';
+      pose.pointerId = null;
+      pose.intent = 'none';
+      pose.moved = false;
+      if (idle || wasScroll || !settle) return;
+      /* A drag that ends anywhere other than on the medal still counts as a
+         drag, so the click it would otherwise synthesise must not flip it. */
+      if (wasDragging) pose.ignoreClickUntil = Date.now() + 450;
+      snap(object);
+    }
+
     object.addEventListener('pointerdown', event => {
       selectObject(object);
+      /* Only the primary button, and only the primary pointer. A right-click or
+         a second finger used to start a turn that nothing would ever finish. */
+      if (event.button !== 0 || !event.isPrimary) return;
       if (document.documentElement.dataset.motion === 'none') return;
       pose.pointerId = event.pointerId;
       pose.startX = event.clientX;
@@ -449,6 +477,10 @@
 
     object.addEventListener('pointermove', event => {
       if (pose.pointerId !== event.pointerId) return;
+      /* If no button is down the press is over, however we came to miss the
+         release. Without this the medal follows the bare cursor around the
+         page: "I don't need to click and drag, it just starts dragging." */
+      if (!(event.buttons & 1)) { endGesture(); return; }
       const dx = event.clientX - pose.startX;
       const dy = event.clientY - pose.startY;
       if (pose.intent === 'pending' && Math.hypot(dx, dy) > 9) {
@@ -464,29 +496,57 @@
       if (Math.abs(dx) > 4) pose.moved = true;
       if (!pose.moved) return;
       event.preventDefault();
-      /* The highlight follows the angle now, not the cursor, so there is no
-         second lighting model to reconcile — and no layout read per move. */
-      setPose(object, Math.max(-18, Math.min(18, 4 - dy * .16)), pose.startYRotation + dx * .88, false);
+      /* Y only. This used to read `Math.max(-18, Math.min(18, 4 - dy * .16))`
+         for the X pose, so a medal that rests square-on leaned 4deg the instant
+         it was touched and up to 18deg if the pointer wandered vertically, then
+         straightened again on release — the medal genuinely looked different
+         while it was being turned than at rest. The resting tilt was removed
+         earlier for the same reason; this was the last of it. The highlight
+         follows the angle, not the cursor, so there is no second lighting model
+         to reconcile — and no layout read per move. */
+      setPose(object, 0, pose.startYRotation + dx * .88, false);
     });
 
     object.addEventListener('pointerup', event => {
       if (pose.pointerId !== event.pointerId) return;
       if (object.hasPointerCapture(event.pointerId)) object.releasePointerCapture(event.pointerId);
+      const wasDrag = pose.intent === 'rotate' && pose.moved;
+      const wasScroll = pose.intent === 'scroll';
       pose.pointerId = null;
-      if (pose.intent === 'rotate' && pose.moved) {
+      pose.intent = 'none';
+      pose.moved = false;
+      if (wasDrag) {
         pose.ignoreClickUntil = Date.now() + 450;
         snap(object);
-      } else if (pose.intent !== 'scroll') {
+      } else if (!wasScroll) {
         pose.ignoreClickUntil = Date.now() + 450;
         snap(object, 1);
       }
-      pose.intent = 'none';
     });
 
     object.addEventListener('pointercancel', event => {
       if (pose.pointerId !== event.pointerId) return;
-      pose.pointerId = null;
-      pose.intent = 'none';
+      endGesture();
+    });
+
+    /* The capture is what keeps a turn following the pointer once it has left
+       the card. If anything takes it away mid-gesture the medal would otherwise
+       stop wherever it was and stay there. */
+    object.addEventListener('lostpointercapture', () => endGesture());
+
+    /* A touch gesture is 'pending' until it is known to be a turn rather than a
+       scroll, and is not captured yet, so it can still leave the element. */
+    object.addEventListener('pointerleave', event => {
+      if (pose.pointerId !== event.pointerId) return;
+      if (object.hasPointerCapture(event.pointerId)) return;
+      endGesture();
+    });
+
+    /* Arrow keys nudge 15deg at a time for fine positioning and deliberately do
+       not settle while the medal has focus. Leaving it does settle, exactly as
+       leaving the rotation slider does. */
+    object.addEventListener('blur', () => {
+      endGesture(false);
       snap(object);
     });
 
