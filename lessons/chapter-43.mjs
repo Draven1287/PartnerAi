@@ -6,108 +6,108 @@ export default {
   "num": 43,
   "arc": "Building with AI",
   "title": "Keeping Your Voice and Being Honest",
-  "coreQuestion": "When AI helps you write, how do you stay the real author and stay honest about the help?",
-  "blurb": "Edit AI-helped writing back into your own voice; you decide when and how to disclose the help honestly.",
+  "coreQuestion": "When AI helps me write, how do I stay the real writer and stay honest about the help?",
+  "blurb": "Edit it back into your own words. Then decide who needs to know that AI helped.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The line that isn't yours",
-      "scenario": "You ask an assistant to polish a thank-you note to a teacher. It hands back something smooth: 'I am profoundly grateful for the invaluable investment you have made in my growth.' It reads well. It also sounds nothing like you — you'd never say 'profoundly' or 'invaluable investment' out loud.",
-      "prompt": "Before you read on: if you sent that note as-is, whose words did the teacher actually get — and would you feel okay saying you wrote it?"
+      "title": "The line that is not yours",
+      "scenario": "You ask an app to tidy up a thank-you note to a teacher.\n\nBack comes this. 'I am profoundly grateful for the invaluable investment you have made in my growth.'\n\nIt reads well. You would never say 'profoundly' out loud in your life.",
+      "prompt": "If you sent that as it is, whose words did your teacher actually get? Would you be comfortable saying you wrote it?"
     },
     {
       "kind": "reveal",
       "title": "Two moves, one habit",
-      "body": "Most real work can mix your effort with a tool. What matters is that the claims, choices, and final words remain accountable. You stay the author with two moves: make the words sound like you, and disclose the help when a reader, rule, customer, collaborator, or audience reasonably needs to know. Before an outside assistant sees a writing sample, remove names, addresses, private messages, confidential work, and another person's information. Data entered there leaves LearningAI; invented samples work. A tool can suggest wording, but you approve every claim and decide what disclosure is honest for the setting.",
-      "mistake": "Paste the AI's smooth draft, send it, and either claim you wrote it solo or never mention the help at all.",
-      "good": "Read it aloud, rewrite every line that doesn't sound like you, then decide — for this exact setting — whether you need a one-line note saying AI helped."
+      "body": "Most real work mixes your effort with some kind of tool. That is normal. What matters is that somebody stands behind the claims, the choices and the final words.\n\nYou stay the writer with two moves.\n\nFirst, make the words sound like you. Read it out loud. Anything you would never say, rewrite.\n\nSecond, say that AI helped, when the person reading it would want to know. A teacher, a customer, a rule, an audience.\n\nBefore an outside app sees a sample of your writing, take out names, addresses, private messages, confidential work, and anything about somebody else. What you type there leaves LearningAI. Made-up samples work fine.\n\nIt can suggest wording. You approve every claim, and you decide what honesty looks like here.",
+      "mistake": "Pasting the smooth draft, sending it, and either claiming you wrote it alone or never mentioning the help.",
+      "good": "Reading it out loud, rewriting every line that is not yours, then deciding whether this particular reader needs one line saying AI helped."
     },
     {
       "kind": "classify",
-      "title": "Which setting are you in?",
-      "prompt": "Disclosure depends on the setting. Sort each situation into where it belongs. Rule of thumb: disclose when accuracy or authorship matters to someone relying on it; for routine drafting of your own text, a note usually isn't needed.",
+      "title": "Which situation are you in?",
+      "prompt": "Whether to say so depends on the situation. Sort each one. Rough rule: say so when somebody is relying on who wrote it or on it being right. For tidying up your own writing, usually nobody needs a note.",
       "buckets": [
-        "Add a disclosure note",
-        "A note usually isn't needed"
+        "Say that AI helped",
+        "Usually no note needed"
       ],
       "items": [
         {
-          "text": "A school essay, where the assignment allows AI but asks you to note how you used it",
+          "text": "A school essay where AI is allowed, but you must say how you used it",
           "answer": 0
         },
         {
-          "text": "A client report where the numbers and authorship matter to whoever reads it",
+          "text": "A report for a customer, where the numbers and who wrote them matter",
           "answer": 0
         },
         {
-          "text": "A creative post you're sharing publicly that AI helped shape",
+          "text": "Something creative you are posting publicly that AI helped shape",
           "answer": 0
         },
         {
-          "text": "Reformatting your own rough notes into a cleaner list for yourself",
+          "text": "Turning your own scrappy notes into a tidy list, for yourself",
           "answer": 1
         },
         {
-          "text": "A quick personal draft you'll rewrite entirely in your own words anyway",
+          "text": "A quick personal draft you are going to rewrite completely anyway",
           "answer": 1
         }
       ],
-      "reveal": "When the assignment or policy is unclear, don't guess — ask the teacher or your manager BEFORE you submit. Guessing is the real risk. And never claim 100% solo if AI shaped it."
+      "reveal": "When the rule is unclear, do not guess. Ask the teacher or your manager BEFORE you submit. Guessing is the actual risk here. And never claim you did it all alone if AI shaped it."
     },
     {
       "kind": "tryLive",
-      "title": "Teach it your voice, then ask it to be honest",
-      "prompt": "Here's how I naturally write — study my voice: [paste 3-4 real sentences you actually wrote before]. Now help me improve [the new piece], keeping my voice: same formality, my kind of words, nothing fancier than I'd say. Then do two things: (1) list every phrase you added that doesn't sound like me, and (2) tell me honestly what kind of help this was (brainstorm / edit / mostly-AI draft) so I can describe it accurately if I disclose it.",
-      "note": "Use three invented or already-public sentences in your style; a private sample is not required. Remove identifying details and confidential material. Try a thank-you note, product listing, community announcement, creative caption, or application paragraph. Then accept or reject each suggested phrase and write an honest disclosure before anything is shared."
+      "title": "Teach it your voice, then ask it to be straight with you",
+      "prompt": "Here is how I actually write. Study it: [paste 3 or 4 sentences you wrote]. Now help me improve [the new piece], keeping my voice. Same level of formality, my kind of words, nothing fancier than I would say. Then do two things. One, list every phrase you added that does not sound like me. Two, tell me honestly what kind of help this was: ideas, editing, or mostly written by you. I need that so I can describe it accurately.",
+      "note": "Use three made-up or already-public sentences in your style. You do not need a private sample. Take out anything identifying or confidential. Try a thank-you note, an item for sale, a club announcement, a caption, or an application. Then accept or reject each phrase it suggested, and write your honest one-liner before anything gets shared."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your disclosure rule",
-      "cardType": "Disclosure Rule",
+      "title": "Save your rule",
+      "cardType": "My rule for saying AI helped",
       "fields": [
         {
           "key": "setting",
-          "label": "Setting",
-          "placeholder": "School, work, or creative"
+          "label": "The situation",
+          "placeholder": "School, work, or something creative"
         },
         {
           "key": "rule",
-          "label": "My one-line rule",
-          "placeholder": "e.g. I used AI to check grammar; the ideas and final words are mine."
+          "label": "My one-line note",
+          "placeholder": "e.g. I used AI to check my grammar. The ideas and the final words are mine."
         },
         {
           "key": "whenNone",
           "label": "When no note is needed",
-          "placeholder": "e.g. rough personal drafts I fully rewrite"
+          "placeholder": "e.g. rough personal drafts I rewrite completely"
         },
         {
           "key": "whenUnsure",
-          "label": "If unclear, I will",
-          "placeholder": "Ask the teacher / manager before I submit"
+          "label": "If it is unclear, I will",
+          "placeholder": "Ask the teacher or my manager before I hand it in"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Do both moves on a brand-new piece",
-      "question": "Take a piece you have NOT touched yet (a short post, a club email, a card). To have really done this lesson, what must be true when you finish?",
+      "title": "Do both moves on something new",
+      "question": "Take a piece you have not touched yet. A short post, a club email, a card. What must be true when you finish?",
       "options": [
         {
-          "text": "I can point to at least two lines I rewrote into my own words, AND I've written my one disclosure rule for this exact setting and applied it (added the note, or said in one sentence why none is needed).",
+          "text": "I can point to at least two lines I rewrote in my own words. And I have written my one-line rule for this exact situation and used it, either by adding the note or by saying in one sentence why none is needed.",
           "ok": true,
-          "feedback": "Yes. If someone saw your version next to the AI's raw version and could tell which is the real you — and you can say in one sentence how you'd disclose the help — you've done both moves."
+          "feedback": "Yes. If somebody put your version next to the raw one and could tell which is you, and you can say in a sentence how you would describe the help, both moves are done."
         },
         {
-          "text": "I rewrote the voice and verified the claims, but skipped disclosure even though the published venue asks creators to identify AI assistance.",
+          "text": "I rewrote it in my voice and checked the facts, but skipped the note, even though the site asks people to say when AI helped.",
           "ok": false,
-          "feedback": "The writing and facts may be yours, but the venue's rule makes disclosure part of honest publication. Add an accurate note before sharing."
+          "feedback": "The words and facts may be yours. The site has a rule, and following it is part of being honest. Add an accurate note before posting."
         },
         {
-          "text": "I added a disclosure saying 'AI was used,' but cannot explain whether the help was brainstorming, editing, or a mostly generated draft.",
+          "text": "I wrote 'AI was used', but I cannot say whether that meant ideas, editing, or most of the draft.",
           "ok": false,
-          "feedback": "A vague note can hide the scale of help. Name whether AI brainstormed, edited, or produced most of the draft so the reader can interpret it fairly."
+          "feedback": "A vague note hides how much help it was. Say which one it was, so the reader can judge it fairly."
         }
       ]
     }

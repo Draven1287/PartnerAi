@@ -5,113 +5,113 @@ export default {
   "id": "chapter-38",
   "num": 38,
   "arc": "AI for Real Life",
-  "title": "Health and High-Stakes Questions",
-  "coreQuestion": "How do I use AI to understand a high-stakes question without letting it decide anything for me?",
-  "blurb": "Use AI to prep for a real professional — understanding, never deciding.",
+  "title": "Health and Other Big Questions",
+  "coreQuestion": "How do I use AI to understand something serious, without letting it decide anything for me?",
+  "blurb": "Use it to walk in prepared. Understanding is fine. Deciding belongs to a person who is answerable.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The confident answer",
-      "scenario": "You've had a headache for three days. You type 'what's wrong with me and what should I do?' into an AI. It writes back three calm, complete paragraphs naming a likely cause and suggesting a medication. It sounds sure of itself.",
-      "prompt": "Before you read on: the AI never examined you, doesn't know your history, and can't run a test. So what is it actually giving you — a medical judgment, or a smooth guess dressed up as one?"
+      "title": "The very confident answer",
+      "scenario": "You have had a headache for three days. You type: what is wrong with me, and what should I take?\n\nBack come three calm paragraphs. They name a likely cause. They suggest a medicine.\n\nIt sounds completely sure of itself.",
+      "prompt": "It never looked at you. It does not know your history. It cannot run a test. So what did you actually just get?"
     },
     {
       "kind": "reveal",
-      "title": "Understand, don't decide",
-      "body": "For high-stakes questions, use AI to understand and prepare — not to diagnose or decide. It can translate unfamiliar language and help prepare general questions for a qualified professional.\n\nThe boundary is simple: the AI has not examined you, does not know your complete history, and cannot run a test. A smooth answer can still be wrong. Never start, stop, or change medication or treatment because an AI suggested it. Ask the clinician or pharmacist who is accountable for your care.\n\nProtect privacy before using any outside assistant: do not paste your name, date of birth, medical-record number, prescription label, test result, photo, full symptom history, or another person's health information. Data entered there leaves LearningAI. Practice with a made-up or broad question instead.\n\nDo not use AI for emergencies. For urgent symptoms such as chest pain, trouble breathing, or a serious reaction to medicine, contact local emergency services. If you feel unsafe or at risk of hurting yourself or someone else, contact a trusted person, emergency services, or a crisis line. In the United States and its territories, call or text 988.",
-      "mistake": "Self-diagnosing: asking the AI what's wrong with you and what to take, then acting on its word because it sounded certain.",
-      "good": "Ask the AI to explain the basics in plain words and build you a list of questions to bring to a real professional — then decide nothing on the AI alone."
+      "title": "Understand. Do not decide.",
+      "body": "For serious questions, use AI to understand and to get ready. Not to work out what is wrong, and never to choose what to do.\n\nIt is good at turning hard words into plain ones. It is good at building a list of questions to take to somebody qualified.\n\nThe line is simple. It has not examined you. It does not know your whole history. It cannot test anything. A smooth answer can still be completely wrong.\n\nSo never start, stop or change a medicine because a chat app suggested it. Ask the doctor or pharmacist who is answerable for your care.\n\nBefore you use an outside app, take out your name, your date of birth, any record number, a photo of a label, a test result, your full list of symptoms, and anything about somebody else's health. What you type there leaves LearningAI. A made-up or general question works fine for practice.\n\nDo not use AI in an emergency. For chest pain, trouble breathing, or a bad reaction to a medicine, call your local emergency number. If you feel unsafe, or at risk of hurting yourself or anyone else, reach a person you trust, emergency services, or a crisis line. In the United States and its territories, call or text 988.",
+      "mistake": "Asking what is wrong with you and what to take, then acting on the answer because it sounded certain.",
+      "good": "Asking it to explain the basics in plain words and build you questions for a real professional. Then deciding nothing on its word alone."
     },
     {
       "kind": "classify",
-      "title": "Understand vs. decide",
-      "prompt": "The rule: AI can help you UNDERSTAND, but a qualified human makes the DECISION. Sort each move into the right bucket.",
+      "title": "Understanding, or deciding?",
+      "prompt": "The rule. AI can help you understand. A qualified person makes the decision. Sort each one.",
       "buckets": [
-        "OK to ask AI (understand)",
+        "Fine to ask AI",
         "Only a professional decides"
       ],
       "items": [
         {
-          "text": "Explain in plain words why my doctor wants to recheck my blood pressure in a month",
+          "text": "Explain in plain words why a doctor might want to check blood pressure again in a month",
           "answer": 0
         },
         {
-          "text": "Tell me which medication to take and at what dose for my symptoms",
+          "text": "Tell me which medicine to take, and how much, for what I am feeling",
           "answer": 1
         },
         {
-          "text": "Help me write a list of questions to ask my pharmacist",
+          "text": "Help me write a list of questions to ask the pharmacist",
           "answer": 0
         },
         {
-          "text": "Diagnose what condition I have based on how I feel today",
+          "text": "Work out what illness I have from how I feel today",
           "answer": 1
         },
         {
-          "text": "Explain what a benefits letter generally means so I can follow the appointment",
+          "text": "Explain what a letter about benefits usually means, so I can follow the meeting",
           "answer": 0
         },
         {
-          "text": "Confirm it's safe to stop a prescribed medicine early",
+          "text": "Confirm that it is safe to stop taking a prescribed medicine early",
           "answer": 1
         }
       ],
-      "reveal": "Everything in the first bucket keeps you understanding and preparing. Everything in the second is a decision that belongs to a qualified human — even when the AI sounds sure."
+      "reveal": "Everything in the first group keeps you understanding and preparing. Everything in the second is a decision that belongs to a qualified person, however sure the answer sounds."
     },
     {
       "kind": "tryLive",
-      "title": "Turn AI into a prep sheet",
-      "prompt": "I want general education and questions to ask, not a diagnosis or decision. Using this made-up or broad situation — [general question with identifying details removed] — explain the general idea in plain words. Mark what only a qualified [professional] can decide, identify uncertainty, and write three questions a person could ask that professional. Do not recommend a medicine, dose, diagnosis, or treatment.",
-      "note": "Use a made-up or broad question such as 'why a clinician might recheck blood pressure later' — not your private history or a document from your account. A professional could be a doctor, pharmacist, nurse, dentist, lawyer, or financial adviser. Read the explanation back in your own words, circle one question for a real professional, and leave with a prep sheet rather than a verdict."
+      "title": "Turn it into a sheet of questions",
+      "prompt": "I want to understand this and prepare questions. I do not want you to tell me what is wrong or what to do. Here is a made-up, general situation: [the general question, with anything identifying taken out]. Explain the general idea in plain words. Mark clearly what only a qualified [type of professional] can decide. Say where you are unsure. Then write three questions somebody could ask that professional. Do not suggest a medicine, a dose, an illness, or a treatment.",
+      "note": "Use a made-up or general question, like why a doctor might recheck blood pressure later. Not your own history, and not a document from your account. The professional could be a doctor, pharmacist, nurse, dentist, lawyer or money adviser. Read the explanation back in your own words. Circle one question to actually ask. You should leave with questions, not a verdict."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your prep sheet",
-      "cardType": "High-Stakes Prep Sheet",
+      "title": "Save your question sheet",
+      "cardType": "Questions for a real person",
       "fields": [
         {
           "key": "question",
-          "label": "My real question (about understanding)",
-          "placeholder": "why my doctor wants to recheck my blood pressure in a month"
+          "label": "What I want to understand",
+          "placeholder": "why a doctor might want to check my blood pressure again in a month"
         },
         {
           "key": "professional",
           "label": "Who actually decides this",
-          "placeholder": "doctor, pharmacist, nurse, lawyer, advisor"
+          "placeholder": "doctor, pharmacist, nurse, lawyer, adviser"
         },
         {
           "key": "toAsk",
-          "label": "One question I'll circle to ask a real person",
-          "placeholder": "Is a one-month recheck standard, or is something specific worrying you?"
+          "label": "One question I will ask a real person",
+          "placeholder": "Is a one-month recheck normal, or is something worrying you?"
         },
         {
           "key": "wontActOn",
-          "label": "One thing I will NOT act on until a human confirms it",
-          "placeholder": "any dosage or 'you should stop taking X' the AI suggested"
+          "label": "One thing I will not act on until a person confirms it",
+          "placeholder": "any dose, or any 'you should stop taking this' it suggested"
         }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Do it on a NEW question",
-      "question": "Pick a DIFFERENT important question than the one you just used (what a new prescription is for, what a benefits letter means). Run the prompt on it. You pass when you can do all three of these. Which choice shows you actually did the skill?",
+      "question": "Pick a different serious question from the one you just used. What a new prescription is for, or what a letter about benefits means. Run it. Which answer shows you actually did the skill?",
       "options": [
         {
-          "text": "I can say the basics back in my own words without reading the screen, point to one list-item I'll ask a real professional, and name one thing I won't act on until a human confirms it.",
+          "text": "I can say the basics back in my own words with the screen shut. I can point to one question I will ask a real professional. And I can name one thing I will not act on until a person confirms it.",
           "ok": true,
-          "feedback": "That's the Explorer level closed. You used AI to get smarter and stay in charge — understanding, preparing, and leaving the decision to a qualified human."
+          "feedback": "That closes it. You got smarter and stayed in charge. You understood, you prepared, and the decision stayed with somebody answerable."
         },
         {
-          "text": "I used a broad, redacted question and prepared three good questions, but also planned to change a dose before speaking with a professional.",
+          "text": "I used a general question and prepared three good ones, but I also planned to change a dose before speaking to anybody.",
           "ok": false,
-          "feedback": "Confident and complete is exactly how a hallucination reads. The AI can't examine you and may be smoothly wrong. Use its answer to prepare questions, and let a professional decide."
+          "feedback": "Calm and complete is exactly how a confident mistake reads. It cannot examine you. Use its answer to build questions and let a professional decide."
         },
         {
-          "text": "I can explain the general idea and named a professional, but pasted my full test result into the assistant to make the questions more specific.",
+          "text": "I can explain the general idea and I named a professional. I also pasted in my full test result to get sharper questions.",
           "ok": false,
-          "feedback": "The preparation was useful, but exposing a full test result crossed the privacy boundary. Use a broad question and bring the actual document directly to the professional."
+          "feedback": "The preparation was good. The test result crossed the line. Keep the question general and take the actual document straight to the professional."
         }
       ]
     }

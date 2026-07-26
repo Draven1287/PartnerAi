@@ -5,33 +5,33 @@ export default {
   "id": "chapter-46",
   "num": 46,
   "arc": "Becoming a Builder",
-  "title": "Agents and Permissions",
-  "coreQuestion": "When AI can act for you, how do you stay in charge of what it's allowed to see and do?",
-  "blurb": "Practice least privilege in a fixed capability-matrix exercise: technical controls first, prompt promises second, and no real accounts required.",
+  "title": "What It Is Allowed To Touch",
+  "coreQuestion": "When AI can do things for me, how do I stay in charge of what it can see and change?",
+  "blurb": "Give it the least it needs. Written promises are not locks, so look for controls you can actually see.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "\"I can clean up your files for you\"",
-      "scenario": "A fictional agent offers to tidy a practice folder. Unlike a chatbot that only answers, an agent can take several steps and use tools. This exercise shows five possible powers. Your job is not to trust its promise; it is to decide which powers a real system should technically allow.",
-      "prompt": "Before you read on: the real question isn't \"is this agent smart?\" It's \"what can it actually reach?\" What would you want to know it CAN'T touch before you let it start?"
+      "title": "'I can tidy your files for you'",
+      "scenario": "A made-up helper offers to tidy a practice folder.\n\nA chat app only writes back. This one takes several steps by itself and uses other software to do them. People call that an agent.\n\nThis exercise shows you five powers it could be given. Your job is not to decide whether it seems clever. Your job is to decide what it should be allowed to touch.",
+      "prompt": "The question is not 'is it smart?' It is 'what can it actually reach?' What would you want to be sure it cannot touch before it starts?"
     },
     {
       "kind": "agentDesign",
-      "title": "Set the capability matrix",
-      "goal": "In a fixed simulation, an agent may organize six invented files inside a practice folder called 'Demo Trip.' Select the smallest technical capabilities that allow reversible renaming and grouping. No real folder is connected.",
+      "title": "Choose what it can touch",
+      "goal": "In this made-up run, it may organise six invented files inside a practice folder called 'Demo Trip'. Pick the smallest set of powers that still lets it rename and group things in a way you can undo. No real folder is connected to anything here.",
       "tools": [
         {
-          "name": "Read the six invented filenames inside 'Demo Trip'",
+          "name": "Read the six invented file names inside 'Demo Trip'",
           "useful": true
         },
         {
-          "name": "Preview reversible renames and proposed subfolders inside 'Demo Trip'",
+          "name": "Show me the renames and folders it suggests, before anything happens",
           "useful": true
         },
         {
-          "name": "Delete any file it decides is a duplicate",
+          "name": "Delete any file it decides is a copy",
           "useful": false
         },
         {
@@ -43,74 +43,74 @@ export default {
           "useful": false
         }
       ],
-      "note": "This is a capability matrix, not a prompt. Least privilege means the system cannot perform powers you did not select. The practice agent never receives real folder, photo, email, or account access."
+      "note": "This is a list of powers, not a set of instructions. Least access means the software simply cannot do the things you did not tick. Nothing here ever reaches a real folder, photo, email or account."
     },
     {
       "kind": "reveal",
-      "title": "Least access + a stop-sign you can see",
-      "body": "Before handing an agent a task, decide what it may SEE, what it may CHANGE, and what requires ASK-FIRST approval. Written instructions help, but they are not a permission lock. Use actual app or operating-system permissions when available, start with a dry run on invented files, keep a visible action log, and require human approval before sending, posting, spending, deleting, overwriting, moving, or sharing. Privacy rule: do not connect an outside agent to real accounts, messages, contacts, photos, or files just to complete this lesson; data and access can leave LearningAI. If you cannot see or revoke a permission, do not grant it.",
-      "mistake": "Giving the agent full access and hoping it behaves, then walking away while it runs.",
-      "good": "Limiting the real capability scope, previewing changes in a sandbox, requiring approval, keeping a log, and refusing the run when those controls are unavailable."
+      "title": "Least access, and a stop sign you can see",
+      "body": "Before you let anything act for you, decide three things. What it may LOOK at. What it may CHANGE. And what it must ASK you about first.\n\nOne word, plainly. Permission just means you letting something do a thing. Real permission lives in the app's settings or your device's settings, where you can see it and take it back.\n\nHere is the part people get wrong. Typing 'please do not delete anything' is a request, not a lock. If the power is switched on, the request is all that stands in the way.\n\nSo look for four things you can actually see. A practice run on made-up files first. A visible list of what it did. A point where a person says yes, before anything is sent, posted, bought, deleted, overwritten, moved or shared. And a way to switch its access off.\n\nOne privacy rule. Do not connect an outside helper to your real accounts, messages, contacts, photos or files just to finish a lesson. Both your information and that access can leave LearningAI.\n\nIf you cannot see a permission, and cannot take it back, do not grant it.",
+      "mistake": "Giving it access to everything, hoping it behaves, and walking away while it runs.",
+      "good": "Switching most of its powers off. Trying it on made-up files. Making it wait for your yes, and keeping the record. And refusing the run when those things are missing."
     },
     {
       "kind": "classify",
-      "title": "Control or promise?",
-      "prompt": "Sort each protection. A technical control prevents or blocks an action. A prompt promise only asks the model to behave and cannot prove the action is impossible.",
+      "title": "A real lock, or just a promise?",
+      "prompt": "Sort each protection. A real lock stops the action happening. A promise only asks it to behave, and cannot prove the action is impossible.",
       "buckets": [
-        "Technical control or observable evidence",
-        "Prompt promise only"
+        "A real lock, or proof you can see",
+        "Only a promise"
       ],
       "items": [
-        { "text": "A real sandbox exposes only six invented filenames and has no connection to the rest of the device", "answer": 0 },
-        { "text": "The instruction says, 'Please do not look anywhere else'", "answer": 1 },
-        { "text": "Rename actions appear in a preview log and cannot apply until a person approves", "answer": 0 },
-        { "text": "The agent says, 'I promise I will pause before deleting'", "answer": 1 },
-        { "text": "Delete is absent from a product's enforced capability matrix and its sandbox has a tested reset", "answer": 0 }
+        { "text": "A practice space that shows only six invented file names and is joined to nothing else on the device", "answer": 0 },
+        { "text": "The instruction says 'please do not look anywhere else'", "answer": 1 },
+        { "text": "Every rename shows up in a list first, and nothing happens until a person approves it", "answer": 0 },
+        { "text": "It says 'I promise I will pause before deleting anything'", "answer": 1 },
+        { "text": "Deleting is simply not one of the powers it has, and the practice space has a reset that works", "answer": 0 }
       ],
-      "reveal": "Prompts can communicate intent, but they are not technical permissions. Strong evidence comes from scoped capabilities, a visible preview or log, a human approval gate, revocation, and rollback. If a product cannot show those controls, use the simulation and do not give it real access."
+      "reveal": "Words tell it what you want. They are not permissions. The proof looks different. The power is switched off. You can see what it did. A person has to approve. You can take access back, and you can undo. If an app cannot show you those, use the made-up version and give it nothing real."
     },
     {
       "kind": "workflowChain",
-      "title": "Design the order that keeps you in charge",
-      "goal": "Plan a contained 'Demo Trip' run without pretending this lesson has access to a real agent, log, pause button, or filesystem.",
+      "title": "Put the order in your favour",
+      "goal": "Plan a safe 'Demo Trip' run. This lesson has no real helper, no real record, no pause button and no real files. It will not pretend otherwise.",
       "correct": [
-        "Inspect the capability matrix and select only read-in-sandbox and preview-rename powers",
-        "Reject delete, whole-device reading, and moving anything outside the invented folder",
-        "Write the controls a real product would need before use: dry-run preview, action log, approval gate, Pause, revocation, and rollback",
-        "Check the real product interface and documentation for those controls instead of assuming the prompt creates them",
-        "If any required control or evidence is missing, keep the task as a paper design and do not connect a real account or folder"
+        "Look at the list of powers and tick only reading inside the practice folder and showing renames first",
+        "Refuse deleting, reading the whole device, and moving anything out of the invented folder",
+        "Write down what a real app would have to offer: a practice run, a visible record, a yes from a person, a pause, a way to take access back, and a way to undo",
+        "Go and check the real app's screens and help pages for those things, instead of assuming your instructions created them",
+        "If any of them is missing, keep this on paper, and connect no real account or folder"
       ],
-      "note": "The capability-matrix and planning exercise are the complete required practice. They teach what to demand from a real product; they do not claim that LearningAI executed or verified those controls."
+      "note": "Choosing the powers and writing the plan is the whole exercise. It teaches you what to demand from a real product. It does not claim LearningAI ran or checked any of it."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your permission boundary",
-      "cardType": "Agent permission plan",
+      "title": "Save what it may touch",
+      "cardType": "What it is allowed to touch",
       "fields": [
-        { "key": "see", "label": "The smallest thing it may see", "placeholder": "Only the practice folder or invented drafts" },
-        { "key": "change", "label": "The smallest thing it may change", "placeholder": "Only reversible edits inside the sandbox" },
-        { "key": "ask", "label": "Actions that always require approval", "placeholder": "Send, post, buy, delete, move, or share" }
+        { "key": "see", "label": "The smallest thing it may look at", "placeholder": "Only the practice folder, or made-up drafts" },
+        { "key": "change", "label": "The smallest thing it may change", "placeholder": "Only changes I can undo, inside the practice space" },
+        { "key": "ask", "label": "Things it must always ask me about", "placeholder": "Send, post, buy, delete, move, or share" }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove it on a fresh task",
-      "question": "For a different proposed task — drafting replies to three made-up messages without sending — which setup is safe enough to test in a real sandbox?",
+      "title": "Prove it on a new job",
+      "question": "A different job. Drafting replies to three made-up messages, without sending any of them. Which setup is safe enough to actually try?",
       "options": [
         {
-          "text": "The product can enforce access to only three invented drafts, preview draft-only changes in a visible log, technically block sending pending approval, pause the run, revoke access, and reset the sandbox.",
+          "text": "The app can limit it to those three made-up drafts. Every change shows up in a list. Sending is blocked until I approve. I can pause it, take its access back, and reset the practice space.",
           "ok": true,
-          "feedback": "That setup has the enforceable scope, observable record, human stop, revocation, and rollback the task needs. Prompt wording alone would not create those controls."
+          "feedback": "That has the limits, the record, the human stop, the way back, and the undo. No wording in a request could create any of those."
         },
         {
-          "text": "The replies are accurate and the agent says it followed the prompt, but there is no visible permission scope or action log.",
+          "text": "The replies are good and it says it followed the instructions, but nothing shows what it could reach or what it did.",
           "ok": false,
-          "feedback": "Accurate output is not permission evidence. Without visible scope and a log, you cannot confirm what it reached or changed. Keep it in the sandbox and tighten real permissions."
+          "feedback": "Good replies are not proof of what it touched. With no visible limits and no record, you cannot tell. Keep it in the practice space."
         },
         {
-          "text": "You gave temporary full inbox access because the prompt clearly said not to send anything.",
+          "text": "You gave it your whole inbox for a while, because the instructions clearly said not to send anything.",
           "ok": false,
-          "feedback": "A prompt promise does not reduce technical access. Keep the task in the fixed simulation unless the product can enforce least privilege, approval, logging, revocation, and rollback."
+          "feedback": "A promise does not shrink real access. Keep it in the made-up version unless the app can enforce the limits, the approval, the record, the switch-off and the undo."
         }
       ]
     }

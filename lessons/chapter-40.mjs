@@ -5,91 +5,91 @@ export default {
   "id": "chapter-40",
   "num": 40,
   "arc": "AI for Real Life",
-  "title": "The Draft-and-Critique Loop",
-  "coreQuestion": "How do I get genuinely better work out of AI — not from one prompt, but from looping draft, critique, and revise against my own standards?",
-  "blurb": "Good work comes from loops, not first tries. Learn the draft-critique-revise cycle.",
+  "title": "Draft, Pick It Apart, Do It Again",
+  "coreQuestion": "How do I get genuinely better work out of AI, by going round the loop instead of asking once?",
+  "blurb": "Good work comes from going round again. Draft it, have it picked apart, fix it yourself, repeat.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The rough first draft",
-      "scenario": "You need a three-sentence invitation for a game night, community cleanup, repair service, or club. The first draft is clear but flat. Sending it now is fast; revising it could make the right people understand and respond.",
-      "prompt": "Choose three standards before changing a word: clarity, honesty, voice, usefulness, or response. Which tradeoff matters most for this audience, and what evidence would show the revision improved it?"
+      "title": "The rough first go",
+      "scenario": "You need three sentences inviting people to something. A games night, a litter pick, a club.\n\nYour first go is clear but dull. Nobody would come because of it.\n\nSending it now takes ten seconds. Fixing it might actually fill the room.",
+      "prompt": "Before you change a single word, pick three tests it has to pass. Clear? Honest? Sounds like you? Useful? Gets a reply? And how would you know it improved?"
     },
     {
       "kind": "reveal",
-      "title": "Quality lives in the loop, not the draft",
-      "body": "Good work comes from loops: draft, compare it with your standards, revise, and test again. When AI 'critiques,' it generates plausible observations from your criteria; it does not decide what is truly good or know how your audience will react. Some suggestions will be useful and some will flatten your voice or miss the goal. You set the standard, decide which feedback is valid, and can reject advice with a reason. Before using an outside assistant, remove real names, addresses, private messages, unpublished client or school material, and another person's information. Data entered there leaves LearningAI; a made-up draft works.",
-      "mistake": "Throw out the first draft (or blame the AI) the moment it isn't great, and ask for a total rewrite.",
-      "good": "Keep the draft, write down what 'good' actually means here, and run a critique-and-revise loop on it — twice."
+      "title": "The quality is in the loop, not the first draft",
+      "body": "Good work comes from going round. Draft it. Hold it against your tests. Fix it. Test it again.\n\nWhen AI 'picks apart' your draft, it is guessing sensible-sounding comments from the tests you gave it. It does not know what is genuinely good. It has no idea how your friends will react.\n\nSo some of its comments will be sharp and useful. Some will flatten your voice or miss the point entirely.\n\nYou set the tests. You decide which comments are right. You are allowed to say no, as long as you can say why.\n\nIf you use an outside app, take out real names, addresses, private messages, unpublished school or work material, and anything about another person. What you type there leaves LearningAI. A made-up draft is fine.",
+      "mistake": "Binning the first draft the moment it is not great, and asking for a total rewrite instead.",
+      "good": "Keeping the draft. Writing down what good actually means here. Then going round the loop twice."
     },
     {
       "kind": "workflowChain",
-      "title": "Run two full loops",
-      "goal": "Turn a rough draft into a version that's clearly better by your own named criteria.",
+      "title": "Go round twice",
+      "goal": "Turn a rough draft into something clearly better, measured against tests you wrote yourself.",
       "correct": [
-        "Make something short and imperfect yourself — don't polish it",
-        "Write down 3 testable criteria for what 'good' means here",
-        "Ask AI to critique it against those criteria — not rewrite it",
-        "You revise it yourself and paste the new version back",
-        "Ask for a critique a second time (loop two)",
-        "Put draft one next to your final and watch the climb"
+        "Write something short and imperfect yourself. Do not polish it",
+        "Write down 3 tests for what good means here, each one you can actually check",
+        "Ask it to pick your draft apart against those three tests. Not to rewrite it",
+        "You fix it yourself, then paste the new version back",
+        "Ask it to pick the new version apart too. That is round two",
+        "Put your first draft next to your last one and see how far it climbed"
       ],
-      "note": "You do the revising, not the AI. The AI predicts where your text misses your criteria; the judgment and the rewriting stay yours."
+      "note": "You do the rewriting, not the app. It guesses where your words miss your tests. The judgement and the writing stay yours. That is the same line as 'walk me through question 4' rather than 'do it for me'."
     },
     {
       "kind": "tryLive",
-      "title": "Run the critique prompt",
-      "prompt": "Here is my draft of [what it is]: [paste your draft]. Do NOT rewrite it. Critique it against these criteria I'm setting: 1) [criterion 1], 2) [criterion 2], 3) [criterion 3]. For each criterion, tell me one thing that's working and the single most important fix. Keep it short. I'll revise it myself and paste the new version back for a second round.",
-      "note": "Make each criterion observable. Example: 1) 'the time and action are clear in one read,' 2) 'uses words I would say,' 3) 'makes no promise I cannot keep.' Use an invented or redacted invitation, listing, instruction card, application paragraph, or family note. After each critique, accept one suggestion, reject one with a reason, and make the revision yourself."
+      "title": "Ask it to pick your draft apart",
+      "prompt": "Here is my draft of [what it is]: [paste your draft]. Do NOT rewrite it. Pick it apart against three tests I am setting: 1) [test one], 2) [test two], 3) [test three]. For each test, tell me one thing that works and the single most important fix. Keep it short. I will fix it myself and paste the new version back for a second round.",
+      "note": "Make each test something you can actually check. For example: the time and the thing to do are clear in one read. It uses words I would say out loud. It promises nothing I cannot deliver. Use a made-up invitation, listing, instruction card, or note, with names and details taken out. After each round, accept one suggestion, reject one and say why, and make the change yourself."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your criteria card",
-      "cardType": "Draft-and-critique loop",
+      "title": "Save your three tests",
+      "cardType": "Draft and pick apart",
       "fields": [
         {
           "key": "thing",
-          "label": "What you're drafting",
-          "placeholder": "a 3-sentence intro for my robotics club"
+          "label": "What I am writing",
+          "placeholder": "3 sentences inviting people to my robotics club"
         },
         {
           "key": "c1",
-          "label": "Criterion 1 (testable)",
-          "placeholder": "clear in a single read"
+          "label": "Test 1, something I can check",
+          "placeholder": "clear on a single read"
         },
         {
           "key": "c2",
-          "label": "Criterion 2 (testable)",
-          "placeholder": "sounds like a real teenager, not a brochure"
+          "label": "Test 2, something I can check",
+          "placeholder": "sounds like a real person, not a leaflet"
         },
         {
           "key": "c3",
-          "label": "Criterion 3 (testable)",
-          "placeholder": "makes someone actually want to show up"
+          "label": "Test 3, something I can check",
+          "placeholder": "makes somebody actually want to turn up"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove you've got the loop",
-      "question": "Pick a brand-new piece you didn't use above. Write 3 testable criteria, run two full loops, then name which specific criterion drove each change between your draft and your final. Which of these means you've actually got the loop?",
+      "title": "Prove you have the loop",
+      "question": "Pick something new you did not use above. Write 3 tests, go round twice, then say which test drove each change. Which of these means you have it?",
       "options": [
         {
-          "text": "For each edit between draft and final, I can point to the exact criterion it was serving.",
+          "text": "For every change between my first draft and my last, I can point to the exact test it was serving.",
           "ok": true,
-          "feedback": "That's it. If you can name the criterion behind each edit on a fresh piece, you own the loop — not just one lucky answer."
+          "feedback": "That is it. If you can name the test behind each change on a fresh piece, you own the loop, not one lucky answer."
         },
         {
-          "text": "The second draft is smoother and shorter, but it removed a detail my audience needs.",
+          "text": "The second version is smoother and shorter, but it dropped a detail people actually need.",
           "ok": false,
-          "feedback": "Smoother isn't the test, and the AI shouldn't be doing the rewriting. Better means better against criteria you wrote — and named for each change."
+          "feedback": "Smoother is not the test. Better means better against the tests you wrote, and you should be able to name which one each change served."
         },
         {
-          "text": "I met two clear criteria, but changed a third criterion halfway through without recording why.",
+          "text": "I passed two tests, then changed the third one halfway through without writing down why.",
           "ok": false,
-          "feedback": "Changing a standard can be valid, but record the reason and retest the earlier draft against the new standard. Otherwise the comparison cannot show what improved."
+          "feedback": "Changing a test can be the right call. Write down the reason and hold the earlier draft against the new test too. Otherwise you cannot see what improved."
         }
       ]
     }

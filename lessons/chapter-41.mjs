@@ -6,95 +6,95 @@ export default {
   "num": 41,
   "arc": "Building with AI",
   "title": "Planning a Big Project Together",
-  "coreQuestion": "How do I turn a project that feels too big to start into an ordered plan I actually own?",
-  "blurb": "Overwhelm is a planning problem, not a you problem. Let AI break the mountain into stairs, then you decide which stair to climb first.",
+  "coreQuestion": "How do I turn something too big to start into a plan I actually own?",
+  "blurb": "Feeling stuck is usually a planning problem, not a you problem. Cut the mountain into stairs, then pick the first one.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The project that's been sitting heavy",
-      "scenario": "There's a project you keep not-starting. A family reunion. A move. A thesis. A big essay. It feels too big to even begin, so it just sits there getting heavier every week you look at it.",
-      "prompt": "Choose the first decision the plan must protect: deadline, cost, another person's availability, safety, or your energy. Which constraint can move, and which one cannot?"
+      "title": "The thing you keep not starting",
+      "scenario": "There is a project you keep not starting. A big family get-together. Moving house. A long essay.\n\nIt feels too big to even begin.\n\nSo it sits there, getting heavier every week you look at it.",
+      "prompt": "What must the plan protect first? The deadline. The money. Somebody else's time. Safety. Your own energy. Which of those can bend, and which cannot?"
     },
     {
       "kind": "reveal",
-      "title": "AI cuts the mountain into stairs — you decide where they lead",
-      "body": "Overwhelm is often a planning problem, not a personal failure. An AI can generate a familiar project breakdown quickly, but it does not know your calendar, budget, energy, tools, permissions, or the people affected. It fills missing details with plausible guesses. You therefore choose the constraints, cut unnecessary phases, reorder the work, and add human approval before spending, booking, publishing, or involving someone else. Before an outside assistant sees the project, replace names with roles, round amounts, generalize locations, and remove addresses, account numbers, schedules, private messages, and another person's information. Data entered there leaves LearningAI.",
-      "mistake": "Treating the AI's plan as finished truth and just following it, as if it knew your real situation.",
-      "good": "Treating yourself as the editor, not the audience: you supply the real-world facts it can only guess at, then cut and reorder."
+      "title": "It cuts the mountain into stairs. You decide where they go.",
+      "body": "Feeling stuck is usually a planning problem, not a failure of character.\n\nAI is fast at chopping a big thing into ordinary stages. That is genuinely useful when you cannot see the first step.\n\nBut it does not know your calendar. Or your money. Or how tired you are. Or what you are allowed to do. Or who else this lands on.\n\nWhere it does not know, it fills the gap with a sensible guess. That is what it does.\n\nSo you become the editor. You supply the real facts. You cut the stages you do not need. You move steps around. And you add a point where somebody has to say yes before money is spent, a booking is made, something is published, or another person gets pulled in.\n\nBefore an outside app sees any of this, swap names for roles, round the money, keep places vague, and cut addresses, account numbers, timetables, private messages, and anything about somebody else. What you type there leaves LearningAI.",
+      "mistake": "Treating its plan as finished and true, and just following it, as though it knew your actual life.",
+      "good": "Treating yourself as the editor, not the audience. You add the real facts it can only guess at, then cut and reorder."
     },
     {
       "kind": "tryLive",
-      "title": "Run the plan prompt on a real project",
-      "prompt": "Help me plan [the big project]. Here's my real situation: [deadline / what I already have / what's blocking or scaring me]. Break it into [4–6] phases, and for each phase give me the very first small step. Then suggest one good checkpoint where I should pause and re-decide before continuing. Ask me one question if something important is missing — don't guess it.",
-      "note": "Worked example: 'Help me plan a medium-sized family gathering in about three months. I have a rough guest count but no venue, and cost is the hard limit. Use five phases and add an approval checkpoint before any booking.' Use relevant but non-identifying facts; a community event, room reorganization, repair, move, creative build, or family plan all work. The assistant proposes; you approve every commitment."
+      "title": "Ask it to plan a real project",
+      "prompt": "Help me plan [the big project]. Here is my real situation: [deadline / what I already have / what is blocking me]. Break it into [4 to 6] stages, and for each stage give me the very first small step. Then suggest one point where I should stop and decide again before carrying on. If something important is missing, ask me. Do not guess it.",
+      "note": "Worked example: 'Help me plan a family get-together in about three months. I have a rough number of guests but no venue, and money is the hard limit. Use five stages, and add a point where I approve before anything gets booked.' Use facts that matter but do not identify anyone. A community event, tidying a room, a repair, a move, or something you want to build all work. It suggests. You approve anything that commits you."
     },
     {
       "kind": "workflowChain",
-      "title": "Be the editor: the order that makes the plan yours",
-      "goal": "Turn the AI's plan into a plan you actually own and will start today",
+      "title": "Be the editor",
+      "goal": "Turn its plan into a plan you own, and start it today.",
       "correct": [
-        "Brain-dump three honest facts: your deadline, what you already have, what's blocking or scaring you",
-        "Run the prompt and let the AI break the goal into phases with a first step for each",
-        "Cross out one phase you don't actually need",
-        "Drag one step earlier or later — because you know your life better than the AI does",
-        "Add one checkpoint where you or the affected person approves before money, booking, publishing, or irreversible action",
-        "Circle the single first step and write down when today you'll do it"
+        "Write down three honest facts: your deadline, what you already have, what is blocking you",
+        "Ask it to break the goal into stages, with a first step for each",
+        "Cross out one stage you do not actually need",
+        "Move one step earlier or later, because you know your life and it does not",
+        "Add one point where you or the person affected says yes, before money, booking, publishing, or anything you cannot undo",
+        "Circle the single first step, and write down what time today you will do it"
       ],
-      "note": "The cutting and reordering are the whole point. The AI predicts a generic breakdown; you're the one who knows the real-world facts it can't see."
+      "note": "The cutting and moving is the whole point. It produces an ordinary plan for an ordinary version of this job. You are the one who knows the real facts it cannot see."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your project plan",
+      "title": "Save your plan",
       "cardType": "Project plan",
       "fields": [
         {
           "key": "project",
           "label": "The project",
-          "placeholder": "e.g. Organize a 30-person family reunion"
+          "placeholder": "e.g. organise a get-together for 30 people"
         },
         {
           "key": "firstStep",
-          "label": "My single first step (today)",
-          "placeholder": "e.g. Text 3 relatives to shortlist possible dates"
+          "label": "My single first step, today",
+          "placeholder": "e.g. message 3 people to find some possible dates"
         },
         {
           "key": "when",
-          "label": "When today I'll do it",
-          "placeholder": "e.g. After dinner, 7pm"
+          "label": "What time today I will do it",
+          "placeholder": "e.g. after dinner, 7pm"
         },
         {
           "key": "checkpoint",
-          "label": "My checkpoint to pause & re-decide",
-          "placeholder": "e.g. After I have a venue quote, check the budget before booking"
+          "label": "Where I stop and decide again",
+          "placeholder": "e.g. once I have a price for the room, check the money before booking"
         }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Do you own the plan?",
-      "question": "Take a DIFFERENT heavy project you haven't touched yet. Run the same prompt, edit the result (cut one phase, move one step, add one checkpoint), then say your first step out loud in one sentence — and why you chose it. What proves you own the plan?",
+      "question": "Take a different heavy project you have not touched. Run the same request. Edit it: cut one stage, move one step, add one stopping point. Then say your first step out loud, and why. What proves you own it?",
       "options": [
         {
-          "text": "You can name your first step AND the reason you chose it, without re-reading the AI's answer",
+          "text": "I can say my first step AND why I chose it, without reading its answer again",
           "ok": true,
-          "feedback": "That's ownership. The plan lives in your head now, not just on the screen — and you know why you're starting there."
+          "feedback": "That is ownership. The plan is in your head now, not just on the screen, and you know why you are starting there."
         },
         {
-          "text": "I cut one phase and chose a first step, but left the booking checkpoint after money would already be spent",
+          "text": "I cut a stage and picked a first step, but the approval point still comes after the money is gone",
           "ok": false,
-          "feedback": "You edited the plan, but the checkpoint arrives after the irreversible consequence. Move approval before spending or booking."
+          "feedback": "You edited the plan. The stopping point sits after the thing you cannot undo. Move it before the spending or the booking."
         },
         {
-          "text": "I reordered the phases to fit my week but did not ask an affected person whether the new timing works",
+          "text": "I reordered the stages to fit my week, but I never asked the other people whether the new timing works",
           "ok": false,
-          "feedback": "The timing may fit you but still fail the people affected. Ask for their input before locking the schedule."
+          "feedback": "The timing can suit you and still fail everyone else. Ask them before you lock it in."
         },
         {
-          "text": "I can name the first step and reason, but the reason depends on a cost estimate I have not checked",
+          "text": "I can name the first step and my reason, but the reason rests on a price I have not checked",
           "ok": false,
-          "feedback": "Your reasoning is clear, but it rests on an unchecked cost. Confirm that load-bearing fact before committing."
+          "feedback": "Your reasoning is clear, and it stands on an unchecked number. Confirm that before you commit to anything."
         }
       ]
     }

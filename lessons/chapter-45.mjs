@@ -6,31 +6,31 @@ export default {
   "num": 45,
   "arc": "Building with AI",
   "title": "Designing and Making",
-  "coreQuestion": "How do I safely design a tiny tool with AI, test it, and still understand what I made?",
-  "blurb": "You decide what the prototype may touch: start with a small annoyance, test the failure case, and keep a way back.",
+  "coreQuestion": "How do I design a tiny tool with AI, test it properly, and still understand what I made?",
+  "blurb": "Start with one small annoyance. Test the case where it breaks. Keep a way back to what worked.",
   "minutes": 15,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "The impressive thing you cannot undo",
-      "scenario": "You ask AI to build a shortcut, and it hands back something that looks finished. It may be code, a spreadsheet formula, or an automation. You cannot explain it, you have not tested a bad input, and you do not know how to return to the version that worked. Running it on your real files would turn a learning exercise into a gamble.",
-      "prompt": "Before you read on: what would you need to understand, test, and be able to undo before this prototype earned access to anything real?"
+      "scenario": "You ask for a shortcut, and back comes something that looks finished. Maybe some code. Maybe a spreadsheet formula.\n\nYou cannot explain what it does. You have not tried feeding it anything strange. You do not know how to get back to the version that worked.\n\nPointing it at your real files would turn a bit of learning into a gamble.",
+      "prompt": "What would you need to understand, test, and be able to undo before this thing was allowed near anything real?"
     },
     {
       "kind": "reveal",
-      "title": "\"It runs\" is the start, not the finish",
-      "body": "AI can help you design without asking you to run generated code. Choose the lowest-risk route that works on the device you already have: sketch the screens on paper, write a checklist, lay out a blank spreadsheet, or describe a one-page no-code prototype. Those routes are complete work, not lesser substitutes. If you voluntarily use code, use only a supported browser sandbox or other disposable environment with no installs, secrets, accounts, or real files. Save a known-good copy before every change. Test one normal invented input and one deliberately awkward input. Define a reset or rollback step before running anything. Never grant folder, contact, payment, publishing, message, or deletion access for this lesson.",
-      "mistake": "Paste generated code or formulas into a real system first and plan to understand the risks later.",
-      "good": "Make the smallest contained prototype, predict its limits, test it with invented inputs, and prove you can reset it before using anything real."
+      "title": "'It runs' is the start, not the finish",
+      "body": "You do not have to run any code to do this lesson.\n\nPick the safest route that works on whatever you already own. Sketch the screens on paper. Write it as a checklist. Lay out an empty spreadsheet. Describe one page in words.\n\nThose are real work, not the easy option. A rough first version on paper tells you more than code you cannot read.\n\nIf you do want code, only use a throwaway space in your browser that cannot touch your files. Nothing installed. No passwords. No accounts. No real documents.\n\nThen, whichever route you took: save a copy that works before every change. Try one ordinary made-up example. Try one deliberately awkward one. And write down how you get back to the good copy before you run anything.\n\nFor this lesson, never let it into your folders, contacts, payments, messages, or anything that can post or delete.",
+      "mistake": "Pasting code or formulas into something real first, and planning to work out the risks afterwards.",
+      "good": "Making the smallest version you can, guessing where it will break, testing it with made-up examples, and proving you can get back."
     },
     {
       "kind": "classify",
       "title": "Which annoyance fits a tiny tool?",
-      "prompt": "A tiny tool works best for a small, repeating, concrete task. Sort each real annoyance: is it a good fit for a tiny tool, or too big/vague for one?",
+      "prompt": "A tiny tool suits a small job that keeps coming back and has a clear finish. Sort each annoyance. Good fit, or too big and vague?",
       "buckets": [
         "Good fit for a tiny tool",
-        "Too big or vague"
+        "Too big or too vague"
       ],
       "items": [
         {
@@ -38,15 +38,15 @@ export default {
           "answer": 0
         },
         {
-          "text": "I want a proposed naming plan for six invented assignment filenames, without touching a real folder",
+          "text": "I want a suggested naming plan for six made-up file names, without touching a real folder",
           "answer": 0
         },
         {
-          "text": "I want a paper or no-code preview of one page with a made-up name, a placeholder image, and a button",
+          "text": "I want a paper sketch of one page with a made-up name, a box for a picture, and a button",
           "answer": 0
         },
         {
-          "text": "I want to fix my whole life and be more productive",
+          "text": "I want to sort my whole life out and get more done",
           "answer": 1
         },
         {
@@ -54,66 +54,66 @@ export default {
           "answer": 1
         },
         {
-          "text": "A little scorekeeper that counts points for a game night",
+          "text": "A little scoreboard that counts points on games night",
           "answer": 0
         }
       ],
-      "reveal": "The good fits are small, repeating, and concrete — you can picture exactly what 'done' looks like. Vague or huge goals have no smallest version, so shrink them first: name one specific, recurring annoyance you could describe in a single sentence."
+      "reveal": "The good fits are small, repeating and specific. You can picture exactly what finished looks like. Huge or vague goals have no smallest version, so shrink them first. Name one annoyance you could describe in a single sentence."
     },
     {
       "kind": "tryLive",
-      "title": "Design the smallest safe prototype",
-      "prompt": "My small recurring annoyance is: [describe the pattern without pasting real data]. Help me make the smallest useful prototype. First offer three routes: (A) a phone-friendly checklist or paper sketch, (B) a blank spreadsheet or no-code layout, and (C) optional code only if I already have a supported browser sandbox. I choose route [A, B, or C]. For my route, give me: the input, the output, three or fewer steps, one normal invented test, one awkward invented test, a clear pass condition, and the exact reset or rollback step. Do not ask for installs, accounts, permissions, secrets, or real files. Pause after the plan so I can explain what each part does before making anything.",
-      "note": "Routes A and B fully complete this activity on a phone or with paper. Route C is optional and must stay inside a disposable browser sandbox with no downloads or external access. If no safe environment is available, do not run code; submit the tested design and rollback plan instead."
+      "title": "Design the smallest safe version",
+      "prompt": "The small annoyance that keeps coming back is: [describe it, without pasting any real data]. Help me make the smallest useful version. First offer me three routes. A, a checklist or a paper sketch. B, an empty spreadsheet or a layout with no code. C, code only if I already have a throwaway browser space. I choose route [A, B or C]. For my route, give me four things. What goes in, what comes out, and three steps or fewer. One ordinary made-up test and one awkward one. A clear way to tell whether it passed. And the exact step that gets me back to the good copy. Do not ask me to install anything, sign in, hand over any access, or use real files. Stop after the plan so I can explain each part before anything gets made.",
+      "note": "Routes A and B finish this activity completely, on a phone or on paper. Route C is optional, and must stay inside a throwaway browser space with no downloads and no access to your things. If you have no safe space, do not run code. Hand in the tested design and your way back instead."
     },
     {
       "kind": "workflowChain",
-      "title": "The make-and-understand loop",
-      "goal": "Turn a recurring annoyance into a contained prototype you understand, can test, and can reset.",
+      "title": "Make it, then prove you understand it",
+      "goal": "Turn an annoyance that keeps coming back into a small version you understand, can test, and can undo.",
       "correct": [
-        "Name one small, recurring annoyance without entering real or private data",
-        "Choose the lowest-risk route: paper or checklist, blank spreadsheet or no-code layout, or optional browser sandbox",
-        "Define the input, output, pass condition, permission boundary, and reset or rollback before building",
-        "Save a known-good version, then test one normal and one awkward invented input",
-        "Explain each part and compare the observed result with your prediction",
-        "Change one reversible setting, test again, and roll back if the pass condition fails"
+        "Name one small annoyance that keeps coming back, without typing in anything real or private",
+        "Pick the safest route: paper or checklist, empty spreadsheet or no-code layout, or an optional throwaway browser space",
+        "Before building, write what goes in, what comes out, how you will know it passed, what it may touch, and how you get back",
+        "Save a copy that works, then test one ordinary made-up example and one awkward one",
+        "Explain each part, and compare what happened with what you expected",
+        "Change one thing you can undo, test again, and go back if it fails"
       ],
-      "note": "A prototype is ready for learning when you can explain it, test it, and restore it. Running generated code on a real system is not required and does not prove ownership."
+      "note": "It is ready for learning when you can explain it, test it, and put it back. Running generated code on something real is not required, and it proves nothing about whether you understand it."
     },
     {
       "kind": "toolkitSave",
       "title": "Save your tiny-tool test",
-      "cardType": "Build-understand loop",
+      "cardType": "Make it, understand it",
       "fields": [
-        { "key": "purpose", "label": "The one small job", "placeholder": "A repeating task with a clear finish" },
-        { "key": "proof", "label": "How I know I understand it", "placeholder": "I can explain it, test an awkward input, and predict one safe change" },
-        { "key": "rollback", "label": "How I return to the safe version", "placeholder": "The saved copy, reset step, or paper revision I can restore" }
+        { "key": "purpose", "label": "The one small job", "placeholder": "A job that keeps coming back and has a clear finish" },
+        { "key": "proof", "label": "How I know I understand it", "placeholder": "I can explain it, test an awkward example, and guess what one change will do" },
+        { "key": "rollback", "label": "How I get back to the good version", "placeholder": "The saved copy, the reset step, or the paper draft I can go back to" }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Prove you understand it",
-      "question": "For a NEW annoyance, what is the safest evidence that you understand the prototype you designed?",
+      "question": "For a NEW annoyance, what is the strongest sign that you actually understand the thing you designed?",
       "options": [
         {
-          "text": "It ran with no errors, so I understand it",
+          "text": "It ran without any errors, so I understand it",
           "ok": false,
-          "feedback": "'It runs' is the start, not the finish. Running proves the code works, not that you know what it does — a mysterious block you can't read will break in ways you can't repair."
+          "feedback": "Running is the start, not the finish. It proves the thing works today. A block you cannot read will break in ways you cannot fix."
         },
         {
-          "text": "I can explain the parts, show normal and awkward invented tests, predict one reversible change, and restore the known-good version if it fails",
+          "text": "I can explain the parts. I can show an ordinary test and an awkward one. I can say what one change will do, and get back to the good copy if it fails",
           "ok": true,
-          "feedback": "Exactly. Explanation, test evidence, a reversible change, and a working rollback show control. A paper, no-code, spreadsheet, or safely sandboxed prototype can all meet that standard."
+          "feedback": "Exactly. Explaining it, testing it, changing it safely, and getting back. Paper, spreadsheet, no-code or a throwaway browser space can all meet that."
         },
         {
-          "text": "AI called it beginner-friendly, so I ran it on my real files without a rollback",
+          "text": "It said this was beginner-friendly. So I ran it on my real files, with no way back",
           "ok": false,
-          "feedback": "AI's reassurance isn't understanding — yours is. The test is whether YOU can explain the parts and predict a change, not whether AI says it's simple."
+          "feedback": "Being told it is simple is not the same as understanding it. The test is whether you can explain the parts and say what a change will do."
         },
         {
-          "text": "I added more features before defining a pass condition or testing the smallest version",
+          "text": "I added more features first. I never decided how to tell whether the smallest version worked",
           "ok": false,
-          "feedback": "More features make it bigger and harder to understand, not better. The goal is the smallest thing you fully grasp — flashy-but-mysterious is fragile."
+          "feedback": "More features make it bigger and harder to understand, not better. Aim for the smallest thing you genuinely grasp."
         }
       ]
     }

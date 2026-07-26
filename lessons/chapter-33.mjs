@@ -6,115 +6,115 @@ export default {
   "num": 33,
   "arc": "AI & Being Human",
   "title": "Attention and Habits",
-  "coreQuestion": "How do I catch the autopilot reach for AI and set a limit that protects my focus?",
-  "blurb": "You decide when to open AI and when to close it — noticing the reach puts you back in charge.",
+  "coreQuestion": "How do I catch myself reaching for AI without deciding to, and set a limit that protects my focus?",
+  "blurb": "You choose when the chat opens and when it closes. Catching the reach is what puts you back in charge.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Did you decide, or did your hand just go there?",
-      "scenario": "You're studying. A question pops into your head. Before you've even tried to answer it yourself, the chat is already open and you're typing. You didn't choose that — your hand just went.",
-      "prompt": "Think about the last time you opened an AI tool. Did you actually decide to, or did it just happen? That gap between deciding and reaching is what this lesson is about."
+      "title": "Did you decide, or did your hand just go?",
+      "scenario": "You are revising. A question pops into your head.\n\nBefore you have even tried to answer it, the chat is open and you are typing.\n\nYou did not choose that. Your hand just went.",
+      "prompt": "Think about the last time you opened an AI app. Did you decide to, or did it just happen? That gap is what this lesson is about."
     },
     {
       "kind": "reveal",
-      "title": "The reach is built in — and you can re-train it",
-      "body": "AI assistants respond quickly to half-formed thoughts, which can make asking the easiest next move. The model itself does not want your attention, but a product may still be designed for repeated use. Either way, a fast reward can train a habit. This is not a character flaw: you can redesign the moment by naming the trigger, doing one first move yourself, and setting a clear boundary for when the tool enters. This lesson is about focus, not mental-health diagnosis. If the reaching is tied to feeling unsafe, hopeless, or at risk of harm, stop using the app and contact human support.",
-      "mistake": "Believing 'more AI use means I'm getting more done' — and letting every reach happen on autopilot.",
-      "good": "Noticing the reach as it happens, and choosing whether this is a moment you actually want to open the tool."
+      "title": "The reach is trained, and you can retrain it",
+      "body": "An AI chat answers a half-finished thought in a second. That makes asking the easiest move in the room.\n\nThe thing writing the answer does not want your attention. It wants nothing. But the app around it can still be built for you to come back a lot.\n\nEither way, a fast reward trains a habit. Get an answer quickly, feel better quickly, do it again tomorrow.\n\nThis is not a flaw in you. You can rebuild the moment. Name what sets it off. Do one thing yourself first. Then decide exactly when the chat is allowed in.\n\nThis lesson is about focus, not about your mental health. If the reaching is tied to feeling unsafe or hopeless, close the app and talk to a person.",
+      "mistake": "Believing that more AI use means more done, and letting every reach happen without noticing it.",
+      "good": "Noticing the reach as it happens, and choosing whether this is a moment you actually want the chat open."
     },
     {
       "kind": "classify",
-      "title": "Reach on autopilot, or a real decision?",
-      "prompt": "Sort each moment: was the person on autopilot (hand went before brain decided), or did they actually decide to open AI?",
+      "title": "Automatic reach, or a real decision?",
+      "prompt": "Sort each moment. Did the hand move before the brain decided, or did the person actually choose to open it?",
       "buckets": [
-        "Autopilot reach",
+        "Automatic reach",
         "A real decision"
       ],
       "items": [
         {
-          "text": "A question pops up while studying and the chat is open before you try answering it yourself.",
+          "text": "A question pops up while revising. The chat is open before you try to answer it.",
           "answer": 0
         },
         {
-          "text": "You finish your own outline first, then open the chat to pressure-test it.",
+          "text": "You finish your own plan first, then open the chat to poke holes in it.",
           "answer": 1
         },
         {
-          "text": "You open AI the second you sit at your desk, without a task in mind.",
+          "text": "You open the chat the second you sit down, with no task in mind.",
           "answer": 0
         },
         {
-          "text": "You decide 'I'll draft this email myself, then ask for one edit,' and do exactly that.",
+          "text": "You decide to write the message yourself, then ask for one edit. You do exactly that.",
           "answer": 1
         },
         {
-          "text": "You reach for the chat every time a message feels slightly hard to reply to.",
+          "text": "You reach for the chat every time a reply feels slightly awkward to write.",
           "answer": 0
         }
       ],
-      "reveal": "The autopilot reaches share one tell: your hand moved before you decided. The real decisions all have a moment of choosing in front of them. Catching that moment is the whole skill."
+      "reveal": "The automatic ones share one tell. The hand moved before you decided. The real decisions all have a moment of choosing in front of them. Catching that moment is the whole skill."
     },
     {
       "kind": "workflowChain",
       "title": "Build a pause you control",
-      "goal": "You keep opening AI while repairing a bike, before checking the manual or trying the next step. Put a small, realistic pause plan in order.",
+      "goal": "You keep opening the chat while fixing a bike, before checking the manual or trying the next step. Put a small, realistic pause in order.",
       "correct": [
-        "Name the exact trigger: a step feels uncertain and the chat opens automatically",
-        "Choose a short first move you can do without AI: inspect the part, reread the manual, or write your best next step",
-        "Set the boundary for opening AI: only after the first move, and only for one defined question",
-        "Close the tool after the answer and make the final repair decision yourself",
-        "Watch one sign for a week: more first attempts happen before the chat opens"
+        "Name exactly what sets it off: a step feels uncertain and the chat opens by itself",
+        "Pick one first move you can do alone: look at the part, reread the manual, write your best guess",
+        "Set the rule for opening the chat: only after that first move, and only for one clear question",
+        "Close it once you have the answer, and make the repair decision yourself",
+        "Watch one sign for a week: more first tries happen before the chat opens"
       ],
-      "note": "This is a design exercise, not a diagnosis or a punishment. Pick a boundary that protects attention and still lets you use the tool deliberately. No external AI or personal disclosure is required."
+      "note": "This is a design exercise, not a diagnosis and not a punishment. Pick a limit that protects your attention and still lets you use the app on purpose. No outside AI and no private details are needed."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your reach, limit, and sign",
+      "title": "Save your reach, limit and sign",
       "cardType": "Focus limit",
       "fields": [
         {
           "key": "reach",
-          "label": "The autopilot reach",
-          "placeholder": "I open the chat the second a question pops into my head, before I've even tried to answer it myself."
+          "label": "The automatic reach",
+          "placeholder": "I open the chat the second a question appears, before trying it myself."
         },
         {
           "key": "when",
-          "label": "When / where it happens",
-          "placeholder": "Studying in the evening; the first 20 minutes at my desk."
+          "label": "When and where it happens",
+          "placeholder": "Revising in the evening. The first 20 minutes at my desk."
         },
         {
           "key": "limit",
-          "label": "One small limit I'll set",
+          "label": "One small limit I will set",
           "placeholder": "I try the question myself first, then ask."
         },
         {
           "key": "sign",
-          "label": "One sign it's working",
+          "label": "One sign it is working",
           "placeholder": "I answer more questions on my own before the chat is even open."
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Do the skill on a fresh example",
-      "question": "Fresh scenario: while planning meals, you open AI before checking what food is already at home. Which response shows a deliberate, testable boundary?",
+      "title": "Do the skill on something new",
+      "question": "While planning meals for the week, you open the chat before checking what food is already in the house. Which response sets a limit you could actually test?",
       "options": [
         {
-          "text": "Check what is already available, write a rough meal idea, then open AI for one defined gap; track whether first attempts happen before the chat opens.",
+          "text": "Check what is already there, write a rough plan, then open the chat for one clear gap. Watch whether first tries start happening before the chat opens.",
           "ok": true,
-          "feedback": "That's the complete loop: trigger, first move, bounded use, and a visible sign of change."
+          "feedback": "That is the full loop. What sets it off, a first move, a bounded use, and a sign you can see."
         },
         {
-          "text": "Set a 25-minute timer for the whole task, then use AI whenever it feels useful inside that time.",
+          "text": "Set a 25-minute timer for the task, then use the chat whenever it feels useful inside that time.",
           "ok": false,
-          "feedback": "A timer can help focus, but it does not define when AI should enter or what thinking remains yours. Add a trigger and first move."
+          "feedback": "A timer helps you focus. It does not say when the chat is allowed in, or which thinking stays yours. Add a trigger and a first move."
         },
         {
-          "text": "Remove the AI app completely so the automatic reach cannot happen.",
+          "text": "Delete the app so the automatic reach cannot happen at all.",
           "ok": false,
-          "feedback": "Removal may be a valid personal choice, but it does not practice deliberate use. This lesson's skill is choosing a boundary you can explain and test."
+          "feedback": "Deleting it is a fair personal choice. It just does not practise using the thing on purpose, which is this lesson's skill."
         }
       ]
     }

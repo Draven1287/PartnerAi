@@ -6,110 +6,110 @@ export default {
   "num": 48,
   "arc": "Becoming a Builder",
   "title": "Teach Someone Else",
-  "coreQuestion": "How do I know I can explain an AI idea clearly, accurately, and in my own words?",
-  "blurb": "Teach one idea by writing, private recording, simulation, or an optional willing listener — the evidence standard stays the same.",
+  "coreQuestion": "How do I know I can explain an AI idea clearly, correctly, and in my own words?",
+  "blurb": "Teach one idea by writing, by a private recording, by a simulation with a made-up learner, or to a willing listener. The proof is the same either way.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "The explanation you can defend",
-      "scenario": "You've learned a lot in this course. But could you explain one idea in under two minutes, with no jargon, then answer a reasonable challenge? You can prove that privately in writing, in a recording only you keep, with a simulated learner, or with a willing person. Another person's availability is never the test.",
-      "prompt": "Before you read on: which ONE thing you learned would you most want someone to understand about AI? Write or say it in a single sentence, right now."
+      "scenario": "You have learned a lot here.\n\nBut could you explain one idea in under two minutes, with no clever words? And then handle a fair question about it?\n\nYou can prove that on your own. In writing. In a recording nobody else sees. To a made-up learner. Or to a real person, if one happens to be around.",
+      "prompt": "Which ONE thing you learned would you most want somebody to understand about AI? Write it or say it in a single sentence, now."
     },
     {
       "kind": "reveal",
       "title": "If you can teach it, you own it",
-      "body": "Teach-back can reveal whether you understand, and four equivalent routes count: (1) write a short explanation and answer a simulated challenge, (2) make a private voice or video recording that you do not upload, (3) explain to a fictional learner in a built-in simulation, or (4) teach a willing person. In every route, state one accurate idea, one limitation, one checked example, and one choice the learner keeps. If you involve a person, ask first, make stopping easy, use a made-up example, and never enter their identity or response into an outside assistant. Correction is useful evidence, not failure.",
-      "mistake": "Telling yourself: 'I'm still a beginner, so I'm not qualified to teach anyone anything yet.' Or teaching a caricature: 'it just autocompletes' (sells short how capable it is) or 'it thinks like a person' (it doesn't).",
-      "good": "Pick one true idea and explain it plainly to someone one step behind you: 'AI predicts the most likely next words from patterns in human writing, so it can sound completely sure and still be wrong. Double-check anything that matters.'"
+      "body": "Explaining something out loud shows you whether you actually understand it. There is nowhere to hide.\n\nFour routes count the same. Write a short explanation and answer a hard question you set yourself. Record yourself and keep it on your own device. Explain it to a made-up learner. Or teach a real person who is happy to listen.\n\nWhichever route you take, include four things. One true idea. One thing it cannot do. One example you checked. And one choice that stays with the person listening.\n\nIf you involve a real person, ask first. Make it easy for them to stop. Use a made-up example. And never type their name or their reply into an outside app.\n\nBeing corrected is proof that you were listening. It is not failure.",
+      "mistake": "Telling yourself you are still a beginner, so you have nothing to teach. Or teaching a cartoon: 'it just autocompletes' sells it short, and 'it thinks like a person' is wrong.",
+      "good": "Pick one true idea and explain it plainly to somebody one step behind you. 'It has read a huge amount of writing and guesses the words that fit next. So it can sound totally sure and still be wrong. Check anything that matters.'"
     },
     {
       "kind": "classify",
-      "title": "Is that the honest core?",
-      "prompt": "You're deciding how to explain AI to a friend. Sort each way of putting it: does it teach the honest mechanism, or does it distort it?",
+      "title": "Is that the honest version?",
+      "prompt": "You are working out how to explain AI to a friend. Sort each way of putting it. Does it teach the real thing, or bend it?",
       "buckets": [
-        "Honest core",
-        "Distortion"
+        "The honest version",
+        "Bent out of shape"
       ],
       "items": [
         {
-          "text": "It learned patterns from tons of human writing and predicts what's likely to come next.",
+          "text": "It read an enormous amount of human writing, and guesses what is likely to come next.",
           "answer": 0
         },
         {
-          "text": "It's just fancy autocomplete, nothing more.",
+          "text": "It is just fancy autocomplete, nothing more.",
           "answer": 1
         },
         {
-          "text": "It thinks and reasons like a person does.",
+          "text": "It thinks and reasons the way a person does.",
           "answer": 1
         },
         {
-          "text": "It can sound totally sure and still be wrong, so check anything that matters.",
+          "text": "It can sound completely sure and still be wrong, so check anything that matters.",
           "answer": 0
         },
         {
-          "text": "It's basically magic, no one really knows how it works.",
+          "text": "It is basically magic. Nobody really knows how it works.",
           "answer": 1
         }
       ],
-      "reveal": "The honest core is 'predicts the most likely next words from patterns.' That one framing beats both the put-down ('just autocomplete') and the hype ('it thinks' / 'it's magic'). When you teach, teach the real thing."
+      "reveal": "The honest version is: it guesses the words most likely to come next. That beats the put-down and the hype. When you teach, teach the real thing."
     },
     {
       "kind": "tryLive",
-      "title": "Choose a teach-back route",
-      "prompt": "I will prove my understanding using [private writing / a private recording I keep on my device / a simulated learner / an optional willing listener]. The one AI idea is: [idea]. Help me plan a two-minute explanation with (1) plain words, (2) one invented example, (3) one honest limitation, and (4) one choice the learner keeps. Then give me one skeptical but fair challenge. I will answer it in my own words and correct my explanation if needed.",
-      "note": "All four routes meet the same requirement. No live person, upload, account, or outside assistant is required. If you record yourself, keep it private and delete it when you are done if you prefer. If you choose a listener, ask permission and never record or paste their response."
+      "title": "Pick your route",
+      "prompt": "I will show I understand this by [writing it down / recording myself and keeping it / explaining it to a made-up learner / teaching somebody who is happy to listen]. The one idea is: [idea]. Help me plan a two-minute explanation with four things: plain words, one made-up example, one honest thing it cannot do, and one choice the listener keeps. Then give me one doubting but fair question. I will answer it in my own words and fix my explanation if I need to.",
+      "note": "All four routes count the same. No real person, upload, account, or outside app is needed. If you record yourself, keep it private, and delete it afterwards if you would rather. If you pick a listener, ask first, and never record or paste their reply anywhere."
     },
     {
       "kind": "workflowChain",
-      "title": "From idea to defensible explanation",
-      "goal": "Teach one AI idea through the private, simulated, or optional live route that works for you.",
+      "title": "From idea to an explanation that holds",
+      "goal": "Teach one AI idea, using whichever route works for you.",
       "correct": [
-        "Pick the ONE thing you'd most want a friend to know (one idea, not five).",
-        "Choose an equivalent route: private writing, private recording, simulated learner, or optional willing listener.",
-        "Explain it in plain language with one invented example, one limitation, and one choice the learner keeps.",
-        "Answer one skeptical but fair challenge in your own words.",
-        "Correct anything unclear or inaccurate, then give the explanation one more time.",
-        "Save only the idea you clarified and the correction — never another person's identity or private response."
+        "Pick the ONE thing you would most want a friend to know. One idea, not five.",
+        "Choose your route: writing, a recording you keep, a made-up learner, or a willing listener.",
+        "Explain it in plain words, with one made-up example, one thing it cannot do, and one choice the listener keeps.",
+        "Answer one doubting but fair question in your own words.",
+        "Fix anything unclear or wrong, then say the whole thing once more.",
+        "Save only the idea you cleared up and the correction. Never anybody else's name or private reply."
       ],
-      "note": "The evidence is the same in every route: an accurate explanation, a limitation, an answered challenge, and a correction when needed. Social access and confidence are not course requirements."
+      "note": "The proof is identical on every route. A correct explanation, an honest limit, a question answered, and a correction where one was needed. Having people around and feeling confident are not requirements."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your two-minute teaching plan",
-      "cardType": "Teach-back plan",
+      "title": "Save your two-minute plan",
+      "cardType": "Teaching it back",
       "fields": [
-        { "key": "idea", "label": "The one accurate idea", "placeholder": "One thing the listener should understand" },
-        { "key": "limit", "label": "The limitation I will name", "placeholder": "Where the AI can be wrong or needs checking" },
-        { "key": "choice", "label": "The choice the listener keeps", "placeholder": "What they decide, verify, or refuse to share" }
+        { "key": "idea", "label": "The one true idea", "placeholder": "One thing the listener should walk away with" },
+        { "key": "limit", "label": "The limit I will name", "placeholder": "Where it can be wrong, or needs checking" },
+        { "key": "choice", "label": "The choice the listener keeps", "placeholder": "What they decide, check, or refuse to hand over" }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Can your explanation survive a question?",
-      "question": "Which result is strong evidence of understanding without making another person's participation a requirement?",
+      "question": "Which result really shows you understand it, without needing anybody else to be available?",
       "options": [
         {
-          "text": "Using a private written, recorded, simulated, or willing-listener route, I stated the idea and limitation, answered a fair challenge with a checked example, and corrected one unclear part without storing anyone else's identity.",
+          "text": "On any of the routes, I said the idea and its limit, answered a fair question using an example I had checked, and fixed one unclear part. I stored nobody else's details.",
           "ok": true,
-          "feedback": "Yes. The route can be private or social; the evidence is your accurate explanation, checked example, response to challenge, and correction."
+          "feedback": "Yes. The route can be private or social. The proof is your correct explanation, your checked example, your answer, and your fix."
         },
         {
-          "text": "A simulated learner rated my explanation as clear, so I skipped checking the factual core.",
+          "text": "A made-up learner said my explanation was clear, so I did not bother checking the facts underneath.",
           "ok": false,
-          "feedback": "A clarity rating is not a fact-check. Simulation is a valid route, but you still must verify the core idea and answer the challenge in your own words."
+          "feedback": "Clear is not the same as correct. That route is fine, but you still have to check the core idea and answer the question yourself."
         },
         {
-          "text": "I copied a polished explanation without answering a challenge or revising any part myself.",
+          "text": "I copied a polished explanation, and never answered a question or changed a word of it.",
           "ok": false,
-          "feedback": "Polish is not ownership. Answer one fair challenge and revise the explanation in your own words."
+          "feedback": "Polish is not ownership. Answer one fair question and rewrite the explanation in your own words."
         },
         {
-          "text": "I taught an accurate idea, but used the person's private situation as the example without asking permission.",
+          "text": "I taught a true idea, but I used the listener's own private situation as the example without asking.",
           "ok": false,
-          "feedback": "The explanation may be accurate, but the method crossed a privacy and consent boundary. Use an invented example and ask permission first."
+          "feedback": "The idea may be right. The method was not. Use a made-up example, and ask before using anybody's life as one."
         }
       ]
     }

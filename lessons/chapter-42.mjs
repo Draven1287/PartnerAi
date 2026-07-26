@@ -5,113 +5,113 @@ export default {
   "id": "chapter-42",
   "num": 42,
   "arc": "Building with AI",
-  "title": "Delegate the Work, Keep the Judgment",
-  "coreQuestion": "Which parts of a real task should I hand to AI, and which parts should stay mine?",
-  "blurb": "Hand off the typing and the first draft. Keep the calls only you should make.",
+  "title": "Hand Over the Work, Keep the Calls",
+  "coreQuestion": "Which parts of a real job can I hand over, and which parts have to stay mine?",
+  "blurb": "Hand over the typing and the first draft. Keep the calls only you should be making.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The end-of-year reviews",
-      "scenario": "A group project needs a fair summary of what three people contributed. The job mixes gathering evidence, drafting clear wording, deciding what is true and fair, and fitting it into a template. You open an AI assistant to speed it up.",
-      "prompt": "Before you read on: which of those four parts would you be uneasy handing entirely to the AI, and why?"
+      "title": "Writing up what everyone did",
+      "scenario": "A group project needs a fair write-up of what three people contributed.\n\nThat job is really four jobs. Gathering what actually happened. Finding good words. Deciding what is true and fair about each person. Getting it into the right format.\n\nYou open a chat app to speed it up.",
+      "prompt": "Which of those four would you be uneasy handing over completely? And why that one?"
     },
     {
       "kind": "reveal",
-      "title": "Delegate the work, keep the judgment",
-      "body": "A skilled AI user does not maximize delegation; they protect the judgment that affects people. AI can draft, sort, or format, but it cannot know what truly happened, obtain consent, weigh a relationship, or accept responsibility for the result. Keep a part yourself when it must be true, carries your values, affects someone, requires permission, or goes out under your name. Delegate reversible labor only when you will inspect and approve it. Before an outside assistant sees any material, remove names, contact details, private messages, performance information, or another person's data. Data entered there leaves LearningAI.",
-      "mistake": "Telling the AI 'write the full reviews for my three teammates' and pasting its answer straight into the template.",
-      "good": "Letting the AI draft warm wording from YOUR notes, while you decide what's true and fair about each person — and keeping private details about named coworkers on your side."
+      "title": "Hand over the work. Keep the calls.",
+      "body": "Someone good at this does not hand over as much as possible. They protect the parts that land on people.\n\nAI can draft, sort and format. It cannot know what actually happened in your group. It cannot ask anyone if that is okay. It cannot weigh a friendship. And it carries nothing if it goes wrong.\n\nSo keep a part yourself when any of these is true. It has to be true. It carries what you believe. It affects somebody. Somebody else has to agree to it. It goes out with your name on it.\n\nHand over the rest, but only work you can undo, and only if you are going to read it before it goes anywhere.\n\nBefore an outside app sees anything, take out names, contact details, private messages, anything about how somebody is performing, and anything belonging to another person. What you type there leaves LearningAI.",
+      "mistake": "Typing 'write the reviews for my three teammates' and pasting the answer straight in.",
+      "good": "Letting it find warm wording from YOUR notes, while you decide what is true and fair about each person. And keeping private details about named people on your side of the line."
     },
     {
       "kind": "classify",
-      "title": "Run the keep-test",
-      "prompt": "Sort each part of the year-end-review task. Delegate (D) = typing, drafting, formatting, sorting you'll still approve. Keep (M) = it must be true about real people, carries your values, or your name is on it.",
+      "title": "Run the keep test",
+      "prompt": "Sort each part. Hand over means typing, drafting, formatting, sorting, and you still read it. Keep means it has to be true about real people, it carries what you believe, or your name is on it.",
       "buckets": [
-        "Delegate to AI (D)",
-        "Keep for me (M)"
+        "Hand it over",
+        "Keep it myself"
       ],
       "items": [
         {
-          "text": "Draft warm wording from the notes I paste in",
+          "text": "Find warm wording from the notes I paste in",
           "answer": 0
         },
         {
-          "text": "Decide what each teammate actually did well this year",
+          "text": "Decide what each person actually did well this year",
           "answer": 1
         },
         {
-          "text": "Format the finished text into the company template",
+          "text": "Put the finished text into the right format",
           "answer": 0
         },
         {
-          "text": "Judge whether the tone is fair and consistent across all three",
+          "text": "Judge whether the tone is fair and even across all three",
           "answer": 1
         },
         {
-          "text": "Summarize a long project doc into three bullet points",
+          "text": "Cut a long project document down to three bullet points",
           "answer": 0
         },
         {
-          "text": "Decide which sensitive details about a named coworker to include",
+          "text": "Decide which private details about a named person go in",
           "answer": 1
         }
       ],
-      "reveal": "The D parts are labor: drafting, formatting, summarizing — you still read and approve them. The M parts all pass the keep-test: they need to be true about real people or your name is on the call. Notice the AI can't verify what's true about your teammates, even if it browses the web — so 'what really happened' and 'what's fair' stay yours."
+      "reveal": "The hand-over parts are labour. Drafting, formatting, shortening. You still read them before they go. The keep parts all pass the same test: they must be true about real people, or your name is on the call. It cannot check what your teammates did, even with the whole web open. So what happened, and what is fair, stay yours."
     },
     {
       "kind": "tryLive",
       "title": "Get the map of parts",
-      "prompt": "Here's a task I need to do: [your task]. Break it into its separate parts. For each part, tell me whether I should hand it to you or do it myself, and flag any part where my own judgment, values, or knowledge of real people matters — explain why in one line. Don't do the task yet; just give me the map of parts.",
-      "note": "Use a real or invented task with several parts: planning a meal, community event, game night, shift handoff, repair, application, or group project. Give the assistant no identifying details. Hand it one reversible D part, keep one M part, and write who must approve before anything is sent, posted, booked, graded, or spent."
+      "prompt": "Here is a job I need to do: [your job]. Break it into its separate parts. For each part, say whether I should hand it to you or do it myself. Flag any part where my own judgement, my values, or what I know about real people matters, and explain why in one line. Do not do the job yet. Just give me the map.",
+      "note": "Use a real or made-up job with several parts. Planning a meal, an event, a games night, a handover at work, a repair, an application, a group project. Give it nothing that identifies anyone. Then hand it one part you could undo, keep one part yourself, and write down who has to approve before anything is sent, posted, booked, marked, or paid for."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your keep-test",
-      "cardType": "Delegate-vs-do rule",
+      "title": "Save your keep test",
+      "cardType": "Hand over or do it myself",
       "fields": [
         {
           "key": "task",
-          "label": "A task I'll do this week",
-          "placeholder": "e.g. Plan my sister's birthday dinner"
+          "label": "A job I will do this week",
+          "placeholder": "e.g. plan my sister's birthday dinner"
         },
         {
           "key": "delegate",
-          "label": "One part I'll hand to AI (D)",
-          "placeholder": "e.g. Draft the invite text and list venue options"
+          "label": "One part I will hand over",
+          "placeholder": "e.g. draft the invitation and list some places"
         },
         {
           "key": "keep",
-          "label": "One part I'll keep (M)",
-          "placeholder": "e.g. Deciding who to invite"
+          "label": "One part I will keep",
+          "placeholder": "e.g. deciding who gets invited"
         },
         {
           "key": "why",
-          "label": "One word for why the kept part is mine",
-          "placeholder": "truth? values? relationship? my name?"
+          "label": "One word for why that part is mine",
+          "placeholder": "true? values? people? my name?"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove it on a new task",
-      "question": "For a fresh task — choosing a training program, job, volunteer role, or major purchase and preparing the application or request — which delegation split keeps responsibility human?",
+      "title": "Prove it on a new job",
+      "question": "New job. Choosing a course, a job, a volunteering role, or something expensive, and writing the application. Which split keeps a person responsible?",
       "options": [
         {
-          "text": "Delegate: tidy and format my rough draft. Keep: the choice, every claim about me, and final approval before submission.",
+          "text": "Hand over: tidy up and format my rough draft. Keep: the choice, every claim about me, and the final yes before it is sent.",
           "ok": true,
-          "feedback": "That's it. You delegated the labor and kept the part that must be true and carries your name — and you named the real reason."
+          "feedback": "That is it. You handed over the labour and kept the parts that must be true and carry your name."
         },
         {
-          "text": "Delegate: compare the opportunities and rank the fit. Keep: rewrite the winning application's wording in my voice and approve submission.",
+          "text": "Hand over: compare the options and rank which suits me. Keep: rewriting the winner in my own words, and sending it.",
           "ok": false,
-          "feedback": "The final wording is yours, but the ranking decision was delegated. Keep the fit criteria and choice; let AI organize evidence or format your draft."
+          "feedback": "The wording is yours, but you gave away the choice. Keep what counts as a good fit, and let it organise or format instead."
         },
         {
-          "text": "Delegate: draft claims from my notes. Keep: formatting, because the template carries my name.",
+          "text": "Hand over: write the claims about me from my notes. Keep: the formatting, because the form has my name on it.",
           "ok": false,
-          "feedback": "Formatting is reversible labor. The claims about you require your evidence and approval; AI may help phrase only after you decide what is true."
+          "feedback": "Formatting is undoable labour. The claims about you need your evidence and your yes. It can help with wording after you decide what is true."
         }
       ]
     }
