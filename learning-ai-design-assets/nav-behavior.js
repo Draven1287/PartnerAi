@@ -11,6 +11,10 @@
   const reveal = () => navShell.classList.remove('is-passing');
   const syncSurface = () => {
     navShell.classList.toggle('is-over-content', window.scrollY > 12);
+    /* The glass used to switch from translucent to near-opaque the instant you
+       moved 12px, which is what read as a jolt. Publish how far down the page
+       we are so the CSS can ease the same change across ~150px instead. */
+    navShell.style.setProperty('--nav-scroll', String(Math.min(1, Math.max(0, window.scrollY / 150))));
   };
   const settle = () => {
     clearTimeout(settleTimer);
