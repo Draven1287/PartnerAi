@@ -15,6 +15,22 @@ const PUBLIC_PREFIXES = ['/learning-ai-design-assets/', '/v2/', '/v3/'];
 // learning-ai-design-assets/console.html, already covered by PUBLIC_PREFIXES.
 const PUBLIC_EXACT = new Set(['/backend-config.js', '/privacy.html', '/robots.txt', '/styles.css']);
 const PUBLIC_EXTENSIONS = new Set(['.css', '.gif', '.html', '.ico', '.jpeg', '.jpg', '.js', '.png', '.svg', '.txt', '.webp', '.woff', '.woff2']);
+// Loopback connect-src is a development convenience. Shipping it in production
+// widens the policy for no benefit, so it is added only when this is not a
+// production deploy.
+const LOOPBACK_CONNECT = process.env.NODE_ENV === 'production' ? '' : ' http://127.0.0.1:* http://localhost:*';
+const CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: https:",
+  `connect-src 'self' https://www.google-analytics.com${LOOPBACK_CONNECT}`,
+  "font-src 'self' data:",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'"
+].join('; ');
+
 const MIME = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -45,7 +61,12 @@ function headers(pathname, stat) {
       'last-modified': new Date(stat.mtimeMs).toUTCString()
     } : {}),
     'cache-control': asset ? 'public, max-age=0, must-revalidate, stale-while-revalidate=86400' : 'no-cache',
-    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://api.learningai4you.com https://www.google-analytics.com http://127.0.0.1:* http://localhost:*; font-src 'self' data:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+    'content-security-policy': CSP,
+    // Tells the browser to use HTTPS for this domain without asking. 30 days
+    // and no preload on purpose: HSTS cannot be revoked quickly, and the apex
+    // ALIAS still points at a Railway hostname due to be retired. Raise to
+    // max-age=31536000 once that record is corrected.
+    'strict-transport-security': 'max-age=2592000',
     'cross-origin-opener-policy': 'same-origin',
     'permissions-policy': 'camera=(), microphone=(), geolocation=()',
     'referrer-policy': 'strict-origin-when-cross-origin',
