@@ -9,11 +9,11 @@ const PORT = Number(process.env.PORT || 8080);
 const API_ORIGIN = String(process.env.API_INTERNAL_URL || '').replace(/\/$/, '');
 const CANONICAL_HOST = String(process.env.CANONICAL_HOST || '').trim().toLowerCase();
 const PUBLIC_PREFIXES = ['/learning-ai-design-assets/', '/v2/', '/v3/'];
-const PUBLIC_EXACT = new Set(['/backend-config.js', '/privacy.html', '/robots.txt', '/styles.css',
-  // The owner's admin console. The page is only a shell — every figure on it
-  // comes from /api/admin/* behind an admin session. It is served with
-  // noindex, and was unreachable purely as a side effect of the allowlist.
-  '/backend-console.html', '/admin/index.html']);
+// backend-console.html and admin/index.html are unrendered templates: they
+// contain {{ head }}, {{ content }} and four more placeholders that nothing in
+// this repo ever fills, so they serve as literal braces. The working console is
+// learning-ai-design-assets/console.html, already covered by PUBLIC_PREFIXES.
+const PUBLIC_EXACT = new Set(['/backend-config.js', '/privacy.html', '/robots.txt', '/styles.css']);
 const PUBLIC_EXTENSIONS = new Set(['.css', '.gif', '.html', '.ico', '.jpeg', '.jpg', '.js', '.png', '.svg', '.txt', '.webp', '.woff', '.woff2']);
 const MIME = new Map([
   ['.css', 'text/css; charset=utf-8'],
