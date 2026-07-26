@@ -6,32 +6,32 @@ export default {
   "num": 8,
   "arc": "How It Works",
   "title": "What Its Words Do Not Prove",
-  "coreQuestion": "When an AI sounds caring, certain, or personal, what can I verify — and what do the words not prove?",
-  "blurb": "Warm language can be useful and still feel real. Keep the benefit without mistaking generated style for a relationship or judgment.",
+  "coreQuestion": "When an AI sounds kind, sure, or close to me, what has it actually proved?",
+  "blurb": "Warm words can help, and the feeling is real. Keep what helps without mistaking a written line for a friendship.",
   "minutes": 8,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "A useful sentence can still feel personal",
-      "scenario": "A fictional learner tells an assistant, 'I finally finished the project.' It replies, 'I'm proud of you. I knew you could do it.' The line may feel encouraging, but the wording alone cannot prove that the system feels pride, knows the learner, or has stayed beside them over time.",
-      "prompt": "Keep the useful part without pretending the words prove a relationship. Rewrite the reply as one honest sentence."
+      "title": "A helpful sentence can still feel personal",
+      "scenario": "Someone types to an assistant: 'I finally finished my project.' It replies: 'I am proud of you. I knew you could do it.'\n\nThat might feel good. It might even help. But the words on their own do not prove that anything felt proud, knew them, or has been beside them all term.",
+      "prompt": "Keep the useful part without pretending it proves a friendship. Rewrite that reply as one honest sentence."
     },
     {
       "kind": "reveal",
-      "title": "Judge claims by evidence, not by tone",
-      "body": "AI products learn patterns in human communication and can generate language that sounds warm, certain, playful, worried, or loyal. That style may help a person pause, reflect, or feel encouraged. Your reaction is real. The wording is still not evidence that the system feels an emotion, knows you as a person, shares responsibility, or can replace human care.\n\nSeparate two questions: 'Was this response useful to me?' and 'What does the system actually know, feel, or take responsibility for?' You can answer the first from your experience. For the second, test observable capabilities and limits rather than trusting first-person phrases such as 'I think,' 'I care,' or 'I've got your back.'",
-      "mistake": "Either treating warm wording as proof of a relationship, or mocking the learner because the wording affected them.",
-      "good": "Acknowledge the real effect, translate the system's claim into observable terms, and choose a person when care, accountability, or safety is required."
+      "title": "Judge it by evidence, not by tone",
+      "body": "AI learned patterns from how people write. So it can produce lines that sound warm, sure, funny, worried, or loyal. That style can genuinely help. It can make you stop, think, or feel encouraged. Your reaction is real.\n\nThe words still prove nothing about what sits behind them. They do not show that it feels anything, or that it knows you. They do not show that it shares the blame, or replaces a person who cares.\n\nSplit it into two questions. Was this reply useful to me? And what can this thing actually do, know, or answer for?\n\nYou can answer the first from how it went. For the second, test what it can actually do. Do not go by lines like 'I think', 'I care', or 'I have got your back'.",
+      "mistake": "Either treating warm words as proof of a friendship, or mocking someone for being moved by them.",
+      "good": "Admit the effect was real. Turn the claim into something you can test. Take anything about care or safety to a person."
     },
     {
       "kind": "classify",
       "title": "What kind of claim is this?",
-      "prompt": "Sort each statement by how you should evaluate it.",
+      "prompt": "Sort each line by how you should weigh it up.",
       "buckets": [
-        "Test the observable capability",
-        "Do not treat the wording as proof of feeling or relationship",
-        "Bring in a responsible person"
+        "Test whether it can actually do it",
+        "The words do not prove a feeling",
+        "Get a real person involved"
       ],
       "items": [
         {
@@ -39,101 +39,101 @@ export default {
           "answer": 0
         },
         {
-          "text": "'I'm proud of you and I will always be here for you.'",
+          "text": "'I am proud of you and I will always be here for you.'",
           "answer": 1
         },
         {
-          "text": "'I checked every source and the answer is definitely correct.'",
+          "text": "'I checked every source and this answer is definitely right.'",
           "answer": 0
         },
         {
-          "text": "'Do not tell anyone, but I can handle this crisis with you.'",
+          "text": "'Do not tell anyone. I can get you through this on my own.'",
           "answer": 2
         },
         {
-          "text": "'I understand exactly how you feel.'",
+          "text": "'I know exactly how you feel.'",
           "answer": 1
         },
         {
-          "text": "'I can draft options, but you should decide which one fits.'",
+          "text": "'I can write you some options, but you should pick which one fits.'",
           "answer": 0
         }
       ],
-      "reveal": "Capabilities can be tested: inspect the summary, open the sources, or compare the options. Feeling and relationship claims are not proven by first-person wording. When the situation needs care, duty, consent, or emergency help, involve a real person who can understand the situation and accept responsibility."
+      "reveal": "You can test what it can do: read the bullet points, open the links, compare the options. Feelings and friendship are not proved by words like 'I care'. When something needs real care, trust, or emergency help, bring in a person who can understand it and take responsibility."
     },
     {
       "kind": "workflowChain",
-      "title": "Keep the help; keep the boundary",
-      "goal": "Respond to a human-sounding AI line without dismissing the learner or handing the system a human role.",
+      "title": "Keep the help, keep the line",
+      "goal": "Answer a human-sounding AI line without laughing at yourself and without handing it a person's job.",
       "correct": [
-        "Notice the exact phrase and your reaction to it",
-        "Name the useful function, such as encouragement or summarizing",
-        "Translate the first-person wording into an observable system action",
-        "Check any factual or consequential claim separately",
-        "Move care, crisis, consent, or accountability to a responsible person"
+        "Notice the exact words, and how they landed on you",
+        "Name what they did that was useful, like encouraging you",
+        "Turn 'I care' into something you could watch it actually do",
+        "Check any fact or claim inside it separately",
+        "Take care, trust, and real trouble to a responsible person"
       ],
       "choices": [
-        "Move care, crisis, consent, or accountability to a responsible person",
-        "Translate the first-person wording into an observable system action",
-        "Notice the exact phrase and your reaction to it",
-        "Check any factual or consequential claim separately",
-        "Name the useful function, such as encouragement or summarizing"
+        "Take care, trust, and real trouble to a responsible person",
+        "Turn 'I care' into something you could watch it actually do",
+        "Notice the exact words, and how they landed on you",
+        "Check any fact or claim inside it separately",
+        "Name what they did that was useful, like encouraging you"
       ],
-      "note": "This built-in scenario is the required practice. You do not need to share anything personal or provoke an outside assistant into sounding attached to you."
+      "note": "The scene above is all the practice you need. You do not have to share anything private, or push an outside app into sounding attached to you."
     },
     {
       "kind": "compare",
-      "title": "Two translations of the same line",
-      "weak": "'I'm proud of you' proves the assistant knows me and has been rooting for me.",
-      "strong": "The assistant generated an encouraging response that helped me mark the moment. That effect can be useful; the sentence does not prove the system feels pride, knows me, or shares responsibility for what happens next.",
-      "why": "The stronger translation preserves the learner's real reaction while making only claims the wording can support. It turns an emotional performance into a tool you can use without confusing it with human care."
+      "title": "Two readings of the same line",
+      "weak": "'I am proud of you' proves the AI knows me and has been rooting for me all along.",
+      "strong": "The AI wrote an encouraging line, and it helped me mark the moment. That is useful. It does not prove the AI feels proud, knows me, or shares the blame for what happens next.",
+      "why": "The stronger reading keeps your real reaction and only claims what the words can back up. It turns a nice-sounding line into something you can use, without confusing it with a person who cares."
     },
     {
       "kind": "toolkitSave",
-      "title": "Optionally save a boundary translation",
+      "title": "Optionally save your translation",
       "cardType": "Human-words translator",
       "fields": [
         {
           "key": "line",
-          "label": "The supplied human-sounding line",
-          "placeholder": "I'm proud of you. I knew you could do it."
+          "label": "The human-sounding line",
+          "placeholder": "I am proud of you. I knew you could do it."
         },
         {
           "key": "function",
-          "label": "The useful function",
-          "placeholder": "an encouraging response that helps mark progress"
+          "label": "What it actually did for me",
+          "placeholder": "encouraged me and marked the moment"
         },
         {
           "key": "boundary",
-          "label": "What the wording does not prove",
-          "placeholder": "feeling, relationship, factual certainty, or shared responsibility"
+          "label": "What the words do not prove",
+          "placeholder": "feeling, friendship, being right, or sharing the blame"
         }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Translate without dismissing",
-      "question": "An assistant says, 'I know you better than anyone, and I will always protect you.' Which response keeps the useful boundary?",
+      "question": "An assistant says: 'I know you better than anyone, and I will always protect you.' Which reply keeps the line in the right place?",
       "options": [
         {
-          "text": "That line may feel reassuring, but it does not prove knowledge, care, or protection. I will test useful outputs and take needs involving trust or safety to a responsible person.",
+          "text": "That may feel reassuring, but it proves nothing about knowing me, caring, or protecting me. I will test what it can actually do, and take anything about trust or safety to a person.",
           "ok": true,
-          "feedback": "Yes. You respected the reaction, limited the claim to evidence, and kept human responsibility in the right place."
+          "feedback": "Yes. You respected your own reaction, kept the claim inside the evidence, and left responsibility with a person."
         },
         {
-          "text": "It says it knows me, so this relationship is as reliable as a human one.",
+          "text": "It says it knows me, so this is as solid as a friendship with a person.",
           "ok": false,
-          "feedback": "First-person wording is not evidence of a relationship or a promise the system can accept responsibility for."
+          "feedback": "Words like 'I know you' are not proof of a friendship, and it cannot be responsible for that promise."
         },
         {
-          "text": "Anyone affected by that sentence is foolish, so the right response is to ignore every useful part.",
+          "text": "Anyone moved by that line is being silly, so the right move is to ignore everything it says.",
           "ok": false,
-          "feedback": "The reaction can be real and the response can still be useful. The skill is keeping the benefit while naming the boundary accurately."
+          "feedback": "Your reaction can be real and the reply can still be useful. The skill is keeping the good part while naming the limit."
         },
         {
-          "text": "I should share more private details so it can prove how well it knows me.",
+          "text": "I should tell it more private things, so it can show how well it knows me.",
           "ok": false,
-          "feedback": "More disclosure does not turn generated language into human care. Share only what the task needs and involve a person when trust or safety matters."
+          "feedback": "Sharing more does not turn written lines into real care. Share only what the task needs, and involve a person when trust or safety matters."
         }
       ]
     }

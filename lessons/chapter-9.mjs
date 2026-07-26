@@ -6,150 +6,150 @@ export default {
   "num": 9,
   "arc": "How It Works",
   "title": "Pause Before You Allow It",
-  "coreQuestion": "Before I sign in, upload, download, grant access, pay, post, or let an AI act, what should I check?",
-  "blurb": "Safety is not one magic browser word. Check the destination, data, access, commitment, and way back before you allow a consequential action.",
+  "coreQuestion": "Before I sign in, upload, download, pay, post, or let AI act for me, what should I check?",
+  "blurb": "Safety is not one magic word on a page. Check who is asking, what they get, and whether you can undo it.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "The button is not the decision",
-      "scenario": "A link opens a polished AI study tool. It asks you to 'Continue with Google,' allow access to your Drive, install a helper download, and start a trial. The page uses HTTPS and looks professional. None of that, by itself, proves who operates it or what will happen after you approve.",
-      "prompt": "Before selecting anything, name two consequences you would want to understand. What could the service receive, change, download, charge, send, or keep?"
+      "scenario": "A link opens a slick AI homework helper. It wants you to sign in with your Google account and let it into your school files. It also wants to install a small extra program and start a free trial.\n\nThe page looks professional. There is a little padlock next to the address.\n\nNone of that tells you who runs it, or what happens after you tap Allow.",
+      "prompt": "Before you tap anything, name two things that could happen next. What could this get, change, install, charge, send, or keep?"
     },
     {
       "kind": "reveal",
-      "title": "Check the consequence, not a trigger word",
-      "body": "A secure-looking page can still be deceptive, and an unfamiliar warning can appear on a legitimate service. Do not reduce safety to 'password and payment mean pause' or 'Not secure means leave.' Instead, pause before any action that shares data, grants access, downloads software, creates a commitment, publishes or sends something, or may be difficult to undo.\n\nUse seven checks:\n1. Identity — who is asking?\n2. Destination — what exact app, domain, account, or recipient will receive the action?\n3. Data — what information will be uploaded, retained, or exposed?\n4. Permissions — what can the service view, create, change, or send, and for how long?\n5. Downloads and commitments — will this install software, start a renewal, charge money, publish content, or contact someone?\n6. Reversibility — can you undo it, revoke access, cancel, recover, or remove the data?\n7. Independent route — can you close the link and reopen the service through a known app, saved bookmark, official provider page, or trusted contact?",
-      "mistake": "Trusting a page because it looks official, uses HTTPS, or avoids a short list of alarming words.",
-      "good": "Pause before consequence, inspect what will happen, and verify the service through a route the request did not control."
+      "title": "Check what happens, not how the page looks",
+      "body": "A page can look safe and still be a trap. A scary warning can show up on a service that is completely fine. So do not decide from how it looks.\n\nInstead, stop before anything that hands over your information or lets something into your accounts. Stop before anything that installs a program, signs you up, posts, sends, or would be hard to undo.\n\nOne word first. When an app asks to use your files, your camera, or your account, it is asking for permission. Permission just means you letting it do that. You can usually take it back later in your settings.\n\nSeven things to check:\n1. Who is asking?\n2. Where is this actually going: which app, which website, whose account?\n3. What information does it get to see or keep?\n4. What can it look at, change, or send, and for how long?\n5. Will it install something, start charging you, post something, or message someone?\n6. Can you undo it, cancel it, or take the access back?\n7. Can you close the link and reach the real service a way you already trust?",
+      "mistake": "Trusting a page because it looks official, has a padlock, or avoids scary words.",
+      "good": "Stop before anything that costs something. Work out what it will do. Then check the service by a route the message did not pick for you."
     },
     {
       "kind": "classify",
-      "title": "Read, or pause before allowing?",
-      "prompt": "Sort each action. 'Read or navigate' does not grant new access or create a commitment. 'Pause before allowing' changes data, access, software, money, communication, or recovery options.",
+      "title": "Reading, or allowing?",
+      "prompt": "Sort each one. Reading or looking hands over nothing. Allowing changes your information, your accounts, your device, your money, or what gets sent in your name.",
       "buckets": [
-        "Read or navigate",
-        "Pause before allowing"
+        "Just reading or looking",
+        "Stop and think before allowing"
       ],
       "items": [
         {
-          "text": "Open the Help page inside an app you reached through your own bookmark.",
+          "text": "Open the Help page inside an app you reached from your own bookmark.",
           "answer": 0
         },
         {
-          "text": "Allow an AI extension to read and change data on every website you visit.",
+          "text": "Let an AI add-on read and change everything on every site you visit.",
           "answer": 1
         },
         {
-          "text": "Upload a school document containing names and private feedback.",
+          "text": "Upload a school document with classmates' names and teacher comments in it.",
           "answer": 1
         },
         {
-          "text": "Read the price and renewal terms without starting the trial.",
+          "text": "Read the price and the renewal terms without starting the trial.",
           "answer": 0
         },
         {
-          "text": "Download and open a 'required AI helper' from a link in an unexpected message.",
+          "text": "Download and open a 'required AI helper' from a message you did not expect.",
           "answer": 1
         },
         {
-          "text": "Approve 'Continue with Google' when the service requests Drive, contacts, and email access.",
+          "text": "Tap 'Continue with Google' when the app also wants your files, contacts and email.",
           "answer": 1
         },
         {
-          "text": "Let an agent send the drafted email automatically.",
+          "text": "Let AI send the email it just drafted, on its own.",
           "answer": 1
         },
         {
-          "text": "View account settings to learn where connected apps can be revoked.",
+          "text": "Look in your settings to find where connected apps can be switched off.",
           "answer": 0
         }
       ],
-      "reveal": "The pause happens before you grant, upload, install, pay, publish, send, or commit — not merely when a particular word appears. Reading a screen is different from approving its consequence."
+      "reveal": "The pause comes before you allow, upload, install, pay, post, or send. Not only when one scary word shows up. Reading a screen is not the same as agreeing to it."
     },
     {
       "kind": "workflowChain",
-      "title": "Verify without using the path that asked",
-      "goal": "Evaluate an unexpected link that claims your AI account needs urgent permission to avoid being locked.",
+      "title": "Check it a way the message did not choose",
+      "goal": "Deal with an unexpected link saying your AI account will be locked unless you allow something now.",
       "correct": [
-        "Stop before signing in, downloading, or approving access",
-        "Identify the claimed provider and inspect the exact destination",
-        "List the data, permissions, downloads, and commitments being requested",
-        "Check whether each consequence is necessary and reversible",
-        "Close the link and navigate independently through a known app, bookmark, or official page",
-        "Use the provider's official support or a trusted person if uncertainty remains",
-        "Revoke access, change credentials, or report the request if something was already approved"
+        "Stop before signing in, downloading, or allowing anything",
+        "Work out who it claims to be, and where the link actually goes",
+        "List what it wants: your information, your accounts, a download, a payment",
+        "Ask which of those the task really needs, and which you could undo",
+        "Close the link and open the real service your own way",
+        "Ask the company's real support, or someone you trust, if you are still unsure",
+        "If you already allowed something, switch that access off and change your password"
       ],
       "choices": [
-        "List the data, permissions, downloads, and commitments being requested",
-        "Use the provider's official support or a trusted person if uncertainty remains",
-        "Stop before signing in, downloading, or approving access",
-        "Revoke access, change credentials, or report the request if something was already approved",
-        "Identify the claimed provider and inspect the exact destination",
-        "Close the link and navigate independently through a known app, bookmark, or official page",
-        "Check whether each consequence is necessary and reversible"
+        "List what it wants: your information, your accounts, a download, a payment",
+        "Ask the company's real support, or someone you trust, if you are still unsure",
+        "Stop before signing in, downloading, or allowing anything",
+        "If you already allowed something, switch that access off and change your password",
+        "Work out who it claims to be, and where the link actually goes",
+        "Close the link and open the real service your own way",
+        "Ask which of those the task really needs, and which you could undo"
       ],
-      "note": "Do not use the suspicious link's phone number, reply address, QR code, or support button to verify itself. Independent navigation breaks the requester's control of the route."
+      "note": "Do not check a suspicious message using its own phone number, reply address, QR code, or help button. Going your own way takes the route out of their hands."
     },
     {
       "kind": "compare",
-      "title": "HTTPS is protection in transit, not proof of identity",
-      "weak": "The page has a lock icon and looks official, so every permission it asks for is safe.",
-      "strong": "A protected connection can still lead to the wrong service. I will verify the exact provider and destination, inspect requested access and commitments, and reopen the account independently before approving anything.",
-      "why": "Connection security helps protect data while it travels. It does not prove that the recipient deserves the data, that a download is safe, or that the requested permission is necessary."
+      "title": "The padlock protects the journey, not who is waiting",
+      "weak": "The page has a padlock and looks official, so everything it asks for must be safe.",
+      "strong": "The padlock only means nobody can read my details on the way there. It says nothing about who is at the other end. I will check who runs it, look at what it wants, and open my account my own way before allowing anything.",
+      "why": "That padlock scrambles your information while it travels. It does not prove the people receiving it deserve it, that a download is safe, or that the access is even needed."
     },
     {
       "kind": "toolkitSave",
-      "title": "Optionally save your pause-before-allowing check",
-      "cardType": "Permission and commitment check",
+      "title": "Optionally save your pause check",
+      "cardType": "Before I allow it",
       "fields": [
         {
           "key": "identity",
-          "label": "Identity and destination",
-          "placeholder": "Who is asking, and what exact app, domain, account, or recipient will receive it?"
+          "label": "Who is asking, and where it goes",
+          "placeholder": "Which app, site, or account actually receives this?"
         },
         {
           "key": "dataAccess",
-          "label": "Data and permissions",
-          "placeholder": "What can it view, keep, create, change, upload, or send?"
+          "label": "What it gets to see or keep",
+          "placeholder": "Files, contacts, messages, photos?"
         },
         {
           "key": "commitment",
-          "label": "Download or commitment",
-          "placeholder": "Will it install, renew, charge, publish, message, or act?"
+          "label": "What it will install, charge, or send",
+          "placeholder": "A program, a renewal, a post, a message?"
         },
         {
           "key": "recovery",
-          "label": "Reversibility and independent route",
-          "placeholder": "How can I undo it, revoke it, and reopen the real service without this link?"
+          "label": "How I undo it and reach the real thing",
+          "placeholder": "Where do I switch the access off, and what is my own way in?"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Choose the safe next move",
-      "question": "A convincing message says your AI account will close in ten minutes unless you use its link, sign in, install a browser helper, and grant access to your files. The linked page uses HTTPS. What should you do?",
+      "title": "Pick the safe next move",
+      "question": "A convincing message says your AI account closes in ten minutes. Its link wants you to sign in, install a browser add-on, and hand over your files. The page has a padlock. What do you do?",
       "options": [
         {
-          "text": "Stop. Do not use the link, sign in, install, or grant access. Open the provider independently, check the account there, and use official support; if I already approved something, revoke it and secure the account.",
+          "text": "Stop. Do not use the link, sign in, install, or allow anything. Open the service my own way, check the account there, and use its real support. If I already allowed something, switch it off and secure the account.",
           "ok": true,
-          "feedback": "Correct. You checked identity and destination, refused unnecessary access and downloads, broke the urgent route, and kept a recovery plan."
+          "feedback": "Right. You checked who and where, refused access you did not need, broke the rushed route, and kept a way to recover."
         },
         {
-          "text": "Continue because HTTPS and professional design prove the service is legitimate.",
+          "text": "Carry on, because a padlock and a professional-looking page prove it is genuine.",
           "ok": false,
-          "feedback": "HTTPS protects a connection; it does not prove who deserves your credentials, files, or device access."
+          "feedback": "The padlock protects your details while they travel. It does not prove who deserves your password or your files."
         },
         {
-          "text": "Only pause when the page asks for a card number; file access and downloads are routine.",
+          "text": "Only stop when a page asks for a card number. Files and downloads are routine.",
           "ok": false,
-          "feedback": "Permissions, uploads, downloads, messages, and account access can be as consequential as a payment. Pause before allowing any of them."
+          "feedback": "Access to your files, downloads, messages and accounts can cost as much as a payment. Pause before all of them."
         },
         {
-          "text": "Ask the same linked page's chatbot whether the link is safe, then follow its answer.",
+          "text": "Ask the chatbot on that same page whether the link is safe, then do what it says.",
           "ok": false,
-          "feedback": "A request cannot verify itself. Close it and use an independent route you already trust."
+          "feedback": "A request cannot vouch for itself. Close it and go a way you already trust."
         }
       ]
     }

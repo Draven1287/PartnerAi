@@ -5,80 +5,80 @@ export default {
   "id": "chapter-3",
   "num": 3,
   "arc": "First Contact",
-  "title": "The Machine That Predicts",
-  "coreQuestion": "How does context change what an AI is likely to produce, and why does likely not mean true?",
-  "blurb": "Change the context, watch the likely answer move, and learn why fluency is not evidence.",
+  "title": "Change One Clue, Change the Answer",
+  "coreQuestion": "Why do the words around your question change the answer, and why can a likely answer still be wrong?",
+  "blurb": "Change one clue, watch the answer move, and see why a good guess is not proof.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "One unfinished message, three possible consequences",
-      "scenario": "Your phone suggests how to finish: 'I cannot make it tonight because…' In a work chat it may predict 'my shift changed.' In a family chat it may predict 'I am not feeling well.' In a game chat it may predict 'the update is still downloading.' The beginning stayed the same; the context changed the likely ending.",
-      "prompt": "Which ending would be most likely in a chat about a canceled community event—and what clue changed your guess?"
+      "title": "One message, three different endings",
+      "scenario": "You start typing: 'I cannot make it tonight because…' Your phone offers to finish it for you.\n\nIn the team group chat it offers 'I have a match'. In the family chat it offers 'I feel sick'. In the game chat it offers 'the update is still downloading'.\n\nThe start was the same every time. The words around it changed. So the guess changed.",
+      "prompt": "You are in a chat about a cancelled birthday party. Which ending would your phone offer, and what made you pick it?"
     },
     {
       "kind": "classify",
-      "title": "Match the context to the likely continuation",
-      "prompt": "Sort each continuation by the context that makes it more likely. Several endings could be possible; choose the strongest clue.",
-      "buckets": ["Cooking", "Repair job", "Friend message"],
+      "title": "Which chat does each ending fit?",
+      "prompt": "Sort each ending by the chat it fits best. More than one could work. Pick the strongest clue.",
+      "buckets": ["Cooking dinner", "Fixing a bike", "Texting a friend"],
       "items": [
         { "text": "…the pan is already smoking.", "answer": 0 },
-        { "text": "…the replacement part arrives Friday.", "answer": 1 },
-        { "text": "…I need a little time before we talk.", "answer": 2 },
+        { "text": "…the new brake cable arrives on Friday.", "answer": 1 },
+        { "text": "…I need a bit of time before we talk.", "answer": 2 },
         { "text": "…the sauce needs ten more minutes.", "answer": 0 },
-        { "text": "…the customer approved the estimate.", "answer": 1 },
+        { "text": "…my dad said he would pay for the part.", "answer": 1 },
         { "text": "…I do not want this to turn into another argument.", "answer": 2 }
       ],
-      "reveal": "Prediction uses surrounding context to weight what fits next. More relevant context changes the likely continuation; it does not turn that continuation into a verified fact."
+      "reveal": "The AI leans on the words around your question. Change the clues and a different ending fits. That makes the ending more likely. It does not make it true."
     },
     {
       "kind": "reveal",
-      "title": "Prediction happens one piece at a time",
-      "body": "A language model learned patterns across enormous amounts of text. Given your words and the conversation so far, it estimates which next piece is likely, adds one, and repeats. That can create an explanation, plan, joke, code, or confident error. It does not first discover a complete true answer hidden inside itself.\n\nContext improves fit. It cannot guarantee truth. Before using an outside assistant, use an invented scenario and remove private details; this built-in activity is enough to learn the mechanism without sending anything elsewhere.",
-      "mistake": "Assuming a smooth paragraph must come from understanding the world the way a person does.",
-      "good": "Use context to shape the prediction, then use evidence and human judgment to decide whether the output is usable."
+      "title": "It builds the answer one word at a time",
+      "body": "The part that writes the answer is a guesser. People call it a model.\n\nIt has read an enormous amount of writing. Given your words so far, it picks the word that fits best. Then it does that again. And again. That is how a whole answer gets built.\n\nPeople call this predicting. It only means guessing what comes next.\n\nSo the answer arrives one piece at a time. It was never sitting there finished, waiting for you.\n\nEverything around your question is a clue: the earlier messages, the chat you are in, the details you added. People call all those clues together the context.\n\nMore clues make the guess fit better. Fitting better is not the same as being right. A homework answer can read beautifully and still be wrong.\n\nThis lesson works entirely inside LearningAI. If you do try an outside app, use a made-up example and keep private details out.",
+      "mistake": "Thinking a smooth paragraph means the AI understands the world the way you do.",
+      "good": "Use clues to shape the guess, then check the facts yourself before you rely on them."
     },
     {
       "kind": "workflowChain",
-      "title": "Run a prediction experiment",
-      "goal": "Test how one changed clue shifts a likely response without using personal information.",
+      "title": "Run a clue experiment",
+      "goal": "Test how one changed clue moves the answer, using nothing private.",
       "correct": [
-        "Choose an invented unfinished message",
-        "Write one context that makes ending A likely",
-        "Change one important clue",
-        "Predict how the ending should shift",
-        "Compare the two outputs without treating either as fact"
+        "Pick a made-up half-finished sentence",
+        "Add clues that make one ending fit",
+        "Change one clue and nothing else",
+        "Say how you think the ending will move",
+        "Compare the two endings, and treat neither as proof"
       ],
       "choices": [
-        "Predict how the ending should shift",
-        "Compare the two outputs without treating either as fact",
-        "Choose an invented unfinished message",
-        "Change one important clue",
-        "Write one context that makes ending A likely"
+        "Say how you think the ending will move",
+        "Compare the two endings, and treat neither as proof",
+        "Pick a made-up half-finished sentence",
+        "Change one clue and nothing else",
+        "Add clues that make one ending fit"
       ],
-      "note": "A fair experiment changes one clue, not five. The evidence is the shift in the likely continuation."
+      "note": "A fair test changes one clue, not five. The evidence is that the ending moved."
     },
     {
       "kind": "toolkitSave",
-      "title": "Keep your context experiment",
-      "cardType": "Prediction evidence",
+      "title": "Keep your clue test",
+      "cardType": "Clue test",
       "fields": [
-        { "key": "start", "label": "Unfinished message", "placeholder": "Use an invented, non-private example" },
-        { "key": "contextA", "label": "Context A and likely ending", "placeholder": "What clue made it fit?" },
-        { "key": "contextB", "label": "Context B and changed ending", "placeholder": "What one clue moved the prediction?" },
-        { "key": "limit", "label": "What this does not prove", "placeholder": "Likely does not mean…" }
+        { "key": "start", "label": "Half-finished sentence", "placeholder": "Use a made-up one, nothing private" },
+        { "key": "contextA", "label": "Clues A, and the ending they fit", "placeholder": "What made that ending fit?" },
+        { "key": "contextB", "label": "Clues B, and the new ending", "placeholder": "Which single clue moved it?" },
+        { "key": "limit", "label": "What this does not prove", "placeholder": "Likely still does not mean…" }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Transfer the mechanism",
-      "question": "A chatbot completes 'The shop is closed because…' differently after you add 'holiday notice' instead of 'broken freezer.' What is the strongest conclusion?",
+      "title": "Try it on something new",
+      "question": "A chatbot finishes 'The shop is shut because…' one way after you add 'holiday notice', and another way after you add 'broken freezer'. What is the safest thing to conclude?",
       "options": [
-        { "text": "The changed clue shifted which continuation fit the context; either completion still needs checking before someone acts.", "ok": true, "feedback": "Exactly. Context changes probability, while evidence decides whether a claim is true." },
-        { "text": "The second answer is probably true because it used the newer clue and sounded more specific.", "ok": false, "feedback": "Specificity can come from prediction. The clue shaped the sentence; it did not verify the shop's situation." },
-        { "text": "The model remembered what actually happened at that shop and selected the matching ending.", "ok": false, "feedback": "Nothing here shows access to that real event. It generated what fit the supplied context." },
-        { "text": "Both answers are equally useless because predicted language cannot help with any real task.", "ok": false, "feedback": "Predicted language can generate useful possibilities. The human control is knowing when possibilities need verification." }
+        { "text": "The new clue changed which ending fitted. Either ending still needs checking before anyone acts on it.", "ok": true, "feedback": "Yes. Clues change what is likely. Only evidence tells you what is true." },
+        { "text": "The second answer is probably true, because it used the newer clue and sounded more exact.", "ok": false, "feedback": "Exact wording is easy to guess. The clue shaped the sentence. It did not check the shop." },
+        { "text": "The AI remembered what really happened at that shop and picked the matching ending.", "ok": false, "feedback": "Nothing here shows it knows that shop. It wrote what fitted the clues you gave it." },
+        { "text": "Both answers are useless, because a guessed sentence can never help with a real task.", "ok": false, "feedback": "Guessed sentences can be useful. Your job is knowing when a guess needs checking." }
       ]
     }
   ]
