@@ -110,7 +110,7 @@ export default {
       "question": "Take a brand-new job of your own, not the thank-you message. Say all three lines before you type anything. Run it, then do your check. What proves you were in charge?",
       "options": [
         {
-          "text": "I can point at the spot where I caught something — a place the draft missed my goal or my way, and I changed it.",
+          "text": "I can point at the spot where I caught something. A place the draft missed my goal or my way, and I changed it.",
           "ok": true,
           "feedback": "Yes. That caught-it moment is the proof. You held the goal, the way, and the last look, and let AI do only the middle."
         },

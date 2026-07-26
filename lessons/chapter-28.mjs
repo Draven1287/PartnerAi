@@ -5,131 +5,131 @@ export default {
   "id": "chapter-28",
   "num": 28,
   "arc": "Judgment & Safety",
-  "title": "Scams and Deepfakes",
-  "coreQuestion": "If a familiar voice or face can be faked, how do you confirm an urgent message is really from the person it claims to be?",
-  "blurb": "A voice or face is no longer proof. Verify through a separate channel you already trust.",
+  "title": "When a Voice Is Not Proof",
+  "coreQuestion": "If a familiar voice or face can be faked, how do I check that an urgent message is really from that person?",
+  "blurb": "A voice or a face is no longer proof. Reach the real person a way you already trusted before the message arrived.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "The call that sounds exactly right",
-      "scenario": "Your phone rings. It's your grandson's number — his voice, panicked: \"Grandma, it's me, I'm in trouble and need $500 fast. Please don't tell Mom, just send it.\" It sounds like him. Every word.",
-      "prompt": "Before you read on: what would you check to decide if this is really him? Notice if your instinct is to listen harder for something 'off' in the voice."
+      "title": "The message that sounds exactly right",
+      "scenario": "A voice note comes in from your best mate's account. It is their voice, and they sound panicked.\n\n'I'm stuck in town, I've lost my card, can you send me the money for the bus? Right now. Don't tell my mum.'\n\nIt sounds like them. Every word.",
+      "prompt": "What would you check before you send anything? Notice if your first instinct is to listen harder for something odd in the voice."
     },
     {
       "kind": "classify",
-      "title": "Spot the two red flags",
-      "prompt": "Almost every scam carries two signals: URGENCY (act now, no time to think) and a REQUEST for money or private information. Sort each line into what it is.",
+      "title": "Spot the two warning signs",
+      "prompt": "Nearly every scam carries two things: a rush, and an ask for money or private information. Sort each line.",
       "buckets": [
-        "Urgency",
-        "Money / info request"
+        "A rush",
+        "An ask for money or information"
       ],
       "items": [
         {
-          "text": "\"In the next 10 minutes or the deal falls through.\"",
+          "text": "\"In the next 10 minutes or the whole thing falls through.\"",
           "answer": 0
         },
         {
-          "text": "\"Wire $2,000 to this account.\"",
+          "text": "\"Send the money to this account.\"",
           "answer": 1
         },
         {
-          "text": "\"Just send me the login code they texted you.\"",
+          "text": "\"Just send me the code they texted you.\"",
           "answer": 1
         },
         {
-          "text": "\"Don't tell anyone, do it right now.\"",
+          "text": "\"Don't tell anyone, do it now.\"",
           "answer": 0
         },
         {
-          "text": "\"Give me your card number to confirm your identity.\"",
+          "text": "\"Give me your card number so I know it's really you.\"",
           "answer": 1
         },
         {
-          "text": "\"Your account will be frozen if you don't act tonight.\"",
+          "text": "\"Your account gets locked tonight if you do nothing.\"",
           "answer": 0
         }
       ],
-      "reveal": "When you see urgency AND a money-or-info ask together, treat it as a scam until proven otherwise — no matter how real the voice or face seems. Those two flags, not the sound quality, are your signal."
+      "reveal": "When a rush and a money-or-information ask turn up together, treat it as a scam until you have proved otherwise. It does not matter how real the voice or the face seems. Those two signs are what you are watching for, not the sound quality."
     },
     {
       "kind": "reveal",
-      "title": "Verify the channel, not the face",
-      "body": "You can no longer rely on strange hands, odd blinking, or a robotic voice to expose a fake. A deepfake can show a real person doing something that never happened. A voice clone can make a call sound like someone you know. Visual clues may help, but their absence proves nothing.\n\nMove the test away from the media and onto the channel:\n\nSTOP — do not reply, click, or send money.\nREACH — contact the person using a number or account you already trusted before the message arrived.\nCONFIRM — ask something independently agreed, such as a family code word.\n\nIf money moved, contact the bank's official fraud line and your local fraud-reporting authority. If the message creates an immediate safety concern, contact a trusted person or local emergency services.",
-      "mistake": "Listening harder to decide if the voice 'sounds real,' then sending the money because it convinced you.",
-      "good": "Hang up. Call your grandson on the number already saved in your phone — or ask his mother directly — and ask your code word before you do anything."
+      "title": "Check the route, not the face",
+      "body": "Weird hands, strange blinking, a robotic voice. You can no longer count on any of that to give a fake away.\n\nA deepfake is a video made by a computer showing a real person doing something they never did. A cloned voice is the same trick with sound. It can make a message sound exactly like someone you know.\n\nOdd details can be a clue. Not spotting any proves nothing at all.\n\nSo stop testing the message and test the route instead.\n\nSTOP. Do not reply, click, or send money.\n\nREACH. Contact the person using a number or account you already had saved before this arrived.\n\nCONFIRM. Ask something you agreed with them in advance. A code word works well.\n\nIf money has already gone, ring your bank on the number printed on your card, and tell an adult you trust. If anyone seems to be in real danger, contact someone you trust or the emergency services.",
+      "mistake": "Listening harder to decide whether the voice sounds real, then sending the money because it convinced you.",
+      "good": "Stop. Ring your mate on the number already in your phone, or ask someone in their house. Use your code word before you do anything."
     },
     {
       "kind": "workflowChain",
-      "title": "Build your verify-it routine",
-      "goal": "An urgent message from 'someone you know' asks for money or private info. Put your response in order.",
+      "title": "Build your check-it routine",
+      "goal": "An urgent message from 'someone you know' asks for money or private information. Put your response in order.",
       "correct": [
-        "Notice the two red flags: urgency + a money-or-info request",
-        "Stop — hang up or don't reply to the message itself",
-        "Reach the real person on a number or app you already have saved (never the one in the suspicious message)",
-        "Ask your agreed code word only the real person would know",
-        "If money already moved, call your bank's fraud line and report it to the police or local fraud authority"
+        "Notice the two warning signs: a rush, plus an ask for money or information",
+        "Stop. Do not reply to the message itself",
+        "Reach the real person on a number or app you already had saved, never the one in the message",
+        "Ask the code word you agreed in advance, that only they would know",
+        "If money has already gone, ring your bank and tell an adult you trust so it can be reported"
       ],
-      "note": "The whole point: you never judge whether it 'looked real.' You confirm through a channel you already trust. Looking for glitches can be a clue, but it is not a reliable verification method; convincing synthetic voices and faces may contain no obvious flaw."
+      "note": "The whole point is that you never judge whether it looked real. You check by a route you already trusted. Hunting for glitches might give you a clue, but a good fake will not have any."
     },
     {
       "kind": "tryLive",
       "title": "Pressure-test a message with a coach",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use this invented message; do not paste a real suspicious message, link, phone number, login code, bank detail, or person's name: 'I'm stuck and need $500 in ten minutes. Keep this secret.' List the warning signs, then build a verification plan using a separate contact route that existed before the message. Tell me what not to click, send, or reveal.",
-      "note": "Practice on the invented text. If a real message arrives, stop interacting with it. Use a saved contact or an official number you find independently; never use contact details supplied by the suspicious message."
+      "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use this made-up message. Do not paste a real suspicious message, link, phone number, login code, bank detail, or anyone's name: 'I'm stuck and I need money in ten minutes. Keep this between us.' List the warning signs. Then build me a plan to check it using a route that existed before the message. Tell me what not to click, send, or repeat.",
+      "note": "Practise on the made-up message. If a real one arrives, stop replying to it. Use a saved contact, or an official number you find yourself. Never use a number the suspicious message gave you."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your verify-it plan and code word",
+      "title": "Save your check-it plan and code word",
       "cardType": "Verify-It Plan",
       "fields": [
         {
           "key": "impersonate",
-          "label": "Who a scammer might pretend to be, to me",
-          "placeholder": "e.g. my grandson, my bank, my boss, a delivery service"
+          "label": "Who someone might pretend to be, to me",
+          "placeholder": "my best mate, my mum, my bank, a delivery company"
         },
         {
           "key": "trusted_channel",
-          "label": "The saved contact I'll use to reach the real person",
-          "placeholder": "e.g. my grandson's number saved in my phone; my bank's number printed on my card"
+          "label": "The saved contact I will use to reach the real person",
+          "placeholder": "their number already in my phone; my bank's number printed on the card"
         },
         {
           "key": "code_word",
           "label": "A short, odd code word only real people know",
-          "placeholder": "e.g. \"blue walrus\" — pick something unguessable"
+          "placeholder": "blue walrus — pick something nobody would guess"
         },
         {
           "key": "agree_with",
-          "label": "One real person I'll agree this code word with TODAY",
-          "placeholder": "e.g. text my daughter or tell a neighbor in person, today"
+          "label": "One real person I will agree this code word with today",
+          "placeholder": "text my sister, or tell my mate in person, today"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "A brand-new scenario",
-      "question": "You get a video call. It looks and sounds exactly like your boss: \"I'm in a meeting — wire $2,000 to this account in the next 10 minutes, and don't message anyone.\" What's your move?",
+      "title": "A brand-new situation",
+      "question": "A video call comes in. It looks and sounds exactly like your football coach. 'I'm in a meeting. Send the tournament money to this account in the next 10 minutes, and don't tell anyone.' What do you do?",
       "options": [
         {
-          "text": "Pause the payment, ask a question only the boss is likely to know, and continue on the same video call if the answer sounds right.",
+          "text": "Hold off on paying and ask something only the coach would know. Carry on with the same video call if the answer sounds right.",
           "ok": false,
-          "feedback": "Pausing is right, but the suspicious channel cannot verify itself. A prepared scammer or model may answer convincingly. Switch channels."
+          "feedback": "Holding off is right. But the suspicious call cannot vouch for itself. Someone prepared will answer convincingly. Change route."
         },
         {
-          "text": "Message a coworker through the same meeting chat to ask whether the request seems normal.",
+          "text": "Message a teammate in the same group chat to ask whether this seems normal.",
           "ok": false,
-          "feedback": "A second opinion helps, but an account or meeting may be compromised. Reach the boss or finance team through a known, separate route."
+          "feedback": "A second opinion helps, but an account or a group chat can itself be taken over. Reach the coach a completely separate way."
         },
         {
-          "text": "Name the two red flags (urgency + payment), then reach the real boss on a number or app you already have saved and ask your code word — without judging whether the video looked real.",
+          "text": "Name the two warning signs, a rush and a payment. Then reach the real coach on a number you already had saved and ask the code word, without judging whether the video looked real.",
           "ok": true,
-          "feedback": "Exactly. You did not rely on the call seeming convincing. You verified through a channel you already trusted."
+          "feedback": "Exactly. You did not rely on how convincing the call was. You checked by a route you already trusted."
         },
         {
-          "text": "Reply to the video call to ask a few questions and see if 'they' answer like your boss would.",
+          "text": "Stay on the call and ask a few questions, to see whether they answer the way the coach would.",
           "ok": false,
-          "feedback": "The suspicious channel can't verify itself — a good clone will answer convincingly. Reach out on an independent contact you already have."
+          "feedback": "The suspicious call cannot check itself. A good fake answers convincingly. Reach out on a contact you already had."
         }
       ]
     }

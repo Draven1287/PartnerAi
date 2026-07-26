@@ -6,7 +6,7 @@ export default {
   "num": 20,
   "arc": "Trust & Everyday AI",
   "title": "It Said It Did It",
-  "coreQuestion": "How do I tell apart an AI guessing words, an AI really using a helper, and an AI taking steps on its own?",
+  "coreQuestion": "Did it guess some words, really use a helper, or take steps on its own? How would I know?",
   "blurb": "Look for proof of what actually ran, what it was allowed to touch, and who had to say yes before anything changed.",
   "minutes": 10,
   "resources": [],
@@ -20,7 +20,7 @@ export default {
     {
       "kind": "reveal",
       "title": "Three different things get muddled up",
-      "body": "Here they are in plain words.\n\nThe guesser. It reads what you gave it and guesses words that fit. People call it a model. On its own it only produces text. It cannot touch anything in the real world.\n\nA helper. A separate piece of software the app can call on. A web search, a calculator, your calendar, a file. People call it a tool. A helper can fetch real facts, and it can change real things.\n\nWorking through steps on its own. The app picks a next step, calls a helper, reads what came back, picks the step after that, and keeps going until it decides to stop. People call this an agent.\n\nThese are not three sealed boxes. Something working through steps uses a guesser and helpers. An ordinary chat app might quietly call one helper for one answer.\n\nSo do not argue about the label. Ask five things you can look at.\n\nWhat did you give it?\n\nWhich helper actually ran?\n\nWhat was it allowed to touch?\n\nWhat changed in the real world?\n\nWhere did a person say yes, stop, or undo it?",
+      "body": "Here they are in plain words.\n\nThe guesser. It reads what you gave it and guesses words that fit. People call it a model. On its own it only produces text. It cannot touch anything in the real world.\n\nA helper. A separate piece of software the app can call on. A web search, a calculator, your calendar, a file. People call it a tool. A helper can fetch real facts, and it can change real things.\n\nWorking through steps on its own. The app picks a next step and calls a helper. It reads what came back, then picks the step after that. It keeps going until it decides to stop. People call this an agent.\n\nThese are not three sealed boxes. Something working through steps uses a guesser and helpers. An ordinary chat app might quietly call one helper for one answer.\n\nSo do not argue about the label. Ask five things you can look at.\n\nWhat did you give it?\n\nWhich helper actually ran?\n\nWhat was it allowed to touch?\n\nWhat changed in the real world?\n\nWhere did a person say yes, stop, or undo it?",
       "mistake": "Calling any long answer an agent, or treating a link as proof that a live search really ran.",
       "good": "Look for a record of what ran, what it could touch, and what changed. If the app shows none of that, say you cannot tell."
     },
@@ -122,10 +122,10 @@ export default {
     {
       "kind": "exitCheck",
       "title": "Read what happened, not what it claimed",
-      "question": "An assistant hands you a working recipe link, sorts the ingredients by aisle, and says it 'completed several agent steps.' What would make that claim true?",
+      "question": "An assistant hands you a working recipe link and sorts the ingredients by aisle. It says it 'completed several agent steps.' What would make that claim true?",
       "options": [
         {
-          "text": "A record showing each step it took, what came back at every step, when it decided to stop, and the point where a person had to say yes before anything changed.",
+          "text": "A record of each step it took and what came back every time. Plus when it decided to stop, and the point where a person had to say yes before anything changed.",
           "ok": true,
           "feedback": "Yes. The record, the steps, the stopping point, and the place a person approves are what settle it. Not the word it used about itself."
         },

@@ -5,37 +5,37 @@ export default {
   "id": "chapter-21",
   "num": 21,
   "arc": "Prompting Craft",
-  "title": "Roles, Audiences, and Formats",
-  "coreQuestion": "How do role, audience, and format each steer an AI's answer differently, and why should I turn one dial at a time?",
-  "blurb": "Three separate dials, not one — turn each on purpose and watch the answer move.",
+  "title": "Three Dials You Can Turn",
+  "coreQuestion": "How do the hat, the reader, and the shape each move an answer, and why turn one at a time?",
+  "blurb": "Three separate dials, not one. Turn each on purpose and watch the answer move.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "Same question, four answers",
-      "scenario": "You ask an AI 'how do I parallel park?' Then you ask it three more times in the same chat — once telling it to answer as a patient driving instructor, once for someone who has never driven, once as a numbered checklist. All four replies come back looking different.",
-      "prompt": "Before you read on: which of those three changes do you think reshapes the answer the most — the role, the audience, or the format? And do they even do different things?"
+      "scenario": "You ask an AI how to revise for a science test. Then you ask three more times in the same chat.\n\nOnce telling it to answer like a patient teacher. Once saying it is for someone who has never really revised before. Once asking for a numbered checklist.\n\nFour replies. All different.",
+      "prompt": "Which of those three changes do you think moves the answer most? And are they even doing different jobs?"
     },
     {
       "kind": "reveal",
       "title": "Three dials, not one",
-      "body": "Role, audience, and format are three separate dials, and each reshapes a different part of the answer. Role = the hat you ask it to wear ('answer as a patient driving instructor') — this mostly shifts the tone and what gets stressed. Audience = who the answer is for ('written for someone who has never driven') — this shifts how simple or advanced it gets. Format = the shape on the page ('as a numbered checklist') — this shifts the layout. Here's the quick why: AI learned patterns from huge amounts of human writing and predicts what fits next. An instructor's words, a note for a beginner, and a numbered list are three different patterns in that text, so naming one steers the prediction toward it. (When we say it 'pretends to be a role,' that's a comparison for convenience — it isn't really becoming anyone; it's leaning toward the kind of text that role usually produces.) One safety note that never changes: for real health, money, or legal questions, treat the AI's answer as a starting point and check with a qualified person before you act on it.",
-      "mistake": "Adding a role, an audience, and a format all at once — then you can't tell which change did the work.",
-      "good": "Turn one dial at a time so you can see exactly what each one moves."
+      "body": "Three things steer an answer, and each one moves a different part.\n\nThe hat. Who you ask it to sound like. 'Answer like a patient teacher.' This mostly changes the tone and what gets stressed.\n\nThe reader. Who the answer is for. 'Written for someone who has never revised before.' This changes how simple or advanced it gets.\n\nThe shape. How it sits on the page. 'As a numbered checklist.' This changes the layout.\n\nWhy any of this works: the AI has read an enormous amount of human writing, and it guesses what fits next. A teacher's words, a note for a beginner, and a numbered list are three different patterns in that writing. Naming one pulls the guess towards it.\n\nWhen we say it 'pretends to be a teacher', that is a comparison. It is not becoming anyone. It is leaning towards the kind of writing a teacher usually produces.\n\nOne thing that never changes. For real questions about health, money, or the law, treat the answer as a starting point. Check with someone qualified before you act.",
+      "mistake": "Turning all three dials at once, so you cannot tell which one did the work.",
+      "good": "Turning one dial at a time, so you can see exactly what each one moves."
     },
     {
       "kind": "classify",
       "title": "Which dial is this?",
-      "prompt": "Each phrase turns one dial. Sort it by what it changes: role, audience, or format.",
+      "prompt": "Each phrase turns one dial. Sort it by what it changes: the hat, the reader, or the shape.",
       "buckets": [
-        "Role",
-        "Audience",
-        "Format"
+        "The hat",
+        "The reader",
+        "The shape"
       ],
       "items": [
         {
-          "text": "answer as a strict examiner",
+          "text": "answer like a strict examiner",
           "answer": 0
         },
         {
@@ -43,15 +43,15 @@ export default {
           "answer": 2
         },
         {
-          "text": "reply as a calm HR person",
+          "text": "reply like a calm older sister",
           "answer": 0
         },
         {
-          "text": "in the form of a do / don't list",
+          "text": "as a do and don't list",
           "answer": 2
         },
         {
-          "text": "for a first-time renter who does not know the vocabulary",
+          "text": "for someone who has never played the game before",
           "answer": 1
         },
         {
@@ -59,24 +59,24 @@ export default {
           "answer": 2
         },
         {
-          "text": "for someone repairing a bike with basic tools",
+          "text": "for someone fixing a bike with only the tools in the shed",
           "answer": 1
         }
       ],
-      "reveal": "Role changes voice and emphasis. Audience changes assumed knowledge and examples. Format changes the shape on the page. You can combine them, but test one change at a time when you want to know what helped."
+      "reveal": "The hat changes the voice and what gets stressed. The reader changes how much it assumes you already know. The shape changes the layout. You can use all three together, but turn one at a time when you want to know what helped."
     },
     {
       "kind": "compare",
-      "title": "Audience is its own dial",
-      "weak": "How do I parallel park?",
-      "strong": "How do I parallel park? Written for someone who has never driven.",
-      "why": "The role and format stayed the same — only the audience changed. Watch how the second answer slows down, defines terms, and skips assumptions. That simpler, more careful pitch is the audience dial doing its work, separate from tone (role) and layout (format)."
+      "title": "The reader is its own dial",
+      "weak": "How do I revise for a science test?",
+      "strong": "How do I revise for a science test? Written for someone who has never really revised before.",
+      "why": "The hat and the shape did not move. Only the reader did. Watch the second answer slow down, explain its words, and stop assuming things. That is the reader dial working on its own."
     },
     {
       "kind": "tryLive",
-      "title": "Combine all three on purpose",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a harmless or invented question; do not paste names, private messages, health details, account information, or another person's data. Answer as a [role], written for [audience], in the form of a [format]: [your question].",
-      "note": "Try a public, low-stakes task such as explaining a game rule, comparing repair steps, or writing an invented event notice. For real health, money, or legal questions, take the facts to a qualified person before acting."
+      "title": "Use all three on purpose",
+      "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a harmless or made-up question. Do not paste names, private messages, health details, account details, or anything about another person. Answer like a [hat], written for [reader], as a [shape]: [your question].",
+      "note": "Pick something low-stakes: explaining a game rule, comparing two ways to fix something, writing a made-up notice for an event. For real health, money, or legal questions, take the facts to someone qualified before you act."
     },
     {
       "kind": "toolkitSave",
@@ -85,45 +85,45 @@ export default {
       "fields": [
         {
           "key": "role",
-          "label": "Role (tone / emphasis)",
-          "placeholder": "a patient driving instructor"
+          "label": "The hat (tone)",
+          "placeholder": "a patient teacher"
         },
         {
           "key": "audience",
-          "label": "Audience (how simple or advanced)",
-          "placeholder": "someone who has never driven"
+          "label": "The reader (how simple)",
+          "placeholder": "someone who has never revised before"
         },
         {
           "key": "format",
-          "label": "Format (shape on the page)",
+          "label": "The shape (on the page)",
           "placeholder": "a numbered checklist"
         },
         {
           "key": "question",
           "label": "Your question",
-          "placeholder": "how do I parallel park?"
+          "placeholder": "how do I revise for a science test?"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove you can tell the dials apart",
-      "question": "Pick a brand-new question (say, 'how do I plant tomatoes?'). Ask it twice, changing ONLY ONE dial between the tries and leaving everything else identical. What proves you've got this?",
+      "title": "Show you can tell them apart",
+      "question": "Pick a brand-new question, say how to look after a new pet. Ask it twice, changing only one dial and leaving everything else word for word the same. What shows you have got this?",
       "options": [
         {
-          "text": "The two replies are clearly different, I can name the single dial I turned, and I can say in one line what each of the three dials changes — role (tone/emphasis), audience (how simple or advanced), format (the shape on the page).",
+          "text": "The two replies are clearly different. I can name the one dial I turned. And I can say what each dial does: the hat moves the tone, the reader moves how simple it is, the shape moves the layout.",
           "ok": true,
-          "feedback": "That's it. Isolating one dial is what proves you know which one did the work — and naming all three shows you can tell them apart."
+          "feedback": "That is it. Turning one dial is what proves which dial did the work, and naming all three shows you can tell them apart."
         },
         {
-          "text": "The second reply is longer than the first, so the change clearly worked.",
+          "text": "The second reply is longer, so the change clearly worked.",
           "ok": false,
-          "feedback": "Longer isn't the test. You need to point to the specific difference the one dial caused — and you can only trust that if you changed nothing else."
+          "feedback": "Longer is not the test. Point at the specific difference your one change caused. You can only trust that if nothing else moved."
         },
         {
-          "text": "I changed the role, audience, and format all at once and the answer looks totally different.",
+          "text": "I changed all three at once and the answer looks completely different.",
           "ok": false,
-          "feedback": "Changing all three hides which one did the work. Turn exactly one dial so the difference is traceable to that dial."
+          "feedback": "Changing all three hides which one did the work. Turn exactly one, so the difference belongs to it."
         }
       ]
     }

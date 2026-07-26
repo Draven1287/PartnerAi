@@ -5,32 +5,32 @@ export default {
   "id": "chapter-22",
   "num": 22,
   "arc": "Prompting Craft",
-  "title": "Constraints That Actually Work",
-  "coreQuestion": "Why do some limits I set get ignored while others hold — and how do I make one stick?",
-  "blurb": "\"Keep it short\" gets ignored. \"Exactly 3 bullets\" holds — because you can check it.",
+  "title": "Limits That Actually Stick",
+  "coreQuestion": "Why do some limits I set get ignored while others hold, and how do I make one stick?",
+  "blurb": "\"Keep it short\" slides straight off. \"Exactly 3 bullet points\" holds, because you can count them.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "You asked for short. You got an essay.",
-      "scenario": "You typed \"keep it short\" and hit send. Back came five dense paragraphs. You did ask for a limit — so why did it steamroll right past it?",
-      "prompt": "Before you read on: what's the difference between \"keep it short\" and \"exactly 3 bullet points\" — and which one do you think the AI actually obeys?"
+      "scenario": "You typed \"keep it short\" and pressed send.\n\nBack came five thick paragraphs.\n\nYou did set a limit. It rolled straight over it.",
+      "prompt": "What is the difference between \"keep it short\" and \"exactly 3 bullet points\"? Which one do you think it will actually stick to?"
     },
     {
       "kind": "reveal",
-      "title": "A checkable constraint is one you can grade",
-      "body": "A constraint is a rule you put on the answer: how long, what to leave out, what not to say. A CHECKABLE constraint is one you can verify by counting or looking — like \"exactly 3 bullets\" or \"don't use the word 'amazing'.\" Here's the mechanism: AI predicts the most likely next words from patterns in human writing. It isn't tallying items or measuring length as it goes. So a vague limit like \"keep it short\" has nothing to match against and slides off, while a countable one gives it a clear target to hit. One nuance: item counts (\"3 bullets\") tend to hold up more reliably than exact word counts, because the AI still isn't literally counting — which is exactly why the real skill isn't asking, it's CHECKING. Never assume it obeyed; count and scan every time.",
-      "mistake": "Writing \"keep it short\" or \"be concise\" and hoping — a vibe the AI has nothing to grade itself against.",
-      "good": "Writing \"exactly 3 bullet points\" and \"don't use the word 'synergy'\" — then counting the bullets and scanning for the word yourself."
+      "title": "A limit you can count is a limit that holds",
+      "body": "A limit is a rule you put on the answer. How long it is. What to leave out. What word not to use.\n\nA countable limit is one you can check afterwards by counting or looking. 'Exactly 3 bullet points.' 'Do not use the word amazing.'\n\nHere is why that matters. The AI guesses the words that usually come next. It is not keeping a tally as it goes, and it is not measuring length.\n\nSo 'keep it short' has nothing solid in it. There is nothing to aim at, and it slides off. 'Exactly 3 bullet points' gives it a clear target.\n\nOne catch. A number of items holds up better than an exact word count, because it still is not really counting.\n\nWhich is the whole point. The skill is not the asking. The skill is the checking. Count them yourself, every time.",
+      "mistake": "Writing 'keep it short' or 'be brief' and hoping. There is nothing there to check against.",
+      "good": "Writing 'exactly 3 bullet points' and 'do not use the word amazing', then counting the bullets and searching for the word yourself."
     },
     {
       "kind": "classify",
-      "title": "Checkable, or just a vibe?",
-      "prompt": "Sort each limit: can you verify it afterward by counting or looking, or is it too vague to grade?",
+      "title": "Countable, or just a feeling?",
+      "prompt": "Sort each limit. Could you check it afterwards by counting or looking? Or is it too vague to grade?",
       "buckets": [
-        "Checkable",
-        "Vague"
+        "I can check this",
+        "Too vague to check"
       ],
       "items": [
         {
@@ -42,7 +42,7 @@ export default {
           "answer": 1
         },
         {
-          "text": "Don't use the word 'utilize'",
+          "text": "Do not use the word 'utilise'",
           "answer": 0
         },
         {
@@ -54,32 +54,32 @@ export default {
           "answer": 0
         },
         {
-          "text": "Don't be too technical",
+          "text": "Do not get too technical",
           "answer": 1
         }
       ],
-      "reveal": "Checkable limits give you something to count or scan for after the fact. Vague ones ('brief', 'professional', 'too technical') leave you nothing to grade — so they're the ones that quietly get ignored."
+      "reveal": "Countable limits leave you something to count or search for afterwards. Vague ones — brief, professional, too technical — leave you nothing to grade. Those are the ones that quietly get ignored."
     },
     {
       "kind": "promptRepair",
-      "title": "Swap the vibe for something countable",
-      "weak": "Give me a short, quick rundown on what to check when buying a used bike. Keep it brief and don't make it too salesy.",
+      "title": "Swap the feeling for something you can count",
+      "weak": "Give me a quick rundown on what to check when buying a second-hand bike. Keep it brief and do not make it too salesy.",
       "fields": [
-        "Countable limit",
-        "Banned word",
-        "Question"
+        "A limit I can count",
+        "A word to avoid",
+        "The question"
       ],
-      "strong": "Answer this in exactly 3 bullet points. Do not use the word 'amazing'. Question: What should I look for when buying a used bike?"
+      "strong": "Answer this in exactly 3 bullet points. Do not use the word 'amazing'. Question: What should I look for when buying a second-hand bike?"
     },
     {
       "kind": "tryLive",
       "title": "Run it, then grade it yourself",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or public question; do not paste private messages, names, account information, or another person's data. Answer this in [a countable limit]. Do not use the word [banned word]. Question: [your low-stakes question]",
-      "note": "Choose a practical request such as a used-bike checklist, meal-prep plan, or game-night reminder. Count the result and scan for the banned word. If it misses, report the exact break, request one repair, and check again."
+      "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a made-up or public question. Do not paste private messages, names, account details, or anything about another person. Answer this in [a limit I can count]. Do not use the word [word to avoid]. Question: [your low-stakes question]",
+      "note": "Pick something ordinary: a second-hand bike checklist, a plan for making lunches for the week, a reminder for games night. Then count the result and search for the banned word. If it missed, say exactly what it broke, ask for one fix, and check again."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your checkable-constraint recipe",
+      "title": "Save your countable-limit recipe",
       "cardType": "Prompt recipe",
       "fields": [
         {
@@ -94,35 +94,35 @@ export default {
         },
         {
           "key": "verify",
-          "label": "How I'll check it",
-          "placeholder": "count the bullets, then Ctrl-F the banned word"
+          "label": "How I will check it",
+          "placeholder": "count the bullets, then search for the word"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Prove it, don't hope it",
-      "question": "You just ran a brand-new request with 'exactly 4 steps' and 'don't use the word simply'. The reply has 5 steps and uses 'simply' once. What's the move that shows you've got the skill?",
+      "title": "Prove it, do not hope it",
+      "question": "You asked for exactly 4 steps and no use of the word 'simply'. The reply has 5 steps and says 'simply' once. What shows you have the skill?",
       "options": [
         {
-          "text": "Report the check out loud — 'I counted 5 steps, it broke the limit, and \"simply\" was there' — then send one fix reply and re-verify.",
+          "text": "Say the check out loud — I counted 5 steps, that breaks my limit, and 'simply' is in there — then send one fix and count again.",
           "ok": true,
-          "feedback": "Exactly. The skill is proving the result: you counted, you scanned, you caught the break, and you correct in one reply and check again."
+          "feedback": "Exactly. You counted, you looked, you caught the break, and you fixed it in one reply and checked again."
         },
         {
-          "text": "Keep the five steps because the extra one is useful, but remove the banned word and call it close enough.",
+          "text": "Keep the five steps because the extra one is handy, take out the banned word, and call it close enough.",
           "ok": false,
-          "feedback": "That may be a reasonable product choice, but it does not meet the stated constraint. Either change the requirement deliberately or repair the output—do not pretend both were satisfied."
+          "feedback": "Keeping the extra step might be a fine choice. Just do not tell yourself both limits were met. Change the rule on purpose, or fix the answer."
         },
         {
-          "text": "Ask the AI to certify that it followed both limits, then accept its self-check.",
+          "text": "Ask the AI whether it followed both limits, and take its word for it.",
           "ok": false,
-          "feedback": "The same system's self-check is a clue, not evidence. Count and scan the visible output yourself."
+          "feedback": "It checking its own homework is a clue, not proof. Count the steps and search the text yourself."
         },
         {
-          "text": "Rewrite the request as 'please keep it shorter and simpler' and resend.",
+          "text": "Rewrite it as 'please keep it shorter and simpler' and send again.",
           "ok": false,
-          "feedback": "That swaps your checkable limits back for vibes, which are exactly what gets ignored. Keep the countable limit and banned word, then verify."
+          "feedback": "That trades your countable limits back for feelings, which are exactly what gets ignored. Keep the number and the banned word, then check."
         }
       ]
     }

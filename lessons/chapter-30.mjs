@@ -7,71 +7,71 @@ export default {
   "arc": "Judgment & Safety",
   "title": "When NOT to Use AI",
   "coreQuestion": "When should I put AI down instead of reaching for it?",
-  "blurb": "Skilled use of AI is also knowing the moments to stop using it.",
+  "blurb": "Being good with AI includes knowing the moments to close it.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "The question in the chat box",
-      "scenario": "It's late. You type a real, heavy decision into a chat box: whether to stop a medication because of a side effect. The AI answers instantly, calmly, in clean paragraphs. It sounds sure. Your finger hovers over 'send' on the next question.",
-      "prompt": "Before you read on: the AI can produce an answer here. Does that mean it should be the thing you rely on to decide?"
+      "scenario": "It is late. You type something heavy into a chat box: whether to stop taking a medicine because of how it is making you feel.\n\nThe answer arrives instantly. Calm, tidy paragraphs. It sounds sure of itself.\n\nYour finger hovers over the next question.",
+      "prompt": "It can produce an answer here. Does that make it the thing you should rely on to decide?"
     },
     {
       "kind": "reveal",
-      "title": "Capable is not the same as accountable",
-      "body": "Skilled AI use includes knowing when to close it. Stop in three situations:\n\n1. The stakes are high and no qualified human will check the answer — health, money, safety, legal standing, or another person's trust.\n2. The work is the learning — an exam, a skill, or original thinking you need to be able to do yourself.\n3. The need is human — professional accountability, emotional care, or a relationship with someone who knows you.\n\nAI can help you understand options or prepare questions. It should not make the consequential decision. Capable is not the same as accountable.\n\nIf you feel unsafe, in crisis, or at risk of hurting yourself or someone else, stop using the AI and contact a trusted person, local emergency services, or a crisis line. In the United States and its territories, call or text 988.",
-      "mistake": "Thinking: 'If AI CAN answer it, I SHOULD use it.' Being able to produce an answer is not the same as being the right thing to rely on.",
-      "good": "Ask first: is this high-stakes, something I must learn myself, or something that needs a real professional or a real person? If yes, AI informs — a human decides."
+      "title": "Able to answer is not the same as answerable",
+      "body": "Being good with AI includes knowing when to close it. Stop in three situations.\n\n1. It really matters and nobody qualified is going to check the answer. Health, money, safety, the law, or somebody else trusting you.\n\n2. The work is the learning. An exam, a skill, or thinking you need to be able to do yourself.\n\n3. What is needed is a person. Someone who is answerable for the advice, someone who can care about you, or someone who actually knows you.\n\nAI can help you understand your options, or get your questions ready. It should not make the decision that carries the weight. Being able to produce an answer is not the same as being answerable for it.\n\nIf you feel unsafe, or like you might hurt yourself or someone else, close the app. Go to someone you trust, your local emergency number, or a crisis line. In the United States, call or text 988.",
+      "mistake": "Thinking: if it can answer, I should ask it. Producing an answer is not the same as being the right place to get one.",
+      "good": "Ask first: does this really matter, is it something I need to learn myself, or does it need a real professional? If yes, AI can help you prepare. A person decides."
     },
     {
       "kind": "classify",
       "title": "Sort each decision",
-      "prompt": "Drop each real decision into the bucket that fits. Ask: can I lean on AI here, or does this need a human?",
+      "prompt": "Put each one where it belongs. Ask yourself: can I lean on AI here, or does this need a person?",
       "buckets": [
         "AI is fine here",
-        "Don't lean on AI — bring in a real professional or person"
+        "Do not lean on AI — bring in a real person"
       ],
       "items": [
         {
-          "text": "Draft a fun caption for a photo of my dog",
+          "text": "Write a funny caption for a photo of my dog",
           "answer": 0
         },
         {
-          "text": "Decide whether to stop a prescribed medication because of a side effect",
+          "text": "Decide whether to stop taking a medicine I was prescribed",
           "answer": 1
         },
         {
-          "text": "Brainstorm names for a weekend hiking group",
+          "text": "Come up with names for a weekend walking group",
           "answer": 0
         },
         {
-          "text": "Decide whether this apartment lease's early-exit clause is fair to sign",
+          "text": "Decide whether the small print on a paid subscription lets them keep charging me",
           "answer": 1
         },
         {
-          "text": "Rewrite my grocery list into a tidier format",
+          "text": "Tidy my shopping list into something I can read in the shop",
           "answer": 0
         },
         {
-          "text": "Talk me through a night where I feel unsafe and like I might hurt myself",
+          "text": "Talk me through a night where I feel unsafe and might hurt myself",
           "answer": 1
         }
       ],
-      "reveal": "The 'AI is fine' items are low-stakes and reversible. The others are high-stakes or need a licensed professional — a doctor or pharmacist for the medication, a tenant or legal advisor for the lease. And the last one is not an AI moment at all: reach a real person you trust, your local emergency number, or a crisis line (in the US, 988) right away. An AI is not a friend or a therapist, even when it sounds caring."
+      "reveal": "The 'fine' ones cost nothing if they go wrong, and you can undo them. The others matter a lot, or need someone qualified. A doctor or pharmacist for the medicine. An adult, or a consumer advice service, for the small print. The last one is not an AI moment at all. Reach a real person you trust, your emergency number, or a crisis line. In the US, 988. AI is not a friend and not a counsellor, however caring it sounds."
     },
     {
       "kind": "workflowChain",
-      "title": "Build the stop-and-handoff move",
-      "goal": "A made-up worker is unsure whether an injury means they should return to a physical shift tomorrow. Put the safe response in order without collecting medical details.",
+      "title": "Build the stop-and-hand-over move",
+      "goal": "A made-up player is not sure whether their knee is well enough to play tomorrow. Put the safe response in order, without typing any medical details anywhere.",
       "correct": [
-        "Name the stakes: health, safety, income, and a decision that could cause harm",
-        "Stop before asking AI for a diagnosis or a final return-to-work decision",
-        "Choose the accountable human: a clinician, workplace safety contact, or another appropriate professional",
-        "Use AI only to draft neutral questions or organize already-safe information, without names or private health details",
-        "Take those questions to the human and keep the final decision with the qualified people involved"
+        "Name what is at stake: their health, their safety, and a choice that could make things worse",
+        "Stop before asking AI what is wrong with the knee, or whether to play",
+        "Pick the person who is answerable: a doctor, a physio, or the club's first-aid lead",
+        "Use AI only to write down neutral questions, with no names and no medical details",
+        "Take those questions to that person, and leave the decision with the people qualified to make it"
       ],
-      "note": "This built-in scenario is enough; no personal disclosure or external AI is required. If a real situation is urgent or unsafe, contact a trusted person, relevant professional, or emergency service now."
+      "note": "This made-up situation is enough on its own. You do not need to share anything about yourself, and you do not need an outside app. If a real situation is urgent, contact someone you trust, the right professional, or emergency services now."
     },
     {
       "kind": "toolkitSave",
@@ -80,45 +80,45 @@ export default {
       "fields": [
         {
           "key": "highStakes",
-          "label": "High-stakes, no human check",
-          "placeholder": "A decision where being wrong really hurts and no qualified person ever looks at it — e.g. changing a medication on my own."
+          "label": "Matters a lot, and nobody checks",
+          "placeholder": "Being wrong really hurts and no qualified person ever sees it — changing a medicine on my own."
         },
         {
           "key": "mustLearn",
-          "label": "Things I must learn myself",
-          "placeholder": "A skill, exam, or my own original thinking — e.g. the homework I'll actually be tested on."
+          "label": "Things I have to learn myself",
+          "placeholder": "A skill, an exam, my own thinking — the homework I will actually be tested on."
         },
         {
           "key": "needsHuman",
-          "label": "Needs a real professional or person",
-          "placeholder": "Legal, medical, money, safety — name WHICH human, e.g. a pharmacist, a tenant advisor, a doctor."
+          "label": "Needs a real professional",
+          "placeholder": "Health, money, the law, safety — name which person: a pharmacist, a doctor, an adult I trust."
         },
         {
           "key": "safetyLine",
-          "label": "Never-erase safety line",
-          "placeholder": "If I feel unsafe or in crisis, that's not an AI moment: reach a trusted person, my emergency number, or a crisis line (US: 988) right away."
+          "label": "The line I never rub out",
+          "placeholder": "If I feel unsafe, that is not an AI moment. Someone I trust, my emergency number, or a crisis line (US: 988), straight away."
         }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Test it on a fresh decision",
-      "question": "Pick a NEW decision you haven't discussed here (not the lease or the medication). To show your stop-list works, what do you do with it?",
+      "question": "Pick a new decision we have not talked about here. Not the medicine, not the subscription. What do you do with your stop-list?",
       "options": [
         {
-          "text": "Put it in one bucket ('AI fine,' 'AI plus a human check,' or 'needs a real professional — not AI'); for the last two, name WHICH human and why; and say the one part I'll keep for myself no matter what the AI says.",
+          "text": "Put it in one of three places: AI is fine, AI plus a person checking, or a real professional and not AI. For the last two, name which person and why. Then say the one part I keep for myself whatever the AI says.",
           "ok": true,
-          "feedback": "That's the skill: sort it, name the human, and hold onto the part that's yours. If you can do all three on a fresh example without looking back, your stop-list is working."
+          "feedback": "That is the skill. Sort it, name the person, hold on to your part. Doing all three on a fresh example without looking back means your stop-list works."
         },
         {
-          "text": "Use AI to organize the options, then make the final call myself because I understand my situation best.",
+          "text": "Use AI to lay out the options, then make the final call myself, because I understand my own situation best.",
           "ok": false,
-          "feedback": "Keeping agency matters, but some decisions also need qualified accountability. Use AI to prepare, then involve the right human before deciding."
+          "feedback": "Staying in charge matters. Some decisions still need someone qualified who is answerable for the advice. Prepare with AI, then bring that person in."
         },
         {
-          "text": "Ask three AI systems, compare their advice, and act if most of them agree.",
+          "text": "Ask three different AI apps, compare the answers, and go with whatever most of them say.",
           "ok": false,
-          "feedback": "A majority of models is not professional accountability or independent evidence. High-stakes choices still need the right person."
+          "feedback": "Three guessers agreeing is not the same as one qualified person. Big decisions still need the right human."
         }
       ]
     }

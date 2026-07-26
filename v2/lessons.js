@@ -2080,7 +2080,7 @@
         "question": "Take a brand-new job of your own, not the thank-you message. Say all three lines before you type anything. Run it, then do your check. What proves you were in charge?",
         "options": [
           {
-            "text": "I can point at the spot where I caught something — a place the draft missed my goal or my way, and I changed it.",
+            "text": "I can point at the spot where I caught something. A place the draft missed my goal or my way, and I changed it.",
             "ok": true,
             "feedback": "Yes. That caught-it moment is the proof. You held the goal, the way, and the last look, and let AI do only the middle."
           },
@@ -2164,7 +2164,7 @@
         "kind": "tryLive",
         "title": "Ask for the source AND the exact sentence",
         "prompt": "Answer this question: [question]. Then give me the single best source for it, the exact sentence from that source that backs it up, and a link, or the title, writer and date. Keep it to [number] source(s). I am going to open it and check that it really says this, so do not invent anything. If you are not sure a real source exists, say so instead.",
-        "note": "For [question], pick one specific fact that should have a real, findable source. For example: 'How much water should an adult drink in a day, and which health body says so?' For [number], start with one. Use two if you want a second opinion. Then actually open it and run the three checks."
+        "note": "For [question], pick one specific fact that should have a real, findable source. Something like: how much water should an adult drink in a day, and who says so? For [number], start with one. Use two if you want a second opinion. Then actually open it and run the three checks."
       },
       {
         "kind": "toolkitSave",
@@ -2204,7 +2204,7 @@
             "feedback": "The AI's own word is not the check. The win is you reaching a verdict by opening the source, whatever that verdict turns out to be."
           },
           {
-            "text": "I opened the source, ran the three checks, and wrote one word — Checked, Does not match, or Not found — pointing at the exact sentence that earns it, or at the fact it is missing.",
+            "text": "I opened the source and ran the three checks. Then I wrote one word: Checked, Does not match, or Not found. I can point at the exact sentence that earns it, or at the fact it is missing.",
             "ok": true,
             "feedback": "That is it. Reaching a verdict you can defend on a fresh claim is the win, not collecting a tick."
           },
@@ -2228,7 +2228,7 @@
     "arc": "Trust & Everyday AI",
     "title": "AI Is Already in Your Apps",
     "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
-    "blurb": "Spot the quiet AI bits in apps you already use, read what the app itself says they do, and check harder when a mistake would cost you.",
+    "blurb": "Spot the quiet AI bits in apps you already use. Read what the app itself says they do. Check harder when a mistake would cost you.",
     "minutes": 9,
     "resources": [],
     "steps": [
@@ -2272,7 +2272,7 @@
             "answer": 1
           }
         ],
-        "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you: what the feature does, what it can see, and what a mistake would cost."
+        "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you. What does the feature do? What can it see? What would a mistake cost?"
       },
       {
         "kind": "reveal",
@@ -2340,7 +2340,7 @@
         "question": "A writing app quietly rewrites a sentence in a message to your teacher. Which response shows the whole skill?",
         "options": [
           {
-            "text": "I find the rewrite setting, read what it says it does, reread the changed sentence because this message matters, and undo it if the meaning shifted.",
+            "text": "I find the rewrite setting and read what it says it does. Then I reread the changed sentence, because this message matters, and undo it if the meaning shifted.",
             "ok": true,
             "feedback": "Yes. You used what you could actually see, checked harder because it mattered, and kept a way to undo it."
           },
@@ -2623,7 +2623,7 @@
     "num": 20,
     "arc": "Trust & Everyday AI",
     "title": "It Said It Did It",
-    "coreQuestion": "How do I tell apart an AI guessing words, an AI really using a helper, and an AI taking steps on its own?",
+    "coreQuestion": "Did it guess some words, really use a helper, or take steps on its own? How would I know?",
     "blurb": "Look for proof of what actually ran, what it was allowed to touch, and who had to say yes before anything changed.",
     "minutes": 10,
     "resources": [],
@@ -2637,7 +2637,7 @@
       {
         "kind": "reveal",
         "title": "Three different things get muddled up",
-        "body": "Here they are in plain words.\n\nThe guesser. It reads what you gave it and guesses words that fit. People call it a model. On its own it only produces text. It cannot touch anything in the real world.\n\nA helper. A separate piece of software the app can call on. A web search, a calculator, your calendar, a file. People call it a tool. A helper can fetch real facts, and it can change real things.\n\nWorking through steps on its own. The app picks a next step, calls a helper, reads what came back, picks the step after that, and keeps going until it decides to stop. People call this an agent.\n\nThese are not three sealed boxes. Something working through steps uses a guesser and helpers. An ordinary chat app might quietly call one helper for one answer.\n\nSo do not argue about the label. Ask five things you can look at.\n\nWhat did you give it?\n\nWhich helper actually ran?\n\nWhat was it allowed to touch?\n\nWhat changed in the real world?\n\nWhere did a person say yes, stop, or undo it?",
+        "body": "Here they are in plain words.\n\nThe guesser. It reads what you gave it and guesses words that fit. People call it a model. On its own it only produces text. It cannot touch anything in the real world.\n\nA helper. A separate piece of software the app can call on. A web search, a calculator, your calendar, a file. People call it a tool. A helper can fetch real facts, and it can change real things.\n\nWorking through steps on its own. The app picks a next step and calls a helper. It reads what came back, then picks the step after that. It keeps going until it decides to stop. People call this an agent.\n\nThese are not three sealed boxes. Something working through steps uses a guesser and helpers. An ordinary chat app might quietly call one helper for one answer.\n\nSo do not argue about the label. Ask five things you can look at.\n\nWhat did you give it?\n\nWhich helper actually ran?\n\nWhat was it allowed to touch?\n\nWhat changed in the real world?\n\nWhere did a person say yes, stop, or undo it?",
         "mistake": "Calling any long answer an agent, or treating a link as proof that a live search really ran.",
         "good": "Look for a record of what ran, what it could touch, and what changed. If the app shows none of that, say you cannot tell."
       },
@@ -2739,10 +2739,10 @@
       {
         "kind": "exitCheck",
         "title": "Read what happened, not what it claimed",
-        "question": "An assistant hands you a working recipe link, sorts the ingredients by aisle, and says it 'completed several agent steps.' What would make that claim true?",
+        "question": "An assistant hands you a working recipe link and sorts the ingredients by aisle. It says it 'completed several agent steps.' What would make that claim true?",
         "options": [
           {
-            "text": "A record showing each step it took, what came back at every step, when it decided to stop, and the point where a person had to say yes before anything changed.",
+            "text": "A record of each step it took and what came back every time. Plus when it decided to stop, and the point where a person had to say yes before anything changed.",
             "ok": true,
             "feedback": "Yes. The record, the steps, the stopping point, and the place a person approves are what settle it. Not the word it used about itself."
           },
@@ -2769,37 +2769,37 @@
     "id": "chapter-21",
     "num": 21,
     "arc": "Prompting Craft",
-    "title": "Roles, Audiences, and Formats",
-    "coreQuestion": "How do role, audience, and format each steer an AI's answer differently, and why should I turn one dial at a time?",
-    "blurb": "Three separate dials, not one — turn each on purpose and watch the answer move.",
+    "title": "Three Dials You Can Turn",
+    "coreQuestion": "How do the hat, the reader, and the shape each move an answer, and why turn one at a time?",
+    "blurb": "Three separate dials, not one. Turn each on purpose and watch the answer move.",
     "minutes": 10,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
         "title": "Same question, four answers",
-        "scenario": "You ask an AI 'how do I parallel park?' Then you ask it three more times in the same chat — once telling it to answer as a patient driving instructor, once for someone who has never driven, once as a numbered checklist. All four replies come back looking different.",
-        "prompt": "Before you read on: which of those three changes do you think reshapes the answer the most — the role, the audience, or the format? And do they even do different things?"
+        "scenario": "You ask an AI how to revise for a science test. Then you ask three more times in the same chat.\n\nOnce telling it to answer like a patient teacher. Once saying it is for someone who has never really revised before. Once asking for a numbered checklist.\n\nFour replies. All different.",
+        "prompt": "Which of those three changes do you think moves the answer most? And are they even doing different jobs?"
       },
       {
         "kind": "reveal",
         "title": "Three dials, not one",
-        "body": "Role, audience, and format are three separate dials, and each reshapes a different part of the answer. Role = the hat you ask it to wear ('answer as a patient driving instructor') — this mostly shifts the tone and what gets stressed. Audience = who the answer is for ('written for someone who has never driven') — this shifts how simple or advanced it gets. Format = the shape on the page ('as a numbered checklist') — this shifts the layout. Here's the quick why: AI learned patterns from huge amounts of human writing and predicts what fits next. An instructor's words, a note for a beginner, and a numbered list are three different patterns in that text, so naming one steers the prediction toward it. (When we say it 'pretends to be a role,' that's a comparison for convenience — it isn't really becoming anyone; it's leaning toward the kind of text that role usually produces.) One safety note that never changes: for real health, money, or legal questions, treat the AI's answer as a starting point and check with a qualified person before you act on it.",
-        "mistake": "Adding a role, an audience, and a format all at once — then you can't tell which change did the work.",
-        "good": "Turn one dial at a time so you can see exactly what each one moves."
+        "body": "Three things steer an answer, and each one moves a different part.\n\nThe hat. Who you ask it to sound like. 'Answer like a patient teacher.' This mostly changes the tone and what gets stressed.\n\nThe reader. Who the answer is for. 'Written for someone who has never revised before.' This changes how simple or advanced it gets.\n\nThe shape. How it sits on the page. 'As a numbered checklist.' This changes the layout.\n\nWhy any of this works: the AI has read an enormous amount of human writing, and it guesses what fits next. A teacher's words, a note for a beginner, and a numbered list are three different patterns in that writing. Naming one pulls the guess towards it.\n\nWhen we say it 'pretends to be a teacher', that is a comparison. It is not becoming anyone. It is leaning towards the kind of writing a teacher usually produces.\n\nOne thing that never changes. For real questions about health, money, or the law, treat the answer as a starting point. Check with someone qualified before you act.",
+        "mistake": "Turning all three dials at once, so you cannot tell which one did the work.",
+        "good": "Turning one dial at a time, so you can see exactly what each one moves."
       },
       {
         "kind": "classify",
         "title": "Which dial is this?",
-        "prompt": "Each phrase turns one dial. Sort it by what it changes: role, audience, or format.",
+        "prompt": "Each phrase turns one dial. Sort it by what it changes: the hat, the reader, or the shape.",
         "buckets": [
-          "Role",
-          "Audience",
-          "Format"
+          "The hat",
+          "The reader",
+          "The shape"
         ],
         "items": [
           {
-            "text": "answer as a strict examiner",
+            "text": "answer like a strict examiner",
             "answer": 0
           },
           {
@@ -2807,15 +2807,15 @@
             "answer": 2
           },
           {
-            "text": "reply as a calm HR person",
+            "text": "reply like a calm older sister",
             "answer": 0
           },
           {
-            "text": "in the form of a do / don't list",
+            "text": "as a do and don't list",
             "answer": 2
           },
           {
-            "text": "for a first-time renter who does not know the vocabulary",
+            "text": "for someone who has never played the game before",
             "answer": 1
           },
           {
@@ -2823,24 +2823,24 @@
             "answer": 2
           },
           {
-            "text": "for someone repairing a bike with basic tools",
+            "text": "for someone fixing a bike with only the tools in the shed",
             "answer": 1
           }
         ],
-        "reveal": "Role changes voice and emphasis. Audience changes assumed knowledge and examples. Format changes the shape on the page. You can combine them, but test one change at a time when you want to know what helped."
+        "reveal": "The hat changes the voice and what gets stressed. The reader changes how much it assumes you already know. The shape changes the layout. You can use all three together, but turn one at a time when you want to know what helped."
       },
       {
         "kind": "compare",
-        "title": "Audience is its own dial",
-        "weak": "How do I parallel park?",
-        "strong": "How do I parallel park? Written for someone who has never driven.",
-        "why": "The role and format stayed the same — only the audience changed. Watch how the second answer slows down, defines terms, and skips assumptions. That simpler, more careful pitch is the audience dial doing its work, separate from tone (role) and layout (format)."
+        "title": "The reader is its own dial",
+        "weak": "How do I revise for a science test?",
+        "strong": "How do I revise for a science test? Written for someone who has never really revised before.",
+        "why": "The hat and the shape did not move. Only the reader did. Watch the second answer slow down, explain its words, and stop assuming things. That is the reader dial working on its own."
       },
       {
         "kind": "tryLive",
-        "title": "Combine all three on purpose",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a harmless or invented question; do not paste names, private messages, health details, account information, or another person's data. Answer as a [role], written for [audience], in the form of a [format]: [your question].",
-        "note": "Try a public, low-stakes task such as explaining a game rule, comparing repair steps, or writing an invented event notice. For real health, money, or legal questions, take the facts to a qualified person before acting."
+        "title": "Use all three on purpose",
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a harmless or made-up question. Do not paste names, private messages, health details, account details, or anything about another person. Answer like a [hat], written for [reader], as a [shape]: [your question].",
+        "note": "Pick something low-stakes: explaining a game rule, comparing two ways to fix something, writing a made-up notice for an event. For real health, money, or legal questions, take the facts to someone qualified before you act."
       },
       {
         "kind": "toolkitSave",
@@ -2849,45 +2849,45 @@
         "fields": [
           {
             "key": "role",
-            "label": "Role (tone / emphasis)",
-            "placeholder": "a patient driving instructor"
+            "label": "The hat (tone)",
+            "placeholder": "a patient teacher"
           },
           {
             "key": "audience",
-            "label": "Audience (how simple or advanced)",
-            "placeholder": "someone who has never driven"
+            "label": "The reader (how simple)",
+            "placeholder": "someone who has never revised before"
           },
           {
             "key": "format",
-            "label": "Format (shape on the page)",
+            "label": "The shape (on the page)",
             "placeholder": "a numbered checklist"
           },
           {
             "key": "question",
             "label": "Your question",
-            "placeholder": "how do I parallel park?"
+            "placeholder": "how do I revise for a science test?"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "Prove you can tell the dials apart",
-        "question": "Pick a brand-new question (say, 'how do I plant tomatoes?'). Ask it twice, changing ONLY ONE dial between the tries and leaving everything else identical. What proves you've got this?",
+        "title": "Show you can tell them apart",
+        "question": "Pick a brand-new question, say how to look after a new pet. Ask it twice, changing only one dial and leaving everything else word for word the same. What shows you have got this?",
         "options": [
           {
-            "text": "The two replies are clearly different, I can name the single dial I turned, and I can say in one line what each of the three dials changes — role (tone/emphasis), audience (how simple or advanced), format (the shape on the page).",
+            "text": "The two replies are clearly different. I can name the one dial I turned. And I can say what each dial does: the hat moves the tone, the reader moves how simple it is, the shape moves the layout.",
             "ok": true,
-            "feedback": "That's it. Isolating one dial is what proves you know which one did the work — and naming all three shows you can tell them apart."
+            "feedback": "That is it. Turning one dial is what proves which dial did the work, and naming all three shows you can tell them apart."
           },
           {
-            "text": "The second reply is longer than the first, so the change clearly worked.",
+            "text": "The second reply is longer, so the change clearly worked.",
             "ok": false,
-            "feedback": "Longer isn't the test. You need to point to the specific difference the one dial caused — and you can only trust that if you changed nothing else."
+            "feedback": "Longer is not the test. Point at the specific difference your one change caused. You can only trust that if nothing else moved."
           },
           {
-            "text": "I changed the role, audience, and format all at once and the answer looks totally different.",
+            "text": "I changed all three at once and the answer looks completely different.",
             "ok": false,
-            "feedback": "Changing all three hides which one did the work. Turn exactly one dial so the difference is traceable to that dial."
+            "feedback": "Changing all three hides which one did the work. Turn exactly one, so the difference belongs to it."
           }
         ]
       }
@@ -2897,32 +2897,32 @@
     "id": "chapter-22",
     "num": 22,
     "arc": "Prompting Craft",
-    "title": "Constraints That Actually Work",
-    "coreQuestion": "Why do some limits I set get ignored while others hold — and how do I make one stick?",
-    "blurb": "\"Keep it short\" gets ignored. \"Exactly 3 bullets\" holds — because you can check it.",
+    "title": "Limits That Actually Stick",
+    "coreQuestion": "Why do some limits I set get ignored while others hold, and how do I make one stick?",
+    "blurb": "\"Keep it short\" slides straight off. \"Exactly 3 bullet points\" holds, because you can count them.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
         "title": "You asked for short. You got an essay.",
-        "scenario": "You typed \"keep it short\" and hit send. Back came five dense paragraphs. You did ask for a limit — so why did it steamroll right past it?",
-        "prompt": "Before you read on: what's the difference between \"keep it short\" and \"exactly 3 bullet points\" — and which one do you think the AI actually obeys?"
+        "scenario": "You typed \"keep it short\" and pressed send.\n\nBack came five thick paragraphs.\n\nYou did set a limit. It rolled straight over it.",
+        "prompt": "What is the difference between \"keep it short\" and \"exactly 3 bullet points\"? Which one do you think it will actually stick to?"
       },
       {
         "kind": "reveal",
-        "title": "A checkable constraint is one you can grade",
-        "body": "A constraint is a rule you put on the answer: how long, what to leave out, what not to say. A CHECKABLE constraint is one you can verify by counting or looking — like \"exactly 3 bullets\" or \"don't use the word 'amazing'.\" Here's the mechanism: AI predicts the most likely next words from patterns in human writing. It isn't tallying items or measuring length as it goes. So a vague limit like \"keep it short\" has nothing to match against and slides off, while a countable one gives it a clear target to hit. One nuance: item counts (\"3 bullets\") tend to hold up more reliably than exact word counts, because the AI still isn't literally counting — which is exactly why the real skill isn't asking, it's CHECKING. Never assume it obeyed; count and scan every time.",
-        "mistake": "Writing \"keep it short\" or \"be concise\" and hoping — a vibe the AI has nothing to grade itself against.",
-        "good": "Writing \"exactly 3 bullet points\" and \"don't use the word 'synergy'\" — then counting the bullets and scanning for the word yourself."
+        "title": "A limit you can count is a limit that holds",
+        "body": "A limit is a rule you put on the answer. How long it is. What to leave out. What word not to use.\n\nA countable limit is one you can check afterwards by counting or looking. 'Exactly 3 bullet points.' 'Do not use the word amazing.'\n\nHere is why that matters. The AI guesses the words that usually come next. It is not keeping a tally as it goes, and it is not measuring length.\n\nSo 'keep it short' has nothing solid in it. There is nothing to aim at, and it slides off. 'Exactly 3 bullet points' gives it a clear target.\n\nOne catch. A number of items holds up better than an exact word count, because it still is not really counting.\n\nWhich is the whole point. The skill is not the asking. The skill is the checking. Count them yourself, every time.",
+        "mistake": "Writing 'keep it short' or 'be brief' and hoping. There is nothing there to check against.",
+        "good": "Writing 'exactly 3 bullet points' and 'do not use the word amazing', then counting the bullets and searching for the word yourself."
       },
       {
         "kind": "classify",
-        "title": "Checkable, or just a vibe?",
-        "prompt": "Sort each limit: can you verify it afterward by counting or looking, or is it too vague to grade?",
+        "title": "Countable, or just a feeling?",
+        "prompt": "Sort each limit. Could you check it afterwards by counting or looking? Or is it too vague to grade?",
         "buckets": [
-          "Checkable",
-          "Vague"
+          "I can check this",
+          "Too vague to check"
         ],
         "items": [
           {
@@ -2934,7 +2934,7 @@
             "answer": 1
           },
           {
-            "text": "Don't use the word 'utilize'",
+            "text": "Do not use the word 'utilise'",
             "answer": 0
           },
           {
@@ -2946,32 +2946,32 @@
             "answer": 0
           },
           {
-            "text": "Don't be too technical",
+            "text": "Do not get too technical",
             "answer": 1
           }
         ],
-        "reveal": "Checkable limits give you something to count or scan for after the fact. Vague ones ('brief', 'professional', 'too technical') leave you nothing to grade — so they're the ones that quietly get ignored."
+        "reveal": "Countable limits leave you something to count or search for afterwards. Vague ones — brief, professional, too technical — leave you nothing to grade. Those are the ones that quietly get ignored."
       },
       {
         "kind": "promptRepair",
-        "title": "Swap the vibe for something countable",
-        "weak": "Give me a short, quick rundown on what to check when buying a used bike. Keep it brief and don't make it too salesy.",
+        "title": "Swap the feeling for something you can count",
+        "weak": "Give me a quick rundown on what to check when buying a second-hand bike. Keep it brief and do not make it too salesy.",
         "fields": [
-          "Countable limit",
-          "Banned word",
-          "Question"
+          "A limit I can count",
+          "A word to avoid",
+          "The question"
         ],
-        "strong": "Answer this in exactly 3 bullet points. Do not use the word 'amazing'. Question: What should I look for when buying a used bike?"
+        "strong": "Answer this in exactly 3 bullet points. Do not use the word 'amazing'. Question: What should I look for when buying a second-hand bike?"
       },
       {
         "kind": "tryLive",
         "title": "Run it, then grade it yourself",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a made-up or public question; do not paste private messages, names, account information, or another person's data. Answer this in [a countable limit]. Do not use the word [banned word]. Question: [your low-stakes question]",
-        "note": "Choose a practical request such as a used-bike checklist, meal-prep plan, or game-night reminder. Count the result and scan for the banned word. If it misses, report the exact break, request one repair, and check again."
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a made-up or public question. Do not paste private messages, names, account details, or anything about another person. Answer this in [a limit I can count]. Do not use the word [word to avoid]. Question: [your low-stakes question]",
+        "note": "Pick something ordinary: a second-hand bike checklist, a plan for making lunches for the week, a reminder for games night. Then count the result and search for the banned word. If it missed, say exactly what it broke, ask for one fix, and check again."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your checkable-constraint recipe",
+        "title": "Save your countable-limit recipe",
         "cardType": "Prompt recipe",
         "fields": [
           {
@@ -2986,35 +2986,35 @@
           },
           {
             "key": "verify",
-            "label": "How I'll check it",
-            "placeholder": "count the bullets, then Ctrl-F the banned word"
+            "label": "How I will check it",
+            "placeholder": "count the bullets, then search for the word"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "Prove it, don't hope it",
-        "question": "You just ran a brand-new request with 'exactly 4 steps' and 'don't use the word simply'. The reply has 5 steps and uses 'simply' once. What's the move that shows you've got the skill?",
+        "title": "Prove it, do not hope it",
+        "question": "You asked for exactly 4 steps and no use of the word 'simply'. The reply has 5 steps and says 'simply' once. What shows you have the skill?",
         "options": [
           {
-            "text": "Report the check out loud — 'I counted 5 steps, it broke the limit, and \"simply\" was there' — then send one fix reply and re-verify.",
+            "text": "Say the check out loud — I counted 5 steps, that breaks my limit, and 'simply' is in there — then send one fix and count again.",
             "ok": true,
-            "feedback": "Exactly. The skill is proving the result: you counted, you scanned, you caught the break, and you correct in one reply and check again."
+            "feedback": "Exactly. You counted, you looked, you caught the break, and you fixed it in one reply and checked again."
           },
           {
-            "text": "Keep the five steps because the extra one is useful, but remove the banned word and call it close enough.",
+            "text": "Keep the five steps because the extra one is handy, take out the banned word, and call it close enough.",
             "ok": false,
-            "feedback": "That may be a reasonable product choice, but it does not meet the stated constraint. Either change the requirement deliberately or repair the output—do not pretend both were satisfied."
+            "feedback": "Keeping the extra step might be a fine choice. Just do not tell yourself both limits were met. Change the rule on purpose, or fix the answer."
           },
           {
-            "text": "Ask the AI to certify that it followed both limits, then accept its self-check.",
+            "text": "Ask the AI whether it followed both limits, and take its word for it.",
             "ok": false,
-            "feedback": "The same system's self-check is a clue, not evidence. Count and scan the visible output yourself."
+            "feedback": "It checking its own homework is a clue, not proof. Count the steps and search the text yourself."
           },
           {
-            "text": "Rewrite the request as 'please keep it shorter and simpler' and resend.",
+            "text": "Rewrite it as 'please keep it shorter and simpler' and send again.",
             "ok": false,
-            "feedback": "That swaps your checkable limits back for vibes, which are exactly what gets ignored. Keep the countable limit and banned word, then verify."
+            "feedback": "That trades your countable limits back for feelings, which are exactly what gets ignored. Keep the number and the banned word, then check."
           }
         ]
       }
@@ -3024,90 +3024,90 @@
     "id": "chapter-23",
     "num": 23,
     "arc": "Prompting Craft",
-    "title": "Show, Don't Tell",
-    "coreQuestion": "Why does pasting one example of the style you want beat describing that style in words?",
-    "blurb": "Choose a safe sample that represents the style you want, then compare the result and decide what still needs your voice.",
+    "title": "Show It, Don't Describe It",
+    "coreQuestion": "Why does pasting one example of the style I want beat describing that style in words?",
+    "blurb": "Pick one safe example of the style you want and paste it in. Then decide what still needs to sound like you.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "The blurb that came out wrong",
-        "scenario": "You ask an AI: 'Write a short, warm, casual product blurb for my candle.' It hands you something stiff and generic - technically warm and casual, but not the voice in your head. You add more adjectives. It still misses.",
-        "prompt": "Before you read on: if you can't quite put the style you want into words, what could you show the AI instead?"
+        "title": "The listing that came out wrong",
+        "scenario": "You are selling your old skateboard online. You ask an AI for a short, friendly, casual description.\n\nBack comes something stiff. Technically friendly. Technically casual. Nothing like how you actually write.\n\nYou add more words: warm, fun, chatty. It still misses.",
+        "prompt": "If you cannot quite put the style you want into words, what could you show it instead?"
       },
       {
         "kind": "reveal",
-        "title": "One example beats a paragraph of description",
-        "body": "One real example you can point to teaches the AI faster than a paragraph trying to describe the same thing in words. Here's the real mechanism, not magic: from Lesson 1, the AI learned patterns from huge amounts of human writing and predicts what words come next. When you paste an example, you hand it a fresh pattern to continue - it pulls on the tone, rhythm, and shape of your sample to predict what should come next. People sometimes say the AI is 'understanding your taste.' That's a comparison, not what's happening. What's really happening is pattern-continuation: it reads the style of your example and continues it - it does not know you the way a friend would. Giving exactly one example like this has a name: a one-shot prompt. It's one of the highest-leverage moves a beginner can learn.",
-        "mistake": "Piling on more adjectives - 'warm, casual, friendly, cozy, inviting' - trying to pin the style down in perfect words.",
-        "good": "Pasting one real sample written in the style you actually want and saying: 'Now make a new thing that matches this.'"
+        "title": "One example beats a paragraph of describing",
+        "body": "One real example you can point at teaches it faster than a paragraph trying to describe the same thing.\n\nHere is why, and it is not magic. The AI has read an enormous amount of human writing, and it guesses which words come next. When you paste an example, you hand it a fresh pattern to carry on. It picks up the tone, the rhythm and the shape of your sample, and keeps going in that direction.\n\nPeople sometimes say it 'gets your taste'. That is a comparison, not the truth. What is really happening is simpler. It reads the style of your example and continues it. It does not know you the way a friend does.\n\nGiving exactly one example like this has a name. People call it a one-shot prompt. It is one of the biggest wins a beginner can pick up.",
+        "mistake": "Piling on more words — warm, casual, friendly, fun, chatty — trying to pin the style down perfectly.",
+        "good": "Pasting one real thing written in the style you actually want, and saying: now make a new one that matches this."
       },
       {
         "kind": "compare",
-        "title": "Words-only vs. one example",
-        "weak": "Prompt: 'Write a short, warm, casual product blurb for my beeswax lip balm.' Result: generic, could describe any product - 'Treat your lips to our all-natural beeswax lip balm for lasting moisture and care.'",
-        "strong": "Prompt pastes a real sample first - 'Cozy nights, sorted. Our lavender soy candle burns clean for 40 hours - light it, exhale, repeat.' - then asks for the lip balm blurb in that same style. Result matches the rhythm and shape: 'Chapped lips, sorted. Our beeswax balm soothes for hours - swipe it, smile, repeat.'",
-        "why": "The example handed the AI a concrete pattern to continue - short punchy opener, a benefit, a three-beat closer - so it predicted words that fit that shape. Words-only gave it nothing specific to match."
+        "title": "Words only, or one example",
+        "weak": "Prompt: 'Write a short, friendly, casual description for my old skateboard.' Result: could be any board on any site — 'This quality skateboard offers great performance and is ideal for riders of all levels.'",
+        "strong": "Prompt pastes a real example first — the listing that sold your bike in a day: 'Old bike, still solid. Rode it two years, brakes are new, sold as I outgrew it. Collection only.' — then asks for the skateboard version in that same style. Result: 'Old board, still solid. Rode it a year, wheels are new, selling as I got a bigger one. Collection only.'",
+        "why": "The example gave it a real pattern to carry on: short opener, honest detail, one line about why you are selling. Words alone gave it nothing to match."
       },
       {
         "kind": "promptRepair",
-        "title": "Turn a description into a show-don't-tell prompt",
-        "weak": "Write a fun, casual Instagram caption for my new mug in a voice people actually like.",
+        "title": "Turn a description into a show-it prompt",
+        "weak": "Write a fun, casual caption for the football team photo in a voice people actually like.",
         "fields": [
-          "Example to match",
-          "New thing to make",
-          "What to copy (tone, length, shape - not topic)"
+          "The example to match",
+          "The new thing to make",
+          "What to copy (tone, length, shape — not the topic)"
         ],
-        "strong": "Here is an example of the style I want: [paste one caption whose vibe you love]. Now write a caption for my new mug in that same style. Match the tone, length, and shape - not the topic."
+        "strong": "Here is an example of the style I want: [paste one caption you like]. Now write a caption for the football team photo in that same style. Match the tone, the length and the shape, not the topic."
       },
       {
         "kind": "tryLive",
-        "title": "Run the one-shot prompt",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use an example you wrote yourself or an invented sample. Do not paste a friend's private message, personal data, or a long copyrighted passage. Here is my safe example:\n[short self-written sample]\nNow write [the new thing] with a similar tone, length, and shape without copying phrases or pretending to be a real person.",
-        "note": "Compare a words-only request with the safe-example request. Judge tone, rhythm, and structure separately. If it copies phrases, repair the prompt: 'Keep the structure, but use completely new wording.'"
+        "title": "Run the one-example prompt",
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use an example you wrote yourself, or a made-up one. Do not paste a friend's private message, anyone's personal details, or a long chunk of somebody else's published writing. Here is my example:\n[a short thing you wrote]\nNow write [the new thing] with a similar tone, length and shape. Do not copy the phrases, and do not pretend to be a real person.",
+        "note": "Try the same job twice: once describing the style in words, once pasting the example. Judge the tone, the rhythm and the layout separately. If it copies phrases straight across, fix the prompt: 'Keep the shape, but use completely new wording.'"
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your example-driven prompt",
+        "title": "Save your one-example prompt",
         "cardType": "One-shot style prompt",
         "fields": [
           {
             "key": "example",
-            "label": "Example to match",
-            "placeholder": "Cozy nights, sorted. Our lavender soy candle burns clean for 40 hours - light it, exhale, repeat."
+            "label": "The example to match",
+            "placeholder": "Old bike, still solid. Rode it two years, brakes are new. Collection only."
           },
           {
             "key": "newThing",
-            "label": "New thing to make",
-            "placeholder": "a blurb for my handmade beeswax lip balm"
+            "label": "The new thing to make",
+            "placeholder": "a listing for my old skateboard"
           },
           {
             "key": "copyWhat",
             "label": "What to copy",
-            "placeholder": "tone, length, and shape - not the topic"
+            "placeholder": "tone, length and shape — not the topic"
           }
         ]
       },
       {
         "kind": "exitCheck",
         "title": "Prove it on a fresh style",
-        "question": "Fresh scenario: you wrote a two-line playful event caption and want an original caption for a different event with the same pacing. Which result shows responsible style transfer?",
+        "question": "New situation. You wrote a two-line caption for one event and you want an original caption for a different event with the same pacing. Which result shows you did this properly?",
         "options": [
           {
-            "text": "The new caption has similar pacing and energy, uses new wording, fits the new event, and does not pretend to be another person.",
+            "text": "The new caption has the same pacing and energy, uses new words, fits the new event, and does not pretend to be somebody else.",
             "ok": true,
-            "feedback": "Yes. You transferred observable features without copying phrases or impersonating someone."
+            "feedback": "Yes. You carried across things you can point at, without copying phrases or borrowing someone's identity."
           },
           {
-            "text": "The new caption keeps the opener and closing phrase exactly, but changes the middle and fits the new event.",
+            "text": "The new caption keeps the opening line and the sign-off word for word, changes the middle, and fits the new event.",
             "ok": false,
-            "feedback": "It fits the new task, but repeating signature phrases is copying rather than learning the broader pattern. Ask for fresh wording."
+            "feedback": "It fits the job, but repeating the memorable phrases is copying, not picking up the pattern. Ask for fresh wording."
           },
           {
-            "text": "The new caption sounds generally playful, but you cannot name which feature came from the example.",
+            "text": "The new caption sounds playful, but I cannot say which part came from my example.",
             "ok": false,
-            "feedback": "The output may be usable, but it does not show controlled transfer. Name the pacing, structure, or tone you meant to carry over."
+            "feedback": "It might be usable, but you did not steer it. Name the pacing, the shape, or the tone you meant to carry over."
           }
         ]
       }
@@ -3118,108 +3118,108 @@
     "num": 24,
     "arc": "Prompting Craft",
     "title": "Get It to Teach You",
-    "coreQuestion": "How do I use AI to actually learn a topic instead of just getting an answer I forget by tomorrow?",
-    "blurb": "Turn an answer-dump into a step-by-step lesson, then prove you learned it by explaining it back.",
+    "coreQuestion": "How do I use AI to actually learn something, instead of getting an answer I forget by tomorrow?",
+    "blurb": "Turn a wall of answer into a lesson in small steps, then prove it stuck by saying it back.",
     "minutes": 10,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
         "title": "You had the answer an hour ago",
-        "scenario": "You asked an AI to explain how credit-card interest builds up. It gave you a clean, correct paragraph. You nodded, closed the tab, felt sorted. An hour later a friend asks you the same thing — and you can't actually say it. You had the answer. It just never made it into your head.",
-        "prompt": "Before you read on: if you can't re-explain something an hour later, did you really learn it — or did you just watch it go by?"
+        "scenario": "You asked an AI to explain how interest works when someone borrows money. It gave you a neat, correct paragraph. You nodded and closed the tab.\n\nAn hour later a friend asks you the same thing. You open your mouth and nothing comes out.\n\nYou had the answer. It never made it into your head.",
+        "prompt": "If you cannot explain it an hour later, did you learn it? Or did you just watch it go past?"
       },
       {
         "kind": "classify",
-        "title": "Answer-dump or learning?",
-        "prompt": "Two things look the same on screen but land very differently. An ANSWER-DUMP is the full correct result handed to you in one block — nothing sticks. LEARNING is when the idea ends up in your head so you can say it back later. Sort each moment.",
+        "title": "Answer dump, or learning?",
+        "prompt": "Two things look identical on screen and land completely differently. An answer dump is the whole finished result handed to you in one block. Learning is when the idea ends up in your head, so you can say it back later. Sort each moment.",
         "buckets": [
-          "Answer-dump",
+          "Answer dump",
           "Learning"
         ],
         "items": [
           {
-            "text": "AI writes three tidy paragraphs; you copy them and move on.",
+            "text": "AI writes three tidy paragraphs. You copy them and move on.",
             "answer": 0
           },
           {
-            "text": "AI teaches one small step, then pauses to check you followed.",
+            "text": "AI teaches one small step, then stops to check you followed it.",
             "answer": 1
           },
           {
-            "text": "You read a perfect explanation but can't repeat it an hour later.",
+            "text": "You read a perfect explanation and cannot repeat it an hour later.",
             "answer": 0
           },
           {
-            "text": "You say the whole idea back in your own words from memory.",
+            "text": "You say the whole idea back in your own words, without looking.",
             "answer": 1
           },
           {
-            "text": "You get the right result fast and assume that means you learned it.",
+            "text": "You got the right answer fast, so you assume you learned it.",
             "answer": 0
           }
         ],
-        "reveal": "Speed and correctness are not the same as understanding. Having the answer and understanding the answer are two different things — and only one of them is still there tomorrow."
+        "reveal": "Fast and correct is not the same as understood. Having the answer and understanding the answer are two different things. Only one of them is still there tomorrow."
       },
       {
         "kind": "reveal",
         "title": "Make it teach you, then check you",
-        "body": "Remember the core idea: AI predicts the most likely next words from patterns in huge amounts of human writing. Because it has seen countless explanations, it can walk you through an idea one small step at a time and check your wording against those patterns. It's natural to call this 'having a tutor,' and that comparison is useful — but here's what's really happening: the AI isn't a person who knows you or cares whether you pass. It predicts helpful-sounding next words, which means it can also state something wrong with total confidence. That is exactly why the explain-back step matters. You're not trusting it to pour knowledge in — you're using it to surface what's still fuzzy in your own head, and YOU stay the judge of whether the explanation is right.",
-        "mistake": "Ask for the answer, read it, feel done — and confuse 'I saw a good explanation' with 'I understand this.'",
-        "good": "Ask it to teach in small steps, pause and check you after each one, then explain the whole idea back in your own words and let it flag the one part you got wrong."
+        "body": "Remember what it is doing. It has read an enormous amount of human writing, and it guesses the words that usually come next.\n\nIt has seen countless explanations. So it can walk you through an idea one small step at a time. It can also spot when your version sounds off.\n\nIt is natural to call that having a tutor. That comparison is useful. Here is what is really going on, though. It is not a person. It does not know you and it does not care whether you pass. It guesses helpful-sounding words, which means it can say something wrong with total confidence.\n\nThat is exactly why you say it back. You are not trusting it to pour knowledge into you. You are using it to find the bits that are still fuzzy in your own head. You stay the judge of whether the explanation is right.\n\nThis is also where the line sits. 'Do my homework for me' hands over the part that was meant to teach you. 'I am stuck on question 4, walk me through it' keeps the learning and still gets you moving.",
+        "mistake": "Ask for the answer, read it, feel finished. Then confuse 'I saw a good explanation' with 'I understand this'.",
+        "good": "Ask it to teach in small steps and stop after each one. Then say the whole thing back in your own words and let it flag the part you got wrong."
       },
       {
         "kind": "tryLive",
         "title": "Run the teaching loop",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public, low-stakes topic and do not paste private schoolwork, names, grades, account details, or another person's information. I want to understand [topic], not just get an answer. Teach one small step, pause for my reply, and continue only after I try. At the end, ask me to explain it back, flag one gap, and give me a way to verify the important fact outside this chat.",
-        "note": "Try a phone setting, card-game rule, bike adjustment, cooking technique, or basic money concept using invented numbers. Explain it back without scrolling. A correction from AI is not automatically true—verify a consequential claim with instructions, a calculator, or a trustworthy independent source."
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Pick a public, low-stakes topic. Do not paste private schoolwork, names, grades, account details, or anything about another person. I want to understand [topic], not just get an answer. Teach me one small step, then stop and wait for my reply. Carry on only after I have had a go. At the end, ask me to explain it back, point out one gap, and tell me how to check the important fact somewhere outside this chat.",
+        "note": "Good topics: a setting on your phone, a rule in a card game, how gears work on a bike, why bread rises, how interest works using made-up numbers. Explain it back without scrolling up. A correction from AI is not automatically true. If the fact matters, check it against instructions, a calculator, or a source that actually knows."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your tutor prompt",
+        "title": "Save your teach-me prompt",
         "cardType": "Teach-Me Loop",
         "fields": [
           {
             "key": "topic",
-            "label": "Topic to actually understand",
-            "placeholder": "how credit-card interest adds up month to month"
+            "label": "What I want to actually understand",
+            "placeholder": "how interest grows on borrowed money, month by month"
           },
           {
             "key": "level",
-            "label": "Your starting level",
-            "placeholder": "complete beginner — know what a credit card is but nothing about interest"
+            "label": "Where I am starting from",
+            "placeholder": "total beginner — I know what borrowing is, nothing about interest"
           },
           {
             "key": "checkStep",
             "label": "The check that makes it stick",
-            "placeholder": "pause after each step; explain the whole idea back from memory at the end"
+            "placeholder": "stop after each step, then say the whole thing back from memory"
           }
         ]
       },
       {
         "kind": "exitCheck",
         "title": "Prove it on a brand-new topic",
-        "question": "Pick a topic you haven't touched today — a setting on your phone, a rule in a card game, why bread rises. Run the teaching loop, then close your eyes and explain the finished idea back in your own words from memory. What tells you it worked?",
+        "question": "Pick something you have not touched today. A setting on your phone, a rule in a card game, why bread rises. Run the teaching loop, then look away from the screen and say the finished idea back in your own words. What tells you it worked?",
         "options": [
           {
-            "text": "I explained it back correctly from memory — either first try or after fixing the one part it flagged.",
+            "text": "I said it back correctly from memory, either first go or after fixing the one bit it flagged.",
             "ok": true,
-            "feedback": "That's the win. The correction, or a clean first-try recall, means the idea is in your head — not just on your screen."
+            "feedback": "That is the win. Saying it back without looking means the idea is in your head, not just on your screen."
           },
           {
-            "text": "The AI's written explanation looked complete and correct, so I'm done.",
+            "text": "The explanation on screen looked complete and correct, so I am done.",
             "ok": false,
-            "feedback": "A perfect explanation on screen is still an answer-dump. You only pass when YOU can say it back without peeking."
+            "feedback": "A perfect explanation on screen is still a dump. You pass when you can say it back without peeking."
           },
           {
-            "text": "I couldn't say it back without scrolling up to reread.",
+            "text": "I could not say it back without scrolling up to reread it.",
             "ok": false,
-            "feedback": "That means you got an answer-dump, not learning. Run the loop again — the explain-back step is where it sticks."
+            "feedback": "That was a dump, not learning. Run the loop again. Saying it back is the part that makes it stick."
           },
           {
             "text": "I got the answer really fast, so I definitely learned it.",
             "ok": false,
-            "feedback": "Fast and correct isn't the same as understood. Test it by explaining it back from memory tomorrow."
+            "feedback": "Fast and correct is not the same as understood. Test it by explaining it tomorrow, from memory."
           }
         ]
       }
@@ -3230,91 +3230,91 @@
     "num": 25,
     "arc": "Prompting Craft",
     "title": "Make the Answer Checkable",
-    "coreQuestion": "How do I ask for evidence I can inspect without pretending the AI can reveal its private thoughts?",
-    "blurb": "Ask for the assumptions, evidence, calculations, and checks behind an answer — then verify one yourself.",
+    "coreQuestion": "How do I ask for working I can actually look at, without pretending the AI can show me its private thoughts?",
+    "blurb": "Ask for what it assumed, where the facts came from, and the sums it did. Then check one of them yourself.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "Just a number",
-        "scenario": "You ask an AI which phone plan is cheaper over a year. It replies: \"Plan B is cheaper.\" No math, no working — just a verdict. It sounds confident. But you have no idea how it got there, or whether it added anything up correctly.",
-        "prompt": "Before you read on: if the verdict is wrong, could you tell? What concrete information would make it possible to check?"
+        "title": "Just a verdict",
+        "scenario": "You ask an AI which phone deal costs less over a year. It replies: 'Plan B is cheaper.'\n\nNo sums. No working. Just the verdict.\n\nIt sounds sure of itself. You have no idea how it got there, or whether it added anything up correctly.",
+        "prompt": "If that verdict is wrong, could you tell? What would it need to show you before you could check?"
       },
       {
         "kind": "reveal",
         "title": "Ask for an audit trail, not private thoughts",
-        "body": "AI assistants may do internal processing that you cannot see, and a polished explanation written afterward is not a recording of that private process. So do not ask the system to prove itself by revealing what is inside. Ask for checkable work instead: the facts it used, assumptions it made, calculation it performed, source it relied on, uncertainty it noticed, and a short way to test the result. Those items can still be wrong, but they give you handles for inspection. Your goal is not to watch the AI think. Your goal is to make the answer auditable enough for you to decide whether to rely on it.",
-        "mistake": "\"It gave a detailed explanation, so the answer must be right.\" Detail can make a mistake sound more convincing.",
-        "good": "Request checkable artifacts, then independently test the part that matters most."
+        "body": "An audit trail just means the working, laid out where you can look at it.\n\nHere is the catch. These apps may do things inside that nobody can see. A tidy explanation written afterwards is not a recording of that. It is more writing.\n\nSo do not ask it to prove itself by showing you what is going on inside. Ask for working you can check.\n\nThe facts it used. What it assumed. The sums it did. Where each fact came from. Anything it is unsure about. One quick way for you to test the result.\n\nAll of that can still be wrong. But now you have something to grab hold of.\n\nYour goal is not to watch it think. Your goal is to make the answer open enough that you can decide whether to trust it.",
+        "mistake": "'It gave a really detailed explanation, so it must be right.' Detail makes a mistake sound more convincing, not less.",
+        "good": "Ask for the working you can check. Then test the part that matters most, yourself."
       },
       {
         "kind": "workflowChain",
-        "title": "The answer-audit move",
-        "goal": "Turn a verdict into a short set of claims you can inspect, then actually inspect one",
+        "title": "Open up the answer",
+        "goal": "Turn a bare verdict into a few claims you can look at, then actually look at one",
         "correct": [
-          "Give the real numbers, facts, goal, and limits so the assistant does not have to invent missing context",
-          "Ask for a concise answer plus its assumptions, evidence or sources, and calculations",
-          "Ask it to separate what is known from what is estimated or uncertain",
-          "Choose the claim that would most affect your decision and ask: \"What supports this, and how can I check it?\"",
-          "Verify that claim with your own calculation or an independent, trustworthy source before relying on the answer"
+          "Give it the real numbers, the goal, and the limits, so it does not have to invent the missing bits",
+          "Ask for a short answer plus what it assumed, where the facts came from, and the sums",
+          "Ask it to say which parts it knows and which parts it is guessing at",
+          "Pick the one claim that would change your decision most, and ask what backs it up",
+          "Check that claim yourself, with your own maths or a source you trust, before you rely on it"
         ],
-        "note": "An uncertainty label is only a clue about where to inspect. It is not proof. The independent check is the evidence."
+        "note": "When it says it is unsure, that is a hint about where to look. It is not proof of anything. The check you do yourself is the proof."
       },
       {
         "kind": "compare",
-        "title": "Flat verdict vs. checkable answer",
-        "weak": "Q: \"Plan A is $30/month, no setup fee. Plan B is $22/month plus a one-time $90 setup fee. Which is cheaper over one year?\" A: \"Plan B is cheaper.\"",
-        "strong": "Same question, but: \"Give the total for each plan, list the assumptions you used, show the arithmetic, and give me one quick independent check. Keep it concise.\" A: \"Assumption: 12 months and the setup fee is charged once. Plan A: 30 x 12 = $360. Plan B: 22 x 12 + 90 = $354. Plan B is $6 cheaper. Check: recalculate 22 x 12 separately and confirm the fee is one-time.\"",
-        "why": "The flat verdict might be right, but it gives you nothing to inspect. The checkable answer exposes the exact assumptions and arithmetic without claiming to reveal the model's private thoughts."
+        "title": "Bare verdict, or working you can see",
+        "weak": "Q: 'Plan A is $30 a month with nothing to join. Plan B is $22 a month plus a one-off $90 joining fee. Which costs less over a year?' A: 'Plan B is cheaper.'",
+        "strong": "Same question, plus: 'Give the total for each one, say what you assumed, show the sums, and give me one quick way to check it myself. Keep it short.' A: 'Assuming 12 months and the joining fee is charged once. Plan A: 30 x 12 = $360. Plan B: 22 x 12 + 90 = $354. Plan B is $6 less. Check: work out 22 x 12 on your own, and confirm the fee really is one-off.'",
+        "why": "The bare verdict might be right. It just gives you nothing to check. The second one puts the assumptions and the sums where you can see them, without pretending to show you anything hidden."
       },
       {
         "kind": "tryLive",
         "title": "Run it on a real question",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use invented or redacted numbers; do not enter account numbers, receipts with names, addresses, or another person's private information. Answer using only the information I provide. Give me: (1) a concise answer, (2) assumptions, (3) evidence or arithmetic for important claims, (4) uncertainty, and (5) one independent check: [question and safe facts]",
-        "note": "Choose something inspectable: compare two made-up phone plans, divide an invented dinner bill, estimate paint, or check a game score. Include enough context to avoid guessing, then verify the most consequential calculation yourself."
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use made-up numbers. Do not enter account numbers, receipts with names on, addresses, or anything private about another person. Answer using only the information I give you. Give me: (1) a short answer, (2) what you assumed, (3) the sums or the sources behind the important bits, (4) anything you are unsure about, and (5) one way I can check it myself: [your question and safe facts]",
+        "note": "Pick something you can actually check: two made-up phone deals, splitting a bill between friends, working out how much paint a wall needs, adding up a game score. Give it enough detail that it does not have to guess. Then check the sum that matters most, yourself."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your answer-audit line",
+        "title": "Save your open-up-the-answer line",
         "cardType": "Reusable prompt",
         "fields": [
           {
             "key": "trigger",
-            "label": "When I'll use it",
-            "placeholder": "A calculation, comparison, recommendation, or claim that could change a real decision"
+            "label": "When I will use it",
+            "placeholder": "Any sum, comparison, or recommendation that could change a real decision"
           },
           {
             "key": "line",
             "label": "The line I paste",
-            "placeholder": "Give the assumptions, evidence or arithmetic, uncertainty, and one independent way to check the result."
+            "placeholder": "Show what you assumed, the sums or sources, anything you are unsure of, and one way I can check it."
           },
           {
             "key": "mymove",
-            "label": "What I do after",
-            "placeholder": "Verify the most consequential claim using my own calculation or a trustworthy outside source"
+            "label": "What I do next",
+            "placeholder": "Check the claim that matters most, using my own maths or a source I trust"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "Did you audit the answer?",
-        "question": "You ran the answer-audit prompt on a fresh question. What makes this a pass?",
+        "title": "Did you actually check it?",
+        "question": "You ran the open-up-the-answer prompt on a fresh question. What counts as a pass?",
         "options": [
           {
-            "text": "The AI gave a detailed explanation and an uncertainty label, so I trusted its final answer.",
+            "text": "It gave a long, detailed explanation and said it was fairly confident, so I trusted the answer.",
             "ok": false,
-            "feedback": "Detail and self-rated uncertainty are not independent evidence. You still need to test an important claim yourself."
+            "feedback": "Detail and its own confidence are not proof of anything. You still need to test one important claim yourself."
           },
           {
-            "text": "I identified the claim that mattered most, checked it with my own calculation or a trustworthy outside source, and can explain whether that check supported the answer.",
+            "text": "I picked out the claim that mattered most and checked it with my own maths, or a source I trust. I can say whether that check backed the answer up.",
             "ok": true,
-            "feedback": "That's the skill. You made the answer inspectable, then used evidence outside the answer to decide whether it deserved trust."
+            "feedback": "That is the skill. You opened the answer up, then used something outside it to decide whether it deserved your trust."
           },
           {
-            "text": "I asked the AI to check its own answer a second time and it said the answer was correct.",
+            "text": "I asked it to check its own answer again, and it said the answer was correct.",
             "ok": false,
-            "feedback": "A second AI answer is not an independent check. Use your own calculation or a separate trustworthy source."
+            "feedback": "A second answer from the same place is not an outside check. Use your own maths, or a separate source you trust."
           }
         ]
       }
@@ -3324,131 +3324,131 @@
     "id": "chapter-26",
     "num": 26,
     "arc": "Judgment & Safety",
-    "title": "Catching Hallucinations",
-    "coreQuestion": "When sources conflict or repeat the same near-truth, how do I decompose the claim and decide what the evidence actually supports?",
-    "blurb": "Move beyond spotting one suspicious fact: separate the claim, trace its provenance, compare dates, and resolve conflicting evidence.",
+    "title": "Three Pages Can All Be Wrong",
+    "coreQuestion": "When sources disagree, or all repeat the same near-truth, how do I work out what the evidence really supports?",
+    "blurb": "Split the answer into separate facts, find where each one came from, compare the dates, and settle what actually holds.",
     "minutes": 11,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "Three pages repeat it. One source settles it.",
-        "scenario": "An AI says a new youth transit rule begins September 1 and cites three pages. Two are blogs that copied an old announcement. The transit authority's current rule page says October 1. Counting links would favor September; tracing authority and date favors October.",
-        "prompt": "Before you read on: when several pages agree because they copied one another, what makes evidence independent — and which source should control a current rule?"
+        "title": "Three pages say it. One page settles it.",
+        "scenario": "An AI tells you a new free bus pass for young people starts on 1 September. It shows you three pages that agree.\n\nTwo of them are blogs. Both copied the same old announcement.\n\nThe bus company's own rules page was updated last month. It says 1 October.\n\nCounting pages gives you September. Looking at who owns the rule gives you October.",
+        "prompt": "When several pages agree because they all copied one another, how many sources have you really got? And which one should decide a rule like this?"
       },
       {
         "kind": "reveal",
-        "title": "A fluent answer can be almost right",
-        "body": "Earlier you learned that confident specifics need checking. Now raise the difficulty: a claim can mix a correct subject with the wrong date, quote a real page out of context, or cite several copies of one stale source. Break the answer into atomic claims, then inspect direct support, provenance, independence, and time. For a current rule, prefer the responsible authority's current page over a copied summary. For a quotation, prefer the original recording or transcript over a quote collection. For a research finding, inspect the study itself and what it actually measured. If the best sources genuinely conflict, report the conflict instead of forcing certainty.",
-        "mistake": "Treating three repeated links as three independent confirmations, or accepting a page because it discusses the same topic.",
-        "good": "Ask which exact claim each source supports, where the information originated, whether the sources are independent, and whether a newer authoritative source supersedes an older one."
+        "title": "An answer can be almost right",
+        "body": "You already know that confident-sounding details need checking. This is the harder version.\n\nAn answer can get the subject right and the date wrong. It can quote a real page but leave out the bit that changes the meaning. It can show you three links that are all copies of one old page.\n\nSo break the answer into separate facts. Then ask four things about each one.\n\nDoes this source say this exact fact, or just talk about the topic?\n\nWhere did the fact first come from?\n\nAre these sources really separate, or did one copy the other?\n\nIs this the newest version, or has it been replaced?\n\nFor a rule, go to whoever actually makes the rule, and use their current page. For a quote, find the recording or the full transcript, not a page of quotes. For a study, read the study and see what it actually measured.\n\nIf the best sources genuinely disagree, say so. Do not force it into an answer.",
+        "mistake": "Counting three copies of one page as three separate confirmations, or accepting a page because it is about the same topic.",
+        "good": "Ask which exact fact each source backs, and where it started. Then ask whether the sources are really separate, and whether something newer has replaced it."
       },
       {
         "kind": "classify",
-        "title": "Decompose the near-truth",
-        "prompt": "The answer says: 'Riverbend's fictional Youth Pass becomes free for everyone under 19 on September 1.' Sort each part into a separate claim that needs evidence or into wording that adds no checkable claim.",
+        "title": "Split the sentence up",
+        "prompt": "The answer says: 'Riverbend's Youth Pass becomes free for everyone under 19 on 1 September.' Riverbend is made up. Sort each part: is it a fact you could go and check, or is it just an opinion?",
         "buckets": [
-          "Atomic claim to verify",
-          "No new checkable claim"
+          "A fact I can check",
+          "Just an opinion"
         ],
         "items": [
           {
-            "text": "Riverbend has a program called the Youth Pass.",
+            "text": "Riverbend has something called the Youth Pass.",
             "answer": 0
           },
           {
-            "text": "The pass costs zero.",
+            "text": "The pass costs nothing.",
             "answer": 0
           },
           {
-            "text": "Every rider younger than 19 is eligible.",
+            "text": "Anyone under 19 can get one.",
             "answer": 0
           },
           {
-            "text": "The change begins September 1.",
+            "text": "The change starts on 1 September.",
             "answer": 0
           },
           {
-            "text": "This is exciting news for the community.",
+            "text": "This is exciting news for the town.",
             "answer": 1
           },
           {
-            "text": "The program is clearly a major step forward.",
+            "text": "The scheme is clearly a big step forward.",
             "answer": 1
           }
         ],
-        "reveal": "A single sentence can contain four factual claims. One may be true while another is stale or invented. Verify the part that changes the decision first — here, eligibility and the start date — instead of giving the whole sentence one true-or-false label."
+        "reveal": "One sentence held four separate facts. One of them can be true while another is out of date or invented. Check the part that changes your decision first. Here that is who qualifies and when it starts. Do not stamp the whole sentence true or false."
       },
       {
         "kind": "verify",
-        "title": "Resolve a controlled source conflict",
-        "claim": "Fictional evidence packet: Source A is a transit-authority announcement dated March 2 saying 'planned for September 1.' Source B is a community blog dated March 4 repeating September 1 and linking to A. Source C is the transit authority's current rule page, updated August 20, saying 'effective October 1 for riders ages 13–18.' What does the evidence support?",
+        "title": "Sort out a disagreement",
+        "claim": "A made-up set of sources. A is the bus company's announcement from 2 March: 'planned for 1 September.' B is a local blog from 4 March, repeating 1 September and linking straight to A. C is the bus company's current rules page, updated 20 August: 'starts 1 October, for riders aged 13 to 18.' What does this evidence actually support?",
         "steps": [
-          "Split the answer into program, price, eligibility, and start-date claims.",
-          "Trace Source B to its origin and mark it as a copy of Source A, not an independent confirmation.",
-          "Compare publication status and dates: A is an earlier plan; C is the responsible authority's newer current rule.",
-          "Check the exact language: C supports October 1 and ages 13–18, not 'everyone under 19.'",
-          "Write the bounded verdict: the September date is superseded; eligibility is narrower than claimed; any price claim remains unresolved unless a source states it."
+          "Split the answer into four facts: the scheme, the price, who qualifies, and the start date.",
+          "Follow B back to where it came from. It is a copy of A, not a second opinion.",
+          "Compare the dates. A was a plan back in March. C is the same company's current rule, updated in August.",
+          "Read C's exact words. It says 1 October and ages 13 to 18, not 'everyone under 19'.",
+          "Write the careful verdict: September has been replaced, fewer people qualify than claimed, and nothing here settles the price."
         ],
-        "note": "This packet is fictional so everyone can practice without a browser. In real work, open the underlying pages yourself. If no source supports one part of the answer, mark that part unresolved instead of borrowing confidence from the supported parts."
+        "note": "These sources are made up so you can practise without opening a browser. In real life, open the pages yourself. If nothing supports one part of the answer, mark that part unsettled. Do not let the parts that checked out lend it confidence."
       },
       {
         "kind": "tryLive",
-        "title": "Optional: run the conflict check on a public claim",
-        "prompt": "Choose a harmless public claim with a date, number, quote, attribution, or current rule. Find the earliest source you can, one apparently independent source, and the current authoritative source. Record which pages copy another, which exact words support each atomic claim, and whether later evidence supersedes earlier evidence.",
-        "note": "This optional step leaves LearningAI. Do not use private people, school records, account information, medical details, or another person's data. The built-in Riverbend packet completes the lesson without outside tools."
+        "title": "Optional: try it on a real public claim",
+        "prompt": "Pick a harmless public claim with a date, a number, a quote, or a rule in it. Find the earliest source you can, one source that looks independent, and the current source from whoever owns the rule. Write down which pages copied another, which exact words back each separate fact, and whether anything newer has replaced the old version.",
+        "note": "This optional step leaves LearningAI. Do not use private individuals, school records, account information, medical details, or anyone else's data. The made-up Riverbend example finishes the lesson on its own."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save the conflict-check routine",
+        "title": "Save the disagreement check",
         "cardType": "Conflicting-evidence check",
         "fields": [
           {
             "key": "claims",
-            "label": "Atomic claims",
-            "placeholder": "Separate the date, number, quote, eligibility, source, or attribution"
+            "label": "The separate facts",
+            "placeholder": "The date, the number, the quote, who qualifies, who said it"
           },
           {
             "key": "provenance",
-            "label": "Origin and independence",
-            "placeholder": "Which source is original? Which pages copy it?"
+            "label": "Where it came from",
+            "placeholder": "Which page is the original? Which ones copied it?"
           },
           {
             "key": "authority",
-            "label": "Authority and time",
-            "placeholder": "Which source owns the rule or evidence, and is it current?"
+            "label": "Who owns it, and how old is it",
+            "placeholder": "Who actually makes this rule, and is this their current page?"
           },
           {
             "key": "verdict",
-            "label": "Bounded verdict",
-            "placeholder": "confirmed / superseded / contradicted / unresolved — claim by claim"
+            "label": "My careful verdict",
+            "placeholder": "backed up / replaced / contradicted / unsettled — fact by fact"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "Transfer the conflict check",
-        "question": "An AI says a study proves that a study app raises every student's grades. Three news stories repeat the university press release, while the original paper reports only a correlation in one small volunteer group. What is the strongest response?",
+        "title": "Use the same check somewhere new",
+        "question": "An AI says a study proves a revision app raises every student's grades. Three news stories say the same thing, all based on one university press release. The actual paper says only that grades and app use went up together, in one small group of volunteers. What is the strongest response?",
         "options": [
           {
-            "text": "Separate the causal, population, and outcome claims; trace the stories to their shared press release; inspect the paper's methods and exact language; and limit the conclusion to the observed correlation in that volunteer group.",
+            "text": "Split it up: did the app cause the change, who was in the study, and what was measured. Notice all three stories came from one press release. Read the paper itself, and claim only what it found — two things went up together in one small volunteer group.",
             "ok": true,
-            "feedback": "Yes. You tested independence and direct support, then kept the conclusion inside the study's actual design and population."
+            "feedback": "Yes. You checked whether the sources were really separate, then kept your conclusion inside what the study actually looked at."
           },
           {
-            "text": "Accept the universal causal claim because three news stories independently confirmed it.",
+            "text": "Believe the claim about every student, because three separate news stories confirmed it.",
             "ok": false,
-            "feedback": "Stories repeating one press release are not independent evidence, and correlation in a volunteer sample does not prove universal causation."
+            "feedback": "Three retellings of one press release are one source. And two things going up together in a small group does not prove one caused the other."
           },
           {
-            "text": "Reject the entire study because it did not prove the strongest version of the headline.",
+            "text": "Throw the whole study out, since it did not prove the headline.",
             "ok": false,
-            "feedback": "Overstatement does not make every observation worthless. State the narrower result the evidence supports and its limits."
+            "feedback": "An overblown headline does not make the work worthless. Say the smaller thing the evidence does support, and where it stops."
           },
           {
-            "text": "Ask the AI for a confidence score and use that instead of opening the paper.",
+            "text": "Ask the AI how confident it is, and use that number instead of reading the paper.",
             "ok": false,
-            "feedback": "A generated score is not independent evidence. Inspect the original method, sample, and claims."
+            "feedback": "A number it made up about itself is not evidence. Look at how the study was done, who was in it, and what it claimed."
           }
         ]
       }
@@ -3458,109 +3458,109 @@
     "id": "chapter-27",
     "num": 27,
     "arc": "Judgment & Safety",
-    "title": "Bias: Whose Voice Is Missing?",
-    "coreQuestion": "If an AI answer sounds calm and balanced, does that mean it's actually fair and complete?",
-    "blurb": "A smooth, neutral tone isn't the same as a full picture — learn to ask who got left out.",
+    "title": "Whose Voice Is Missing?",
+    "coreQuestion": "If an answer sounds calm and balanced, does that make it fair and complete?",
+    "blurb": "A smooth, even tone is not the same as the whole picture. Learn to ask who got left out.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
         "title": "The answer that sounds fair",
-        "scenario": "You ask an AI for the best way to learn a new language as an adult. It gives a calm, tidy answer: use a daily app, practice 20 minutes each night, pay for a tutor once a week. It reads like solid, neutral advice. Nothing sounds pushy or one-sided.",
-        "prompt": "Before you read on: this answer quietly assumes some things about your life — a smartphone, spare cash, and free evenings. Who does that advice NOT fit? Name one person it forgot."
+        "scenario": "You ask an AI for the best way to learn a new language. It gives you a calm, tidy answer.\n\nUse an app every day. Practise 20 minutes each evening. Pay for a tutor once a week.\n\nIt reads like sensible, neutral advice. Nothing about it sounds pushy or one-sided.",
+        "prompt": "That answer quietly assumes some things about your life. A phone of your own. Spare money. Free evenings. Who does it not fit? Name one person it forgot."
       },
       {
         "kind": "reveal",
-        "title": "Neutral tone, lopsided picture",
-        "body": "Here's the core idea: a smooth, neutral tone is not the same as a complete or fair picture — so part of your job is to ask who got left out. Quick term: 'bias' here means a consistent lean toward some views and away from others. The AI has no opinions of its own, but it does have leanings. It works by predicting the most likely next words from patterns in huge amounts of human-written text — and that text over-represents some voices (loud, online, English-speaking, well-off) and under-represents others. So a calm tone can sit on top of a lopsided answer. One honest catch: when you ask the AI who it left out, it's critiquing its own blind spot. Treat its 'who's missing' list as a strong starting point you check — not the final word. You may spot a group it doesn't.",
-        "mistake": "\"It has no feelings, so it must be objective.\" Reading the confident, even tone as proof the answer is fair and complete.",
-        "good": "Notice the tone and the picture are two different things. Ask outright: whose perspective is underrepresented here — then pull that voice back into the answer yourself."
+        "title": "Even tone, lopsided picture",
+        "body": "A calm, even tone is not the same as a full or fair picture. Part of your job is asking who got left out.\n\nOne word first. A lean means a habit of tilting towards some kinds of people and away from others. People call it bias.\n\nThe AI has no opinions of its own. It does have leans. It guesses the words that usually come next, based on an enormous amount of human writing. That writing has far more from some people than others — loud, online, English-speaking, comfortably off.\n\nSo a calm voice can sit on top of a lopsided answer.\n\nOne honest catch. When you ask it who it left out, you are asking it to spot its own blind spot. Treat its list as a good start that you then check. You may well name someone it does not.",
+        "mistake": "'It has no feelings, so it must be neutral.' Reading a steady, confident tone as proof the answer is complete.",
+        "good": "Noticing that the tone and the picture are two different things. Asking outright who is missing, then putting that person back in yourself."
       },
       {
         "kind": "classify",
         "title": "Spot the hidden assumption",
-        "prompt": "That 'learn a language' answer assumed a smartphone, spare cash, and free evenings. Sort each person by whether the tidy answer fits them or quietly forgets them.",
+        "prompt": "That language answer assumed a phone of your own, spare money, and free evenings. Sort each person: does the tidy answer fit them, or quietly forget them?",
         "buckets": [
-          "Answer fits them",
-          "Answer forgot them"
+          "The answer fits them",
+          "The answer forgot them"
         ],
         "items": [
           {
-            "text": "A salaried worker with a phone and a free hour every night",
+            "text": "Someone with their own phone and a free hour every evening",
             "answer": 0
           },
           {
-            "text": "Someone with no spare money who relies on the free library",
+            "text": "Someone with no spare money, who uses the free library",
             "answer": 1
           },
           {
-            "text": "A shift worker whose schedule changes weekly, so 'same time daily' fails",
+            "text": "Someone who shares one family laptop and gets it twice a week",
             "answer": 1
           },
           {
-            "text": "A college student with a subscription app and predictable evenings",
+            "text": "Someone who already pays for an app and has quiet evenings",
             "answer": 0
           },
           {
-            "text": "A parent with no uninterrupted evening block at all",
+            "text": "Someone who looks after younger brothers and sisters until bedtime",
             "answer": 1
           }
         ],
-        "reveal": "The 'forgot them' people are the bias you couldn't see in version one. The advice wasn't wrong — it was narrow. The gap between who it fit and who it forgot is exactly what you're learning to surface."
+        "reveal": "The forgotten ones are the lean you could not see in the first answer. The advice was not wrong. It was narrow. The gap between who it fits and who it forgets is exactly what you are learning to notice."
       },
       {
         "kind": "tryLive",
-        "title": "Ask who's missing — then fix it",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public or invented scenario; do not include names, private stories, health details, or claims about a real person. Give me a practical view on [topic where people differ]. List the resources and life conditions your answer assumes. Add at least two perspectives those assumptions leave out, and say what each changes.",
-        "note": "Try public transport, phone rules, saving money with irregular income, or learning a skill without paid tools. Do not ask the AI to speak as a real community member. Treat its missing-voices list as a starting hypothesis and check it against real people or authoritative research when the decision matters."
+        "title": "Ask who is missing, then fix it",
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a public or made-up situation. Do not include names, private stories, health details, or claims about a real person. Give me practical advice on [a topic where people's lives really differ]. Then list what your answer assumed people have: money, time, equipment, help. Add at least two people those assumptions leave out, and say what changes for each of them.",
+        "note": "Good topics: getting around town without a car, saving money when your income changes week to week, learning a skill with no paid tools, revising with a noisy house. Do not ask it to speak as a real person from a real group. Treat its list of missing people as a first guess, and check it against real people when the decision matters."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your 'whose voice?' card",
+        "title": "Save your whose-voice card",
         "cardType": "Bias-check prompt",
         "fields": [
           {
             "key": "topic",
-            "label": "A topic where people genuinely differ",
-            "placeholder": "e.g. the best way to save money on a tight budget"
+            "label": "A topic where people's lives really differ",
+            "placeholder": "the best way to save money when you have very little"
           },
           {
             "key": "hidden",
             "label": "What the tidy answer might quietly assume",
-            "placeholder": "e.g. steady income, spare cash, reliable internet"
+            "placeholder": "steady money coming in, spare cash, decent internet"
           },
           {
             "key": "count",
-            "label": "How many left-out voices to add",
-            "placeholder": "e.g. 2 — enough to shift the picture, not bury you"
+            "label": "How many missing voices to add",
+            "placeholder": "2 — enough to change the picture, not enough to bury you"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "Do the skill on a new topic",
-        "question": "Pick a brand-new topic, run the prompt, and read both versions. What proves you actually did the skill — not just read about it?",
+        "title": "Do it on a new topic",
+        "question": "Pick a brand-new topic, run the prompt, and read both versions. What proves you actually did this, rather than just reading about it?",
         "options": [
           {
-            "text": "You can name one specific group the first answer left out, say in one sentence what that viewpoint adds, and confirm the rewrite included it (pushing back if it didn't).",
+            "text": "I can name one group the first answer left out, and say in a sentence what changes for them. I checked that the rewrite included them, and pushed back when it did not.",
             "ok": true,
-            "feedback": "Yes. You've done the skill when you can point to the specific person the tidy answer forgot — and get them back into the conversation."
+            "feedback": "Yes. You have done it when you can point at the person the tidy answer forgot, and get them back into the conversation."
           },
           {
-            "text": "The rewrite added two groups, but their needs were described only by the AI and I did not check whether the assumptions were accurate.",
+            "text": "The rewrite added two groups, but everything about them came from the AI and I never checked whether it was right.",
             "ok": false,
-            "feedback": "Adding groups improves coverage, but it can also invent stereotypes. For a consequential decision, check the assumptions with people affected or reliable evidence."
+            "feedback": "Adding groups widens the picture, and it can also invent lazy stereotypes. When the decision matters, check with people who actually live it."
           },
           {
-            "text": "I named one missing group and added a generic sentence saying the choice may be harder for them.",
+            "text": "I named one missing group and added a line saying it is probably harder for them.",
             "ok": false,
-            "feedback": "Naming a group is only the start. Identify the concrete barrier or changed requirement without reducing people to a stereotype."
+            "feedback": "Naming them is the start. Say what the actual obstacle is, without flattening people into a stereotype."
           },
           {
-            "text": "I made every option identical so no group could be disadvantaged.",
+            "text": "I made every option identical, so nobody could be worse off.",
             "ok": false,
-            "feedback": "Identical options can ignore unequal constraints. Fairness may require different ways to reach the same goal."
+            "feedback": "Identical options ignore the fact that people start from different places. Being fair sometimes means different routes to the same goal."
           }
         ]
       }
@@ -3570,131 +3570,131 @@
     "id": "chapter-28",
     "num": 28,
     "arc": "Judgment & Safety",
-    "title": "Scams and Deepfakes",
-    "coreQuestion": "If a familiar voice or face can be faked, how do you confirm an urgent message is really from the person it claims to be?",
-    "blurb": "A voice or face is no longer proof. Verify through a separate channel you already trust.",
+    "title": "When a Voice Is Not Proof",
+    "coreQuestion": "If a familiar voice or face can be faked, how do I check that an urgent message is really from that person?",
+    "blurb": "A voice or a face is no longer proof. Reach the real person a way you already trusted before the message arrived.",
     "minutes": 10,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "The call that sounds exactly right",
-        "scenario": "Your phone rings. It's your grandson's number — his voice, panicked: \"Grandma, it's me, I'm in trouble and need $500 fast. Please don't tell Mom, just send it.\" It sounds like him. Every word.",
-        "prompt": "Before you read on: what would you check to decide if this is really him? Notice if your instinct is to listen harder for something 'off' in the voice."
+        "title": "The message that sounds exactly right",
+        "scenario": "A voice note comes in from your best mate's account. It is their voice, and they sound panicked.\n\n'I'm stuck in town, I've lost my card, can you send me the money for the bus? Right now. Don't tell my mum.'\n\nIt sounds like them. Every word.",
+        "prompt": "What would you check before you send anything? Notice if your first instinct is to listen harder for something odd in the voice."
       },
       {
         "kind": "classify",
-        "title": "Spot the two red flags",
-        "prompt": "Almost every scam carries two signals: URGENCY (act now, no time to think) and a REQUEST for money or private information. Sort each line into what it is.",
+        "title": "Spot the two warning signs",
+        "prompt": "Nearly every scam carries two things: a rush, and an ask for money or private information. Sort each line.",
         "buckets": [
-          "Urgency",
-          "Money / info request"
+          "A rush",
+          "An ask for money or information"
         ],
         "items": [
           {
-            "text": "\"In the next 10 minutes or the deal falls through.\"",
+            "text": "\"In the next 10 minutes or the whole thing falls through.\"",
             "answer": 0
           },
           {
-            "text": "\"Wire $2,000 to this account.\"",
+            "text": "\"Send the money to this account.\"",
             "answer": 1
           },
           {
-            "text": "\"Just send me the login code they texted you.\"",
+            "text": "\"Just send me the code they texted you.\"",
             "answer": 1
           },
           {
-            "text": "\"Don't tell anyone, do it right now.\"",
+            "text": "\"Don't tell anyone, do it now.\"",
             "answer": 0
           },
           {
-            "text": "\"Give me your card number to confirm your identity.\"",
+            "text": "\"Give me your card number so I know it's really you.\"",
             "answer": 1
           },
           {
-            "text": "\"Your account will be frozen if you don't act tonight.\"",
+            "text": "\"Your account gets locked tonight if you do nothing.\"",
             "answer": 0
           }
         ],
-        "reveal": "When you see urgency AND a money-or-info ask together, treat it as a scam until proven otherwise — no matter how real the voice or face seems. Those two flags, not the sound quality, are your signal."
+        "reveal": "When a rush and a money-or-information ask turn up together, treat it as a scam until you have proved otherwise. It does not matter how real the voice or the face seems. Those two signs are what you are watching for, not the sound quality."
       },
       {
         "kind": "reveal",
-        "title": "Verify the channel, not the face",
-        "body": "You can no longer rely on strange hands, odd blinking, or a robotic voice to expose a fake. A deepfake can show a real person doing something that never happened. A voice clone can make a call sound like someone you know. Visual clues may help, but their absence proves nothing.\n\nMove the test away from the media and onto the channel:\n\nSTOP — do not reply, click, or send money.\nREACH — contact the person using a number or account you already trusted before the message arrived.\nCONFIRM — ask something independently agreed, such as a family code word.\n\nIf money moved, contact the bank's official fraud line and your local fraud-reporting authority. If the message creates an immediate safety concern, contact a trusted person or local emergency services.",
-        "mistake": "Listening harder to decide if the voice 'sounds real,' then sending the money because it convinced you.",
-        "good": "Hang up. Call your grandson on the number already saved in your phone — or ask his mother directly — and ask your code word before you do anything."
+        "title": "Check the route, not the face",
+        "body": "Weird hands, strange blinking, a robotic voice. You can no longer count on any of that to give a fake away.\n\nA deepfake is a video made by a computer showing a real person doing something they never did. A cloned voice is the same trick with sound. It can make a message sound exactly like someone you know.\n\nOdd details can be a clue. Not spotting any proves nothing at all.\n\nSo stop testing the message and test the route instead.\n\nSTOP. Do not reply, click, or send money.\n\nREACH. Contact the person using a number or account you already had saved before this arrived.\n\nCONFIRM. Ask something you agreed with them in advance. A code word works well.\n\nIf money has already gone, ring your bank on the number printed on your card, and tell an adult you trust. If anyone seems to be in real danger, contact someone you trust or the emergency services.",
+        "mistake": "Listening harder to decide whether the voice sounds real, then sending the money because it convinced you.",
+        "good": "Stop. Ring your mate on the number already in your phone, or ask someone in their house. Use your code word before you do anything."
       },
       {
         "kind": "workflowChain",
-        "title": "Build your verify-it routine",
-        "goal": "An urgent message from 'someone you know' asks for money or private info. Put your response in order.",
+        "title": "Build your check-it routine",
+        "goal": "An urgent message from 'someone you know' asks for money or private information. Put your response in order.",
         "correct": [
-          "Notice the two red flags: urgency + a money-or-info request",
-          "Stop — hang up or don't reply to the message itself",
-          "Reach the real person on a number or app you already have saved (never the one in the suspicious message)",
-          "Ask your agreed code word only the real person would know",
-          "If money already moved, call your bank's fraud line and report it to the police or local fraud authority"
+          "Notice the two warning signs: a rush, plus an ask for money or information",
+          "Stop. Do not reply to the message itself",
+          "Reach the real person on a number or app you already had saved, never the one in the message",
+          "Ask the code word you agreed in advance, that only they would know",
+          "If money has already gone, ring your bank and tell an adult you trust so it can be reported"
         ],
-        "note": "The whole point: you never judge whether it 'looked real.' You confirm through a channel you already trust. Looking for glitches can be a clue, but it is not a reliable verification method; convincing synthetic voices and faces may contain no obvious flaw."
+        "note": "The whole point is that you never judge whether it looked real. You check by a route you already trusted. Hunting for glitches might give you a clue, but a good fake will not have any."
       },
       {
         "kind": "tryLive",
         "title": "Pressure-test a message with a coach",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use this invented message; do not paste a real suspicious message, link, phone number, login code, bank detail, or person's name: 'I'm stuck and need $500 in ten minutes. Keep this secret.' List the warning signs, then build a verification plan using a separate contact route that existed before the message. Tell me what not to click, send, or reveal.",
-        "note": "Practice on the invented text. If a real message arrives, stop interacting with it. Use a saved contact or an official number you find independently; never use contact details supplied by the suspicious message."
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use this made-up message. Do not paste a real suspicious message, link, phone number, login code, bank detail, or anyone's name: 'I'm stuck and I need money in ten minutes. Keep this between us.' List the warning signs. Then build me a plan to check it using a route that existed before the message. Tell me what not to click, send, or repeat.",
+        "note": "Practise on the made-up message. If a real one arrives, stop replying to it. Use a saved contact, or an official number you find yourself. Never use a number the suspicious message gave you."
       },
       {
         "kind": "toolkitSave",
-        "title": "Save your verify-it plan and code word",
+        "title": "Save your check-it plan and code word",
         "cardType": "Verify-It Plan",
         "fields": [
           {
             "key": "impersonate",
-            "label": "Who a scammer might pretend to be, to me",
-            "placeholder": "e.g. my grandson, my bank, my boss, a delivery service"
+            "label": "Who someone might pretend to be, to me",
+            "placeholder": "my best mate, my mum, my bank, a delivery company"
           },
           {
             "key": "trusted_channel",
-            "label": "The saved contact I'll use to reach the real person",
-            "placeholder": "e.g. my grandson's number saved in my phone; my bank's number printed on my card"
+            "label": "The saved contact I will use to reach the real person",
+            "placeholder": "their number already in my phone; my bank's number printed on the card"
           },
           {
             "key": "code_word",
             "label": "A short, odd code word only real people know",
-            "placeholder": "e.g. \"blue walrus\" — pick something unguessable"
+            "placeholder": "blue walrus — pick something nobody would guess"
           },
           {
             "key": "agree_with",
-            "label": "One real person I'll agree this code word with TODAY",
-            "placeholder": "e.g. text my daughter or tell a neighbor in person, today"
+            "label": "One real person I will agree this code word with today",
+            "placeholder": "text my sister, or tell my mate in person, today"
           }
         ]
       },
       {
         "kind": "exitCheck",
-        "title": "A brand-new scenario",
-        "question": "You get a video call. It looks and sounds exactly like your boss: \"I'm in a meeting — wire $2,000 to this account in the next 10 minutes, and don't message anyone.\" What's your move?",
+        "title": "A brand-new situation",
+        "question": "A video call comes in. It looks and sounds exactly like your football coach. 'I'm in a meeting. Send the tournament money to this account in the next 10 minutes, and don't tell anyone.' What do you do?",
         "options": [
           {
-            "text": "Pause the payment, ask a question only the boss is likely to know, and continue on the same video call if the answer sounds right.",
+            "text": "Hold off on paying and ask something only the coach would know. Carry on with the same video call if the answer sounds right.",
             "ok": false,
-            "feedback": "Pausing is right, but the suspicious channel cannot verify itself. A prepared scammer or model may answer convincingly. Switch channels."
+            "feedback": "Holding off is right. But the suspicious call cannot vouch for itself. Someone prepared will answer convincingly. Change route."
           },
           {
-            "text": "Message a coworker through the same meeting chat to ask whether the request seems normal.",
+            "text": "Message a teammate in the same group chat to ask whether this seems normal.",
             "ok": false,
-            "feedback": "A second opinion helps, but an account or meeting may be compromised. Reach the boss or finance team through a known, separate route."
+            "feedback": "A second opinion helps, but an account or a group chat can itself be taken over. Reach the coach a completely separate way."
           },
           {
-            "text": "Name the two red flags (urgency + payment), then reach the real boss on a number or app you already have saved and ask your code word — without judging whether the video looked real.",
+            "text": "Name the two warning signs, a rush and a payment. Then reach the real coach on a number you already had saved and ask the code word, without judging whether the video looked real.",
             "ok": true,
-            "feedback": "Exactly. You did not rely on the call seeming convincing. You verified through a channel you already trusted."
+            "feedback": "Exactly. You did not rely on how convincing the call was. You checked by a route you already trusted."
           },
           {
-            "text": "Reply to the video call to ask a few questions and see if 'they' answer like your boss would.",
+            "text": "Stay on the call and ask a few questions, to see whether they answer the way the coach would.",
             "ok": false,
-            "feedback": "The suspicious channel can't verify itself — a good clone will answer convincingly. Reach out on an independent contact you already have."
+            "feedback": "The suspicious call cannot check itself. A good fake answers convincingly. Reach out on a contact you already had."
           }
         ]
       }
@@ -3705,77 +3705,77 @@
     "num": 29,
     "arc": "Judgment & Safety",
     "title": "What Is Real Online Now",
-    "coreQuestion": "How do I decide what to trust online when anything could be AI-made?",
-    "blurb": "Stop trusting \"it looks real.\" Run a three-question trust check on who shared it and whether a second source confirms it.",
+    "coreQuestion": "How do I decide what to believe online when anything could have been made by a computer?",
+    "blurb": "Stop trusting how real something looks. Ask who put it out, and whether anyone separate says the same thing.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
-        "title": "The flawless post",
-        "scenario": "You scroll past a photo of a famous politician saying something shocking. The lighting is perfect. The voice matches. Thousands of people are already sharing it, furious. It feels completely real. The next day it turns out none of it happened — the whole clip was generated by AI.",
-        "prompt": "Before you read on: if the clip looked and sounded flawless, what could you have checked to catch it — without relying on how real it looked?"
+        "title": "The perfect clip",
+        "scenario": "You scroll past a clip of a famous politician saying something shocking. The light is right. The voice is right. Thousands of people are already sharing it, furious.\n\nIt feels completely real.\n\nThe next day it turns out none of it happened. A computer made the whole thing.",
+        "prompt": "If the clip looked and sounded perfect, what could you have checked to catch it? Something that has nothing to do with how real it looked."
       },
       {
         "kind": "reveal",
-        "title": "\"Looks real\" stopped being evidence",
-        "body": "Image, audio, and video generators learn patterns from large collections of media and can produce convincing new material. A polished photo, familiar voice, news-style clip, or five-star review can therefore be synthetic, edited, or taken out of context. Appearance alone is weak evidence. Decide how much to trust a consequential claim by tracing the original publisher, checking what evidence it provides, and finding independent confirmation.",
-        "mistake": "Trusting a post because the details are perfect and it feels authentic — treating \"looks real\" as proof.",
-        "good": "Treating every post as possibly AI-made, then checking the source and looking for a second, independent confirmation before you believe or share."
+        "title": "Looking real stopped being proof",
+        "body": "There are now apps that make pictures, voices and video from scratch. They learned from huge collections of real photos, recordings and film. What they produce looks and sounds convincing.\n\nSo a sharp photo can be made up. A familiar voice can be made up. So can a news-style clip or a glowing five-star review. Or it is a real clip with the important part cut off.\n\nHow it looks is very weak proof.\n\nWhen a claim actually matters, ask three things. Who first put it out? What did they show to back it? Does anyone separate report the same thing?",
+        "mistake": "Believing a post because the details are perfect and it feels genuine. Treating 'looks real' as proof.",
+        "good": "Treating anything as possibly computer-made. Then checking who put it out, and finding a second, separate source before you believe it."
       },
       {
         "kind": "classify",
         "title": "Which clue actually helps?",
-        "prompt": "Sort each thing into whether it's real evidence for trusting content, or a weak clue that proves nothing.",
+        "prompt": "Sort each one. Is it real proof, or a weak clue that settles nothing?",
         "buckets": [
-          "Real evidence",
-          "Weak clue / proves nothing"
+          "Real proof",
+          "Weak clue — proves nothing"
         ],
         "items": [
           {
-            "text": "A named, accountable outlet you could hold responsible shared it",
+            "text": "A named news organisation that has to answer for its mistakes published it",
             "answer": 0
           },
           {
-            "text": "The image is sharp, well-lit, and looks completely convincing",
+            "text": "The picture is sharp, well lit, and looks completely convincing",
             "answer": 1
           },
           {
-            "text": "A second, unrelated source independently confirms the same thing",
+            "text": "A second, unconnected source reports the same thing",
             "answer": 0
           },
           {
-            "text": "There's no \"Made with AI\" label on it",
+            "text": "There is no 'Made with AI' label on it",
             "answer": 1
           },
           {
-            "text": "It's designed to make you furious and share it fast",
+            "text": "It is built to make you furious and share it fast",
             "answer": 1
           },
           {
-            "text": "An anonymous account made last month with 12 followers posted it",
+            "text": "An anonymous account made last month, with 12 followers, posted it",
             "answer": 1
           }
         ],
-        "reveal": "Labels and watermarks feel like a safety net — but that's an analogy, not the real thing. Labels get applied inconsistently, watermarks can be cropped or stripped, and plenty of AI media has neither. A label's absence proves nothing, and its presence is just one weak clue. Only two things are real evidence: an accountable source, and independent confirmation. \"It looks real\" and \"engineered to make you furious\" are reasons to slow down, not to trust."
+        "reveal": "Labels and watermarks feel like a safety net. That is a comparison, not the truth. Labels get added inconsistently, watermarks get cropped off, and plenty of computer-made media never had either. No label proves nothing. A label is one weak clue. Only two things count as real proof. Someone with a name who has to answer for it. And a separate source saying the same thing. 'It looks real' and 'it made me furious' are reasons to slow down, not reasons to believe."
       },
       {
         "kind": "workflowChain",
-        "title": "The three-question trust check",
-        "goal": "Run the trust check on something you saw online, in order.",
+        "title": "The three questions",
+        "goal": "Run the check on something you saw online, in order.",
         "correct": [
-          "Who shared it? A named, accountable source you could hold responsible — or an anonymous, brand-new, no-name account?",
-          "Can a second, independent source confirm it? If only one place says it, treat it as unconfirmed — not true.",
-          "Is it built to make you furious or act fast? Content engineered to spike emotion is engineered to skip your judgment.",
-          "Say a one-word verdict — trust, don't trust, or unconfirmed — and the specific reason behind it."
+          "Who put it out? Someone with a name who has to answer for it, or an anonymous account nobody can find?",
+          "Does a second, unconnected source say the same thing? If only one place says it, it is unconfirmed, not true.",
+          "Is it built to make you furious or move fast? Anything designed to spike your feelings is designed to skip your thinking.",
+          "Give it one word — trust it, do not trust it, or unconfirmed — and say exactly why."
         ],
-        "note": "The verdict has to rest on source and verification. \"Anonymous account plus no second source confirms it\" is a real reason. \"It looked real\" and \"there's no AI label\" are not."
+        "note": "Your reason has to be about who put it out and whether anyone else backs it. 'An anonymous account, and nothing else says it' is a real reason. 'It looked real' and 'there is no AI label' are not."
       },
       {
         "kind": "tryLive",
         "title": "Run it on your own example",
-        "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public post or describe it without usernames, private messages, faces of private people, or location details. Help me evaluate this claim: [plain description]. Separate (1) who published it and whether they are accountable, (2) what a second independent source says, and (3) what remains unconfirmed. Do not judge truth from appearance or an AI label.",
-        "note": "Choose a public headline, advertisement, or widely shared claim—not a private group-chat post. Open the original publisher and an independent source yourself. If the content asks for money, private information, or urgent action, stop and verify the sender through a route you already trust."
+        "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use a public post, or describe it without usernames, private messages, faces of ordinary people, or where it was taken. Help me weigh up this claim: [describe it plainly]. Separate three things: (1) who published it and whether they have to answer for it, (2) what a second, unconnected source says, and (3) what is still unconfirmed. Do not judge it by how it looks or by whether it has an AI label.",
+        "note": "Pick a public headline, an advert, or a widely shared claim. Not a post from a private group chat. Open the original and the second source yourself. If it asks for money, private information, or urgent action, stop and check the sender by a route you already trust."
       },
       {
         "kind": "toolkitSave",
@@ -3785,49 +3785,49 @@
           {
             "key": "content",
             "label": "What I saw",
-            "placeholder": "e.g. a viral \"breaking news\" clip in a group chat"
+            "placeholder": "a shocking 'breaking news' clip in a group chat"
           },
           {
             "key": "source",
-            "label": "Who shared it (accountable?)",
-            "placeholder": "e.g. anonymous account, made last month, 12 followers"
+            "label": "Who put it out, and can they be held to it?",
+            "placeholder": "anonymous account, made last month, 12 followers"
           },
           {
             "key": "confirm",
-            "label": "Second independent source?",
-            "placeholder": "e.g. no major outlet or fact-check page mentions it"
+            "label": "Does anyone unconnected say it too?",
+            "placeholder": "no news site or fact-check page mentions it"
           },
           {
             "key": "verdict",
-            "label": "Verdict + reason",
-            "placeholder": "e.g. Unconfirmed — one anonymous source, nothing else confirms it"
+            "label": "Verdict and reason",
+            "placeholder": "Unconfirmed — one anonymous account, nothing else backs it"
           }
         ]
       },
       {
         "kind": "exitCheck",
         "title": "Give the verdict",
-        "question": "A friend hands you a brand-new forwarded photo you've never analyzed. You give a verdict. Which answer shows you've got the skill?",
+        "question": "A friend forwards you a photo you have never looked at before. You give your verdict. Which answer shows you have the skill?",
         "options": [
           {
-            "text": "\"Don't trust it yet — unconfirmed. It came from a no-name account and no second, independent source confirms it.\"",
+            "text": "\"Do not trust it yet. Unconfirmed. It came from an account nobody can trace, and nothing unconnected backs it up.\"",
             "ok": true,
-            "feedback": "Yes. Your reason is about source and verification, and you gave a clear verdict — exactly the check."
+            "feedback": "Yes. Your reason is about who put it out and whether anyone else confirms it, and you gave a clear verdict."
           },
           {
-            "text": "\"Probably real: a known outlet reposted it, although I have not found the original report yet.\"",
+            "text": "\"Probably real. A news site I know reposted it, though I have not found the original report.\"",
             "ok": false,
-            "feedback": "A known outlet is useful evidence, but a repost can still be wrong or stripped of context. Keep the verdict provisional until you open the underlying report or confirmation."
+            "feedback": "A known site helps. But a repost can still be wrong, or have the important context cut off. Hold the verdict until you open the original."
           },
           {
-            "text": "\"Unconfirmed, but safe to share if I label it 'might be true.'\"",
+            "text": "\"Unconfirmed, but fine to pass on as long as I write 'might be true' on it.\"",
             "ok": false,
-            "feedback": "A warning label does not undo the spread or harm. If the consequential claim is unconfirmed, pause sharing."
+            "feedback": "A warning label does not undo the spread. If a claim that matters is unconfirmed, do not pass it on yet."
           },
           {
-            "text": "\"Two accounts repeat it, so that counts as two independent sources.\"",
+            "text": "\"Two accounts posted it, so that is two separate sources.\"",
             "ok": false,
-            "feedback": "Two accounts may copy the same original claim. Independence means separate reporting or evidence, not repetition."
+            "feedback": "Two accounts may be copying the same original. Separate means their own reporting or their own evidence, not a repeat."
           }
         ]
       }
@@ -3839,71 +3839,71 @@
     "arc": "Judgment & Safety",
     "title": "When NOT to Use AI",
     "coreQuestion": "When should I put AI down instead of reaching for it?",
-    "blurb": "Skilled use of AI is also knowing the moments to stop using it.",
+    "blurb": "Being good with AI includes knowing the moments to close it.",
     "minutes": 9,
     "resources": [],
     "steps": [
       {
         "kind": "coldOpen",
         "title": "The question in the chat box",
-        "scenario": "It's late. You type a real, heavy decision into a chat box: whether to stop a medication because of a side effect. The AI answers instantly, calmly, in clean paragraphs. It sounds sure. Your finger hovers over 'send' on the next question.",
-        "prompt": "Before you read on: the AI can produce an answer here. Does that mean it should be the thing you rely on to decide?"
+        "scenario": "It is late. You type something heavy into a chat box: whether to stop taking a medicine because of how it is making you feel.\n\nThe answer arrives instantly. Calm, tidy paragraphs. It sounds sure of itself.\n\nYour finger hovers over the next question.",
+        "prompt": "It can produce an answer here. Does that make it the thing you should rely on to decide?"
       },
       {
         "kind": "reveal",
-        "title": "Capable is not the same as accountable",
-        "body": "Skilled AI use includes knowing when to close it. Stop in three situations:\n\n1. The stakes are high and no qualified human will check the answer — health, money, safety, legal standing, or another person's trust.\n2. The work is the learning — an exam, a skill, or original thinking you need to be able to do yourself.\n3. The need is human — professional accountability, emotional care, or a relationship with someone who knows you.\n\nAI can help you understand options or prepare questions. It should not make the consequential decision. Capable is not the same as accountable.\n\nIf you feel unsafe, in crisis, or at risk of hurting yourself or someone else, stop using the AI and contact a trusted person, local emergency services, or a crisis line. In the United States and its territories, call or text 988.",
-        "mistake": "Thinking: 'If AI CAN answer it, I SHOULD use it.' Being able to produce an answer is not the same as being the right thing to rely on.",
-        "good": "Ask first: is this high-stakes, something I must learn myself, or something that needs a real professional or a real person? If yes, AI informs — a human decides."
+        "title": "Able to answer is not the same as answerable",
+        "body": "Being good with AI includes knowing when to close it. Stop in three situations.\n\n1. It really matters and nobody qualified is going to check the answer. Health, money, safety, the law, or somebody else trusting you.\n\n2. The work is the learning. An exam, a skill, or thinking you need to be able to do yourself.\n\n3. What is needed is a person. Someone who is answerable for the advice, someone who can care about you, or someone who actually knows you.\n\nAI can help you understand your options, or get your questions ready. It should not make the decision that carries the weight. Being able to produce an answer is not the same as being answerable for it.\n\nIf you feel unsafe, or like you might hurt yourself or someone else, close the app. Go to someone you trust, your local emergency number, or a crisis line. In the United States, call or text 988.",
+        "mistake": "Thinking: if it can answer, I should ask it. Producing an answer is not the same as being the right place to get one.",
+        "good": "Ask first: does this really matter, is it something I need to learn myself, or does it need a real professional? If yes, AI can help you prepare. A person decides."
       },
       {
         "kind": "classify",
         "title": "Sort each decision",
-        "prompt": "Drop each real decision into the bucket that fits. Ask: can I lean on AI here, or does this need a human?",
+        "prompt": "Put each one where it belongs. Ask yourself: can I lean on AI here, or does this need a person?",
         "buckets": [
           "AI is fine here",
-          "Don't lean on AI — bring in a real professional or person"
+          "Do not lean on AI — bring in a real person"
         ],
         "items": [
           {
-            "text": "Draft a fun caption for a photo of my dog",
+            "text": "Write a funny caption for a photo of my dog",
             "answer": 0
           },
           {
-            "text": "Decide whether to stop a prescribed medication because of a side effect",
+            "text": "Decide whether to stop taking a medicine I was prescribed",
             "answer": 1
           },
           {
-            "text": "Brainstorm names for a weekend hiking group",
+            "text": "Come up with names for a weekend walking group",
             "answer": 0
           },
           {
-            "text": "Decide whether this apartment lease's early-exit clause is fair to sign",
+            "text": "Decide whether the small print on a paid subscription lets them keep charging me",
             "answer": 1
           },
           {
-            "text": "Rewrite my grocery list into a tidier format",
+            "text": "Tidy my shopping list into something I can read in the shop",
             "answer": 0
           },
           {
-            "text": "Talk me through a night where I feel unsafe and like I might hurt myself",
+            "text": "Talk me through a night where I feel unsafe and might hurt myself",
             "answer": 1
           }
         ],
-        "reveal": "The 'AI is fine' items are low-stakes and reversible. The others are high-stakes or need a licensed professional — a doctor or pharmacist for the medication, a tenant or legal advisor for the lease. And the last one is not an AI moment at all: reach a real person you trust, your local emergency number, or a crisis line (in the US, 988) right away. An AI is not a friend or a therapist, even when it sounds caring."
+        "reveal": "The 'fine' ones cost nothing if they go wrong, and you can undo them. The others matter a lot, or need someone qualified. A doctor or pharmacist for the medicine. An adult, or a consumer advice service, for the small print. The last one is not an AI moment at all. Reach a real person you trust, your emergency number, or a crisis line. In the US, 988. AI is not a friend and not a counsellor, however caring it sounds."
       },
       {
         "kind": "workflowChain",
-        "title": "Build the stop-and-handoff move",
-        "goal": "A made-up worker is unsure whether an injury means they should return to a physical shift tomorrow. Put the safe response in order without collecting medical details.",
+        "title": "Build the stop-and-hand-over move",
+        "goal": "A made-up player is not sure whether their knee is well enough to play tomorrow. Put the safe response in order, without typing any medical details anywhere.",
         "correct": [
-          "Name the stakes: health, safety, income, and a decision that could cause harm",
-          "Stop before asking AI for a diagnosis or a final return-to-work decision",
-          "Choose the accountable human: a clinician, workplace safety contact, or another appropriate professional",
-          "Use AI only to draft neutral questions or organize already-safe information, without names or private health details",
-          "Take those questions to the human and keep the final decision with the qualified people involved"
+          "Name what is at stake: their health, their safety, and a choice that could make things worse",
+          "Stop before asking AI what is wrong with the knee, or whether to play",
+          "Pick the person who is answerable: a doctor, a physio, or the club's first-aid lead",
+          "Use AI only to write down neutral questions, with no names and no medical details",
+          "Take those questions to that person, and leave the decision with the people qualified to make it"
         ],
-        "note": "This built-in scenario is enough; no personal disclosure or external AI is required. If a real situation is urgent or unsafe, contact a trusted person, relevant professional, or emergency service now."
+        "note": "This made-up situation is enough on its own. You do not need to share anything about yourself, and you do not need an outside app. If a real situation is urgent, contact someone you trust, the right professional, or emergency services now."
       },
       {
         "kind": "toolkitSave",
@@ -3912,45 +3912,45 @@
         "fields": [
           {
             "key": "highStakes",
-            "label": "High-stakes, no human check",
-            "placeholder": "A decision where being wrong really hurts and no qualified person ever looks at it — e.g. changing a medication on my own."
+            "label": "Matters a lot, and nobody checks",
+            "placeholder": "Being wrong really hurts and no qualified person ever sees it — changing a medicine on my own."
           },
           {
             "key": "mustLearn",
-            "label": "Things I must learn myself",
-            "placeholder": "A skill, exam, or my own original thinking — e.g. the homework I'll actually be tested on."
+            "label": "Things I have to learn myself",
+            "placeholder": "A skill, an exam, my own thinking — the homework I will actually be tested on."
           },
           {
             "key": "needsHuman",
-            "label": "Needs a real professional or person",
-            "placeholder": "Legal, medical, money, safety — name WHICH human, e.g. a pharmacist, a tenant advisor, a doctor."
+            "label": "Needs a real professional",
+            "placeholder": "Health, money, the law, safety — name which person: a pharmacist, a doctor, an adult I trust."
           },
           {
             "key": "safetyLine",
-            "label": "Never-erase safety line",
-            "placeholder": "If I feel unsafe or in crisis, that's not an AI moment: reach a trusted person, my emergency number, or a crisis line (US: 988) right away."
+            "label": "The line I never rub out",
+            "placeholder": "If I feel unsafe, that is not an AI moment. Someone I trust, my emergency number, or a crisis line (US: 988), straight away."
           }
         ]
       },
       {
         "kind": "exitCheck",
         "title": "Test it on a fresh decision",
-        "question": "Pick a NEW decision you haven't discussed here (not the lease or the medication). To show your stop-list works, what do you do with it?",
+        "question": "Pick a new decision we have not talked about here. Not the medicine, not the subscription. What do you do with your stop-list?",
         "options": [
           {
-            "text": "Put it in one bucket ('AI fine,' 'AI plus a human check,' or 'needs a real professional — not AI'); for the last two, name WHICH human and why; and say the one part I'll keep for myself no matter what the AI says.",
+            "text": "Put it in one of three places: AI is fine, AI plus a person checking, or a real professional and not AI. For the last two, name which person and why. Then say the one part I keep for myself whatever the AI says.",
             "ok": true,
-            "feedback": "That's the skill: sort it, name the human, and hold onto the part that's yours. If you can do all three on a fresh example without looking back, your stop-list is working."
+            "feedback": "That is the skill. Sort it, name the person, hold on to your part. Doing all three on a fresh example without looking back means your stop-list works."
           },
           {
-            "text": "Use AI to organize the options, then make the final call myself because I understand my situation best.",
+            "text": "Use AI to lay out the options, then make the final call myself, because I understand my own situation best.",
             "ok": false,
-            "feedback": "Keeping agency matters, but some decisions also need qualified accountability. Use AI to prepare, then involve the right human before deciding."
+            "feedback": "Staying in charge matters. Some decisions still need someone qualified who is answerable for the advice. Prepare with AI, then bring that person in."
           },
           {
-            "text": "Ask three AI systems, compare their advice, and act if most of them agree.",
+            "text": "Ask three different AI apps, compare the answers, and go with whatever most of them say.",
             "ok": false,
-            "feedback": "A majority of models is not professional accountability or independent evidence. High-stakes choices still need the right person."
+            "feedback": "Three guessers agreeing is not the same as one qualified person. Big decisions still need the right human."
           }
         ]
       }

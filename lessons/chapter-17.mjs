@@ -7,7 +7,7 @@ export default {
   "arc": "Trust & Everyday AI",
   "title": "AI Is Already in Your Apps",
   "coreQuestion": "Where is AI quietly shaping what an app shows me, and what should change how much I trust it?",
-  "blurb": "Spot the quiet AI bits in apps you already use, read what the app itself says they do, and check harder when a mistake would cost you.",
+  "blurb": "Spot the quiet AI bits in apps you already use. Read what the app itself says they do. Check harder when a mistake would cost you.",
   "minutes": 9,
   "resources": [],
   "steps": [
@@ -51,7 +51,7 @@ export default {
           "answer": 1
         }
       ],
-      "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you: what the feature does, what it can see, and what a mistake would cost."
+      "reveal": "A label, a slick animation, or a confident guess tells you nothing about how one feature works. The app's own help page, the settings you can see, and your school's rules are far stronger. Even then, stay on the choice in front of you. What does the feature do? What can it see? What would a mistake cost?"
     },
     {
       "kind": "reveal",
@@ -119,7 +119,7 @@ export default {
       "question": "A writing app quietly rewrites a sentence in a message to your teacher. Which response shows the whole skill?",
       "options": [
         {
-          "text": "I find the rewrite setting, read what it says it does, reread the changed sentence because this message matters, and undo it if the meaning shifted.",
+          "text": "I find the rewrite setting and read what it says it does. Then I reread the changed sentence, because this message matters, and undo it if the meaning shifted.",
           "ok": true,
           "feedback": "Yes. You used what you could actually see, checked harder because it mattered, and kept a way to undo it."
         },

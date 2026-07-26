@@ -6,108 +6,108 @@ export default {
   "num": 24,
   "arc": "Prompting Craft",
   "title": "Get It to Teach You",
-  "coreQuestion": "How do I use AI to actually learn a topic instead of just getting an answer I forget by tomorrow?",
-  "blurb": "Turn an answer-dump into a step-by-step lesson, then prove you learned it by explaining it back.",
+  "coreQuestion": "How do I use AI to actually learn something, instead of getting an answer I forget by tomorrow?",
+  "blurb": "Turn a wall of answer into a lesson in small steps, then prove it stuck by saying it back.",
   "minutes": 10,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
       "title": "You had the answer an hour ago",
-      "scenario": "You asked an AI to explain how credit-card interest builds up. It gave you a clean, correct paragraph. You nodded, closed the tab, felt sorted. An hour later a friend asks you the same thing — and you can't actually say it. You had the answer. It just never made it into your head.",
-      "prompt": "Before you read on: if you can't re-explain something an hour later, did you really learn it — or did you just watch it go by?"
+      "scenario": "You asked an AI to explain how interest works when someone borrows money. It gave you a neat, correct paragraph. You nodded and closed the tab.\n\nAn hour later a friend asks you the same thing. You open your mouth and nothing comes out.\n\nYou had the answer. It never made it into your head.",
+      "prompt": "If you cannot explain it an hour later, did you learn it? Or did you just watch it go past?"
     },
     {
       "kind": "classify",
-      "title": "Answer-dump or learning?",
-      "prompt": "Two things look the same on screen but land very differently. An ANSWER-DUMP is the full correct result handed to you in one block — nothing sticks. LEARNING is when the idea ends up in your head so you can say it back later. Sort each moment.",
+      "title": "Answer dump, or learning?",
+      "prompt": "Two things look identical on screen and land completely differently. An answer dump is the whole finished result handed to you in one block. Learning is when the idea ends up in your head, so you can say it back later. Sort each moment.",
       "buckets": [
-        "Answer-dump",
+        "Answer dump",
         "Learning"
       ],
       "items": [
         {
-          "text": "AI writes three tidy paragraphs; you copy them and move on.",
+          "text": "AI writes three tidy paragraphs. You copy them and move on.",
           "answer": 0
         },
         {
-          "text": "AI teaches one small step, then pauses to check you followed.",
+          "text": "AI teaches one small step, then stops to check you followed it.",
           "answer": 1
         },
         {
-          "text": "You read a perfect explanation but can't repeat it an hour later.",
+          "text": "You read a perfect explanation and cannot repeat it an hour later.",
           "answer": 0
         },
         {
-          "text": "You say the whole idea back in your own words from memory.",
+          "text": "You say the whole idea back in your own words, without looking.",
           "answer": 1
         },
         {
-          "text": "You get the right result fast and assume that means you learned it.",
+          "text": "You got the right answer fast, so you assume you learned it.",
           "answer": 0
         }
       ],
-      "reveal": "Speed and correctness are not the same as understanding. Having the answer and understanding the answer are two different things — and only one of them is still there tomorrow."
+      "reveal": "Fast and correct is not the same as understood. Having the answer and understanding the answer are two different things. Only one of them is still there tomorrow."
     },
     {
       "kind": "reveal",
       "title": "Make it teach you, then check you",
-      "body": "Remember the core idea: AI predicts the most likely next words from patterns in huge amounts of human writing. Because it has seen countless explanations, it can walk you through an idea one small step at a time and check your wording against those patterns. It's natural to call this 'having a tutor,' and that comparison is useful — but here's what's really happening: the AI isn't a person who knows you or cares whether you pass. It predicts helpful-sounding next words, which means it can also state something wrong with total confidence. That is exactly why the explain-back step matters. You're not trusting it to pour knowledge in — you're using it to surface what's still fuzzy in your own head, and YOU stay the judge of whether the explanation is right.",
-      "mistake": "Ask for the answer, read it, feel done — and confuse 'I saw a good explanation' with 'I understand this.'",
-      "good": "Ask it to teach in small steps, pause and check you after each one, then explain the whole idea back in your own words and let it flag the one part you got wrong."
+      "body": "Remember what it is doing. It has read an enormous amount of human writing, and it guesses the words that usually come next.\n\nIt has seen countless explanations. So it can walk you through an idea one small step at a time. It can also spot when your version sounds off.\n\nIt is natural to call that having a tutor. That comparison is useful. Here is what is really going on, though. It is not a person. It does not know you and it does not care whether you pass. It guesses helpful-sounding words, which means it can say something wrong with total confidence.\n\nThat is exactly why you say it back. You are not trusting it to pour knowledge into you. You are using it to find the bits that are still fuzzy in your own head. You stay the judge of whether the explanation is right.\n\nThis is also where the line sits. 'Do my homework for me' hands over the part that was meant to teach you. 'I am stuck on question 4, walk me through it' keeps the learning and still gets you moving.",
+      "mistake": "Ask for the answer, read it, feel finished. Then confuse 'I saw a good explanation' with 'I understand this'.",
+      "good": "Ask it to teach in small steps and stop after each one. Then say the whole thing back in your own words and let it flag the part you got wrong."
     },
     {
       "kind": "tryLive",
       "title": "Run the teaching loop",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use a public, low-stakes topic and do not paste private schoolwork, names, grades, account details, or another person's information. I want to understand [topic], not just get an answer. Teach one small step, pause for my reply, and continue only after I try. At the end, ask me to explain it back, flag one gap, and give me a way to verify the important fact outside this chat.",
-      "note": "Try a phone setting, card-game rule, bike adjustment, cooking technique, or basic money concept using invented numbers. Explain it back without scrolling. A correction from AI is not automatically true—verify a consequential claim with instructions, a calculator, or a trustworthy independent source."
+      "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Pick a public, low-stakes topic. Do not paste private schoolwork, names, grades, account details, or anything about another person. I want to understand [topic], not just get an answer. Teach me one small step, then stop and wait for my reply. Carry on only after I have had a go. At the end, ask me to explain it back, point out one gap, and tell me how to check the important fact somewhere outside this chat.",
+      "note": "Good topics: a setting on your phone, a rule in a card game, how gears work on a bike, why bread rises, how interest works using made-up numbers. Explain it back without scrolling up. A correction from AI is not automatically true. If the fact matters, check it against instructions, a calculator, or a source that actually knows."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your tutor prompt",
+      "title": "Save your teach-me prompt",
       "cardType": "Teach-Me Loop",
       "fields": [
         {
           "key": "topic",
-          "label": "Topic to actually understand",
-          "placeholder": "how credit-card interest adds up month to month"
+          "label": "What I want to actually understand",
+          "placeholder": "how interest grows on borrowed money, month by month"
         },
         {
           "key": "level",
-          "label": "Your starting level",
-          "placeholder": "complete beginner — know what a credit card is but nothing about interest"
+          "label": "Where I am starting from",
+          "placeholder": "total beginner — I know what borrowing is, nothing about interest"
         },
         {
           "key": "checkStep",
           "label": "The check that makes it stick",
-          "placeholder": "pause after each step; explain the whole idea back from memory at the end"
+          "placeholder": "stop after each step, then say the whole thing back from memory"
         }
       ]
     },
     {
       "kind": "exitCheck",
       "title": "Prove it on a brand-new topic",
-      "question": "Pick a topic you haven't touched today — a setting on your phone, a rule in a card game, why bread rises. Run the teaching loop, then close your eyes and explain the finished idea back in your own words from memory. What tells you it worked?",
+      "question": "Pick something you have not touched today. A setting on your phone, a rule in a card game, why bread rises. Run the teaching loop, then look away from the screen and say the finished idea back in your own words. What tells you it worked?",
       "options": [
         {
-          "text": "I explained it back correctly from memory — either first try or after fixing the one part it flagged.",
+          "text": "I said it back correctly from memory, either first go or after fixing the one bit it flagged.",
           "ok": true,
-          "feedback": "That's the win. The correction, or a clean first-try recall, means the idea is in your head — not just on your screen."
+          "feedback": "That is the win. Saying it back without looking means the idea is in your head, not just on your screen."
         },
         {
-          "text": "The AI's written explanation looked complete and correct, so I'm done.",
+          "text": "The explanation on screen looked complete and correct, so I am done.",
           "ok": false,
-          "feedback": "A perfect explanation on screen is still an answer-dump. You only pass when YOU can say it back without peeking."
+          "feedback": "A perfect explanation on screen is still a dump. You pass when you can say it back without peeking."
         },
         {
-          "text": "I couldn't say it back without scrolling up to reread.",
+          "text": "I could not say it back without scrolling up to reread it.",
           "ok": false,
-          "feedback": "That means you got an answer-dump, not learning. Run the loop again — the explain-back step is where it sticks."
+          "feedback": "That was a dump, not learning. Run the loop again. Saying it back is the part that makes it stick."
         },
         {
           "text": "I got the answer really fast, so I definitely learned it.",
           "ok": false,
-          "feedback": "Fast and correct isn't the same as understood. Test it by explaining it back from memory tomorrow."
+          "feedback": "Fast and correct is not the same as understood. Test it by explaining it tomorrow, from memory."
         }
       ]
     }

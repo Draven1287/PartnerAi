@@ -6,91 +6,91 @@ export default {
   "num": 25,
   "arc": "Prompting Craft",
   "title": "Make the Answer Checkable",
-  "coreQuestion": "How do I ask for evidence I can inspect without pretending the AI can reveal its private thoughts?",
-  "blurb": "Ask for the assumptions, evidence, calculations, and checks behind an answer — then verify one yourself.",
+  "coreQuestion": "How do I ask for working I can actually look at, without pretending the AI can show me its private thoughts?",
+  "blurb": "Ask for what it assumed, where the facts came from, and the sums it did. Then check one of them yourself.",
   "minutes": 9,
   "resources": [],
   "steps": [
     {
       "kind": "coldOpen",
-      "title": "Just a number",
-      "scenario": "You ask an AI which phone plan is cheaper over a year. It replies: \"Plan B is cheaper.\" No math, no working — just a verdict. It sounds confident. But you have no idea how it got there, or whether it added anything up correctly.",
-      "prompt": "Before you read on: if the verdict is wrong, could you tell? What concrete information would make it possible to check?"
+      "title": "Just a verdict",
+      "scenario": "You ask an AI which phone deal costs less over a year. It replies: 'Plan B is cheaper.'\n\nNo sums. No working. Just the verdict.\n\nIt sounds sure of itself. You have no idea how it got there, or whether it added anything up correctly.",
+      "prompt": "If that verdict is wrong, could you tell? What would it need to show you before you could check?"
     },
     {
       "kind": "reveal",
       "title": "Ask for an audit trail, not private thoughts",
-      "body": "AI assistants may do internal processing that you cannot see, and a polished explanation written afterward is not a recording of that private process. So do not ask the system to prove itself by revealing what is inside. Ask for checkable work instead: the facts it used, assumptions it made, calculation it performed, source it relied on, uncertainty it noticed, and a short way to test the result. Those items can still be wrong, but they give you handles for inspection. Your goal is not to watch the AI think. Your goal is to make the answer auditable enough for you to decide whether to rely on it.",
-      "mistake": "\"It gave a detailed explanation, so the answer must be right.\" Detail can make a mistake sound more convincing.",
-      "good": "Request checkable artifacts, then independently test the part that matters most."
+      "body": "An audit trail just means the working, laid out where you can look at it.\n\nHere is the catch. These apps may do things inside that nobody can see. A tidy explanation written afterwards is not a recording of that. It is more writing.\n\nSo do not ask it to prove itself by showing you what is going on inside. Ask for working you can check.\n\nThe facts it used. What it assumed. The sums it did. Where each fact came from. Anything it is unsure about. One quick way for you to test the result.\n\nAll of that can still be wrong. But now you have something to grab hold of.\n\nYour goal is not to watch it think. Your goal is to make the answer open enough that you can decide whether to trust it.",
+      "mistake": "'It gave a really detailed explanation, so it must be right.' Detail makes a mistake sound more convincing, not less.",
+      "good": "Ask for the working you can check. Then test the part that matters most, yourself."
     },
     {
       "kind": "workflowChain",
-      "title": "The answer-audit move",
-      "goal": "Turn a verdict into a short set of claims you can inspect, then actually inspect one",
+      "title": "Open up the answer",
+      "goal": "Turn a bare verdict into a few claims you can look at, then actually look at one",
       "correct": [
-        "Give the real numbers, facts, goal, and limits so the assistant does not have to invent missing context",
-        "Ask for a concise answer plus its assumptions, evidence or sources, and calculations",
-        "Ask it to separate what is known from what is estimated or uncertain",
-        "Choose the claim that would most affect your decision and ask: \"What supports this, and how can I check it?\"",
-        "Verify that claim with your own calculation or an independent, trustworthy source before relying on the answer"
+        "Give it the real numbers, the goal, and the limits, so it does not have to invent the missing bits",
+        "Ask for a short answer plus what it assumed, where the facts came from, and the sums",
+        "Ask it to say which parts it knows and which parts it is guessing at",
+        "Pick the one claim that would change your decision most, and ask what backs it up",
+        "Check that claim yourself, with your own maths or a source you trust, before you rely on it"
       ],
-      "note": "An uncertainty label is only a clue about where to inspect. It is not proof. The independent check is the evidence."
+      "note": "When it says it is unsure, that is a hint about where to look. It is not proof of anything. The check you do yourself is the proof."
     },
     {
       "kind": "compare",
-      "title": "Flat verdict vs. checkable answer",
-      "weak": "Q: \"Plan A is $30/month, no setup fee. Plan B is $22/month plus a one-time $90 setup fee. Which is cheaper over one year?\" A: \"Plan B is cheaper.\"",
-      "strong": "Same question, but: \"Give the total for each plan, list the assumptions you used, show the arithmetic, and give me one quick independent check. Keep it concise.\" A: \"Assumption: 12 months and the setup fee is charged once. Plan A: 30 x 12 = $360. Plan B: 22 x 12 + 90 = $354. Plan B is $6 cheaper. Check: recalculate 22 x 12 separately and confirm the fee is one-time.\"",
-      "why": "The flat verdict might be right, but it gives you nothing to inspect. The checkable answer exposes the exact assumptions and arithmetic without claiming to reveal the model's private thoughts."
+      "title": "Bare verdict, or working you can see",
+      "weak": "Q: 'Plan A is $30 a month with nothing to join. Plan B is $22 a month plus a one-off $90 joining fee. Which costs less over a year?' A: 'Plan B is cheaper.'",
+      "strong": "Same question, plus: 'Give the total for each one, say what you assumed, show the sums, and give me one quick way to check it myself. Keep it short.' A: 'Assuming 12 months and the joining fee is charged once. Plan A: 30 x 12 = $360. Plan B: 22 x 12 + 90 = $354. Plan B is $6 less. Check: work out 22 x 12 on your own, and confirm the fee really is one-off.'",
+      "why": "The bare verdict might be right. It just gives you nothing to check. The second one puts the assumptions and the sums where you can see them, without pretending to show you anything hidden."
     },
     {
       "kind": "tryLive",
       "title": "Run it on a real question",
-      "prompt": "This optional step uses an external assistant, so anything entered leaves LearningAI. Use invented or redacted numbers; do not enter account numbers, receipts with names, addresses, or another person's private information. Answer using only the information I provide. Give me: (1) a concise answer, (2) assumptions, (3) evidence or arithmetic for important claims, (4) uncertainty, and (5) one independent check: [question and safe facts]",
-      "note": "Choose something inspectable: compare two made-up phone plans, divide an invented dinner bill, estimate paint, or check a game score. Include enough context to avoid guessing, then verify the most consequential calculation yourself."
+      "prompt": "This optional step uses an outside app, so anything you type leaves LearningAI. Use made-up numbers. Do not enter account numbers, receipts with names on, addresses, or anything private about another person. Answer using only the information I give you. Give me: (1) a short answer, (2) what you assumed, (3) the sums or the sources behind the important bits, (4) anything you are unsure about, and (5) one way I can check it myself: [your question and safe facts]",
+      "note": "Pick something you can actually check: two made-up phone deals, splitting a bill between friends, working out how much paint a wall needs, adding up a game score. Give it enough detail that it does not have to guess. Then check the sum that matters most, yourself."
     },
     {
       "kind": "toolkitSave",
-      "title": "Save your answer-audit line",
+      "title": "Save your open-up-the-answer line",
       "cardType": "Reusable prompt",
       "fields": [
         {
           "key": "trigger",
-          "label": "When I'll use it",
-          "placeholder": "A calculation, comparison, recommendation, or claim that could change a real decision"
+          "label": "When I will use it",
+          "placeholder": "Any sum, comparison, or recommendation that could change a real decision"
         },
         {
           "key": "line",
           "label": "The line I paste",
-          "placeholder": "Give the assumptions, evidence or arithmetic, uncertainty, and one independent way to check the result."
+          "placeholder": "Show what you assumed, the sums or sources, anything you are unsure of, and one way I can check it."
         },
         {
           "key": "mymove",
-          "label": "What I do after",
-          "placeholder": "Verify the most consequential claim using my own calculation or a trustworthy outside source"
+          "label": "What I do next",
+          "placeholder": "Check the claim that matters most, using my own maths or a source I trust"
         }
       ]
     },
     {
       "kind": "exitCheck",
-      "title": "Did you audit the answer?",
-      "question": "You ran the answer-audit prompt on a fresh question. What makes this a pass?",
+      "title": "Did you actually check it?",
+      "question": "You ran the open-up-the-answer prompt on a fresh question. What counts as a pass?",
       "options": [
         {
-          "text": "The AI gave a detailed explanation and an uncertainty label, so I trusted its final answer.",
+          "text": "It gave a long, detailed explanation and said it was fairly confident, so I trusted the answer.",
           "ok": false,
-          "feedback": "Detail and self-rated uncertainty are not independent evidence. You still need to test an important claim yourself."
+          "feedback": "Detail and its own confidence are not proof of anything. You still need to test one important claim yourself."
         },
         {
-          "text": "I identified the claim that mattered most, checked it with my own calculation or a trustworthy outside source, and can explain whether that check supported the answer.",
+          "text": "I picked out the claim that mattered most and checked it with my own maths, or a source I trust. I can say whether that check backed the answer up.",
           "ok": true,
-          "feedback": "That's the skill. You made the answer inspectable, then used evidence outside the answer to decide whether it deserved trust."
+          "feedback": "That is the skill. You opened the answer up, then used something outside it to decide whether it deserved your trust."
         },
         {
-          "text": "I asked the AI to check its own answer a second time and it said the answer was correct.",
+          "text": "I asked it to check its own answer again, and it said the answer was correct.",
           "ok": false,
-          "feedback": "A second AI answer is not an independent check. Use your own calculation or a separate trustworthy source."
+          "feedback": "A second answer from the same place is not an outside check. Use your own maths, or a separate source you trust."
         }
       ]
     }

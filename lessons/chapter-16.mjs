@@ -62,7 +62,7 @@ export default {
       "kind": "tryLive",
       "title": "Ask for the source AND the exact sentence",
       "prompt": "Answer this question: [question]. Then give me the single best source for it, the exact sentence from that source that backs it up, and a link, or the title, writer and date. Keep it to [number] source(s). I am going to open it and check that it really says this, so do not invent anything. If you are not sure a real source exists, say so instead.",
-      "note": "For [question], pick one specific fact that should have a real, findable source. For example: 'How much water should an adult drink in a day, and which health body says so?' For [number], start with one. Use two if you want a second opinion. Then actually open it and run the three checks."
+      "note": "For [question], pick one specific fact that should have a real, findable source. Something like: how much water should an adult drink in a day, and who says so? For [number], start with one. Use two if you want a second opinion. Then actually open it and run the three checks."
     },
     {
       "kind": "toolkitSave",
@@ -102,7 +102,7 @@ export default {
           "feedback": "The AI's own word is not the check. The win is you reaching a verdict by opening the source, whatever that verdict turns out to be."
         },
         {
-          "text": "I opened the source, ran the three checks, and wrote one word — Checked, Does not match, or Not found — pointing at the exact sentence that earns it, or at the fact it is missing.",
+          "text": "I opened the source and ran the three checks. Then I wrote one word: Checked, Does not match, or Not found. I can point at the exact sentence that earns it, or at the fact it is missing.",
           "ok": true,
           "feedback": "That is it. Reaching a verdict you can defend on a fresh claim is the win, not collecting a tick."
         },
