@@ -42,17 +42,42 @@
   };
   if (!review || window.__learningAIReviewStorageGuard) return;
   window.__learningAIReviewStorageGuard = true;
+
+  /* Preview must stop the COURSE RECORD being written — progress, notes,
+     answers, minutes. It must not stop you being a signed-in person.
+
+     Blocking every learningai- key did exactly that: signing in could not
+     store the account, so the route guard saw no account and sent every page
+     back to the sign-in form. Preview turned the site into a loop.
+
+     So the block is a list of what preview is actually protecting, and
+     everything else — identity, the account roster, the preview switch
+     itself, and the appearance settings — stays writable. */
+  const RECORD_PREFIXES = [
+    'learningai-lesson-',        // progress, drafts, evidence
+    'learningai-diagnostic-',    // questionnaire answers
+    'learningai-toolkit',        // saved notes
+    'learningai-note',
+    'learningai-learning-rhythm',// focus minutes
+    'learningai-earned',         // awards
+    'learningai-first-lesson-',
+    'learningai-site-unlocked',
+    'learningai-progress'
+  ];
+  const isCourseRecord = key => {
+    const name = String(key);
+    return name !== PREVIEW_KEY && RECORD_PREFIXES.some(prefix => name.startsWith(prefix));
+  };
+
   const setItem = Storage.prototype.setItem;
   const removeItem = Storage.prototype.removeItem;
   const clear = Storage.prototype.clear;
   Storage.prototype.setItem = function (key, value) {
-    if (this === window.localStorage && String(key).startsWith('learningai-')) return;
+    if (this === window.localStorage && isCourseRecord(key)) return;
     return setItem.call(this, key, value);
   };
   Storage.prototype.removeItem = function (key) {
-    // The preview switch itself must stay writable, or preview could be turned
-    // on and never off again: the guard it installs would swallow the removal.
-    if (this === window.localStorage && key !== PREVIEW_KEY && String(key).startsWith('learningai-')) return;
+    if (this === window.localStorage && isCourseRecord(key)) return;
     return removeItem.call(this, key);
   };
   Storage.prototype.clear = function () {
@@ -807,9 +832,16 @@
     const firstComplete = Boolean(read('learningai-first-lesson-complete'));
     const accountReady = Boolean(read('learningai-prototype-account'));
     const questionsReady = Boolean(read(ASSESSMENT_KEY));
-    // Unlock is always derived from the three required milestones. The cached
-    // flag is only a convenience for older previews and must never bypass a
-    // missing lesson, learner record, or questionnaire.
+    /* Preview opens every page. This guard never checked it, which is why
+       "preview every lesson" did nothing at all — the setting switched on, the
+       storage guard installed, and then this sent the visitor straight back.
+       Preview is deliberate and device-local, so it is allowed to unlock;
+       nothing it does is recorded. */
+    if (window.LearningAIReviewMode) return true;
+
+    // Otherwise unlock is derived from the three required milestones. The
+    // cached flag is only a convenience for older previews and must never
+    // bypass a missing lesson, learner record, or questionnaire.
     const unlocked = firstComplete && accountReady && questionsReady;
     if (unlocked && !read('learningai-site-unlocked')) localStorage.setItem('learningai-site-unlocked', 'true');
     if (!unlocked && read('learningai-site-unlocked')) localStorage.removeItem('learningai-site-unlocked');

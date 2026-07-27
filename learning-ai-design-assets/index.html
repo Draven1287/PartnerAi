@@ -6,7 +6,7 @@
   <title>LearningAI</title>
   <meta name="description" content="Learn how to use AI without handing over your judgment.">
   <link rel="stylesheet" href="./theme.css?v=2026-07-27b">
-  <script src="./theme.js?v=2026-07-27c"></script>
+  <script src="./theme.js?v=2026-07-27d"></script>
   <script src="./learning-api.js?v=2026-07-26c"></script>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#171a18}
@@ -151,11 +151,16 @@
       if (cameFromElsewhere() && history.length > 1) { history.back(); return; }
       ask.hidden = true;
       exit.hidden = false;
+      /* Log in goes too. It exists for someone who already has an account;
+         someone who has just declined is not offered a second door. It comes
+         back with the question. */
+      document.querySelector('.signin').hidden = true;
       document.querySelector('#exitTitle').focus();
     });
     document.querySelector('#back').addEventListener('click', () => {
       exit.hidden = true;
       ask.hidden = false;
+      document.querySelector('.signin').hidden = false;
       document.querySelector('#yes').focus();
     });
   </script>
