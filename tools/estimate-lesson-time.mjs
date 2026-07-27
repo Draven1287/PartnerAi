@@ -316,6 +316,10 @@ export function measureLessonOne() {
  * a file, the regex that isolates the number, and how to write it back, so
  * --apply and --check stay in agreement by construction. */
 const CATALOG = path.join(ROOT, 'learning-ai-design-assets', 'lessons.html');
+/* The Focus page estimates what fits a planned session and has to quote the same
+ * length for Lesson 01 as the catalog does, or the two pages disagree about the
+ * lesson they both link to. Same literal, same owner. */
+const FOCUS = path.join(ROOT, 'learning-ai-design-assets', 'focus.js');
 function derivedTargets(lessonOneMinutes) {
   return [
     {
@@ -327,6 +331,12 @@ function derivedTargets(lessonOneMinutes) {
     {
       file: CATALOG,
       label: 'lessons.html LESSON_ONE_MINUTES',
+      pattern: /(const LESSON_ONE_MINUTES=)(\d+)(;)/,
+      value: lessonOneMinutes
+    },
+    {
+      file: FOCUS,
+      label: 'focus.js LESSON_ONE_MINUTES',
       pattern: /(const LESSON_ONE_MINUTES=)(\d+)(;)/,
       value: lessonOneMinutes
     }

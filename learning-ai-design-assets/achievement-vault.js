@@ -36,20 +36,42 @@
     ['arc-10', 'Control Remains Yours', 'Complete a goal with AI while preserving authorship and control.', 50, './badges/faces/arc-10-control-remains-yours', '#b58c45']
   ].map(([id, name, meaning, target, art, color]) => ({ id, name, meaning, target, art, color, kind: 'capability' }));
 
+  /* The four timed pins used to be elapsed minutes and nothing else, which a
+     learner could collect by pressing Start and walking away. The panel above
+     promises the opposite — "a practical human capability you practised, not
+     time served" — and the timer cannot tell learning from an open tab: focus.js
+     counts wall-clock seconds while it runs and only stops after ten minutes
+     with no interaction *anywhere on the page*, so a scroll every nine minutes
+     accumulates hours. Rather than soften the promise, each of the four now
+     needs the focused time AND work the code can genuinely see: a lesson step
+     recorded by lesson.html / lesson-one.html, or a finished lesson. The names
+     and the artwork are unchanged; only what qualifies is. Awards already
+     engraved under the old rule are left alone — nothing is taken back. */
   const milestones = [
     ['first-lesson', 'First Lesson', 'Finished your first guided lesson.', 'lessons', 1, '12% 25%', '#ef5b58'],
     ['first-arc', 'First Arc', 'Proved the first complete capability.', 'lessons', 5, '35% 25%', '#57a477'],
     ['halfway', 'Halfway', 'Completed 25 of 50 lessons.', 'lessons', 25, '61% 25%', '#db9a42'],
     ['course-complete', 'Course Complete', 'Completed the full 50-lesson path.', 'lessons', 50, '86% 25%', '#54a8b8'],
-    ['first-five', 'First Five', 'Focused for your first five minutes.', 'totalSeconds', 5 * 60, '12% 52%', '#ee6c76'],
-    ['focus-25', 'Focus 25', 'Reached the suggested 25-minute checkpoint.', 'todaySeconds', 25 * 60, '35% 52%', '#9d6bd1'],
-    ['one-hour', 'One Hour', 'Built one hour of focused learning.', 'totalSeconds', 60 * 60, '61% 52%', '#39a9b8'],
-    ['five-hours', 'Five Hours', 'Built five hours of focused learning.', 'totalSeconds', 5 * 60 * 60, '86% 52%', '#d69d38'],
+    /* Scoped to today, not to all time: finishing the free first lesson is a
+       precondition of reaching this page, so an all-time "one lesson step"
+       clause would already be true for every learner who can see the pin and
+       would prove nothing. */
+    ['first-five', 'First Five', 'Five focused minutes on a day you worked in a lesson.', 'totalSeconds', 5 * 60, '12% 52%', '#ee6c76',
+      { metric: 'lessonStepsToday', target: 1, text: 'a lesson step completed today', unit: 'lesson steps today', unitOne: 'lesson step today' }],
+    ['focus-25', 'Focus 25', 'The 25-minute checkpoint, on a day you did real work.', 'todaySeconds', 25 * 60, '35% 52%', '#9d6bd1',
+      { metric: 'lessonStepsToday', target: 1, text: 'a lesson step completed today', unit: 'lesson steps today', unitOne: 'lesson step today' }],
+    /* Two finished lessons, not one: the free first lesson is a precondition of
+       reaching this page at all, so a one-lesson clause would be satisfied
+       before the timer had counted a second and would prove nothing. */
+    ['one-hour', 'One Hour', 'An hour of focused learning and two lessons finished.', 'totalSeconds', 60 * 60, '61% 52%', '#39a9b8',
+      { metric: 'lessons', target: 2, text: 'two finished lessons', unit: 'lessons' }],
+    ['five-hours', 'Five Hours', 'Five hours of focused learning and five lessons finished.', 'totalSeconds', 5 * 60 * 60, '86% 52%', '#d69d38',
+      { metric: 'lessons', target: 5, text: 'five finished lessons', unit: 'lessons' }],
     ['first-return', 'First Return', 'Came back for another learning session.', 'sessions', 2, '12% 78%', '#42a8c0'],
     ['five-sessions', 'Five Sessions', 'Returned for five separate sessions.', 'sessions', 5, '35% 78%', '#dc7666'],
     ['first-note', 'First Note', 'Saved your first optional learning note.', 'notes', 1, '61% 78%', '#d3a23d'],
     ['first-project', 'First Project', 'Completed your first practical project.', 'projects', 1, '86% 78%', '#4a98ae']
-  ].map(([id, name, meaning, metric, target, sprite, color]) => ({ id, name, meaning, metric, target, sprite, color, kind: 'milestone' }));
+  ].map(([id, name, meaning, metric, target, sprite, color, also]) => ({ id, name, meaning, metric, target, sprite, color, also, kind: 'milestone' }));
 
   function readJSON(key, fallback) {
     try {
@@ -71,6 +93,44 @@
       totalSeconds: Number(state.totalSeconds || 0) + live,
       sessions: Number(state.sessions || 0)
     };
+  }
+
+  /* focus.js keys its day the same way; a pin that says "today" and a timer that
+     says "today" must roll over at the same moment. */
+  const dayKey = value => {
+    const date = new Date(value ?? Date.now());
+    return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString('en-CA');
+  };
+
+  /* The only records of work actually done inside a lesson. lesson.html writes
+     learningai-lesson-draft:<id> with a `steps` map as the learner advances and
+     archives it into learningai-lesson-evidence when the lesson is finished;
+     lesson-one.html keeps its own draft with a `current` step number. Nothing
+     here is inferred from time — every count comes from a step the learner
+     actually completed and the timestamp on the record that holds it. */
+  function lessonWork() {
+    const today = dayKey();
+    let steps = 0;
+    let stepsToday = 0;
+    const add = (count, when) => {
+      if (count <= 0) return;
+      steps += count;
+      if (dayKey(when) === today) stepsToday += count;
+    };
+    const stepCount = value => (value && typeof value === 'object' ? Object.keys(value).length : 0);
+    const evidence = readJSON('learningai-lesson-evidence', []);
+    if (Array.isArray(evidence)) evidence.forEach(record => add(stepCount(record?.steps), record?.completedAt));
+    for (let index = 0; index < localStorage.length; index += 1) {
+      const key = String(localStorage.key(index));
+      if (!key.startsWith('learningai-lesson-draft:')) continue;
+      const draft = readJSON(key, null);
+      add(stepCount(draft?.steps), draft?.updatedAt);
+    }
+    /* lesson-one keeps no per-step map, only which step it is on, so the steps
+       behind the learner are `current - 1`. */
+    const first = readJSON('learningai-lesson-one-draft-v2', null);
+    if (first) add(Math.max(0, Number(first.current || 1) - 1), first.updatedAt);
+    return { steps, stepsToday };
   }
 
   function noteCount() {
@@ -101,12 +161,21 @@
 
   function metricSnapshot() {
     const course = courseSnapshot();
+    const completed = course.completed || {};
+    const work = lessonWork();
+    const today = dayKey();
+    const finishedToday = Object.values(completed).filter(entry => dayKey(entry?.completedAt) === today).length;
     return {
       lessons: Number(course.completedCount || 0),
+      /* A finished lesson is worth at least a lesson's-worth of steps even when
+         its draft has been archived away or the record predates the evidence
+         log — otherwise the floor would fall below what we already know. */
+      lessonSteps: Math.max(work.steps, Number(course.completedCount || 0)),
+      lessonStepsToday: Math.max(work.stepsToday, finishedToday),
       notes: noteCount(),
       projects: projectCount(),
       ...rhythmSnapshot(),
-      completed: course.completed || {}
+      completed
     };
   }
 
@@ -116,6 +185,14 @@
 
   function achievementMetric(item, metrics) {
     return item.kind === 'capability' ? metrics.lessons : Number(metrics[item.metric] || 0);
+  }
+
+  /* An award is earned when every clause of its requirement is met, not just the
+     first. Time-based pins carry a second clause; everything else has one. */
+  function meetsRequirement(item, metrics) {
+    if (achievementMetric(item, metrics) < item.target) return false;
+    if (!item.also) return true;
+    return Number(metrics[item.also.metric] || 0) >= item.also.target;
   }
 
   function inferredTimestamp(item, metrics) {
@@ -132,7 +209,7 @@
     const earned = readEarned();
     let changed = false;
     [...capabilities, ...milestones].forEach(item => {
-      if (!earned[item.id] && achievementMetric(item, metrics) >= item.target) {
+      if (!earned[item.id] && meetsRequirement(item, metrics)) {
         earned[item.id] = inferredTimestamp(item, metrics);
         changed = true;
       }
@@ -154,7 +231,10 @@
     }).format(date);
   }
 
-  function progressText(item, current, earnedAt) {
+  /* The short form engraved on the back of the object, where the type is under
+     4px: the first clause only. The readable copy on the card and in the
+     inspector carries the whole requirement. */
+  function stampText(item, current, earnedAt) {
     if (earnedAt) return `Earned · ${stamp(earnedAt)}`;
     if (item.kind === 'capability' || item.metric === 'lessons') return `Locked · ${Math.min(current, item.target)} of ${item.target} lessons`;
     if (item.metric === 'totalSeconds' || item.metric === 'todaySeconds') {
@@ -163,13 +243,28 @@
     return `Locked · ${Math.min(current, item.target)} of ${item.target}`;
   }
 
+  /* A pin with two clauses has to show both, or a learner who has sat through
+     the minutes is told only that the minutes are done and left wondering why
+     nothing was awarded. */
+  function progressText(item, current, earnedAt, metrics) {
+    const base = stampText(item, current, earnedAt);
+    if (earnedAt || !item.also || !metrics) return base;
+    const have = Number(metrics[item.also.metric] || 0);
+    return `${base} · ${Math.min(have, item.also.target)} of ${item.also.target} ${item.also.target === 1 ? (item.also.unitOne || item.also.unit) : item.also.unit}`;
+  }
+
   function requirementText(item) {
+    const base = primaryRequirementText(item);
+    return item.also ? `${base}, plus ${item.also.text}` : base;
+  }
+
+  function primaryRequirementText(item) {
     if (item.kind === 'capability' || item.metric === 'lessons') {
       return `Complete ${item.target} ${item.target === 1 ? 'lesson' : 'lessons'}`;
     }
     if (item.metric === 'totalSeconds' || item.metric === 'todaySeconds') {
       const minutes = Math.floor(item.target / 60);
-      return `${minutes} focused ${minutes === 1 ? 'minute' : 'minutes'}`;
+      return `${minutes} focused ${minutes === 1 ? 'minute' : 'minutes'}${item.metric === 'todaySeconds' ? ' today' : ''}`;
     }
     if (item.metric === 'sessions') return `Return for ${item.target} learning sessions`;
     if (item.metric === 'notes') return 'Save one optional learning note';
@@ -192,7 +287,7 @@
     setText(selectedDetailName, item.name);
     setText(selectedMeaning, item.meaning);
     setText(selectedRequirement, requirementText(item));
-    setText(selectedStatus, progressText(item, current, earnedAt));
+    setText(selectedStatus, progressText(item, current, earnedAt, metrics));
     /* "Earned date appears here" was placeholder copy that every learner saw,
        because nothing is engraved until a badge is actually earned. Say what is
        true and what would change it. */
@@ -582,9 +677,9 @@
       card.classList.toggle('is-earned', Boolean(earnedAt));
       card.classList.toggle('is-locked', !earnedAt);
       const object = card.querySelector('.achievement-object');
-      const progress = progressText(item, current, earnedAt);
+      const progress = progressText(item, current, earnedAt, metrics);
       object.setAttribute('aria-label', `${item.name}. ${item.meaning} ${progress}. Press Enter to flip, use the arrow keys to turn, or drag horizontally. You can also use the rotation slider.`);
-      card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stamp(earnedAt) : `To earn · ${progress}`;
+      card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stamp(earnedAt) : `To earn · ${stampText(item, current, earnedAt)}`;
       card.querySelector('[data-achievement-progress]').textContent = progress;
       const chip = document.querySelector(`.preview-chip[data-target="${item.id}"]`);
       if (chip) {

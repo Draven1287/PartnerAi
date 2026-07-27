@@ -196,21 +196,67 @@
   }
 
   const lessons=Array.isArray(window.LESSONS)?window.LESSONS:[];
-  const courseMinutes=lessons.reduce((sum,lesson)=>sum+Number(lesson.minutes||0),0)||502;
-  const firstArcMinutes=lessons.slice(0,5).reduce((sum,lesson)=>sum+Number(lesson.minutes||0),0)||47;
+  const arcNames=[...new Set(lessons.map(lesson=>lesson.arc))];
+  /* Lesson 01 in this course opens ./lesson-one.html, the bespoke free lesson,
+     not the V2 engine's chapter-1. It is different content and a different
+     length, so an estimate that quotes chapter-1's figure promises a lesson that
+     does not exist at that link. Same helper and same literal as the catalog in
+     lessons.html — tools/estimate-lesson-time.mjs owns both numbers, `--apply`
+     rewrites them and `--check` fails if either drifts — so Focus and the
+     catalog cannot quote different lengths for the same lesson. */
+  const LESSON_ONE_MINUTES=17;
+  const minutesFor=lesson=>Number(lesson?.num)===1?LESSON_ONE_MINUTES:(Number(lesson?.minutes)||0);
+  const sumMinutes=group=>group.reduce((total,lesson)=>total+minutesFor(lesson),0);
   const formatMinutes=minutes=>minutes>=60?`${Math.floor(minutes/60)} hour${Math.floor(minutes/60)===1?'':'s'} ${minutes%60?`${minutes%60} minutes`:''}`.trim():`${minutes} minutes`;
+
+  /* The estimate used to walk from lessons[0] every time, so a learner twenty
+     lessons in was still told "about 1 lesson fits" and quoted Lesson 1 forever.
+     Start where the dashboard's "Continue Lesson N" starts. The first expression
+     below is character-for-character the one progress.html uses for its continue
+     link and its arc targets, so the two pages cannot name different lessons;
+     everything after it is the run this session could work through, since
+     finishing one lesson unlocks the next. No stored progress — a signed-out
+     learner, a fresh browser, or course-state.js failing to load — reads as
+     nothing started, which is the truthful default. */
+  function upcomingLessons(){
+    const state=window.LearningAICourseState?.snapshot?.();
+    if(!state)return lessons.slice();
+    const start=lessons.find(lesson=>state.isUnlocked(lesson)&&!state.isDone(lesson.id));
+    if(!start)return [];
+    return lessons.slice(lessons.indexOf(start)).filter(lesson=>!state.isDone(lesson.id));
+  }
+
   function renderTimeEstimate(){
     const minutes=Number(checkpointLength.value)||25;
     plannedMinutes.textContent=`${minutes} minutes`;
     checkpointLength.setAttribute('aria-valuetext',`${minutes} minutes${minutes===25?' recommended':''}`);
     paintDialText(minutes);
     if(!dialDragging)paintDial(minutes,true);
+    const upcoming=upcomingLessons();
+    const next=upcoming[0]||null;
     let used=0,count=0;
-    for(const lesson of lessons){const lessonMinutes=Number(lesson.minutes||0);if(used+lessonMinutes>minutes)break;used+=lessonMinutes;count+=1}
-    const first=lessons[0];
-    estimateLessons.textContent=count?`About ${count} lesson${count===1?'':'s'} fit (${used} minutes)`:`Start ${first?.title||'lesson one'}; it takes about ${first?.minutes||10} minutes`;
-    estimateArcTime.textContent=`Arc 1 · 5 lessons · about ${firstArcMinutes} minutes`;
-    estimateCourseTime.textContent=`Full course · 50 lessons · about ${formatMinutes(courseMinutes)}`;
+    for(const lesson of upcoming){const lessonMinutes=minutesFor(lesson);if(used+lessonMinutes>minutes)break;used+=lessonMinutes;count+=1}
+    /* Four cases, and none of them may show a blank or a zero. The dial floor is
+       10 minutes and the shortest lesson in the course is longer than that, so
+       "nothing fits" is a real choice rather than an error — and it is also what
+       a learner sees whenever the lesson they are actually on happens to be a
+       long one. Say what that lesson costs and that stopping part-way loses
+       nothing, which is true: lesson.html saves a draft at every step. */
+    estimateLessons.textContent=!lessons.length
+      ?'Lesson lengths appear once the course list has loaded.'
+      :!next
+        ?`All ${lessons.length} lessons complete — this time is yours to revisit a lesson or build a project.`
+        :count
+          ?`About ${count===1?'1 lesson fits':`${count} lessons fit`} (${used} minutes), starting with Lesson ${next.num}: ${next.title}`
+          :`Not quite one lesson — Lesson ${next.num}, ${next.title}, takes about ${minutesFor(next)} minutes. Start anyway; your place is saved at every step.`;
+    const arcIndex=next?arcNames.indexOf(next.arc):-1;
+    const arcLeft=arcIndex<0?[]:upcoming.filter(lesson=>lesson.arc===next.arc);
+    estimateArcTime.textContent=!lessons.length?''
+      :arcIndex<0?`All ${arcNames.length} arcs complete`
+      :`Arc ${arcIndex+1} · ${arcLeft.length} lesson${arcLeft.length===1?'':'s'} left · about ${formatMinutes(sumMinutes(arcLeft))}`;
+    estimateCourseTime.textContent=!lessons.length?''
+      :next?`Full course · ${upcoming.length} of ${lessons.length} lessons left · about ${formatMinutes(sumMinutes(upcoming))}`
+      :`Full course · ${lessons.length} of ${lessons.length} lessons complete`;
   }
 
   if(state.running){state.lastActivityAt=Date.now();localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
@@ -263,6 +309,11 @@
   ['pointerdown','keydown','wheel','touchstart'].forEach(type=>document.addEventListener(type,recordActivity,{passive:true}));
 
   window.addEventListener('pagehide',save);
+  /* Finishing a lesson in another tab moves the lesson this session should start
+     from, so the estimate has to be re-read rather than computed once at load. */
+  window.addEventListener('learningai:progress',renderTimeEstimate);
+  const PROGRESS_KEYS=[window.LearningAICourseState?.key,'learningai-first-lesson-complete'];
+  window.addEventListener('storage',event=>{if(!event.key||PROGRESS_KEYS.includes(event.key))renderTimeEstimate()});
   const previewName=new URLSearchParams(location.search).get('name')||window.LearningAIUser?.displayName||'Aarav';
   document.querySelector('#greeting').textContent=`Welcome back, ${previewName}`;
   void window.LearningAIAPI.flushMinuteQueue();

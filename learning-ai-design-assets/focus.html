@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./dashboard.css?v=2026-07-26e">
   <link rel="stylesheet" href="./focus.css?v=2026-07-26e">
   <link rel="stylesheet" href="./focus-refinement.css?v=2026-07-26f">
-  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26f">
+  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26g">
 </head>
 <body>
   <div class="nav-stage">
@@ -93,9 +93,13 @@
                 </div>
               </div>
               <div class="time-estimate" id="timeEstimate" aria-live="polite">
-                <strong id="estimateLessons">About 2 lessons fit</strong>
-                <span id="estimateArcTime">Arc 1 takes about 47 minutes</span>
-                <span id="estimateCourseTime">All 50 lessons take about 8 hours 22 minutes</span>
+                <!-- Placeholders only. Every figure here depends on which lesson
+                     the learner is actually on, so focus.js writes all three from
+                     the course data and the stored progress on load; hard-coded
+                     numbers in the markup could only ever be stale. -->
+                <strong id="estimateLessons">Lesson lengths appear once the course list has loaded.</strong>
+                <span id="estimateArcTime"></span>
+                <span id="estimateCourseTime"></span>
                 <small class="dial-hint">Drag the dial, or focus it and use the arrow keys.</small>
               </div>
             </div>
@@ -185,7 +189,7 @@
       </div>
 
       <div class="vault-panel" id="milestonePanel" role="tabpanel" aria-labelledby="vaultTabMilestone" hidden>
-        <p class="vault-help">Milestone pins mark lessons, focus time, returns, notes, and projects. They are deliberately simpler than arc medals: useful encouragement, never a score of intelligence.</p>
+        <p class="vault-help">Milestone pins mark lessons, returns, notes, projects, and focused time. The timed pins also need real lesson work—a saved lesson step, or finished lessons—so a timer left running earns nothing on its own. They are deliberately simpler than arc medals: useful encouragement, never a score of intelligence.</p>
         <div class="vault-rail milestone-rail" id="milestoneGrid" role="group" tabindex="0" aria-label="Learning milestone pins. Scroll sideways to see all twelve."></div>
         <div class="rail-preview" id="milestonePreview" role="group" aria-label="Jump to a pin"></div>
       </div>
@@ -251,7 +255,7 @@
   <script src="./nav-behavior.js?v=2026-07-25w"></script>
   <script src="../v2/lessons.js?v=2026-07-25w"></script>
   <script src="./course-state.js?v=2026-07-25w"></script>
-  <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-26e"></script>
-  <script src="./achievement-vault.js?v=2026-07-26f"></script>
+  <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-26g"></script>
+  <script src="./achievement-vault.js?v=2026-07-26g"></script>
 </body>
 </html>
