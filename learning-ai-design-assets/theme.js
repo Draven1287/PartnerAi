@@ -20,6 +20,93 @@
     return clear.call(this);
   };
 })();
+/* Layout zoom and viewport units disagree, and that disagreement broke every
+   page at Large and Extra large.
+
+   The text-size setting scales the interface with `body{zoom:var(--ui-zoom)}`
+   (see theme.css), which puts the whole document into a coordinate space
+   var(--ui-zoom) times smaller than the screen. `vw` and `vh` do not follow: they
+   keep resolving against the unzoomed viewport. So a container written the way
+   nearly every page here writes it —
+
+       width: min(1120px, calc(100vw - 36px))
+
+   — asked for the full 1280px viewport, then got painted 1.5x larger still, and
+   the page ran ~500px off the right edge. Measured before this fix: every page
+   overflowed at "xl" and all but two at "large", at 1280, 874 and 375.
+
+   The rule is simple: a length that sizes or positions a box lives in the zoomed
+   coordinate space and has to be divided by the zoom factor. A length that sets
+   type does not — growing with the setting is the whole point of the setting.
+
+   The same formula is inlined in more than a dozen page stylesheets, several of
+   which this change is not allowed to edit, so it is corrected here, once, for
+   whatever stylesheets the page actually loaded. Rewriting to a `var(--ui-zoom)`
+   expression rather than a fixed number means the correction keeps tracking the
+   setting when it changes on the Settings page — no re-sweep needed.
+
+   This lives beside the zoom it corrects on purpose: the zoom is applied by this
+   script, so a page without this script has no zoom and needs no correction.
+   The two can never get out of step. */
+(() => {
+  const SCALED_BY_ZOOM = new Set([
+    'width', 'min-width', 'max-width', 'height', 'min-height', 'max-height',
+    'inline-size', 'min-inline-size', 'max-inline-size',
+    'block-size', 'min-block-size', 'max-block-size',
+    'top', 'right', 'bottom', 'left',
+    'inset', 'inset-block-start', 'inset-block-end', 'inset-inline-start', 'inset-inline-end',
+    'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
+    'margin-block-start', 'margin-block-end', 'margin-inline-start', 'margin-inline-end',
+    'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+    'padding-block-start', 'padding-block-end', 'padding-inline-start', 'padding-inline-end',
+    'row-gap', 'column-gap', 'flex-basis'
+  ]);
+  /* Every viewport-percentage unit, including the small/large/dynamic variants,
+     because all of them resolve against the viewport rather than the zoomed box. */
+  const VIEWPORT_LENGTH = /(-?\d*\.?\d+)((?:[dsl]?v)(?:w|h|i|b|min|max))\b/gi;
+
+  const zoomAware = value => value.replace(VIEWPORT_LENGTH, (whole, number, unit) => `calc(${number}${unit} / var(--ui-zoom))`);
+
+  function correctDeclarations(style) {
+    for (let index = 0; index < style.length; index += 1) {
+      const property = style[index];
+      if (!SCALED_BY_ZOOM.has(property)) continue;
+      const value = style.getPropertyValue(property);
+      // Already corrected — by an earlier pass, or by hand in the stylesheet.
+      if (!value || value.includes('--ui-zoom')) continue;
+      VIEWPORT_LENGTH.lastIndex = 0;
+      if (!VIEWPORT_LENGTH.test(value)) continue;
+      try { style.setProperty(property, zoomAware(value), style.getPropertyPriority(property)); } catch {}
+    }
+  }
+
+  function correctRules(rules) {
+    for (const rule of rules) {
+      if (rule.style) correctDeclarations(rule.style);
+      // @media, @supports and @layer bodies hold the same formulas.
+      if (rule.cssRules) correctRules(rule.cssRules);
+    }
+  }
+
+  function correctLoadedStyleSheets() {
+    for (const sheet of document.styleSheets) {
+      // A stylesheet still in flight, or one the document cannot read, throws
+      // here. A later pass picks it up.
+      try { correctRules(sheet.cssRules); } catch {}
+    }
+  }
+
+  /* Three passes, because pages disagree about where they put their own
+     <style>: some before this script, most after it, and stylesheets linked in
+     the head may still be arriving. Each pass skips what is already corrected,
+     so the later ones are close to free. */
+  correctLoadedStyleSheets();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', correctLoadedStyleSheets, { once: true });
+  }
+  window.addEventListener('load', correctLoadedStyleSheets, { once: true });
+  window.LearningAIZoomSafeStyles = correctLoadedStyleSheets;
+})();
 (function () {
   const theme = 'light';
   const savedMotion = localStorage.getItem('learningai-motion');
@@ -320,43 +407,58 @@
   const ASSESSMENT_KEY = 'learningai-diagnostic-prototype';
   const DRAFT_KEY = 'learningai-diagnostic-draft-prototype';
   const ADULT_RANGES = new Set(['19-24','25-34','35-49','50-plus']);
+  /* The empty first entry is kept so setAge('') stays a recognised no-op for any
+     stored draft written by the old <select>. It is never offered as a choice. */
   const AGE_OPTIONS = [
     ['', 'Choose age range'], ['13-15', '13–15'], ['16-18', '16–18'],
     ['19-24', '19–24'], ['25-34', '25–34'], ['35-49', '35–49'],
     ['50-plus', '50+'], ['prefer-not', 'Prefer not to say']
   ];
+  const AGE_CHOICES = AGE_OPTIONS.filter(([value]) => value);
+  /* Every option in a question is written to the same length, within one
+     character and one word. The previous set was ordered by sophistication and
+     the top-scoring answer was always the wordiest, so the instrument measured
+     "can you spot the long one" rather than what a learner actually believes.
+     Wording targets ages 13–18 and matches the plain-language pass applied to
+     the fifty lessons: no jargon, no clause stacking, one idea per option. */
   const QUESTIONS = [
-    { key:'definition', label:'What AI is', title:'When someone says “AI,” what do they mean?', copy:'Pick the answer you could explain and use reliably right now.', options:[
-      ['0','A website that gives answers when you type questions.'],
-      ['1','A computer program that can copy human writing and conversation.'],
-      ['2','A trained model that finds patterns in data and uses those patterns to make predictions or decisions.'],
-      ['3','A family of systems: language models, image models, recommendation systems, robots, agents, and tools that can act across software.'] ] },
-    { key:'capability', label:'Capabilities', title:'What can modern AI systems actually do?', copy:'Imagine someone says, “AI is just a smarter search engine.” What do you think?', options:[
-      ['0','That sounds right. It mostly finds information faster.'],
-      ['1','It can answer questions, write drafts, and summarize text.'],
-      ['2','It can explain, code, plan, translate, analyze images, simulate conversations, and help build tools.'],
-      ['3','It can become part of a workflow: using tools, calling APIs, checking files, running code, and coordinating multi-step work.'] ] },
-    { key:'limits', label:'Checking', title:'When should you slow down and check?', copy:'An AI gives a confident answer about a medical, legal, historical, or scientific fact. What would you actually do next?', options:[
-      ['0','Trust it if the answer sounds detailed.'],
-      ['1','Ask it again and see if it says the same thing.'],
-      ['2','Ask for sources, then check reliable sources yourself.'],
-      ['3','Treat the answer as a starting point, verify outside the model, and ask what evidence would change the answer.'] ] },
-    { key:'learning', label:'Control', title:'How should you use AI without losing control?', copy:'Pick what you would actually do when you are learning something new.', options:[
-      ['0','Let it do the main thinking so you can move faster.'],
-      ['1','Ask it to explain the answer in easier words.'],
-      ['2','Ask for hints, examples, and a check so you still do the important thinking.'],
-      ['3','Use it as a tutor, critic, and practice partner while protecting the skill you are trying to build.'] ] },
-    { key:'impact', label:'Impact', title:'How do you think about AI’s real-world costs?', copy:'Someone says, “AI has real environmental and social costs.” What would you actually say back?', options:[
-      ['0','They are wrong. New technology always wins.'],
-      ['1','They are right. AI should probably be avoided.'],
-      ['2','The costs are real, but we should compare them with benefits, efficiency improvements, and better infrastructure.'],
-      ['3','We should ask better questions: which model, what task, how much energy, what alternative, what social benefit, and who pays the cost?'] ] },
-    { key:'systems', label:'Beyond chatbots', title:'What do you know beyond chatbots?', copy:'What comes after typing questions into a chatbot?', options:[
-      ['0','Mostly better chatbots.'],
-      ['1','Tools that write, summarize, and search faster.'],
-      ['2','Personal tutors, coding helpers, research assistants, creative tools, and agents that use software.'],
-      ['3','AI systems connected to data, tools, robots, labs, simulations, businesses, and scientific workflows.'] ] }
+    { key:'definition', label:'What AI is', title:'When people say “AI”, what do they mean?', copy:'Pick the answer closest to how you would explain it right now.', options:[
+      ['0','A website you type a question into, and it types an answer.'],
+      ['1','A program that copies the way people write and talk online.'],
+      ['2','A model trained on data to spot patterns and predict things.'],
+      ['3','A family of systems that can read, write, see, plan and act.'] ] },
+    { key:'capability', label:'What it can do', title:'Is AI just a faster search engine?', copy:'A friend says that to you. Pick the reply closest to yours.', options:[
+      ['0','Yes, more or less. It just finds information a bit quicker.'],
+      ['1','Not really. It also writes drafts and shortens long pieces.'],
+      ['2','No. It can explain, code, translate, plan and read images.'],
+      ['3','No. It can use tools, run code and finish multi-step jobs.'] ] },
+    { key:'limits', label:'Checking', title:'An AI answers, and sounds sure. What next?', copy:'Say it was a health, law, history or science question.', options:[
+      ['0','Go with it, if the answer is detailed and sounds very sure.'],
+      ['1','Ask the same question again and see if the answer matches.'],
+      ['2','Ask it for its sources, then read those sources for myself.'],
+      ['3','Treat it as a draft and look for anything proving it wrong.'] ] },
+    { key:'learning', label:'Staying in control', title:'You are learning something new. How do you use AI?', copy:'Pick what you would really do, not what sounds best.', options:[
+      ['0','Let it do the hard thinking so the work is finished faster.'],
+      ['1','Ask it to say the same thing in simpler and shorter words.'],
+      ['2','Ask for a hint and an example, then do the thinking myself.'],
+      ['3','Get it to quiz me and argue back, so the skill stays mine.'] ] },
+    { key:'impact', label:'Real costs', title:'Does AI cost anything, beyond money?', copy:'A friend says it has costs for people and the planet. You say…', options:[
+      ['0','They are wrong. New technology always works out in the end.'],
+      ['1','They are right. The safest thing is to avoid AI altogether.'],
+      ['2','Costs are real, so weigh them against what the tool gives.'],
+      ['3','Ask which model, which job, how much energy, and who pays.'] ] },
+    { key:'systems', label:'Beyond chatbots', title:'What is there, apart from chatbots?', copy:'Pick the answer closest to what you already know about.', options:[
+      ['0','Mostly the same thing: chatbots that keep getting better.'],
+      ['1','Tools that write, shorten and search faster than I could.'],
+      ['2','Tutors, coding helpers, study helpers, and tools for art.'],
+      ['3','Software that runs whole jobs, plus robots and lab work.'] ] }
   ];
+  /* One row per question, read as "display slot n shows options[row[n]]". Every
+     score sits in every slot at least once across the six questions and never
+     more than twice, so neither the first nor the last position is worth
+     guessing. Fixed rather than random: it must survive Back, Next and a reload
+     without moving under someone mid-answer. */
+  const OPTION_ORDERS = [[3,1,0,2],[0,3,2,1],[1,0,3,2],[2,0,1,3],[1,3,2,0],[0,2,3,1]];
 
   const read = (key, fallback = '') => { try { return localStorage.getItem(key) || fallback; } catch { return fallback; } };
   const readJson = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch { return fallback; } };
@@ -461,10 +563,10 @@
     if (!unlocked && read('learningai-site-unlocked')) localStorage.removeItem('learningai-site-unlocked');
     if (file === 'onboarding.html') {
       if (!firstComplete) { location.replace('./lesson-one.html'); return false; }
-      if (!accountReady) { location.replace('./access.html'); return false; }
+      if (!accountReady) { location.replace('./access.html?mode=create'); return false; }
     }
     if (!PROTECTED_ROUTES.has(file) || unlocked) return true;
-    const destination = !firstComplete ? './lesson-one.html' : !accountReady ? './access.html' : './onboarding.html';
+    const destination = !firstComplete ? './lesson-one.html' : !accountReady ? './access.html?mode=create' : './onboarding.html';
     location.replace(destination);
     return false;
   }
@@ -606,14 +708,10 @@
       const index = Math.max(0,Math.min(Number(draft.index)||0,QUESTIONS.length-1));
       const question = QUESTIONS[index];
       const answer = draft.answers[question.key] || '';
-      /* The four graded options are authored weakest-to-strongest, so the
-         highest-scoring answer was always the fourth one. That rewards pattern
-         matching rather than honest self-placement. A fixed permutation per
-         question spreads the strongest answer across all four positions and is
-         stable across Back/Next and reloads, so nobody loses their place. The
-         stored value keeps its score regardless of where it is shown.
+      /* The four graded options are authored weakest-to-strongest in QUESTIONS,
+         so without this the highest-scoring answer would always be the fourth
+         one. The stored value keeps its score regardless of where it is shown.
          "Not sure" stays last: it is an escape hatch, not a graded choice. */
-      const OPTION_ORDERS = [[2,0,3,1],[1,3,0,2],[3,1,2,0],[0,2,1,3],[2,3,1,0],[1,0,3,2]];
       const order = OPTION_ORDERS[index % OPTION_ORDERS.length];
       const gradedOptions = order.map(position => question.options[position]).filter(Boolean);
       const questionOptions = [...gradedOptions, ['unsure', 'I’m not sure yet.']];
@@ -624,19 +722,19 @@
         <p class="diagnostic-topic">${question.label}</p>
         <h2 id="audienceTitle" tabindex="-1">${question.title}</h2>
         <p class="audience-copy">${question.copy}</p>
-        ${index===0 ? `<label class="audience-field"><span>Age range</span><small>LearningAI is built first for ages 13–18 and is open to everyone. This answer only decides whether adult-only guidance appears.</small><select id="audienceAge">${AGE_OPTIONS.map(([value,label])=>`<option value="${value}" ${draft.age===value?'selected':''}>${label}</option>`).join('')}</select></label>`:''}
+        ${index===0 ? `<fieldset class="age-field"><legend>Choose your age</legend><p class="age-note">LearningAI is built first for ages 13–18 and is open to everyone. This answer only decides whether adult-only guidance appears.</p><div class="age-choices">${AGE_CHOICES.map(([value,label])=>`<label><input type="radio" name="ageRange" value="${value}" ${draft.age===value?'checked':''}><span>${label}</span></label>`).join('')}</div></fieldset>`:''}
         <fieldset class="diagnostic-options-prototype"><legend>Choose the closest answer</legend>${questionOptions.map(([value,label],optionIndex)=>`<label><input type="radio" name="${question.key}" value="${value}" ${answer===value?'checked':''}><span><b>${optionIndex+1}</b>${label}</span></label>`).join('')}</fieldset>
         <p class="audience-result" id="audienceResult" aria-live="polite">Choose the answer closest to what you understand today. You can change your starting point later.</p>
         <div class="audience-actions diagnostic-actions"><button class="audience-skip" id="audienceBack" type="button" ${index===0?'disabled':''}>Back</button><button class="audience-primary" id="audienceNext" type="button">${index===QUESTIONS.length-1?'Finish and unlock LearningAI':'Next question'}</button></div>
       </form>`;
       const result = dialog.querySelector('#audienceResult');
-      const ageSelect = dialog.querySelector('#audienceAge');
-      ageSelect?.addEventListener('change',event=>{ draft.age=event.target.value; persistDraft(); });
+      const ageInputs = [...dialog.querySelectorAll('input[name="ageRange"]')];
+      ageInputs.forEach(input=>input.addEventListener('change',event=>{ draft.age=event.target.value; persistDraft(); }));
       dialog.querySelectorAll(`input[name="${question.key}"]`).forEach(input=>input.addEventListener('change',event=>{ draft.answers[question.key]=event.target.value; persistDraft(); }));
             dialog.querySelector('#audienceBack').addEventListener('click',()=>{ draft.index=Math.max(0,index-1); persistDraft(); renderQuestion(); });
       dialog.querySelector('#audienceNext').addEventListener('click',async()=>{
         const chosen = dialog.querySelector(`input[name="${question.key}"]:checked`);
-        if(index===0 && !draft.age){ result.textContent='Choose an age range, or select “Prefer not to say.”'; ageSelect?.focus(); return; }
+        if(index===0 && !draft.age){ result.textContent='Choose your age, or pick “Prefer not to say.”'; (ageInputs.find(input=>input.checked)||ageInputs[0])?.focus(); return; }
         if(!chosen){ result.textContent='Choose one answer before continuing.'; dialog.querySelector(`input[name="${question.key}"]`)?.focus(); return; }
         draft.answers[question.key]=chosen.value;
         if(index===0){ localStorage.setItem(AGE_KEY,draft.age); syncAdultsNavigation(draft.age); }

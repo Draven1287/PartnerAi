@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>LearningAI</title>
   <meta name="description" content="Learn how to use AI without handing over your judgment.">
-  <link rel="stylesheet" href="./theme.css?v=2026-07-26c">
-  <script src="./theme.js?v=2026-07-26c"></script>
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26e">
+  <script src="./theme.js?v=2026-07-26d"></script>
   <script src="./learning-api.js?v=2026-07-26c"></script>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#171a18}
@@ -24,7 +24,7 @@
       transition:transform 160ms cubic-bezier(.2,.8,.2,1),box-shadow 160ms ease}
     .signin:hover{transform:translateY(-1px);box-shadow:inset 0 1px 1px rgba(255,255,255,.98),0 9px 22px rgba(38,42,40,.14)}
 
-    .pane{display:grid;justify-items:center;gap:34px;width:min(520px,100%);
+    .pane{display:grid;justify-items:center;gap:30px;width:min(560px,100%);
       padding:clamp(46px,8vw,74px) clamp(28px,6vw,58px);
       border:1px solid rgba(255,255,255,.78);border-radius:34px;
       background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21));
@@ -40,38 +40,77 @@
     .mark::before,.mark::after{content:"";position:absolute;inset:8px;border:1.4px solid #a8843f;border-radius:50%}
     .mark::after{inset:12px 7px;border-left:0;border-right:0;border-radius:0}
 
-    .continue{display:inline-flex;align-items:center;justify-content:center;
-      min-width:min(280px,100%);min-height:58px;padding:0 34px;
-      border:1px solid #29302d;border-radius:18px;background:#29302d;color:#fff;
-      font:inherit;font-size:15px;font-weight:700;letter-spacing:-.01em;text-decoration:none;
-      box-shadow:0 12px 30px rgba(30,36,33,.24);
+    /* The question is the point of the screen, so it is the heading; the wordmark
+       above it is identification, not a title. */
+    .question{max-width:19ch;margin:0;text-align:center;
+      font-size:clamp(30px,6.2vw,44px);font-weight:540;letter-spacing:-.045em;line-height:1.06;
+      text-shadow:0 1px 0 rgba(255,255,255,.7)}
+    #ask{display:grid;justify-items:center;gap:28px;width:100%}
+    .answers{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%}
+
+    .continue,.decline{display:inline-flex;align-items:center;justify-content:center;
+      flex:1 1 150px;min-width:150px;min-height:58px;padding:0 34px;border-radius:18px;
+      font:inherit;font-size:15px;font-weight:700;letter-spacing:-.01em;text-decoration:none;cursor:pointer;
       transition:transform 160ms cubic-bezier(.2,.8,.2,1),box-shadow 160ms ease}
+    .continue{border:1px solid #29302d;background:#29302d;color:#fff;
+      box-shadow:0 12px 30px rgba(30,36,33,.24)}
     .continue:hover{transform:translateY(-1px);box-shadow:0 16px 36px rgba(30,36,33,.30)}
     .continue:active{transform:translateY(0)}
+    .decline{border:1px solid rgba(39,45,42,.20);color:#252b28;
+      background:linear-gradient(145deg,rgba(255,255,255,.52),rgba(255,255,255,.16));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.94),0 6px 18px rgba(38,42,40,.08)}
+    .decline:hover{transform:translateY(-1px)}
 
-    .signin:focus-visible,.continue:focus-visible{outline:3px solid #17231f;outline-offset:3px}
+    /* "No" means no. This state offers a way back to the question and a public
+       page explaining what LearningAI is — it never offers the lesson. */
+    .exit{display:grid;justify-items:center;gap:22px}
+    .exit p{max-width:34ch;margin:0;color:#4d544f;font-size:14px;line-height:1.55;text-align:center}
+    .exit .decline{flex:0 0 auto}
+    .exit-links{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+    .exit-links a{display:inline-flex;align-items:center;justify-content:center;
+      min-height:44px;padding:0 16px;border-radius:14px;color:#333a37;
+      font-size:12px;font-weight:700;text-decoration:none}
+    .exit-links a:hover{text-decoration:underline}
+    [hidden]{display:none!important}
+
+    .signin:focus-visible,.continue:focus-visible,.decline:focus-visible,.exit-links a:focus-visible{outline:3px solid #17231f;outline-offset:3px}
 
     @media(max-width:420px){
       .signin{top:12px;right:12px;padding:0 15px}
-      .continue{width:100%}
+      .answers{flex-direction:column}
+      .continue,.decline{width:100%;padding:0 20px}
     }
 
     /* Motion settings, and the system preference, are authoritative. */
     @media(prefers-reduced-motion:reduce){
-      .signin,.continue{transition:none}
-      .signin:hover,.continue:hover{transform:none}
+      .signin,.continue,.decline{transition:none}
+      .signin:hover,.continue:hover,.decline:hover{transform:none}
     }
-    html[data-motion="reduced"] .signin,html[data-motion="reduced"] .continue{transition-duration:120ms}
-    html[data-motion="reduced"] .signin:hover,html[data-motion="reduced"] .continue:hover{transform:translateY(-.5px)}
-    html[data-motion="none"] .signin,html[data-motion="none"] .continue{transition:none}
-    html[data-motion="none"] .signin:hover,html[data-motion="none"] .continue:hover{transform:none}
+    html[data-motion="reduced"] .signin,html[data-motion="reduced"] .continue,html[data-motion="reduced"] .decline{transition-duration:120ms}
+    html[data-motion="reduced"] .signin:hover,html[data-motion="reduced"] .continue:hover,html[data-motion="reduced"] .decline:hover{transform:translateY(-.5px)}
+    html[data-motion="none"] .signin,html[data-motion="none"] .continue,html[data-motion="none"] .decline{transition:none}
+    html[data-motion="none"] .signin:hover,html[data-motion="none"] .continue:hover,html[data-motion="none"] .decline:hover{transform:none}
   </style>
 </head>
 <body>
-  <a class="signin" href="./access.html?returning=1">Sign in</a>
+  <a class="signin" href="./access.html?mode=signin">Log in</a>
   <main class="pane">
-    <h1 class="wordmark"><span class="mark" aria-hidden="true"></span>LearningAI</h1>
-    <a class="continue" href="./lesson-one.html">Continue</a>
+    <p class="wordmark"><span class="mark" aria-hidden="true"></span>LearningAI</p>
+    <div id="ask">
+      <h1 class="question">Ready to learn the first lesson of this website?</h1>
+      <div class="answers">
+        <a class="continue" id="yes" href="./lesson-one.html">Yes</a>
+        <button class="decline" id="no" type="button">No</button>
+      </div>
+    </div>
+    <div class="exit" id="exit" hidden>
+      <h1 class="question" id="exitTitle" tabindex="-1">No problem.</h1>
+      <p>Nothing has started. You have no account here and nothing has been saved.</p>
+      <div class="exit-links">
+        <button class="decline" id="back" type="button">Ask me again</button>
+        <a href="./about.html">What is LearningAI?</a>
+      </div>
+    </div>
   </main>
   <script>
     /* A returning learner should not be shown a welcome screen. Send them where
@@ -89,9 +128,32 @@
       const questions = localStorage.getItem('learningai-diagnostic-prototype');
       if (!done && !account) return;                       // first visit: stay here
       if (!done) { location.replace('./lesson-one.html'); return; }
-      if (!account) { location.replace('./access.html'); return; }
+      if (!account) { location.replace('./access.html?mode=create'); return; }
       location.replace(questions ? './stage-1-navigation-proof.html' : './onboarding.html');
     })();
+
+    /* "No" has to mean no. It does not open the lesson, does not create anything,
+       and does not nag: it swaps the panel for a plain acknowledgement with a way
+       back to the question and a link to the one page that explains the site
+       without an account. If the visitor arrived from somewhere else, stepping
+       back through history is the truest "out", so take that route first. */
+    const ask = document.querySelector('#ask');
+    const exit = document.querySelector('#exit');
+    const cameFromElsewhere = () => {
+      try { return Boolean(document.referrer) && new URL(document.referrer).origin !== location.origin; }
+      catch { return false; }
+    };
+    document.querySelector('#no').addEventListener('click', () => {
+      if (cameFromElsewhere() && history.length > 1) { history.back(); return; }
+      ask.hidden = true;
+      exit.hidden = false;
+      document.querySelector('#exitTitle').focus();
+    });
+    document.querySelector('#back').addEventListener('click', () => {
+      exit.hidden = true;
+      ask.hidden = false;
+      document.querySelector('#yes').focus();
+    });
   </script>
 </body>
 </html>

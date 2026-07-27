@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Accounts · LearningAI</title>
   <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c">
-  <link rel="stylesheet" href="./theme.css?v=2026-07-26c">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26e">
   <script src="./learning-api.js?v=2026-07-26b"></script>
-  <script src="./theme.js?v=2026-07-26c"></script>
+  <script src="./theme.js?v=2026-07-26d"></script>
   <style>
     :root{--ink:#171a18;--muted:#525954;--gold:#9a7937;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}
     *{box-sizing:border-box}
@@ -95,7 +95,7 @@
       <ul class="account-list" id="accountList"></ul>
       <div class="empty" id="accountEmpty" hidden>This browser has not signed in to a LearningAI account yet.</div>
       <div class="row-actions" id="listActions" style="justify-content:flex-start;margin-top:22px">
-        <a class="action" href="./access.html?returning=1">Sign in to another account</a>
+        <a class="action" href="./access.html?mode=signin">Sign in to another account</a>
       </div>
       <p class="status" id="listStatus" aria-live="polite"></p>
     </section>
@@ -262,7 +262,7 @@
         /* The email is carried in sessionStorage, not the URL, so it never lands
            in a browser history entry, a referrer or a server log. */
         try { sessionStorage.setItem('learningai-switch-to-email', String(entry.email || '')); } catch {}
-        location.href = './access.html?returning=1';
+        location.href = './access.html?mode=signin';
       }
 
       function forgetEntry(entry) {

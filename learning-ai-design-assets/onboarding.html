@@ -4,14 +4,58 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Set your starting point · LearningAI</title>
-  <link rel="stylesheet" href="./theme.css?v=2026-07-26c">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26e">
   <script src="./learning-api.js?v=2026-07-25w"></script>
-  <script src="./theme.js?v=2026-07-26c"></script>
+  <script src="./theme.js?v=2026-07-26d"></script>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#171a18}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#efeee9 url("./learning-ai-paper-light-v1.jpg") center top/cover fixed no-repeat}.onboarding-ground{width:min(1120px,calc(100vw - 34px));min-height:100vh;margin:auto;padding:34px 0}.onboarding-top{display:flex;justify-content:space-between;align-items:center;color:#333a36;font-size:12px;font-weight:720}.onboarding-top a{color:inherit;text-decoration:none}.onboarding-context{display:grid;min-height:calc(100vh - 100px);place-items:center;text-align:center}.onboarding-context div{max-width:620px}.onboarding-context p{color:#666d69;font-size:14px}.onboarding-context h1{display:block;margin:0;font-size:28px;letter-spacing:-.03em}
   </style>
+  <style>
+    /* The starting questions are the only thing theme.js builds on this page, so
+       their page-specific styling lives here rather than in the shared sheet. */
+
+    /* Age was a <select>. A drop-down hides every option behind a menu, needs two
+       interactions to answer a one-tap question, opens an OS picker wheel on a
+       phone, and buries "Prefer not to say" at the bottom of a list nobody
+       scrolls. It also needed a fake "Choose age range" row that is not an age.
+       Seven ranges fit as one row of chips: all choices visible at once, one tap
+       to answer, native radio keyboard behaviour (arrow keys move and select,
+       Tab leaves the group), and every target at least 44px. */
+    .age-field{margin:26px 0 0;padding:0;border:0}
+    .age-field legend{margin-bottom:6px;padding:0;color:#646b67;font-size:10px;font-weight:730;letter-spacing:.08em;text-transform:uppercase}
+    .age-note{margin:0 0 12px;color:#717874;font-size:10px;line-height:1.45}
+    .age-choices{display:flex;flex-wrap:wrap;gap:8px}
+    .age-choices label{margin:0;cursor:pointer}
+    .age-choices input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+    .age-choices span{display:inline-flex;align-items:center;justify-content:center;
+      min-width:56px;min-height:44px;padding:0 15px;
+      border:1px solid rgba(39,45,42,.14);border-radius:14px;
+      color:#2e3431;background:rgba(255,255,255,.36);
+      font-size:12px;font-weight:700;line-height:1.2;white-space:nowrap;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.82);
+      transition:border-color 160ms ease,background 160ms ease,transform 160ms ease}
+    .age-choices input:checked+span{border-color:color-mix(in oklab,var(--mineral) 52%,transparent);
+      background:color-mix(in oklab,var(--mineral) 12%,rgba(255,255,255,.46));
+      box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--mineral) 20%,transparent),inset 0 1px 0 white}
+    .age-choices input:focus-visible+span{outline:3px solid #17231f;outline-offset:2px}
+    .age-choices label:hover span{transform:translateY(-1px);border-color:rgba(39,45,42,.22)}
+
+    /* The card is taller now that the age chips are on question one. It had a
+       max-height and no scroller, so a short viewport clipped the Next button. */
+    .diagnostic-dialog{overflow-y:auto;overscroll-behavior:contain}
+
+    @media(max-width:420px){.age-choices span{min-width:52px;padding:0 12px}}
+    @media(prefers-reduced-motion:reduce){.age-choices span{transition:none}.age-choices label:hover span{transform:none}}
+    html[data-motion="reduced"] .age-choices span{transition-duration:120ms}
+    html[data-motion="reduced"] .age-choices label:hover span{transform:translateY(-.5px)}
+    html[data-motion="none"] .age-choices span{transition:none}
+    html[data-motion="none"] .age-choices label:hover span{transform:none}
+  </style>
 </head>
 <body>
-  <main class="onboarding-ground"><div class="onboarding-top"><a href="./access.html">LearningAI</a><span>Account ready · finish setup</span></div><section class="onboarding-context" aria-busy="true"><div><h1>Set your starting point</h1><p>The required questions are loading. If they do not appear, reload this page or return to the learner setup.</p></div></section></main>
+  <!-- The wordmark used to link to access.html. By this point the learner has an
+       account and is signed in, so that link led to a sign-in page they did not
+       need; it is identification, not navigation. -->
+  <main class="onboarding-ground"><div class="onboarding-top"><span>LearningAI</span><span>Account ready · finish setup</span></div><section class="onboarding-context" aria-busy="true"><div><h1>Set your starting point</h1><p>The required questions are loading. If they do not appear, reload this page.</p></div></section></main>
 </body>
 </html>
