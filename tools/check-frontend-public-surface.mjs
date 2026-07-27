@@ -42,6 +42,8 @@ try {
     '/',
     '/about.html',
     '/projects.html',
+    '/submit-project.html',
+    '/submission-policy.html',
     '/learning-ai-design-assets/theme.css',
     '/v2/',
     '/v3/',
@@ -76,6 +78,10 @@ try {
   assert.match(apiClient, /queueMinutes/, 'focus minutes must have an offline-safe account sync queue');
   assert.match(apiClient, /saveToolkit/, 'Saved Notes must use the account API');
   assert.match(apiClient, /restoredFromAccountAt/, 'account hydration must restore cross-device learning state');
+  assert.match(apiClient, /submitProjectReview/, 'project submissions must have an account API call');
+  // Progress and minutes drain by themselves. A project submission must not:
+  // it leaves the device only when a learner presses send.
+  assert.doesNotMatch(apiClient, /submitProjectReview[\s\S]*const drain = \(\) => \{[^}]*submitProjectReview/, 'project submissions must never auto-send');
   const themeController = await readFile(new URL('../learning-ai-design-assets/theme.js', import.meta.url), 'utf8');
   assert.match(themeController, /reviewHost &&/, 'review mode must be restricted to local preview hosts');
   const progressPage = await readFile(new URL('../learning-ai-design-assets/progress.html', import.meta.url), 'utf8');

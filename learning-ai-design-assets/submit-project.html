@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Submit a project · LearningAI</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    :root{color-scheme:light;--ink:#171816;--muted:#5b625d;--gold:#a8843f;--glass:rgba(255,255,255,.43);--line:rgba(44,44,38,.14);--shadow:0 18px 60px rgba(42,38,28,.12),0 2px 8px rgba(42,38,28,.08);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);background:#efeee9 url("./learning-ai-paper-light-v1.jpg") center top/cover fixed no-repeat;overflow-x:hidden}
+    .nav-stage{position:fixed;inset:0 0 auto;height:118px;z-index:20;pointer-events:none;overflow:hidden}.nav-shell{width:min(1040px,calc(100vw - 36px));margin:18px auto 0;pointer-events:auto;transition:transform 520ms cubic-bezier(.2,.8,.2,1),opacity 360ms ease,filter 420ms ease;will-change:transform,opacity,filter}.nav-shell.is-passing{transform:translateY(-104px) scale(.985);opacity:0;filter:blur(8px) saturate(.8)}
+    .nav-glass{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;min-height:60px;padding:7px 8px 7px 13px;border:1px solid rgba(255,255,255,.8);border-radius:22px;background:linear-gradient(155deg,rgba(255,255,255,.76),rgba(255,255,255,.28) 62%,rgba(255,255,255,.42)),var(--glass);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(50,47,37,.08),var(--shadow);backdrop-filter:blur(26px) saturate(1.16);-webkit-backdrop-filter:blur(26px) saturate(1.16)}
+    .brand{display:inline-flex;align-items:center;gap:8px;padding-right:10px;color:var(--ink);font-size:14px;font-weight:650;letter-spacing:-.02em;text-decoration:none;white-space:nowrap}.mark{position:relative;width:27px;height:27px;border:1px solid rgba(35,35,30,.17);border-radius:9px;background:rgba(255,255,255,.45);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.mark:before,.mark:after{content:"";position:absolute;inset:6px;border:1.4px solid var(--gold);border-radius:50%}.mark:after{inset:10px 5px;border-left:0;border-right:0;border-radius:0}
+    nav{display:flex;justify-content:center;align-items:center;min-width:0}nav a,.settings{display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 8px;border:0;border-radius:14px;background:transparent;color:#3c3d39;font:inherit;font-size:11px;font-weight:520;text-decoration:none;white-space:nowrap;transition:background 160ms ease,color 160ms ease}nav a:hover,.settings:hover{background:rgba(255,255,255,.56);color:#171816}nav a:focus-visible,.settings:focus-visible{outline:3px solid #17231f;outline-offset:2px}nav a[aria-current="page"]{background:rgba(255,255,255,.7);box-shadow:inset 0 0 0 1px rgba(48,48,40,.07),0 3px 12px rgba(46,41,30,.07);color:#141512;font-weight:650}.settings{width:38px;padding:0;margin-left:5px;border-left:1px solid rgba(45,44,38,.1);border-radius:13px}.settings svg{width:17px;height:17px}.welcome{display:flex;align-items:center;padding-left:7px;white-space:nowrap}.greeting{padding:9px 9px;font-size:11px;font-weight:620}
+    .brand,nav a,.greeting{text-shadow:0 1px 0 rgba(255,255,255,.96),0 2px 7px rgba(42,38,28,.16)}.brand{font-weight:720}.mark{background:linear-gradient(150deg,rgba(255,255,255,.98),rgba(230,228,220,.72));box-shadow:inset 0 1px 1px white,inset 0 -1px 1px rgba(64,59,45,.12),0 4px 10px rgba(46,41,30,.14)}nav a{font-weight:610;letter-spacing:-.012em}nav a:hover{background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(240,238,231,.52));box-shadow:inset 0 1px 0 rgba(255,255,255,.96),0 4px 10px rgba(45,41,30,.08)}.settings{background:linear-gradient(155deg,rgba(255,255,255,.9),rgba(228,226,219,.62));box-shadow:inset 0 1px 1px white,inset 0 -1px 1px rgba(61,57,46,.12),0 4px 10px rgba(45,41,30,.12)}.settings svg{filter:drop-shadow(0 1px 0 white) drop-shadow(0 2px 2px rgba(40,38,33,.17))}
+    .nav-glass{position:relative;overflow:hidden;border-color:rgba(255,255,255,.72);background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.045) 48%,rgba(214,219,216,.13));box-shadow:inset 0 1px 1px white,inset 0 -1px 1px rgba(45,46,42,.2),inset 1px 0 0 rgba(255,255,255,.5),0 18px 45px rgba(38,36,30,.18),0 3px 8px rgba(38,36,30,.11);backdrop-filter:blur(18px) saturate(1.5) brightness(1.04) contrast(1.04);-webkit-backdrop-filter:blur(18px) saturate(1.5) brightness(1.04) contrast(1.04)}.nav-glass:before{content:"";position:absolute;z-index:0;inset:1px 9% auto;height:24%;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,0));opacity:.9;pointer-events:none}.nav-glass:after{content:"";position:absolute;z-index:0;inset:0;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.3),transparent 15%,transparent 78%,rgba(255,255,255,.2));box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);pointer-events:none}.nav-glass>*{position:relative;z-index:1}.brand,nav a,.greeting{color:#22231f;text-shadow:0 1px 0 white,0 2px 3px rgba(37,35,30,.24),0 6px 12px rgba(37,35,30,.08)}.settings{border:1px solid rgba(255,255,255,.82)}
+    .nav-stage{height:100vh}.nav-shell{--drag-x:0px;--drag-y:0px;transform:translate3d(var(--drag-x),var(--drag-y),0)}.nav-shell.is-passing{transform:translate3d(var(--drag-x),calc(var(--drag-y) - 104px),0) scale(.985);pointer-events:none}.nav-glass{user-select:none}.nav-glass a,.nav-glass button{cursor:pointer}
+
+    /* .button, .choice and .crumb all set a display, which outranks the user-agent
+       [hidden] rule and left hidden controls on screen. Make hiding win. */
+    [hidden]{display:none!important}
+    main{width:min(880px,calc(100vw - 36px));margin:118px auto 120px}
+    .panel{margin-top:20px;padding:clamp(26px,4vw,42px);border:1px solid rgba(255,255,255,.78);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21));box-shadow:inset 0 1px 1px rgba(255,255,255,.98),inset 0 -1px 0 rgba(35,39,38,.12),0 22px 66px rgba(37,40,38,.105);backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .crumbs{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:9px;margin:0 0 4px;overflow:visible}.crumb{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(255,255,255,.9);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(226,225,218,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.14);color:#22231f;font-size:12.5px;font-weight:720;text-decoration:none;white-space:nowrap}.crumb:hover{background:linear-gradient(180deg,#fff,rgba(233,232,225,.72))}
+    .eyebrow{margin:0 0 13px;color:#75623b;font-size:10.5px;font-weight:720;letter-spacing:.17em;text-transform:uppercase}
+    h1{margin:0;font-size:clamp(38px,6vw,64px);font-weight:520;letter-spacing:-.055em;line-height:.96;text-shadow:0 1px 0 rgba(255,255,255,.92),0 3px 9px rgba(37,40,38,.15)}
+    .lead{max-width:640px;margin:20px 0 0;color:#2f3630;font-size:17px;line-height:1.55}
+    h2{margin:0 0 12px;font-size:25px;font-weight:560;letter-spacing:-.04em;text-shadow:0 1px 0 rgba(255,255,255,.9)}
+    h3{margin:0 0 9px;color:#413620;font-size:10.5px;font-weight:720;letter-spacing:.15em;text-transform:uppercase}
+    p,li{color:#2f3630;font-size:14.5px;line-height:1.62}
+    a{color:#1d3a33}
+    .surface{margin-top:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.62);border-radius:17px;background:linear-gradient(160deg,rgba(255,255,255,.32),rgba(255,255,255,.22)),rgba(50,55,52,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.72)}
+    .surface p:first-child{margin-top:0}.surface p:last-child{margin-bottom:0}
+    .field{margin-top:20px}.field label,legend{display:block;margin-bottom:7px;color:#25302b;font-size:13px;font-weight:720;letter-spacing:-.005em}
+    .hint{margin:6px 0 0;color:#303732;font-size:12.5px;line-height:1.5}
+    input[type=text],input[type=url],select,textarea{display:block;width:100%;min-height:48px;padding:12px 14px;border:1px solid rgba(41,48,44,.28);border-radius:15px;background:rgba(255,255,255,.72);color:#171816;font:inherit;font-size:15px;line-height:1.45}
+    textarea{min-height:118px;resize:vertical}
+    select{min-height:48px;appearance:none;background-image:linear-gradient(45deg,transparent 49%,#3d443f 50%,#3d443f 56%,transparent 57%),linear-gradient(-45deg,transparent 49%,#3d443f 50%,#3d443f 56%,transparent 57%);background-position:calc(100% - 22px) 21px,calc(100% - 15px) 21px;background-size:7px 7px;background-repeat:no-repeat;padding-right:44px}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+    input[type=text]:invalid:not(:placeholder-shown),input[type=url]:invalid:not(:placeholder-shown),textarea:invalid:not(:placeholder-shown){border-color:#8c3722}
+    ::placeholder{color:#59605b;opacity:1}
+    code{padding:1px 5px;border-radius:6px;background:rgba(41,48,44,.10);font-size:.92em}
+    fieldset{margin:20px 0 0;padding:16px 18px;border:1px solid rgba(41,48,44,.22);border-radius:17px;background:rgba(255,255,255,.24)}legend{padding:0 6px;margin:0}
+    /* A 22px box is not a touch target. The label is the rest of the target, so
+       it carries the full 44px row and the whole width of the fieldset. */
+    .choice{display:flex;align-items:flex-start;gap:11px;padding:2px 0}.choice input{flex:0 0 auto;width:24px;height:24px;margin:12px 0 0;accent-color:#24312d}.choice label{display:flex;flex:1 1 auto;align-items:center;min-height:48px;padding:6px 0;margin:0;cursor:pointer}.choice span{color:#303732;font-size:13.5px;font-weight:500;line-height:1.5}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 20px;border:1px solid rgba(49,54,49,.2);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(228,227,220,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.12);color:#1c231f;font:inherit;font-size:14px;font-weight:720;text-decoration:none;cursor:pointer}
+    .button:hover{background:linear-gradient(180deg,#fff,rgba(235,234,227,.7))}
+    .button.primary{border-color:rgba(20,28,24,.6);background:#24312d;box-shadow:0 8px 18px rgba(30,38,34,.24);color:#fff}.button.primary:hover{background:#1a2521}
+    .button[disabled]{opacity:.55;cursor:not-allowed}
+    .status{margin:18px 0 0;padding:16px 18px;border-left:4px solid #4c5a55;border-radius:0 15px 15px 0;background:rgba(255,255,255,.4);color:#2e3630;font-size:14px;line-height:1.58}
+    .status:empty{display:none}
+    .status.is-good{border-left-color:#2f6b4f}.status.is-warn{border-left-color:#8a6a1f}.status.is-bad{border-left-color:#8c3722}
+    .status strong{display:block;margin-bottom:5px;color:#1d231f;font-size:14.5px}
+    .review-list{margin:0;padding:0;list-style:none}.review-list div{padding:12px 0;border-top:1px solid rgba(45,52,48,.16)}.review-list div:first-child{border-top:0}.review-list dt{color:#303732;font-size:11px;font-weight:720;letter-spacing:.1em;text-transform:uppercase}.review-list dd{margin:5px 0 0;color:#2c332e;font-size:14.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+    .record{padding:14px 16px;margin-top:10px;border:1px solid rgba(41,48,44,.2);border-radius:15px;background:rgba(255,255,255,.3)}.record h4{margin:0 0 5px;font-size:15px;font-weight:640;letter-spacing:-.02em;overflow-wrap:anywhere}.record p{margin:3px 0 0;font-size:12.5px;color:#303732}.record .tag{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(41,48,44,.22);background:rgba(255,255,255,.55);font-size:11px;font-weight:720}
+    .to-line{display:grid;gap:4px}.to-line b{color:#212a25;font-size:15px;font-weight:680;overflow-wrap:anywhere}
+    #confirmPanel,#resultPanel{scroll-margin-top:112px}
+    @media(max-width:820px){.nav-shell{width:calc(100vw - 20px);margin-top:10px}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto;min-height:56px;padding:6px 7px}.brand span:last-child{display:none}nav{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{flex:0 0 auto;padding-inline:7px}.welcome{display:none}.settings{grid-column:3;margin-left:4px}main{width:calc(100vw - 20px);margin-top:94px}.panel{border-radius:24px}}
+    @media(prefers-reduced-motion:reduce){html:not([data-motion="standard"]) .nav-shell{transition:opacity 1ms linear}html:not([data-motion="standard"]) .nav-shell.is-passing{transform:none;filter:none;opacity:0}}
+    html[data-motion="none"] .nav-shell,html[data-motion="reduced"] .nav-shell{transition:opacity 1ms linear}
+    html[data-motion="none"] .nav-shell.is-passing,html[data-motion="reduced"] .nav-shell.is-passing{transform:none;filter:none;opacity:0}
+  </style>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26c"><script src="./theme.js?v=2026-07-26c"></script>
+</head>
+<body>
+  <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">
+    <a class="brand" href="./stage-1-navigation-proof.html" aria-label="LearningAI dashboard"><span class="mark" aria-hidden="true"></span><span>LearningAI</span></a>
+    <nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./progress.html">Progress</a><a href="./lessons.html">Lessons</a><a href="./focus.html">Focus</a><a href="./projects.html">Projects</a><a href="./about.html">About</a></nav>
+    <div class="welcome"><span class="greeting" id="greeting">Welcome</span></div>
+    <a class="settings" href="./settings.html" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.13.36.34.7.6 1 .3.3.7.44 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></a>
+  </div></header></div>
+
+  <main>
+    <nav class="crumbs" aria-label="Back to Projects"><a class="crumb" href="./projects.html">← Back to Projects</a><a class="crumb" href="./submission-policy.html">Submission and deletion policy</a></nav>
+
+    <header class="panel">
+      <p class="eyebrow">Projects</p>
+      <h1>Submit a project for review</h1>
+      <p class="lead">Send your work to Aarav for a private read. Submitting is a request for review. It is never permission to publish.</p>
+      <div class="surface"><p><strong>What this page does today.</strong> Your submission is recorded on your LearningAI account so it cannot be lost. LearningAI cannot send email yet, so nothing is emailed from here and this page will never tell you an email went out. If you want a copy to reach Aarav today as well, the <a href="./gallery.html#contact">Gallery contact page</a> prepares a message you can send from your own email.</p></div>
+    </header>
+
+    <section class="panel" id="accountPanel" aria-labelledby="accountTitle">
+      <h2 id="accountTitle">Your account</h2>
+      <p class="status" id="accountStatus" role="status" aria-live="polite">Checking whether you are signed in…</p>
+      <div class="actions" id="accountActions" hidden>
+        <a class="button primary" id="signInLink" href="./access.html?returning=1">Sign in →</a>
+        <button class="button" id="retryAccount" type="button">Check again</button>
+      </div>
+    </section>
+
+    <form class="panel" id="submitPanel" hidden aria-labelledby="formTitle">
+      <h2 id="formTitle">About your project</h2>
+      <p>Everything below is stored on your account with your submission. Keep private information out: no real names, school or team details, addresses, faces, voices, contact details, or anything belonging to another person.</p>
+
+      <div class="field">
+        <label for="projectKey">Which project is this?</label>
+        <select id="projectKey" name="projectKey">
+          <option value="">Choose a project…</option>
+        </select>
+        <p class="hint" id="projectKeyHint">Choosing one fills in a starting title. You can change the title afterwards.</p>
+      </div>
+
+      <div class="field">
+        <label for="title">Project title <span aria-hidden="true">*</span></label>
+        <input id="title" name="title" type="text" maxlength="180" required placeholder="A short name for what you made" aria-describedby="titleHint" />
+        <p class="hint" id="titleHint">Required. Up to 180 characters.</p>
+      </div>
+
+      <div class="field">
+        <label for="projectUrl">Link to your work</label>
+        <input id="projectUrl" name="projectUrl" type="url" maxlength="500" pattern="https://.+" title="A project link must start with https://" placeholder="https://…" aria-describedby="urlHint" />
+        <p class="hint" id="urlHint">Optional. Must start with <code>https://</code>. Files cannot be attached here — link to them, or describe them below.</p>
+      </div>
+
+      <div class="field">
+        <label for="summary">What did you make? <span aria-hidden="true">*</span></label>
+        <textarea id="summary" name="summary" maxlength="2500" required placeholder="The goal, what you built, and what a reader would see." aria-describedby="summaryHint"></textarea>
+        <p class="hint" id="summaryHint">Required. Up to 2,500 characters.</p>
+      </div>
+
+      <div class="field">
+        <label for="contribution">What did AI do, and what did you decide or check yourself? <span aria-hidden="true">*</span></label>
+        <textarea id="contribution" name="contribution" maxlength="2500" required placeholder="Where AI helped, and which choices and checks were yours." aria-describedby="contributionHint"></textarea>
+        <p class="hint" id="contributionHint">Required. This is the part reviews look at most closely.</p>
+      </div>
+
+      <div class="field">
+        <label for="learned">What went wrong, and what did you learn?</label>
+        <textarea id="learned" name="learned" maxlength="1500" placeholder="One mistake and the lesson you took from it."></textarea>
+        <p class="hint">Optional, but a mistake and its lesson make a project far more useful to other learners.</p>
+      </div>
+
+      <fieldset>
+        <legend>Your age range <span aria-hidden="true">*</span></legend>
+        <p class="hint" style="margin-top:0">Different publication rules apply to learners under 18.</p>
+        <div class="choice"><input id="ageUnder" name="ageRange" type="radio" value="under-18" required /><label for="ageUnder"><span>Under 18</span></label></div>
+        <div class="choice"><input id="ageAdult" name="ageRange" type="radio" value="18-plus" required /><label for="ageAdult"><span>18 or older</span></label></div>
+      </fieldset>
+
+      <div class="field">
+        <label for="publicName" id="publicNameLabel">Public name to use if this is ever published</label>
+        <input id="publicName" name="publicName" type="text" maxlength="80" placeholder="A pseudonym or nickname" aria-describedby="publicNameHint" />
+        <p class="hint" id="publicNameHint">Optional. Nothing is published without a separate approval. A learner under 18 may only appear under a non-identifying pseudonym — not a real name, username, handle, school, team, employer, or city.</p>
+      </div>
+
+      <fieldset>
+        <legend>Before you send <span aria-hidden="true">*</span></legend>
+        <div class="choice"><input id="ownsWork" name="ownsWork" type="checkbox" required /><label for="ownsWork"><span>I made this work, or I have permission to share it.</span></label></div>
+        <div class="choice"><input id="privacyCleared" name="privacyCleared" type="checkbox" required /><label for="privacyCleared"><span>I removed real names, school or team details, addresses, exact age or birthday, faces, voices, contact details, and other people’s private information.</span></label></div>
+        <div class="choice"><input id="reviewOnly" name="reviewOnly" type="checkbox" required /><label for="reviewOnly"><span>I understand this is a request for a private review and is not permission to publish.</span></label></div>
+        <div class="choice" id="guardianChoice" hidden><input id="guardianApproval" name="guardianApproval" type="checkbox" /><label for="guardianApproval"><span>I understand that because I am under 18, a parent or guardian must separately approve the exact preview before anything of mine appears publicly.</span></label></div>
+      </fieldset>
+
+      <div class="surface to-line">
+        <h3>Where this goes</h3>
+        <p style="margin:0">Recorded on your LearningAI account for Aarav’s private review queue. If Aarav replies, the reply goes to the address on your account:</p>
+        <b id="replyAddress">…</b>
+        <p class="hint" style="margin:0">You cannot type a different address here — LearningAI only ever writes to the account you signed in with. To change it, change the account.</p>
+      </div>
+
+      <div class="actions">
+        <button class="button primary" type="submit" id="reviewButton">Review before sending →</button>
+        <a class="button" href="./projects.html">Cancel</a>
+      </div>
+      <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+    </form>
+
+    <section class="panel" id="confirmPanel" hidden aria-labelledby="confirmTitle" tabindex="-1">
+      <h2 id="confirmTitle">Check this, then send</h2>
+      <p>Nothing has been sent yet. This is exactly what will be recorded.</p>
+      <dl class="review-list" id="confirmList"></dl>
+      <div class="actions">
+        <button class="button primary" type="button" id="sendButton">Send for review</button>
+        <button class="button" type="button" id="editButton">Go back and edit</button>
+      </div>
+      <p class="status" id="sendStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="panel" id="resultPanel" hidden aria-labelledby="resultTitle" tabindex="-1">
+      <h2 id="resultTitle">Result</h2>
+      <p class="status" id="resultStatus" role="status" aria-live="polite"></p>
+      <div class="actions" id="resultActions"></div>
+    </section>
+
+    <section class="panel" id="localPanel" hidden aria-labelledby="localTitle">
+      <h2 id="localTitle">Submissions from this device</h2>
+      <p>A record of what this browser tried to send, and what actually happened. Stored on this device only.</p>
+      <div id="localList"></div>
+      <div class="actions"><button class="button" type="button" id="clearLocal">Clear this device record</button></div>
+    </section>
+
+    <section class="panel" aria-labelledby="policyTitle">
+      <h2 id="policyTitle">What happens after you send</h2>
+      <ol>
+        <li>Aarav reads the project privately for safety, clarity, ownership, and useful evidence. Review is manual and no response time is promised.</li>
+        <li>If it is not selected, it stays unpublished and the submission is deleted within 30 days of the decision.</li>
+        <li>If it may be selected, LearningAI builds the exact publication preview and asks for a separate written approval. Under-18 work also needs a guardian’s approval of that preview.</li>
+      </ol>
+      <p>You can ask for a submission to be withdrawn or deleted at any time by writing to <a href="mailto:learningai4youprojects@duck.com?subject=LearningAI%20privacy%20or%20deletion%20request">learningai4youprojects@duck.com</a>. <a href="./submission-policy.html">Read the full submission and deletion policy.</a></p>
+    </section>
+  </main>
+
+  <script src="./learning-api.js?v=2026-07-26d"></script><script src="./nav-behavior.js?v=2026-07-26b"></script>
+  <script>
+    (() => {
+      const DRAFT_KEY = 'learningai-project-submission-draft';
+      const RECORD_KEY = 'learningai-project-submission-records';
+      const PROJECTS = [
+        ['prompt-repair', 'Prompt repair journal'],
+        ['verification', 'AI verification checklist'],
+        ['newsroom', 'Source-checking mini newsroom'],
+        ['school-helper', 'Privacy-safe school helper'],
+        ['science-data', 'Science fair data explainer'],
+        ['human-control', 'Human-in-control agent workflow'],
+        ['small-llm', 'A small SQL language model'],
+        ['ethics-dialogue', 'Multi-agent ethics dialogue experiment'],
+        ['other', 'Something else I built']
+      ];
+
+      const $ = id => document.getElementById(id);
+      const accountStatus = $('accountStatus');
+      const accountActions = $('accountActions');
+      const submitPanel = $('submitPanel');
+      const confirmPanel = $('confirmPanel');
+      const resultPanel = $('resultPanel');
+      const localPanel = $('localPanel');
+      const formStatus = $('formStatus');
+      const sendStatus = $('sendStatus');
+      const resultStatus = $('resultStatus');
+      const sendButton = $('sendButton');
+      const projectKey = $('projectKey');
+      const guardianChoice = $('guardianChoice');
+      const guardianApproval = $('guardianApproval');
+
+      let account = null;
+      let pending = null;
+
+      const name = window.LearningAIUser?.displayName || 'Learner';
+      $('greeting').textContent = window.LearningAIGreeting?.navText(name) || ('Welcome, ' + name);
+
+      PROJECTS.forEach(([value, label]) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        projectKey.append(option);
+      });
+
+      function setStatus(node, tone, headline, body) {
+        node.className = 'status' + (tone ? ' is-' + tone : '');
+        node.replaceChildren();
+        if (headline) {
+          const strong = document.createElement('strong');
+          strong.textContent = headline;
+          node.append(strong);
+        }
+        (Array.isArray(body) ? body : [body]).filter(Boolean).forEach((part, index) => {
+          if (index) node.append(document.createElement('br'));
+          if (typeof part === 'string') node.append(document.createTextNode(part));
+          else node.append(part);
+        });
+      }
+
+      /* Programmatic focus alone left the confirm step 800px below the fold, so
+         pressing the button looked like nothing happened. Move the view too, and
+         only animate the move when motion is set to standard. */
+      function focusPanel(node) {
+        node.focus({ preventScroll: true });
+        node.scrollIntoView({
+          behavior: document.documentElement.dataset.motion === 'standard' ? 'smooth' : 'auto',
+          block: 'start'
+        });
+      }
+
+      function link(href, text, className) {
+        const anchor = document.createElement('a');
+        anchor.href = href;
+        anchor.textContent = text;
+        if (className) anchor.className = className;
+        return anchor;
+      }
+
+      const readJson = (key, fallback) => {
+        try {
+          const value = JSON.parse(localStorage.getItem(key) || 'null');
+          return value === null || value === undefined ? fallback : value;
+        } catch {
+          return fallback;
+        }
+      };
+      const writeJson = (key, value) => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch {}
+      };
+
+      /* ---- form state ------------------------------------------------- */
+
+      const fields = ['projectKey', 'title', 'projectUrl', 'summary', 'contribution', 'learned', 'publicName'];
+
+      function ageValue() {
+        return document.querySelector('input[name="ageRange"]:checked')?.value || '';
+      }
+
+      function readForm() {
+        const values = {};
+        fields.forEach(id => { values[id] = $(id).value.trim(); });
+        values.ageRange = ageValue();
+        values.ownsWork = $('ownsWork').checked;
+        values.privacyCleared = $('privacyCleared').checked;
+        values.reviewOnly = $('reviewOnly').checked;
+        values.guardianApproval = $('guardianApproval').checked;
+        return values;
+      }
+
+      function saveDraft() {
+        writeJson(DRAFT_KEY, { ...readForm(), savedAt: new Date().toISOString() });
+      }
+
+      function restoreDraft() {
+        const draft = readJson(DRAFT_KEY, null);
+        if (!draft || typeof draft !== 'object') return;
+        fields.forEach(id => { if (typeof draft[id] === 'string') $(id).value = draft[id]; });
+        if (draft.ageRange === 'under-18') $('ageUnder').checked = true;
+        if (draft.ageRange === '18-plus') $('ageAdult').checked = true;
+        $('ownsWork').checked = Boolean(draft.ownsWork);
+        $('privacyCleared').checked = Boolean(draft.privacyCleared);
+        $('reviewOnly').checked = Boolean(draft.reviewOnly);
+        $('guardianApproval').checked = Boolean(draft.guardianApproval);
+        syncAge();
+      }
+
+      function syncAge() {
+        const under = ageValue() === 'under-18';
+        guardianChoice.hidden = !under;
+        guardianApproval.required = under;
+        if (!under) guardianApproval.checked = false;
+        $('publicNameLabel').textContent = under
+          ? 'Pseudonym to use if this is ever published'
+          : 'Public name to use if this is ever published';
+      }
+
+      projectKey.addEventListener('change', () => {
+        const label = PROJECTS.find(entry => entry[0] === projectKey.value)?.[1] || '';
+        const title = $('title');
+        if (label && projectKey.value !== 'other' && !title.value.trim()) title.value = label;
+        saveDraft();
+      });
+      submitPanel.addEventListener('input', saveDraft);
+      submitPanel.addEventListener('change', () => { syncAge(); saveDraft(); });
+
+      /* ---- local device record ---------------------------------------- */
+
+      function records() {
+        const value = readJson(RECORD_KEY, []);
+        return Array.isArray(value) ? value : [];
+      }
+
+      function addRecord(entry) {
+        const next = records().filter(item => item.localId !== entry.localId);
+        next.unshift(entry);
+        writeJson(RECORD_KEY, next.slice(0, 20));
+        renderRecords();
+      }
+
+      function renderRecords() {
+        const list = records();
+        localPanel.hidden = list.length === 0;
+        const container = $('localList');
+        container.replaceChildren(...list.map(entry => {
+          const box = document.createElement('div');
+          box.className = 'record';
+          const heading = document.createElement('h4');
+          heading.textContent = entry.title || 'Untitled project';
+          const tag = document.createElement('p');
+          const pill = document.createElement('span');
+          pill.className = 'tag';
+          pill.textContent = entry.state === 'recorded' ? 'Recorded on your account' : 'Not sent — saved on this device';
+          tag.append(pill);
+          const detail = document.createElement('p');
+          const when = entry.savedAt ? new Date(entry.savedAt).toLocaleString() : '';
+          detail.textContent = entry.state === 'recorded'
+            ? 'Reference ' + (entry.reference || 'unknown') + ' · status ' + (entry.status || 'queued') + (when ? ' · ' + when : '') + ' · no email was sent'
+            : (entry.reason || 'The submission did not reach LearningAI.') + (when ? ' · ' + when : '');
+          box.append(heading, tag, detail);
+          return box;
+        }));
+      }
+
+      $('clearLocal').addEventListener('click', () => {
+        writeJson(RECORD_KEY, []);
+        renderRecords();
+      });
+
+      /* ---- confirm step ------------------------------------------------ */
+
+      function payloadFrom(values) {
+        return {
+          title: values.title.slice(0, 180),
+          projectUrl: values.projectUrl,
+          artifact: {
+            source: 'submit-project',
+            projectKey: values.projectKey || 'unspecified',
+            projectLabel: PROJECTS.find(entry => entry[0] === values.projectKey)?.[1] || '',
+            summary: values.summary,
+            contribution: values.contribution,
+            learned: values.learned,
+            ageRange: values.ageRange,
+            publicName: values.publicName,
+            confirmations: {
+              ownsWork: values.ownsWork,
+              privacyCleared: values.privacyCleared,
+              reviewOnly: values.reviewOnly,
+              guardianApprovalUnderstood: values.ageRange === 'under-18' ? values.guardianApproval : null
+            },
+            submittedAt: new Date().toISOString()
+          }
+        };
+      }
+
+      function showConfirm(values) {
+        const rows = [
+          ['Project', PROJECTS.find(entry => entry[0] === values.projectKey)?.[1] || 'Not chosen'],
+          ['Title', values.title],
+          ['Link', values.projectUrl || 'None'],
+          ['What you made', values.summary],
+          ['AI and your own decisions', values.contribution],
+          ['What you learned', values.learned || 'Not answered'],
+          ['Age range', values.ageRange === 'under-18' ? 'Under 18' : '18 or older'],
+          ['Public name if published', values.publicName || 'Not chosen yet'],
+          ['Recorded on the account', account.email],
+          ['Emailed to anyone', 'No. LearningAI cannot send email yet.']
+        ];
+        $('confirmList').replaceChildren(...rows.map(([label, value]) => {
+          const wrap = document.createElement('div');
+          const dt = document.createElement('dt');
+          dt.textContent = label;
+          const dd = document.createElement('dd');
+          dd.textContent = value;
+          wrap.append(dt, dd);
+          return wrap;
+        }));
+        setStatus(sendStatus, '', '', '');
+        confirmPanel.hidden = false;
+        submitPanel.hidden = true;
+        resultPanel.hidden = true;
+        sendButton.disabled = false;
+        focusPanel(confirmPanel);
+      }
+
+      submitPanel.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!account) return;
+        const values = readForm();
+        if (values.projectUrl && !/^https:\/\/.+/i.test(values.projectUrl)) {
+          setStatus(formStatus, 'bad', 'That link cannot be sent.', 'A project link must start with https:// . Remove it or correct it.');
+          $('projectUrl').focus();
+          return;
+        }
+        setStatus(formStatus, '', '', '');
+        pending = values;
+        showConfirm(values);
+      });
+
+      $('editButton').addEventListener('click', () => {
+        confirmPanel.hidden = true;
+        submitPanel.hidden = false;
+        $('title').focus();
+      });
+
+      /* ---- sending ------------------------------------------------------ */
+
+      function finish(tone, headline, body, actions) {
+        resultPanel.hidden = false;
+        confirmPanel.hidden = true;
+        setStatus(resultStatus, tone, headline, body);
+        $('resultActions').replaceChildren(...(actions || []));
+        focusPanel(resultPanel);
+      }
+
+      function retryButton() {
+        const button = document.createElement('button');
+        button.className = 'button primary';
+        button.type = 'button';
+        button.textContent = 'Try sending again';
+        button.addEventListener('click', () => {
+          resultPanel.hidden = true;
+          showConfirm(pending);
+        });
+        return button;
+      }
+
+      function editAgainButton() {
+        const button = document.createElement('button');
+        button.className = 'button';
+        button.type = 'button';
+        button.textContent = 'Edit the submission';
+        button.addEventListener('click', () => {
+          resultPanel.hidden = true;
+          confirmPanel.hidden = true;
+          submitPanel.hidden = false;
+          $('title').focus();
+        });
+        return button;
+      }
+
+      sendButton.addEventListener('click', async () => {
+        if (!pending || !account) return;
+        sendButton.disabled = true;
+        setStatus(sendStatus, '', 'Sending…', 'Nothing has been recorded yet.');
+        const localId = 'local-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+        const values = pending;
+        let result;
+        try {
+          result = await window.LearningAIAPI.submitProjectReview(payloadFrom(values));
+        } catch (error) {
+          result = { ok: false, error: 'network_error', status: 0 };
+        }
+        sendButton.disabled = false;
+        setStatus(sendStatus, '', '', '');
+
+        if (result.ok && result.review) {
+          addRecord({
+            localId,
+            title: values.title,
+            state: 'recorded',
+            reference: result.review.id || '',
+            status: result.review.status || 'queued',
+            savedAt: new Date().toISOString()
+          });
+          localStorage.removeItem(DRAFT_KEY);
+          finish('good', 'Recorded on your account.', [
+            'Reference ' + (result.review.id || 'unknown') + ', status ' + (result.review.status || 'queued') + '. It is now in Aarav’s private review queue.',
+            'No email has been sent. LearningAI cannot send email yet, so this page will not pretend one went out.',
+            'Want a copy to reach Aarav today as well? ',
+            link('./gallery.html#contact', 'The Gallery contact page prepares a message you can send from your own email.')
+          ], [link('./projects.html', 'Back to Projects', 'button'), editAgainButton()]);
+          return;
+        }
+
+        const offline = result.status === 0 || result.status === 502 || result.status === 503;
+        addRecord({
+          localId,
+          title: values.title,
+          state: 'not-sent',
+          reason: offline
+            ? 'LearningAI could not be reached, so nothing was recorded.'
+            : (window.LearningAIAPI.friendlyError(result) || 'The submission was refused.'),
+          savedAt: new Date().toISOString()
+        });
+        saveDraft();
+
+        if (result.status === 401) {
+          account = null;
+          submitPanel.hidden = true;
+          showSignedOut('Your session ended before this was recorded.');
+          finish('bad', 'Not submitted.', [
+            'Nothing was recorded and nothing was emailed. Your answers are still saved on this device.',
+            'Sign in again and open this page to send it.'
+          ], [link('./access.html?returning=1', 'Sign in →', 'button primary')]);
+          return;
+        }
+
+        if (result.error === 'questionnaire_required') {
+          finish('warn', 'Not submitted yet.', [
+            'Project submissions open after lesson one and the six starting questions are saved to your account. Nothing was recorded and nothing was emailed.',
+            'Your answers are saved on this device and will still be here when you come back.'
+          ], [link('./lessons.html', 'Go to the lessons', 'button'), editAgainButton()]);
+          return;
+        }
+
+        finish('bad', offline ? 'Not submitted — LearningAI could not be reached.' : 'Not submitted.', [
+          offline
+            ? 'Nothing was recorded on your account and nothing was emailed. Your answers are saved on this device only.'
+            : (window.LearningAIAPI.friendlyError(result) || 'The submission was refused.') + ' Nothing was recorded and nothing was emailed.',
+          'Nothing is sent automatically. Use the button below when you want to try again.'
+        ], [retryButton(), editAgainButton()]);
+      });
+
+      /* ---- account gate --------------------------------------------------- */
+
+      function showSignedOut(reason) {
+        submitPanel.hidden = true;
+        confirmPanel.hidden = true;
+        accountActions.hidden = false;
+        $('signInLink').hidden = false;
+        setStatus(accountStatus, 'warn', reason || 'You are not signed in.', [
+          'A project is submitted from the account you signed in with, so LearningAI never asks you to type an address and never writes to a stranger. Sign in, then come back to this page.'
+        ]);
+      }
+
+      function showUnavailable(result) {
+        submitPanel.hidden = true;
+        confirmPanel.hidden = true;
+        accountActions.hidden = false;
+        /* Offering "Sign in" during an outage sends people to a page that cannot
+           sign them in either. Only the retry is honest here. */
+        $('signInLink').hidden = true;
+        setStatus(accountStatus, 'bad', 'LearningAI cannot reach its account service.', [
+          window.LearningAIAPI.friendlyError(result) || 'The account service is unavailable right now.',
+          'Nothing can be submitted until it answers. Anything you have typed stays on this device.'
+        ]);
+      }
+
+      function showSignedIn(user) {
+        account = user;
+        accountActions.hidden = true;
+        submitPanel.hidden = false;
+        $('replyAddress').textContent = user.email || 'your account email';
+        const signedInName = user.displayName || 'Learner';
+        $('greeting').textContent = window.LearningAIGreeting?.navText(signedInName) || ('Welcome, ' + signedInName);
+        setStatus(accountStatus, 'good', 'Signed in as ' + (user.displayName || 'Learner') + '.', [
+          'Your submission is recorded against ' + (user.email || 'your account') + '. That is the address a reply would go to, and it is not shown in the Gallery.'
+        ]);
+        restoreDraft();
+        /* Arriving from a specific project brief must select that project even
+           when an older draft named a different one — otherwise the button says
+           one thing and the form says another. Typed answers are left alone. */
+        const requested = new URLSearchParams(location.search).get('project');
+        if (requested && PROJECTS.some(entry => entry[0] === requested) && projectKey.value !== requested) {
+          projectKey.value = requested;
+          const label = PROJECTS.find(entry => entry[0] === requested)[1];
+          if (requested !== 'other' && !$('title').value.trim()) $('title').value = label;
+          saveDraft();
+        }
+      }
+
+      async function checkAccount() {
+        setStatus(accountStatus, '', 'Checking whether you are signed in…', '');
+        accountActions.hidden = true;
+        let result;
+        try {
+          result = await window.LearningAIAPI.me();
+        } catch (error) {
+          result = { ok: false, error: 'network_error', status: 0 };
+        }
+        if (result.ok && result.user) return showSignedIn(result.user);
+        if (result.status === 401) return showSignedOut('You are not signed in.');
+        return showUnavailable(result);
+      }
+
+      $('retryAccount').addEventListener('click', checkAccount);
+      renderRecords();
+      syncAge();
+      checkAccount();
+    })();
+  </script>
+</body>
+</html>

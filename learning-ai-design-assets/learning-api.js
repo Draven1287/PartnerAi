@@ -150,6 +150,8 @@
       network_error: 'The LearningAI service is unavailable right now. Your lesson remains on this device.',
       unauthorized: 'Sign in again before continuing.',
       lesson_locked: 'Complete the previous lesson before saving this one.',
+      invalid_project_review: 'Add a project title, and make sure any link starts with https://.',
+      questionnaire_required: 'Finish lesson one and the six starting questions before submitting a project.',
       // A real outage answers with one of these, not with network_error. Without
       // them every service failure fell through to the generic message, which
       // reads as "this button is broken" rather than "come back shortly".
@@ -291,6 +293,11 @@
     queueProgress,
     flushProgressQueue,
     pendingProgressCount,
+    /* Records a project for private review. The backend stores the row and
+       nothing more: there is no mail step behind this call today, so no caller
+       may tell a learner an email was sent. Deliberately absent from the
+       auto-drain below — a submission is only ever sent when a learner asks. */
+    submitProjectReview: review => request('/api/v2/project-review', { method: 'POST', body: review }),
     recordVisit: visit => request('/api/v2/visit', { method: 'POST', body: visit }),
     updateProfile: profile => request('/api/v2/profile', { method: 'PUT', body: profile }),
     deleteAccount: () => request('/api/v2/account', { method: 'DELETE', body: { confirmation: 'DELETE' } })

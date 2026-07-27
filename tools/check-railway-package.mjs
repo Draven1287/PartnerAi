@@ -27,6 +27,7 @@ const required = [
   'learning-ai-design-assets/settings.html',
   'learning-ai-design-assets/accounts.html',
   'learning-ai-design-assets/submission-policy.html',
+  'learning-ai-design-assets/submit-project.html',
   'learning-ai-design-assets/learning-api.js',
   'learning-ai-design-assets/course-state.js',
   'learning-ai-design-assets/theme.js',
@@ -150,6 +151,20 @@ for (const [label, source] of [['Gallery', gallery], ['submission policy', submi
   assert.ok(source.includes('guardian'), `${label} must retain a separate guardian-approval safeguard`);
 }
 assert.ok(submissionPolicy.includes('A guardian cannot approve a real name or other personal identifier'), 'Guardian approval must not override the under-18 identity boundary');
+
+// The submission page may only promise what the deployed backend actually does.
+// There is no outbound mail behind /api/v2/project-review, so a success screen
+// that implies one would be a lie, and a typed recipient field would let the
+// site address strangers on a learner's behalf.
+const submitProject = read('learning-ai-design-assets/submit-project.html');
+assert.ok(submitProject.includes('window.LearningAIAPI.submitProjectReview('), 'Project submission must reach the account service, not a mail client');
+assert.ok(submitProject.includes('No email has been sent.'), 'A recorded submission must state plainly that no email went out');
+assert.ok(submissionPolicy.includes('LearningAI does not send email on your behalf'), 'The policy must agree that the site does not send email');
+assert.ok(!/<input[^>]*type=["']email["']/i.test(submitProject), 'The submission page must never offer an editable recipient address');
+assert.ok(
+  submitProject.includes('id="confirmPanel"') && submitProject.includes("sendButton.addEventListener('click'"),
+  'Sending must be behind an explicit confirm step, never automatic'
+);
 
 for (const path of [
   'frontend-server.mjs',
