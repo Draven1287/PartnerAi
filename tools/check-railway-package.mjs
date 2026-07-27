@@ -4,6 +4,18 @@ import { existsSync, readFileSync } from 'node:fs';
 import process from 'node:process';
 
 const root = new URL('../', import.meta.url);
+const ARC_SLUGS = [
+  'first-signal',
+  'pattern-seeker',
+  'better-questions',
+  'truth-check',
+  'context-keeper',
+  'human-judgment',
+  'privacy-boundary',
+  'workflow-builder',
+  'agent-director',
+  'control-remains-yours'
+];
 const required = [
   '.dockerignore',
   'Dockerfile.frontend',
@@ -69,18 +81,14 @@ const required = [
     `learning-ai-design-assets/badges/pins/${id}-front.svg`,
     `learning-ai-design-assets/badges/pins/${id}-back.svg`
   ]),
-  ...Array.from({ length: 10 }, (_, index) => `learning-ai-design-assets/badges/arc-${String(index + 1).padStart(2, '0')}-${[
-    'first-signal',
-    'pattern-seeker',
-    'better-questions',
-    'truth-check',
-    'context-keeper',
-    'human-judgment',
-    'privacy-boundary',
-    'workflow-builder',
-    'agent-director',
-    'control-remains-yours'
-  ][index]}-front-back-v1.png`),
+  // The ten arc capability medals, drawn flat-on to match the pins: a front and
+  // a back each. They replaced photographic JPGs of rendered metal discs, which
+  // beside twelve flat pins read as a different product; the JPGs stay in the
+  // tree under badges/faces/ but nothing references them, so they are no longer
+  // required for a release.
+  ...Array.from({ length: 10 }, (_, index) => `learning-ai-design-assets/badges/medals/arc-${String(index + 1).padStart(2, '0')}-${ARC_SLUGS[index]}`)
+    .flatMap(stem => [`${stem}-front.svg`, `${stem}-back.svg`]),
+  ...Array.from({ length: 10 }, (_, index) => `learning-ai-design-assets/badges/arc-${String(index + 1).padStart(2, '0')}-${ARC_SLUGS[index]}-front-back-v1.png`),
   'v3/index.html',
   'v3/v3.css',
   'v3/v3.js',

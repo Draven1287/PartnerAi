@@ -23,17 +23,27 @@
   const poses = new WeakMap();
   let activeObject = null;
 
+  /* The ten capability medals are drawn now, not photographed. The JPGs under
+     ./badges/faces/ were rendered metal discs — heavy bevels, specular
+     highlights, a baked ground shadow, and each one photographed at a slightly
+     different size and offset, which is why they needed a per-medal crop. Beside
+     twelve pins drawn flat-on they read as a different product. These are the
+     same drawing as the pins — the same backing gradient, the same r=87 well,
+     the same hairline — with the extra structure a capability award should
+     carry: a scored bezel, the name and arc number engraved around the well, a
+     collar, an enamel field and a fuller mark. The JPGs stay in the tree,
+     unreferenced, exactly as the pin contact sheets did. */
   const capabilities = [
-    ['arc-1', 'First Signal', 'Explain what prediction is and choose when not to trust it.', 5, './badges/faces/arc-01-first-signal', '#2d9c94'],
-    ['arc-2', 'Pattern Seeker', 'Give AI a clear goal, useful context, and boundaries.', 10, './badges/faces/arc-02-pattern-seeker', '#ea6f5f'],
-    ['arc-3', 'Better Questions', 'Ask a question that exposes uncertainty instead of hiding it.', 15, './badges/faces/arc-03-better-questions', '#8668d5'],
-    ['arc-4', 'Truth Check', 'Check an important claim outside the model.', 20, './badges/faces/arc-04-truth-check', '#81bcca'],
-    ['arc-5', 'Context Keeper', 'Decide what AI may remember and what must remain private.', 25, './badges/faces/arc-05-context-keeper', '#6e8f70'],
-    ['arc-6', 'Human Judgment', 'Make and explain the final human decision.', 30, './badges/faces/arc-06-human-judgment', '#c7903b'],
-    ['arc-7', 'Privacy Boundary', 'Remove sensitive data and set a safe information boundary.', 35, './badges/faces/arc-07-privacy-boundary', '#d76557'],
-    ['arc-8', 'Workflow Builder', 'Build a repeatable workflow with a human approval point.', 40, './badges/faces/arc-08-workflow-builder', '#318f8d'],
-    ['arc-9', 'Agent Director', 'Direct an agent while keeping scope, review, and stop controls.', 45, './badges/faces/arc-09-agent-director', '#7b61b8'],
-    ['arc-10', 'Control Remains Yours', 'Complete a goal with AI while preserving authorship and control.', 50, './badges/faces/arc-10-control-remains-yours', '#b58c45']
+    ['arc-1', 'First Signal', 'Explain what prediction is and choose when not to trust it.', 5, './badges/medals/arc-01-first-signal', '#2d9c94'],
+    ['arc-2', 'Pattern Seeker', 'Give AI a clear goal, useful context, and boundaries.', 10, './badges/medals/arc-02-pattern-seeker', '#ea6f5f'],
+    ['arc-3', 'Better Questions', 'Ask a question that exposes uncertainty instead of hiding it.', 15, './badges/medals/arc-03-better-questions', '#8668d5'],
+    ['arc-4', 'Truth Check', 'Check an important claim outside the model.', 20, './badges/medals/arc-04-truth-check', '#81bcca'],
+    ['arc-5', 'Context Keeper', 'Decide what AI may remember and what must remain private.', 25, './badges/medals/arc-05-context-keeper', '#6e8f70'],
+    ['arc-6', 'Human Judgment', 'Make and explain the final human decision.', 30, './badges/medals/arc-06-human-judgment', '#c7903b'],
+    ['arc-7', 'Privacy Boundary', 'Remove sensitive data and set a safe information boundary.', 35, './badges/medals/arc-07-privacy-boundary', '#d76557'],
+    ['arc-8', 'Workflow Builder', 'Build a repeatable workflow with a human approval point.', 40, './badges/medals/arc-08-workflow-builder', '#318f8d'],
+    ['arc-9', 'Agent Director', 'Direct an agent while keeping scope, review, and stop controls.', 45, './badges/medals/arc-09-agent-director', '#7b61b8'],
+    ['arc-10', 'Control Remains Yours', 'Complete a goal with AI while preserving authorship and control.', 50, './badges/medals/arc-10-control-remains-yours', '#b58c45']
   ].map(([id, name, meaning, target, art, color]) => ({ id, name, meaning, target, art, color, kind: 'capability' }));
 
   /* The four timed pins used to be elapsed minutes and nothing else, which a
@@ -238,16 +248,33 @@
     }).format(date);
   }
 
+  /* The date as an engraver would cut it: a day, not a minute. The full moment
+     is still on the card and in the inspector, where there is room for it — but
+     the line in the cartouche is 5px tall and a trailing ", 3:42 PM" is what
+     pushes it past the width the disc allows. Shortening is not softening: the
+     day shown is the day recorded. */
+  function stampDate(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return 'Earned';
+    return new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' }).format(date);
+  }
+
+  /* How far along the first clause is, with no verdict attached: "1 of 5
+     lessons". The verdict is the label line above it. */
+  function stampProgress(item, current) {
+    if (item.kind === 'capability' || item.metric === 'lessons') return `${Math.min(current, item.target)} of ${item.target} lessons`;
+    if (item.metric === 'totalSeconds' || item.metric === 'todaySeconds') {
+      return `${Math.min(Math.floor(current / 60), Math.floor(item.target / 60))} of ${Math.floor(item.target / 60)} minutes`;
+    }
+    return `${Math.min(current, item.target)} of ${item.target}`;
+  }
+
   /* The short form engraved on the back of the object, where the type is under
      4px: the first clause only. The readable copy on the card and in the
      inspector carries the whole requirement. */
   function stampText(item, current, earnedAt) {
     if (earnedAt) return `Earned · ${stamp(earnedAt)}`;
-    if (item.kind === 'capability' || item.metric === 'lessons') return `Locked · ${Math.min(current, item.target)} of ${item.target} lessons`;
-    if (item.metric === 'totalSeconds' || item.metric === 'todaySeconds') {
-      return `Locked · ${Math.min(Math.floor(current / 60), Math.floor(item.target / 60))} of ${Math.floor(item.target / 60)} minutes`;
-    }
-    return `Locked · ${Math.min(current, item.target)} of ${item.target}`;
+    return `Locked · ${stampProgress(item, current)}`;
   }
 
   /* A pin with two clauses has to show both, or a learner who has sat through
@@ -327,14 +354,23 @@
     return `<span class="achievement-edge" aria-hidden="true">${staves}</span>`;
   }
 
-  /* Both collections are wired the same way now: one square image per face,
-     named for the award, filling the disc. The pins are the drawn SVG pair and
-     the medals the photographed JPG pair, and the only difference left between
-     them is the file extension. The sprite-sheet crop the pins used to need —
-     --sprite-position, --back-position, --back-size — is gone with the sheet. */
+  /* Both collections are wired the same way now: one drawn square SVG per face,
+     named for the award, filling the disc. Nothing is left that distinguishes a
+     medal from a pin here — not a file extension, not a crop. The sprite-sheet
+     apparatus the pins used to need — --sprite-position, --back-position,
+     --back-size — went with the sheet, and the per-medal --front-zoom/-dx/-dy
+     that framed ten differently-photographed JPGs went with the JPGs.
+
+     The stamp is two lines and no plate. It used to be a light rounded plate
+     laid over the finished back — "it kind of ruins everything and doesn't
+     kind of blend in" — because the artwork could not carry the date itself:
+     a drawn-in date would be a fabricated one. Both backs are now drawn with an
+     engraved cartouche in the lower band and nothing inside it, and these two
+     lines sit in that reserved space with no chrome of their own. The label
+     line says whether the award exists yet; the value line is the recorded
+     date or the real remaining requirement. Neither is invented. */
   function objectMarkup(item) {
-    const extension = item.kind === 'capability' ? 'jpg' : 'svg';
-    const frontStyle = `--front-image:url('${item.art}-front.${extension}');--back-image:url('${item.art}-back.${extension}')`;
+    const frontStyle = `--front-image:url('${item.art}-front.svg');--back-image:url('${item.art}-back.svg')`;
     return `
       <button class="achievement-object" type="button" data-achievement="${item.id}" data-face="front" aria-pressed="false" aria-describedby="selectedBadgeMeaning selectedBadgeStatus">
         <span class="achievement-stage" aria-hidden="true">
@@ -343,7 +379,7 @@
             <span class="achievement-face achievement-front"></span>
             <span class="achievement-face achievement-back">
               <span class="engraving-plate">
-                <strong>${item.name}</strong>
+                <strong data-stamp-label>To earn</strong>
                 <time data-earned-stamp>Not yet earned</time>
               </span>
             </span>
@@ -554,7 +590,11 @@
       const object = card.querySelector('.achievement-object');
       const progress = progressText(item, current, earnedAt, metrics);
       object.setAttribute('aria-label', `${item.name}. ${item.meaning} ${progress}. Press Enter to flip it, or use the Front and Back slider below the collection.`);
-      card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stamp(earnedAt) : `To earn · ${stampText(item, current, earnedAt)}`;
+      /* Two lines in the cartouche, and between them they used to read
+         "To earn · Locked · 1 of 5 lessons" — the same fact stated twice
+         because the verdict was in the sentence as well as in front of it. */
+      card.querySelector('[data-stamp-label]').textContent = earnedAt ? 'Earned' : 'To earn';
+      card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stampDate(earnedAt) : stampProgress(item, current);
       card.querySelector('[data-achievement-progress]').textContent = progress;
       const chip = document.querySelector(`.preview-chip[data-target="${item.id}"]`);
       if (chip) {

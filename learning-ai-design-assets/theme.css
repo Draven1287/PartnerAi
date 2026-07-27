@@ -7,21 +7,26 @@
    site, here and in the page stylesheets, is corrected the same way at load by
    theme.js; see the comment on that sweep before adding new ones. */
 @supports (zoom:1){body{zoom:var(--ui-zoom)}}
-@supports not (zoom:1){html[data-font-scale="large"] body,html[data-font-scale="xl"] body{transform:scale(var(--ui-zoom));transform-origin:0 0;width:calc(100% / var(--ui-zoom));min-height:calc(100vh / var(--ui-zoom))}}
-/* Reflow on small screens at the larger text sizes. A 375px phone at Extra large
-   has 240px of layout to lay a page out in, and grid and flex items refuse by
+/* data-text-zoom is "is the page zoomed, and which way", written by theme.js
+   from the chosen size: "in" above the 16px default, "out" below it, "off" at
+   it. It replaces the pair of data-font-scale values this rule and the block
+   below used to be written for — text size is now a continuous range, so there
+   is no fixed set of names left to enumerate. */
+@supports not (zoom:1){html[data-text-zoom="in"] body,html[data-text-zoom="out"] body{transform:scale(var(--ui-zoom));transform-origin:0 0;width:calc(100% / var(--ui-zoom));min-height:calc(100vh / var(--ui-zoom))}}
+/* Reflow on small screens at any enlarged text size. A 375px phone at 24px has
+   250px of layout to lay a page out in, and grid and flex items refuse by
    default to shrink below their content's minimum — so one nowrap label or one
    unbreakable link still shouldered whole panels past the right edge after the
    widths above were corrected. Letting those items shrink, and long words break,
-   is what turns the last of the overflow into wrapping. Held to small screens at
-   Large and Extra large so ordinary rendering, and everything at Normal, is
-   untouched. Elements that scroll horizontally on purpose are exempt below: they
-   must keep their own minimum, or their rails stop scrolling. */
+   is what turns the last of the overflow into wrapping. Held to small screens
+   above the default size, so ordinary rendering at 16px is untouched. Elements
+   that scroll horizontally on purpose are exempt below: they must keep their own
+   minimum, or their rails stop scrolling. */
 @media(max-width:820px){
-  html[data-font-scale="large"] body *,html[data-font-scale="xl"] body *{min-width:0;hyphens:auto;overflow-wrap:anywhere}
-  html[data-font-scale="large"] .nav-glass nav>*,html[data-font-scale="xl"] .nav-glass nav>*,
-  html[data-font-scale="large"] .arc-rail>*,html[data-font-scale="xl"] .arc-rail>*,
-  html[data-font-scale="large"] .vault-rail>*,html[data-font-scale="xl"] .vault-rail>*{min-width:auto;overflow-wrap:normal}
+  html[data-text-zoom="in"] body *{min-width:0;hyphens:auto;overflow-wrap:anywhere}
+  html[data-text-zoom="in"] .nav-glass nav>*,
+  html[data-text-zoom="in"] .arc-rail>*,
+  html[data-text-zoom="in"] .vault-rail>*{min-width:auto;overflow-wrap:normal}
 }
 *:focus-visible{outline:3px solid #17231f;outline-offset:3px}
 input[type="range"]:focus-visible{outline:3px solid #17231f;outline-offset:7px}
@@ -389,14 +394,15 @@ html[data-theme="onyx"] .mobile-nav-menu a:hover,html[data-theme="onyx"] .mobile
   .nav-glass>.mobile-nav-menu[hidden]{display:none!important}
 }
 @media(max-width:820px){
-  .nav-glass{grid-template-columns:42px minmax(0,1fr) 76px 42px!important}
+  .nav-glass{grid-template-columns:42px minmax(0,1fr) auto 42px!important}
   .nav-glass>.mobile-nav-more{
     grid-column:3!important;
     display:inline-flex!important;
-    width:76px!important;
-    min-width:76px!important;
+    width:auto!important;
+    min-width:60px!important;
+    max-width:42vw!important;
     min-height:44px!important;
-    padding:0 7px!important;
+    padding:0 9px!important;
     font-size:11.5px!important;
     letter-spacing:.01em!important;
   }
@@ -695,7 +701,12 @@ html:not([data-theme="onyx"]) .nav-shell .nav-glass .mobile-nav-menu a{
   html:not([data-theme="onyx"]) .nav-stage{height:82px!important}
   html:not([data-theme="onyx"]) .nav-shell{width:calc(100vw - 16px)!important;max-width:calc(100vw - 16px)!important;margin:8px auto 0!important}
   html:not([data-theme="onyx"]) .nav-shell .nav-glass{
-    grid-template-columns:44px minmax(0,1fr) 88px 44px!important;
+    /* The menu capsule now carries the current page's name rather than the
+       fixed words "All pages", so its track has to be whatever that name
+       needs — "Dashboard" does not fit in 88px and was clipped mid-word. auto
+       measures the label; the route rail beside it is minmax(0,1fr) and gives
+       up the difference, which is what it is there for. */
+    grid-template-columns:44px minmax(0,1fr) auto 44px!important;
     gap:2px!important;
     min-height:58px!important;
     padding:6px!important;
@@ -728,10 +739,14 @@ html:not([data-theme="onyx"]) .nav-shell .nav-glass .mobile-nav-menu a{
   html:not([data-theme="onyx"]) .nav-shell .nav-glass>.welcome{display:none!important}
   html:not([data-theme="onyx"]) .nav-shell .nav-glass .mobile-nav-more{
     grid-column:3!important;
-    width:88px!important;
-    min-width:88px!important;
+    width:auto!important;
+    /* A floor rather than a fixed width: "Notes" must still be a 44px target,
+       "Dashboard" must still be readable. max-width keeps the longest label
+       from eating a 375px capsule whole. */
+    min-width:60px!important;
+    max-width:42vw!important;
     margin:0!important;
-    padding:0 6px!important;
+    padding:0 9px!important;
   }
   html:not([data-theme="onyx"]) .nav-shell .nav-glass .settings{grid-column:4!important;margin:0!important;justify-self:end!important}
   /* Anchored to the capsule, not the viewport: .nav-shell carries a transform
@@ -944,32 +959,18 @@ html[data-surface="contrast"] .lesson-num,
 html[data-surface="contrast"] .lesson-time i{text-shadow:none!important}
 html[data-surface="contrast"]::after{background:transparent!important}
 
-/* The capability accent. --mineral is the one colour the design uses for "the
-   page you are on", progress, and a chosen answer, so it is the only one worth
-   offering. Brand gold is identity and is deliberately not offered.
+/* The accent-colour setting is gone. It offered four values for --mineral, the
+   single capability colour used for the page you are on, progress fills and a
+   chosen answer. Every one of them worked; none of them was visible enough to
+   notice, because that colour is a 2px underline and a bar fill and nothing
+   else. A setting whose effect a learner cannot see is worse than no setting —
+   it teaches that the controls on this page do not do anything. Removed rather
+   than amplified: making it louder would mean recolouring pages this change
+   does not own, to answer a question nobody asked.
 
-   These are not aliases of the existing --sage/--coral/--violet arc tokens,
-   which is where they started. --mineral is not only a fill: three rules in
-   this file paint text with it (.arc-number, .arc-state.ready, and the ready
-   lesson status), and the arc tokens are lighter than --mineral — measured as
-   text on a solid panel, --sage came out at 3.95:1 and --coral at 3.46:1,
-   against the 4.5:1 that size of text needs. Held to oklch lightness 52%, each
-   accent measures at least 4.87:1 on a solid panel and 4.57:1 on paper.
-
-   Left alone: the default --mineral itself, at 4.34:1 on a solid panel and
-   4.07:1 on paper. That is a pre-existing AA shortfall in those three text
-   rules, not one this change introduces, and correcting it would restyle the
-   current-page marker and every progress bar on pages outside this work. It is
-   written down here so it can be fixed deliberately. */
-:root{--accent-sage:oklch(52% .085 155);--accent-coral:oklch(52% .085 36);--accent-violet:oklch(52% .085 305)}
-html[data-accent="sage"]{--mineral:var(--accent-sage)}
-html[data-accent="coral"]{--mineral:var(--accent-coral)}
-html[data-accent="violet"]{--mineral:var(--accent-violet)}
-/* Arcs 4 and 8 were authored as aliases of --mineral. Left alone they would
-   follow the accent, recolouring two of the ten arc identities and collapsing
-   arc 4 into arc 5 whenever sage was chosen. Pin them to the value --mineral
-   held when the arc palette was written; --mineral-base keeps that value
-   nameable, which is also what the Mineral swatch on Settings paints itself
-   with — a swatch drawn in var(--mineral) would follow whichever accent was
-   already chosen and never look like itself. */
+   What stays is the fix underneath it. Arcs 4 and 8 were authored as aliases of
+   --mineral, so anything that moved --mineral silently recoloured two of the
+   ten arc identities and collapsed arc 4 into arc 5. --mineral-base names the
+   value the arc palette was written against and the two arcs are pinned to it,
+   which is correct whether or not --mineral is ever variable again. */
 :root{--mineral-base:oklch(55% .075 225);--arc-04:var(--mineral-base);--arc-08:var(--mineral-base)}

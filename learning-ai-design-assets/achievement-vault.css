@@ -385,22 +385,16 @@
   z-index: 1;
 }
 
+/* Type, and nothing else. This used to paint a rounded slab here — a border, a
+   brushed-metal gradient and a drop shadow — so the one element on the back
+   that told the truth was also the one element that looked stuck on. The
+   recess it sits in is cut into the artwork now; see the stamp section at the
+   end of this file for the geometry that lines the two up. */
 .engraving-plate {
   display: grid;
-  width: 74%;
-  min-height: 28px;
-  margin: 0 auto 2%;
-  padding: 5px 9px;
   align-content: center;
   gap: 2px;
-  border: 1px solid rgba(255, 255, 255, .52);
-  border-radius: 8px;
-  background:
-    repeating-linear-gradient(92deg, rgba(255, 255, 255, .12) 0 1px, rgba(52, 58, 56, .08) 1px 3px),
-    linear-gradient(145deg, rgba(235, 237, 236, .96), rgba(139, 145, 142, .96) 48%, rgba(219, 222, 220, .96));
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, .72),
-    0 2px 6px rgba(38, 43, 41, .24);
+  line-height: 1.15;
 }
 
 .engraving-plate strong {
@@ -421,21 +415,6 @@
 
 .milestone-item .achievement-back {
   padding: 8%;
-}
-
-.milestone-item .engraving-plate {
-  width: 80%;
-  min-height: 21px;
-  padding: 3px 5px;
-  border-radius: 6px;
-}
-
-.milestone-item .engraving-plate strong {
-  font-size: 4.6px;
-}
-
-.milestone-item .engraving-plate time {
-  font-size: 3.6px;
 }
 
 .achievement-copy {
@@ -967,57 +946,75 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
       Arc 1, 19px down the left of Arc 3. That is the shadow he was pointing
       at, and it is why it looked like a different shadow on each one.
 
-      --*-zoom/--*-dx/--*-dy below frame each face so the artwork's own disc is
-      centred in the clip and 2% larger than it, which puts the paper and the
-      baked shadow outside the crop on all twenty faces. Measured by fitting a
-      circle to the rim of each image; the numbers are that fit, not taste.
+      --*-zoom/--*-dx/--*-dy framed each face so the artwork's own disc was
+      centred in the clip and 2% larger than it, which put the paper and the
+      baked shadow outside the crop on all twenty faces.
+
+   That whole table is gone, because the ten photographs are gone with it. A
+   drawn medal is a 200×200 square with the disc dead centre at r=87, so
+   `cover` on a round clip of the same proportion lands exactly: there is no
+   artwork paper inside the crop to hide, no per-medal offset to measure, and
+   nothing left for a medal to cast but the one contact shadow above.
    ───────────────────────────────────────────────────────────────────────── */
-[data-card="arc-1"] {--front-zoom:111.1%;--front-dx:.0049;--front-dy:-.0040;--back-zoom:110.1%;--back-dx:.0006;--back-dy:.0029}
-[data-card="arc-2"] {--front-zoom:111.0%;--front-dx:-.0023;--front-dy:-.0303;--back-zoom:110.6%;--back-dx:-.0058;--back-dy:-.0308}
-[data-card="arc-3"] {--front-zoom:115.1%;--front-dx:-.0792;--front-dy:-.0237;--back-zoom:113.9%;--back-dx:.0576;--back-dy:-.0225}
-[data-card="arc-4"] {--front-zoom:109.2%;--front-dx:-.0256;--front-dy:-.0196;--back-zoom:106.8%;--back-dx:.0159;--back-dy:-.0081}
-[data-card="arc-5"] {--front-zoom:111.2%;--front-dx:-.0217;--front-dy:-.0226;--back-zoom:107.4%;--back-dx:.0176;--back-dy:-.0224}
-[data-card="arc-6"] {--front-zoom:115.5%;--front-dx:-.0533;--front-dy:-.0358;--back-zoom:113.3%;--back-dx:.0498;--back-dy:-.0283}
-[data-card="arc-7"] {--front-zoom:107.1%;--front-dx:-.0086;--front-dy:-.0165;--back-zoom:108.0%;--back-dx:.0039;--back-dy:-.0118}
-[data-card="arc-8"] {--front-zoom:115.9%;--front-dx:-.0727;--front-dy:-.0250;--back-zoom:110.7%;--back-dx:.0262;--back-dy:-.0133}
-[data-card="arc-9"] {--front-zoom:112.7%;--front-dx:-.0540;--front-dy:-.0153;--back-zoom:111.7%;--back-dx:.0488;--back-dy:-.0186}
-[data-card="arc-10"]{--front-zoom:110.4%;--front-dx:-.0423;--front-dy:-.0181;--back-zoom:109.3%;--back-dx:.0359;--back-dy:-.0145}
 
-/* The pin backs no longer need a rule of their own. They were cropped out of a
-   contact sheet, so without a --back-position every one of the twelve was
-   squeezed into a single 104px disc; a drawn pin back is one square file that
-   fills the disc from `cover` on .achievement-back like any medal does. */
+/* ── The earned/locked stamp ────────────────────────────────────────────────
+   It used to be a plate: a light rounded slab with its own border, its own
+   metal gradient and its own drop shadow, laid over a finished back. "I don't
+   like what's at the back of this ... it kind of ruins everything and doesn't
+   kind of blend in." It was right that it existed — the artwork must not carry
+   a date, because any date drawn into a shared file is a fabricated one, and
+   the previous photographs did exactly that ("EARNED JUL 23 2026 · 9:56 AM",
+   the same invented moment on all ten) so the plate had to be big enough to
+   cover it up. But a cover-up is what it looked like.
 
-/* ── The engraving plate ────────────────────────────────────────────────────
-   Every arc back image has "EARNED JUL 23 2026 · 9:56 AM" engraved into it —
-   the same fabricated moment on all ten. The plate carries the learner's real
-   status, and it used to sit at the bottom of the face, half of it clipped off
-   by the round edge, leaving the fabricated date fully legible above it. Two
-   dates, one of them untrue.
-
-   Measured on the cropped faces: the engraved meaning ends by 66% of the face
-   height and the engraved date block runs 68%–82.5%, x 27.5%–73%. The plate
-   now covers 66%–85% × 17%–83%, which hides the fabricated date on every back
-   and still sits inside the disc (at y=85% the circle allows 14.3%–85.7%). */
+   Both sets of backs are now drawn with an engraved cartouche in the lower
+   band and nothing inside it, so the stamp has somewhere to be rather than
+   something to hide. All the plate chrome is gone; what is left is two lines
+   of engraved type sitting in the recess the artwork already cut for them, in
+   the same ink and with the same highlight as the name struck above. The
+   medals' cartouche is 24%–76% × 66%–84% of the face and the pins' 26%–74% ×
+   71%–85%, matching the rectangles in the SVGs unit for unit — and both sit
+   well inside the disc, which at 84% still allows 22.9%–77.1% and at 85%
+   allows 24.1%–75.9%. */
 .achievement-back .engraving-plate{
   position:absolute;
-  left:17%;right:17%;top:66%;bottom:15%;
+  left:24%;right:24%;top:66%;bottom:16%;
   width:auto;min-height:0;margin:0;
-  padding:0 6px;
+  padding:0 3px;
+  gap:1.5px;
   align-content:center;
+  justify-items:center;
+  border:0;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+  text-align:center;
 }
-/* A pin back is drawn, not photographed, so nothing is baked into it that has
-   to be covered up: it carries the pin's name and no date at all. The band from
-   73% down is left deliberately blank in the artwork for this plate, which is
-   the only thing on the page that knows whether a date has been earned. The
-   plate's own <strong> stays hidden because the name is already engraved above
-   it — one name, not two. At 86% the disc still allows x 30.6%–69.4% either
-   side of centre, so a plate inset 16% cannot come back clipped. */
+/* The label is the quieter line: it says which of the two things this is, and
+   the line under it carries the fact. */
+.achievement-back .engraving-plate strong{
+  display:block;
+  color:#5d6562;
+  font-size:4.6px;
+  font-weight:800;
+  letter-spacing:.16em;
+}
+.achievement-back .engraving-plate time{
+  color:#2f3633;
+  font-size:5.6px;
+  font-weight:700;
+  letter-spacing:.02em;
+  white-space:nowrap;
+}
+/* A pin is a third smaller, so its cartouche is drawn a little lower and a
+   little narrower and the type steps down with it. */
 .milestone-item .achievement-back .engraving-plate{
-  left:16%;right:16%;top:73%;bottom:14%;
-  padding:0 4px;
+  left:26%;right:26%;top:71%;bottom:15%;
+  padding:0 2px;
+  gap:1px;
 }
-.milestone-item .achievement-back .engraving-plate strong{display:none}
+.milestone-item .achievement-back .engraving-plate strong{font-size:3.6px;letter-spacing:.13em}
+.milestone-item .achievement-back .engraving-plate time{font-size:4.4px}
 
 /* ── 1 · The turn control, moved to the medals ──────────────────────────────
    It used to live in the panel below, so the control and the object it turns

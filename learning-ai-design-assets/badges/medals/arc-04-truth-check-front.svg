@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Arc 04 Truth Check medal, front">
+<title>Arc 04 Truth Check medal, front</title>
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#f6f7f5"/><stop offset=".3" stop-color="#ccd2cf"/>
+<stop offset=".62" stop-color="#959d9a"/><stop offset=".85" stop-color="#c3c9c6"/>
+<stop offset="1" stop-color="#e9edea"/></linearGradient>
+<radialGradient id="w" cx=".64" cy=".72" r=".86">
+<stop offset="0" stop-color="#394245"/><stop offset=".5" stop-color="#262d2f"/>
+<stop offset="1" stop-color="#161b1c"/></radialGradient>
+<path id="n4" d="M100 100m-72 0a72 72 0 1 1 144 0"/>
+<path id="a4" d="M100 100m-81 0a81 81 0 1 0 162 0"/></defs>
+<rect width="200" height="200" fill="url(#b)"/>
+<path d="M162.58 37.42L170.36 29.64M37.42 37.42L29.64 29.64M37.42 162.58L29.64 170.36M162.58 162.58L170.36 170.36" fill="none" stroke="#4f5754" stroke-opacity=".32" stroke-width="3"/>
+<circle cx="100" cy="100" r="87" fill="url(#w)"/>
+<circle cx="100" cy="100" r="87" fill="#81bcca" opacity=".09"/>
+<circle cx="100" cy="100" r="86" fill="none" stroke="#0e1213" stroke-opacity=".5" stroke-width="2"/>
+<text text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#05090a" fill-opacity=".6" transform="translate(0 1.4)"><textPath href="#n4" xlink:href="#n4" startOffset="50%">TRUTH CHECK</textPath></text>
+<text text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="13" font-weight="700" letter-spacing="1.2" fill="#e4eae7" fill-opacity=".94"><textPath href="#n4" xlink:href="#n4" startOffset="50%">TRUTH CHECK</textPath></text>
+<text text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="700" letter-spacing="2" fill="#05090a" fill-opacity=".6" transform="translate(0 1.4)"><textPath href="#a4" xlink:href="#a4" startOffset="50%">ARC 04</textPath></text>
+<text text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="11.5" font-weight="700" letter-spacing="2" fill="#cdd5d2" fill-opacity=".82"><textPath href="#a4" xlink:href="#a4" startOffset="50%">ARC 04</textPath></text>
+<circle cx="100" cy="100" r="63" fill="none" stroke="#4a5457" stroke-width="5"/>
+<circle cx="100" cy="100" r="55.5" fill="#81bcca" opacity=".15"/>
+<circle cx="100" cy="100" r="57" fill="none" stroke="#81bcca" stroke-width="1.6" stroke-opacity=".55"/>
+<circle cx="86" cy="100" r="28" fill="none" stroke="#8d9794" stroke-width="6.5"/>
+<path d="M74 101L83 111L100 88" fill="none" stroke="#81bcca" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M117 100H126" fill="none" stroke="#8d9794" stroke-width="4.5" stroke-linecap="round"/>
+<circle cx="134" cy="100" r="8" fill="#81bcca"/>
+</svg>

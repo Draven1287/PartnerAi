@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>sheet</title>
+<style>
+  body{margin:0;padding:16px;background:#efeee9;font:12px system-ui}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-start}
+  figure{margin:0;text-align:center}
+  .m{width:154px;height:154px;border-radius:50%;background-repeat:no-repeat;background-size:cover;background-position:50% 50%}
+  .p{width:104px;height:104px;border-radius:50%;background-repeat:no-repeat;background-size:cover;background-position:50% 50%}
+  figcaption{font-size:9px;color:#555}
+  h2{font:600 13px system-ui;margin:18px 0 6px}
+</style></head><body>
+<h2>Arc medals — front (154px)</h2><div class="row" id="mf"></div>
+<h2>Arc medals — back (154px)</h2><div class="row" id="mb"></div>
+<h2>Milestone pins — front (104px)</h2><div class="row" id="pf"></div>
+<h2>Milestone pins — back (104px)</h2><div class="row" id="pb"></div>
+<script>
+const arcs=['arc-01-first-signal','arc-02-pattern-seeker','arc-03-better-questions','arc-04-truth-check','arc-05-context-keeper','arc-06-human-judgment','arc-07-privacy-boundary','arc-08-workflow-builder','arc-09-agent-director','arc-10-control-remains-yours'];
+const pins=['first-lesson','first-arc','halfway','course-complete','first-five','focus-25','one-hour','five-hours','first-return','five-sessions','first-note','first-project'];
+function fill(id,list,dir,face,cls){
+  document.getElementById(id).innerHTML=list.map(n=>`<figure><div class="${cls}" style="background-image:url('./${dir}/${n}-${face}.svg')"></div><figcaption>${n}</figcaption></figure>`).join('');
+}
+fill('mf',arcs,'medals','front','m');fill('mb',arcs,'medals','back','m');
+fill('pf',pins,'pins','front','p');fill('pb',pins,'pins','back','p');
+</script>
+</body></html>

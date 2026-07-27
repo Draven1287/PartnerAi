@@ -67,9 +67,45 @@
 
   const zoomAware = value => value.replace(VIEWPORT_LENGTH, (whole, number, unit) => `calc(${number}${unit} / var(--ui-zoom))`);
 
+  /* The second thing that pushes a page sideways, and the reason the first fix
+     was not enough on its own.
+
+     `repeat(auto-fit, minmax(250px, 1fr))` is the idiom this site reaches for
+     whenever a row of cards should reflow. It does reflow — down to 250px, and
+     then it stops, because a minmax floor is a floor. Give the grid less room
+     than the floor and the track keeps its 250px and the content leaves the
+     screen. Measured on Saved Notes at 375 with the text at 20.5px and above:
+     the rule prompts inside every rule card ran to 452px against a 375px
+     viewport, twelve elements over the edge.
+
+     `min(250px, 100%)` is the standard repair and this codebase already uses it
+     by hand in three places — it means "250px, unless the container is smaller
+     than that, in which case the container". Applying it everywhere is safe in
+     a way most sweeping rewrites are not: whenever the container is at least as
+     wide as the floor the two expressions are the same value, so nothing that
+     currently fits can move. It only differs in the case that was already
+     broken.
+
+     Columns only. In a row track a percentage resolves against a height that is
+     usually indefinite, where it would be treated as auto and would genuinely
+     change a layout rather than rescue one. */
+  const FLEXIBLE_TRACKS = new Set(['grid-template-columns', 'grid-auto-columns']);
+  const TRACK_FLOOR = /minmax\(\s*(\d*\.?\d+(?:px|rem|em|ch|ex|pt))\s*,/gi;
+  const shrinkable = value => value.replace(TRACK_FLOOR, (whole, length) => `minmax(min(${length},100%),`);
+
   function correctDeclarations(style) {
     for (let index = 0; index < style.length; index += 1) {
       const property = style[index];
+      if (FLEXIBLE_TRACKS.has(property)) {
+        const value = style.getPropertyValue(property);
+        // Already written with min(), by an earlier pass or by hand.
+        if (value && !value.includes('min(')) {
+          TRACK_FLOOR.lastIndex = 0;
+          if (TRACK_FLOOR.test(value)) {
+            try { style.setProperty(property, shrinkable(value), style.getPropertyPriority(property)); } catch {}
+          }
+        }
+      }
       if (!SCALED_BY_ZOOM.has(property)) continue;
       const value = style.getPropertyValue(property);
       // Already corrected — by an earlier pass, or by hand in the stylesheet.
@@ -109,38 +145,76 @@
 })();
 (function () {
   const theme = 'light';
-  /* Two appearance choices that are real everywhere, rather than one that is
+  /* One appearance choice that is real everywhere, rather than several that are
      real on the pages somebody remembered to restyle.
 
-     The obvious candidate was the dark "onyx" palette already sitting in
-     theme.css. It is not finished: with data-theme="onyx" forced on, every page
-     still renders light-surfaced controls and near-invisible labels — the
-     selected Motion card's own name drops to a 1.0 contrast ratio, Projects'
-     "View details" to 1.03, the Focus medals stay as white discs. Shipping a
-     switch for it would have broken pages this change is not allowed to repair,
-     so it stays unexposed until the dark palette is actually finished.
+     The dark "onyx" palette is still in theme.css and still unexposed. It was
+     measured again for this change: forced on, the selected Motion card's own
+     name drops to 1.02:1, the four "…is set to" sentences on Settings to
+     1.02:1, and the reset buttons to 1.31:1, because the palette repaints a
+     named list of components and every page has controls that are not on it.
+     Building it properly meant repainting light fills across eighteen pages —
+     an inventory of 325 separate rules — and the decision was taken not to
+     ship it rather than ship half of it.
 
-     What is offered instead only moves values that theme.css owns for every
-     page at once, so there is no page that can be left behind:
-       surface — whether the photograph is behind the glass, and whether the
-                 panels are translucent at all;
-       accent  — the single capability colour (--mineral) used for the page you
-                 are on, progress fills, and selected answers.
-     Neither leaves the light palette, so no page's text can fall out of
-     contrast the way onyx does.
+     Surface is what is offered instead. It moves values theme.css owns for
+     every page at once — whether the photograph is behind the glass, and
+     whether the panels are translucent at all — so no page can be left behind,
+     and none of its values leaves the light palette.
 
-     Declared up here rather than beside their functions: the boot sequence
-     below runs before the rest of this closure is evaluated, and a `const` in
-     the temporal dead zone throws where a hoisted `function` does not. */
+     Declared up here rather than beside its function: the boot sequence below
+     runs before the rest of this closure is evaluated, and a `const` in the
+     temporal dead zone throws where a hoisted `function` does not. */
   const SURFACES = ['landscape', 'plain', 'contrast'];
-  const ACCENTS = ['mineral', 'sage', 'coral', 'violet'];
+  /* The accent-colour setting has been removed, and with it its storage key.
+     Four values for --mineral all worked and none of them was noticeable: that
+     colour is a 2px underline under the current route, a progress fill and the
+     border of a chosen answer, so choosing between them changed almost nothing
+     a learner would see. A stored value is cleared rather than ignored, so the
+     key does not sit in a browser forever meaning nothing. */
+  try { localStorage.removeItem('learningai-accent'); } catch {}
+  document.documentElement.removeAttribute('data-accent');
+  /* Text size is one continuous range, not three named steps.
+     Three buttons meant the smallest increase available was +25% — a jump big
+     enough that people who wanted "slightly bigger" got "much bigger" or
+     nothing. The control is now a slider measured in the unit it produces:
+     interface pixels, one pixel at a time. 16 is what every page is authored
+     at, so the scale is simply px / 16 and the default is exactly 1x. The old
+     ends are still reachable and land on the same numbers they always did —
+     large was 1.25 (20px) and xl was 1.5 (24px) — so a stored name migrates to
+     the identical rendering rather than to an approximation.
+
+     The range starts below the default rather than at it. With a floor of 16
+     there was no such thing as decreasing the size: the control only ever went
+     one way from where it started, which is indistinguishable from a control
+     that does nothing when you drag it left. 14 and 15 are 87.5% and 93.75%,
+     so the smallest move in either direction is a 4-6% change — above the
+     threshold at which a change in type size is noticed at all, and each step
+     visibly reflows a paragraph.
+
+     The cost is stated rather than hidden: below 16 the whole interface zooms
+     out with the type, so a control authored at 44px renders at 38.5px at the
+     smallest setting. That is still well clear of the 24px WCAG minimum, and
+     it is the same trade a learner makes by zooming their browser out — but it
+     is why the range stops at 14 rather than going lower. */
+  const TEXT_SIZE_BASE = 16;
+  const TEXT_SIZE_MIN = 14;
+  const TEXT_SIZE_MAX = 24;
+  /* Half a pixel, not a whole one. A whole pixel is 6.3% at the small end and
+     4.3% at the large one, so the control was coarsest exactly where the type
+     is smallest and a step matters most. Half-pixel steps put every step
+     between 2.1% and 3.6%, which is fine enough to drag through without the
+     page jumping, and 21 positions is still few enough that each one is
+     reachable with a single arrow key. */
+  const TEXT_SIZE_STEP = 0.5;
+  const LEGACY_TEXT_SIZES = { normal: 16, large: 20, xl: 24 };
   const savedMotion = localStorage.getItem('learningai-motion');
   const systemPrefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const defaultMotion = systemPrefersReducedMotion ? 'reduced' : 'standard';
   const motion = ['standard', 'reduced', 'none'].includes(savedMotion) ? savedMotion : defaultMotion;
   const savedLight = Number(localStorage.getItem('learningai-light') || 88);
   const savedGlass = Number(localStorage.getItem('learningai-glass') || 90);
-  const savedFontScale = localStorage.getItem('learningai-font-scale') || 'normal';
+  const savedTextSize = localStorage.getItem('learningai-font-scale');
   const light = Math.min(100, Math.max(25, Number.isFinite(savedLight) ? savedLight : 88));
   const glass = Math.min(100, Math.max(25, Number.isFinite(savedGlass) ? savedGlass : 90));
   document.documentElement.dataset.theme = theme;
@@ -149,12 +223,18 @@
   document.documentElement.style.setProperty('--light-dim', String((100 - light) / 100 * .36));
   applyGlass(glass);
   applyPop(light);
-  applyFontScale(savedFontScale);
+  const bootTextSize = applyTextSize(readTextSize(savedTextSize));
+  /* Migrate in place. Reading the old names is what stops a setting being lost;
+     writing the new value back is what stops the key holding 'large' forever
+     and needing the translation on every page load from here on. Only when a
+     value was actually stored, so this never creates the key by itself. */
+  if (savedTextSize !== null && savedTextSize !== String(bootTextSize)) {
+    try { localStorage.setItem('learningai-font-scale', String(bootTextSize)); } catch {}
+  }
   /* Both of these are attributes rather than inline styles so they are visible
      in the DOM, and both are written here — in a synchronous head script —
      so the page never paints in one appearance and then flips to another. */
   applySurface(localStorage.getItem('learningai-surface'));
-  applyAccent(localStorage.getItem('learningai-accent'));
 
   try {
     const prototypeAccount = JSON.parse(localStorage.getItem('learningai-prototype-account') || 'null');
@@ -202,18 +282,47 @@
     return value;
   }
 
-  function applyFontScale(next) {
-    const value = ['normal', 'large', 'xl'].includes(next) ? next : 'normal';
-    const scale = value === 'xl' ? 1.5 : value === 'large' ? 1.25 : 1;
-    document.documentElement.dataset.fontScale = value;
+  function clampTextSize(value) {
+    const raw = Number(value);
+    if (!Number.isFinite(raw)) return TEXT_SIZE_BASE;
+    // Rounded to two places as well as to the step: 0.5 divides exactly in
+    // binary, but a value that arrived as 16.499999 should still land on 16.5.
+    const stepped = Math.round(Math.round(raw / TEXT_SIZE_STEP) * TEXT_SIZE_STEP * 100) / 100;
+    return Math.min(TEXT_SIZE_MAX, Math.max(TEXT_SIZE_MIN, stepped));
+  }
+
+  /* The stored key held a name ('normal' | 'large' | 'xl') and now holds a pixel
+     size. Both are read, so an existing setting survives the change instead of
+     silently reverting to default. A bare multiplier is accepted too, because
+     that is the other shape this value could plausibly have been written in. */
+  function readTextSize(raw) {
+    if (raw === null || raw === undefined || raw === '') return TEXT_SIZE_BASE;
+    const named = LEGACY_TEXT_SIZES[String(raw).trim()];
+    if (named) return named;
+    const number = Number(raw);
+    if (!Number.isFinite(number)) return TEXT_SIZE_BASE;
+    return clampTextSize(number > 0 && number <= 4 ? number * TEXT_SIZE_BASE : number);
+  }
+
+  function applyTextSize(next) {
+    const px = clampTextSize(next);
+    const scale = px / TEXT_SIZE_BASE;
     // Most prototype screens still contain fixed-pixel type. Scaling only the
     // root font therefore made the setting appear to work while leaving much
     // of the interface unchanged. Use layout zoom where supported so every
     // label, control, lesson, and hit target scales together; retain a root
     // font-size fallback for engines without CSS zoom.
+    document.documentElement.dataset.textSize = String(px);
+    /* Three states rather than a per-step attribute: every rule that used to be
+       written twice, once for "large" and once for "xl", now has to hold at
+       every value in between. "in" and "out" are distinguished because the two
+       rules that depend on this want different answers — the zoom fallback
+       applies to any scale that is not 1, while the small-screen reflow is only
+       needed when the layout has less room than it was authored with. */
+    document.documentElement.dataset.textZoom = scale > 1 ? 'in' : scale < 1 ? 'out' : 'off';
     document.documentElement.style.setProperty('--ui-zoom', String(scale));
     document.documentElement.style.fontSize = '100%';
-    return value;
+    return px;
   }
 
   function applySurface(next) {
@@ -222,25 +331,12 @@
     return value;
   }
 
-  function applyAccent(next) {
-    const value = ACCENTS.includes(next) ? next : 'mineral';
-    document.documentElement.dataset.accent = value;
-    return value;
-  }
-
   window.LearningAITheme = {
     surfaces: () => SURFACES.slice(),
-    accents: () => ACCENTS.slice(),
     setSurface(next) {
       const value = applySurface(next);
       localStorage.setItem('learningai-surface', value);
       window.dispatchEvent(new CustomEvent('learningai:surface', {detail: value}));
-      return value;
-    },
-    setAccent(next) {
-      const value = applyAccent(next);
-      localStorage.setItem('learningai-accent', value);
-      window.dispatchEvent(new CustomEvent('learningai:accent', {detail: value}));
       return value;
     },
     setLight(next) {
@@ -262,11 +358,30 @@
       localStorage.setItem('learningai-motion', value);
       window.dispatchEvent(new CustomEvent('learningai:motion', {detail: value}));
     },
-    setFontScale(next) {
-      const value = applyFontScale(next);
-      localStorage.setItem('learningai-font-scale', value);
+    textSize: () => clampTextSize(readTextSize(localStorage.getItem('learningai-font-scale'))),
+    textSizeRange: () => ({ min: TEXT_SIZE_MIN, max: TEXT_SIZE_MAX, step: TEXT_SIZE_STEP, base: TEXT_SIZE_BASE }),
+    /* Called on every input event while the slider is dragged, so it has to be
+       cheap. It is: the only work is one custom property, one attribute and one
+       localStorage write.
+
+       Deliberately absent is a re-run of the viewport-unit sweep. That sweep
+       rewrites `100vw` to `calc(100vw / var(--ui-zoom))` once, at load, over
+       every rule in every loaded stylesheet — about 1.3ms across 900 rules,
+       which is far too much to repeat sixty times a second. It does not need
+       repeating: the rewritten values name the variable rather than a number,
+       so they re-resolve on their own the instant --ui-zoom changes. Measured
+       dragging 14 → 24 continuously: no page exceeded its viewport width at
+       any step. */
+    setTextSize(next) {
+      const value = applyTextSize(next);
+      localStorage.setItem('learningai-font-scale', String(value));
+      window.dispatchEvent(new CustomEvent('learningai:text-size', {detail: value}));
       window.dispatchEvent(new CustomEvent('learningai:font-scale', {detail: value}));
-    }
+      return value;
+    },
+    // Kept so an older caller, or a page not rebuilt yet, still works: it takes
+    // the old names as readily as it takes a pixel size.
+    setFontScale(next) { return window.LearningAITheme.setTextSize(readTextSize(next)); }
   };
 
   function revealCurrentNavRoute() {
@@ -520,6 +635,20 @@
   const readJson = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key) || 'null') || fallback; } catch { return fallback; } };
   const savedAge = () => read(AGE_KEY);
   const isAdult = value => ADULT_RANGES.has(value);
+  /* Age is asked once and then fixed. Everything that writes it goes through
+     here, so "answered once" is a property of the one function rather than a
+     rule three callers have to remember. An empty answer is not an answer: it
+     leaves the question open so it can be offered again, which is what makes
+     skipping it safe. */
+  const ageIsSettled = () => Boolean(savedAge());
+  function commitAge(value) {
+    if (!value || ageIsSettled()) return false;
+    if (!AGE_OPTIONS.some(([option]) => option === value)) return false;
+    try { localStorage.setItem(AGE_KEY, value); } catch { return false; }
+    syncAdultsNavigation(value);
+    return true;
+  }
+  const ageLabelFor = value => AGE_OPTIONS.find(([option]) => option === value)?.[1] || value;
   const ROUTES = new Map([
     ['Dashboard', './stage-1-navigation-proof.html'],
     ['Lessons', './lessons.html'],
@@ -689,21 +818,39 @@
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'mobile-nav-more';
-      button.setAttribute('aria-label', 'All LearningAI pages');
       button.setAttribute('aria-haspopup', 'menu');
       button.setAttribute('aria-expanded', 'false');
-      /* "More" said nothing about what was behind it. The visible label now
-         matches the accessible name and the menu's own name. */
-      button.textContent = 'All pages';
       const menu = document.createElement('div');
       menu.className = 'mobile-nav-menu';
       menu.hidden = true;
       menu.setAttribute('role', 'menu');
       menu.setAttribute('aria-label', 'All LearningAI pages');
       const currentLabel = currentRouteLabel();
+      /* The capsule names the page you are on rather than the generic "All
+         pages", so it reads as a position as well as a way out of it. It stays
+         one control: same menu, same contents, same behaviour.
+
+         The visible text changes, so the accessible name has to change with it.
+         A screen reader announcing "All LearningAI pages" over a button reading
+         "Progress" is the failure WCAG 2.5.3 (Label in Name) describes, and it
+         also breaks voice control — "click Progress" would match nothing. The
+         name therefore starts with the visible text and then says what the
+         button does, which satisfies both, and the menu keeps its own separate
+         name so the popup is still announced as the site index.
+
+         A page outside the route map — sign-in, accounts, the first lesson —
+         has no name to show, so it keeps the generic label. */
+      if (currentLabel) {
+        button.textContent = currentLabel;
+        button.setAttribute('aria-label', `${currentLabel} — open all LearningAI pages`);
+      } else {
+        button.textContent = 'All pages';
+        button.setAttribute('aria-label', 'All LearningAI pages');
+      }
       if (MENU_ONLY_ROUTES.includes(currentLabel) || currentLabel === 'Adults') {
-        // Mark the button only when the page you are on has no visible route of
-        // its own, so the capsule still shows where you are.
+        // Underline the button only when the page you are on has no visible
+        // route of its own, so there is never a second current-page marker in
+        // the same capsule.
         button.classList.add('is-current');
       }
       MENU_GROUPS.forEach(group => {
@@ -816,6 +963,19 @@
     document.body.append(dialog);
 
     function persistDraft(){ localStorage.setItem(DRAFT_KEY,JSON.stringify(draft)); }
+    /* Age is the one answer here that does real work — it is what decides
+       whether the Adults route exists — so the question stays. What has gone is
+       its power to stop anyone: it is optional, it never holds up a lesson, and
+       "Prefer not to say" and no answer at all are both allowed.
+
+       It is also asked exactly once. Once a range is stored the question is
+       replaced by a statement of what was chosen, so re-answering the six
+       questions cannot quietly become a way to re-answer this one. */
+    function ageField(){
+      const settled=savedAge();
+      if(settled) return `<fieldset class="age-field" data-age-settled=""><legend>Your age</legend><p class="age-note">You chose <b>${ageLabelFor(settled)}</b>. Age is asked once and kept, so it is not asked again. It decides only whether adult-only guidance appears.</p></fieldset>`;
+      return `<fieldset class="age-field"><legend>Your age <i>optional</i></legend><p class="age-note">LearningAI is built first for ages 13–18 and is open to everyone. This answer only decides whether adult-only guidance appears — it never locks a lesson. You can leave it blank and carry on. If you do answer, it is kept as it is and cannot be changed later.</p><div class="age-choices">${AGE_CHOICES.map(([value,label])=>`<label><input type="radio" name="ageRange" value="${value}" ${draft.age===value?'checked':''}><span>${label}</span></label>`).join('')}</div></fieldset>`;
+    }
     function renderQuestion(){
       const index = Math.max(0,Math.min(Number(draft.index)||0,QUESTIONS.length-1));
       const question = QUESTIONS[index];
@@ -834,7 +994,7 @@
         <p class="diagnostic-topic">${question.label}</p>
         <h2 id="audienceTitle" tabindex="-1">${question.title}</h2>
         <p class="audience-copy">${question.copy}</p>
-        ${index===0 ? `<fieldset class="age-field"><legend>Choose your age</legend><p class="age-note">LearningAI is built first for ages 13–18 and is open to everyone. This answer only decides whether adult-only guidance appears.</p><div class="age-choices">${AGE_CHOICES.map(([value,label])=>`<label><input type="radio" name="ageRange" value="${value}" ${draft.age===value?'checked':''}><span>${label}</span></label>`).join('')}</div></fieldset>`:''}
+        ${index===0 ? ageField() : ''}
         <fieldset class="diagnostic-options-prototype"><legend>Choose the closest answer</legend>${questionOptions.map(([value,label],optionIndex)=>`<label><input type="radio" name="${question.key}" value="${value}" ${answer===value?'checked':''}><span><b>${optionIndex+1}</b>${label}</span></label>`).join('')}</fieldset>
         <p class="audience-result" id="audienceResult" aria-live="polite">Choose the answer closest to what you understand today. You can change your starting point later.</p>
         <div class="audience-actions diagnostic-actions"><button class="audience-skip" id="audienceBack" type="button" ${index===0?'disabled':''}>Back</button><button class="audience-primary" id="audienceNext" type="button">${index===QUESTIONS.length-1?'Finish and unlock LearningAI':'Next question'}</button></div>
@@ -846,10 +1006,11 @@
             dialog.querySelector('#audienceBack').addEventListener('click',()=>{ draft.index=Math.max(0,index-1); persistDraft(); renderQuestion(); });
       dialog.querySelector('#audienceNext').addEventListener('click',async()=>{
         const chosen = dialog.querySelector(`input[name="${question.key}"]:checked`);
-        if(index===0 && !draft.age){ result.textContent='Choose your age, or pick “Prefer not to say.”'; (ageInputs.find(input=>input.checked)||ageInputs[0])?.focus(); return; }
         if(!chosen){ result.textContent='Choose one answer before continuing.'; dialog.querySelector(`input[name="${question.key}"]`)?.focus(); return; }
         draft.answers[question.key]=chosen.value;
-        if(index===0){ localStorage.setItem(AGE_KEY,draft.age); syncAdultsNavigation(draft.age); }
+        // No guard on age: an unanswered age is a valid state, so leaving this
+        // question with one chosen is the same as leaving it without.
+        if(index===0) commitAge(draft.age);
         if(index<QUESTIONS.length-1){ draft.index=index+1; persistDraft(); renderQuestion(); return; }
         /* "I'm not sure yet" is an escape hatch, not a wrong answer. Scoring it
            as 0 made honesty indistinguishable from a misconception. Score only
@@ -859,7 +1020,7 @@
         const percent=gradedAnswers.length?Math.round(score/(gradedAnswers.length*3)*100):0;
         const level=percent<45?'Foundation':percent<75?'Explorer':'Builder';
         const completedAt=new Date().toISOString();
-        const assessment={ageRange:draft.age,answers:draft.answers,responses:QUESTIONS.map(item=>{const value=String(draft.answers[item.key]||''),label=item.options.find(([optionValue])=>optionValue===draft.answers[item.key])?.[1]||'I’m not sure yet.';return{questionKey:item.key,value,label,answer:value,answerLabel:label}}),scorePercent:percent,level,placementMethod:'self-report',completedAt};
+        const assessment={ageRange:savedAge(),answers:draft.answers,responses:QUESTIONS.map(item=>{const value=String(draft.answers[item.key]||''),label=item.options.find(([optionValue])=>optionValue===draft.answers[item.key])?.[1]||'I’m not sure yet.';return{questionKey:item.key,value,label,answer:value,answerLabel:label}}),scorePercent:percent,level,placementMethod:'self-report',completedAt};
         const account=readJson('learningai-prototype-account',null);
         if(account?.mode==='postgres'&&!window.LearningAIReviewMode){
           const button=dialog.querySelector('#audienceNext');
@@ -887,23 +1048,40 @@
     const previewParams = new URLSearchParams(location.search);
     const forceQuestionnairePreview = previewParams.get('audience') === 'reset';
     if (forceQuestionnairePreview) {
-      [AGE_KEY,ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key));
+      /* AGE_KEY is deliberately absent from this list. ?audience=reset exists to
+         re-run the six questions; age is not one of the things it may undo, or
+         a URL would be the exception to "asked once". A settled age renders as
+         a statement in the rebuilt questionnaire, which is the state worth
+         previewing anyway. */
+      [ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key));
       previewParams.delete('audience'); const cleanQuery = previewParams.toString();
       history.replaceState(null,'',`${location.pathname}${cleanQuery?`?${cleanQuery}`:''}${location.hash}`);
     }
     if (!guardPrototypeRoute()) return;
     syncCanonicalNavigation(); syncCoreNavigation(); syncAdultsNavigation(); setupMobileNavigationMenu(); propagateReviewMode(); syncGreeting();
     if (location.pathname.endsWith('/adults.html') && !isAdult(savedAge())) {
-      const destination = savedAge() ? './stage-1-navigation-proof.html?notice=adults' : './onboarding.html?notice=adults';
+      /* Only send someone to the questionnaire if the questionnaire is still
+         owed. Someone who finished it and skipped the age question is not owed
+         anything — onboarding.html would bounce them straight back out, and two
+         redirects to reach one notice reads as a fault. */
+      const destination = read(ASSESSMENT_KEY) || savedAge()
+        ? './stage-1-navigation-proof.html?notice=adults'
+        : './onboarding.html?notice=adults';
       location.replace(destination);
       return;
     }
     buildQuestionnaire(forceQuestionnairePreview);
     window.LearningAIAudience = { age:savedAge, isAdult:()=>isAdult(savedAge()), options:()=>AGE_OPTIONS.slice(),
-    /* Changing an age range is not a reason to retake six questions and lose a
-       recorded starting point. Update the age alone and re-sync the Adults route. */
-    setAge(value){ const allowed=AGE_OPTIONS.some(([option])=>option===value); if(!allowed) return false; localStorage.setItem(AGE_KEY,value); syncAdultsNavigation(value); return true; },
-    reset(){ if(window.LearningAIReviewMode){ location.href='./onboarding.html?review=1'; return; } [AGE_KEY,ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key)); location.href='./onboarding.html'; } };
+    /* Asked once, then fixed. This used to be the API behind a "Change age
+       answer" button; the button is gone and so is the capability, because a
+       writable setter is the same thing as an editable age no matter which
+       screen calls it. It still accepts a first answer, so a learner who
+       skipped the question is not locked out of ever giving one. */
+    isSettled:ageIsSettled,
+    setAge(value){ return commitAge(value); },
+    /* Re-asks the six questions. It does not clear the age: re-answering the
+       starting questions is not a route to a second age answer. */
+    reset(){ if(window.LearningAIReviewMode){ location.href='./onboarding.html?review=1'; return; } [ASSESSMENT_KEY,DRAFT_KEY,'learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key)); location.href='./onboarding.html'; } };
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initializeAudience,{once:true}); else initializeAudience();
 })();

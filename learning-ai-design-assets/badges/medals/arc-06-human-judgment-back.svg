@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Arc 06 Human Judgment medal, back">
+<title>Arc 06 Human Judgment medal, back</title>
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#f6f7f5"/><stop offset=".3" stop-color="#ccd2cf"/>
+<stop offset=".62" stop-color="#959d9a"/><stop offset=".85" stop-color="#c3c9c6"/>
+<stop offset="1" stop-color="#e9edea"/></linearGradient>
+<linearGradient id="p" x1=".1" y1="0" x2=".9" y2="1">
+<stop offset="0" stop-color="#e3e7e4"/><stop offset=".5" stop-color="#c9cfcc"/>
+<stop offset="1" stop-color="#dee2df"/></linearGradient></defs>
+<rect width="200" height="200" fill="url(#b)"/>
+<path d="M162.58 37.42L170.36 29.64M37.42 37.42L29.64 29.64M37.42 162.58L29.64 170.36M162.58 162.58L170.36 170.36" fill="none" stroke="#4f5754" stroke-opacity=".32" stroke-width="3"/>
+<circle cx="100" cy="100" r="87" fill="url(#p)"/>
+<circle cx="100" cy="100" r="86" fill="none" stroke="#5f6764" stroke-opacity=".38" stroke-width="2"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#c7903b" stroke-width="1.4" stroke-opacity=".34"/>
+<g transform="translate(100 53) scale(.35) translate(-100 -100)"><path d="M100 104L86 140H114Z" fill="#6c7471"/>
+<path d="M72 111L128 97" fill="none" stroke="#6c7471" stroke-width="8" stroke-linecap="round"/>
+<circle cx="66" cy="112.5" r="8.5" fill="#a3aba8"/>
+<circle cx="134" cy="95.5" r="8.5" fill="#a3aba8"/></g>
+<text x="100" y="88" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">HUMAN</text>
+<text x="100" y="88" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#474e4b">HUMAN</text>
+<text x="100" y="107" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">JUDGMENT</text>
+<text x="100" y="107" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#474e4b">JUDGMENT</text>
+<text x="100" y="123" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.8" fill="#ffffff" fill-opacity=".45" transform="translate(0 1.2)">ARC 06</text>
+<text x="100" y="123" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.8" fill="#6b736f">ARC 06</text>
+<rect x="48" y="132" width="104" height="36" rx="7" fill="#7f8783" fill-opacity=".42"/>
+<rect x="48" y="132" width="104" height="36" rx="7" fill="none" stroke="#565e5b" stroke-opacity=".42" stroke-width="1.4"/>
+<path d="M56.5 133.6H143.5" fill="none" stroke="#3f4744" stroke-opacity=".34" stroke-width="2.2" stroke-linecap="round"/>
+<path d="M56.5 166.6H143.5" fill="none" stroke="#ffffff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>
+<path d="M49.6 141.5V158.5" fill="none" stroke="#3f4744" stroke-opacity=".24" stroke-width="1.6" stroke-linecap="round"/>
+<path d="M150.4 141.5V158.5" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>
+</svg>
