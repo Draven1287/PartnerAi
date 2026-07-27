@@ -58,7 +58,45 @@
     @media(prefers-reduced-motion:reduce){html:not([data-motion="standard"]){scroll-behavior:auto}html:not([data-motion="standard"]) .nav-shell{transition:opacity 1ms linear}html:not([data-motion="standard"]) .nav-shell.is-passing{transform:none;filter:none;opacity:0}html:not([data-motion="standard"]) .about-section,html:not([data-motion="standard"]) .disclosure-indicator:before,html:not([data-motion="standard"]) .disclosure-indicator:after{transition:none}html:not([data-motion="standard"]) .about-section:hover{transform:none}}
     @media(forced-colors:active){.about-section{border:1px solid ButtonText;background:Canvas;color:CanvasText}.about-section summary:focus-visible{outline:3px solid Highlight}.about-section[open]{border-color:Highlight;box-shadow:none}.disclosure-indicator{border-color:ButtonText;background:ButtonFace}.disclosure-indicator:before,.disclosure-indicator:after{background:ButtonText}}
   </style>
-  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26f"><script src="./theme.js?v=2026-07-27a"></script>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-27b"><script src="./theme.js?v=2026-07-27b"></script>
+  <!-- After theme.css on purpose. theme.css paints .about-plane and
+       .about-section with the page-panel recipe, !important and at class
+       specificity, so this file's own stylesheet above the link never won — which
+       is why these panels ended up flatter than the rest of the site. -->
+  <style>
+    /* The V3 glass recipe, the same one the Rule cards on Saved Notes use:
+       a brighter border, a deeper fill and blur(25px) saturate(1.6) instead of
+       blur(15px). Two layers of it — the plane, then the sections inside it —
+       so the disclosure cards lift off the panel rather than sitting flush.
+       Only border-colour, fill and blur are forced; the hover and [open]
+       treatments this page already had keep working, and the trailing-card
+       grid rule above is untouched.
+       Contrast measured, not assumed: the floor is the darkest patch this page
+       composites to — the paper photograph blurred 25px and saturated 1.6
+       under the plane fill, then blurred and saturated again under the section
+       fill, plus theme.css's html::after dim. Every colour set here clears
+       4.5:1 against that floor. */
+    .about-plane{border:1px solid rgba(255,255,255,.78)!important;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21))!important;backdrop-filter:blur(25px) saturate(1.6)!important;-webkit-backdrop-filter:blur(25px) saturate(1.6)!important;box-shadow:inset 0 1px 1px white,inset 0 -1px 0 rgba(30,34,33,.12),0 26px 78px rgba(40,42,39,.115)}
+    .about-section{border:1px solid rgba(255,255,255,.78)!important;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21))!important;backdrop-filter:blur(25px) saturate(1.6)!important;-webkit-backdrop-filter:blur(25px) saturate(1.6)!important;box-shadow:inset 0 1px 1px white,inset 0 -1px 0 rgba(30,34,33,.10),0 12px 34px rgba(40,42,39,.08)}
+    .about-section:hover{box-shadow:inset 0 1px 1px white,inset 0 -1px 0 rgba(30,34,33,.10),0 15px 38px rgba(40,42,39,.11)}
+    .about-section[open]{border-color:color-mix(in oklab,var(--mineral) 36%,rgba(255,255,255,.86))!important;box-shadow:inset 0 2px 0 color-mix(in oklab,var(--mineral) 26%,transparent),inset 0 1px 1px white,0 14px 36px rgba(40,42,39,.10)}
+    .disclosure-indicator{border-color:rgba(48,53,50,.18);background:rgba(255,255,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}
+    /* Measured floors: the plane composites no lighter than rgb(164,158,149)
+       (relative luminance .3452) and a section on top of it no lighter than
+       rgb(180,174,164) (.4266). Copy that sits straight on the plane therefore
+       has to be darker than copy inside a section, which is why the two lists
+       differ. `.eyebrow` is repainted by theme.css with var(--gold-text) and
+       !important, and lands at 1.80:1 on this backdrop — the only way to keep
+       it gold and legible is to out-specify it here. */
+    .lead{color:#2f3531}
+    .fact span{color:#2f3531}
+    .fact strong{color:#14170f}
+    .continuation p{color:#2f3531}
+    .about-plane>.eyebrow{color:#3f3411!important}
+    .about-section h2{color:#14170f}
+    .about-section p,.about-section li{color:#333a35}
+    .privacy-note{color:#453a19!important}
+  </style>
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">

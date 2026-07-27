@@ -33,7 +33,7 @@
     @media(max-width:820px){.nav-shell{width:calc(100vw - 20px);margin-top:10px}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto;min-height:56px;padding:6px 7px}.brand span:last-child{display:none}nav{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{flex:0 0 auto;padding-inline:7px}.welcome{display:none}.settings{grid-column:3;margin-left:4px}main{width:calc(100vw - 20px);margin-top:94px}.hero{padding:34px 25px;border-radius:28px}.feature{padding:38px 25px;border-radius:28px}.feature:after{right:20px;font-size:110px}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(odd){padding-left:0;border-left:0}.stat:nth-child(n+3){border-top:1px solid rgba(47,46,40,.12)}.feature-detail{gap:22px}.section-head{display:block;margin-top:64px}.section-head span{display:block;margin-top:12px;text-align:left}.case-study{padding:32px 24px}.starter-grid{grid-template-columns:1fr}.project-card{min-height:0;padding:28px 25px 74px}.project-card .open-project{left:25px}}
     @media(prefers-reduced-motion:reduce){html:not([data-motion="standard"]){scroll-behavior:auto}html:not([data-motion="standard"]) .nav-shell{transition:opacity 1ms linear}html:not([data-motion="standard"]) .nav-shell.is-passing{transform:none;filter:none;opacity:0}html:not([data-motion="standard"]) .project-card{transition:none}}
   </style>
-  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26f"><script src="./theme.js?v=2026-07-27a"></script>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-27b"><script src="./theme.js?v=2026-07-27b"></script>
   <style>
     .feature,.case-study,.project-card{cursor:pointer}.feature:after{display:none}.case-study{border-radius:30px}.feature:focus-visible,.case-study:focus-visible,.project-card:focus-visible{outline:3px solid #17231f;outline-offset:5px}.dialog-scroll{scrollbar-width:thin;scrollbar-color:rgba(42,48,45,.42) transparent}.dialog-scroll::-webkit-scrollbar{width:10px}.dialog-scroll::-webkit-scrollbar-track{background:transparent}.dialog-scroll::-webkit-scrollbar-thumb{border:3px solid transparent;border-radius:999px;background:rgba(42,48,45,.38);background-clip:padding-box}.dialog-scroll::-webkit-scrollbar-thumb:hover{background:rgba(42,48,45,.58);background-clip:padding-box}
   </style>
@@ -137,28 +137,28 @@
       .dialog-materials{grid-template-columns:minmax(0,1fr);gap:0}
       .dialog-materials ul{grid-template-columns:minmax(0,1fr)}
     }
-    /* Dark surface. theme.css repaints the panel and the sections for
-       html[data-surface="dark"], but the shell above wins on specificity (an
-       id), the sections would land on the same fill as the panel, and the bar,
-       the tiles and the step rows are elements it has never seen. Declared
-       here from theme.css's own dark tokens rather than left half-applied. */
-    html[data-surface="dark"] dialog#projectDialog{
-      --brief-line:var(--dark-line);
-      --brief-card:var(--dark-raised);
-      --brief-tile:var(--dark-raised);
+    /* High-contrast surface. theme.css flattens every panel to #f7f5ef with no
+       blur, and the brief has to follow that rather than out-specify it — the
+       shell selector above carries an id, so it would otherwise win and leave a
+       glass modal inside a flattened site. The bar, the tiles and the step rows
+       are elements theme.css has never seen, and they need borders that are
+       visible once the panel behind them is opaque. */
+    html[data-surface="contrast"] dialog#projectDialog{
+      --brief-line:rgba(38,44,41,.28);
+      --brief-card:#fdfcf8;
+      --brief-tile:#fdfcf8;
       --brief-lit:none;
-      --brief-step:var(--dark-sunken);
-      border-color:var(--dark-line)!important;
-      background:var(--dark-panel)!important;
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 40px 100px rgba(0,0,0,.62)!important;
+      --brief-step:#f0eee6;
+      border-color:rgba(38,44,41,.34)!important;
+      background:#f7f5ef!important;
+      box-shadow:0 30px 80px rgba(28,32,30,.34)!important;
       backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-    html[data-surface="dark"] dialog#projectDialog::backdrop{background:rgba(6,9,8,.68);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-    html[data-surface="dark"] .dialog-bar{background:linear-gradient(180deg,var(--dark-panel) 0%,var(--dark-panel) 58%,rgba(30,35,32,0) 100%)}
-    html[data-surface="dark"] .dialog-close{border-color:var(--dark-line-strong);background:var(--dark-raised);box-shadow:none}
-    html[data-surface="dark"] .dialog-close:hover{background:var(--dark-line)}
-    html[data-surface="dark"] .dialog-sections>.dialog-section,html[data-surface="dark"] .guide-meta>div{background:var(--dark-raised)!important;background-image:none!important;border-color:var(--dark-line)!important;box-shadow:none!important}
-    html[data-surface="dark"] .dialog-walkthrough li{background:var(--dark-sunken);box-shadow:none}
-    html[data-surface="dark"] .dialog-evidence{border-color:var(--dark-line-strong)!important}
+    html[data-surface="contrast"] dialog#projectDialog::backdrop{background:rgba(23,26,24,.62);backdrop-filter:none;-webkit-backdrop-filter:none}
+    html[data-surface="contrast"] .dialog-bar{border-bottom:1px solid rgba(38,44,41,.22);background:#f7f5ef}
+    html[data-surface="contrast"] .dialog-close{border-color:rgba(38,44,41,.34);background:#fdfcf8;box-shadow:none}
+    html[data-surface="contrast"] .dialog-sections>.dialog-section,html[data-surface="contrast"] .guide-meta>div{border-color:rgba(38,44,41,.26)!important;background:#fdfcf8!important;background-image:none!important;box-shadow:none!important}
+    html[data-surface="contrast"] .dialog-walkthrough li{background:#f0eee6;box-shadow:none}
+    html[data-surface="contrast"] .dialog-evidence{border-color:rgba(150,116,50,.5)!important;background:#fbf7ec!important}
   </style>
 </head>
 <body>
