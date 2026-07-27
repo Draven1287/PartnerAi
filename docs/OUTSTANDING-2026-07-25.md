@@ -43,10 +43,16 @@ a context compaction so nothing is lost. Ordered by who is blocked.
 
 **One edit, and it is a quiet time bomb.**
 
-> Namecheap → learningai4you.com → Manage → Advanced DNS
-> Find the `ALIAS Record` for Host `@`.
-> Change Value from `k7mvqf04.up.railway.app` to **`o565olmt.up.railway.app`**
-> Change nothing else.
+**26 Jul: do not send anyone the old value.** `o565olmt.up.railway.app` is
+stale. Railway issues a different target per custom domain and reissues them;
+`www` currently resolves via `4p7eduqn.up.railway.app`, and the apex answers on
+Namecheap IPs (69.46.46.93) rather than a Railway hostname. The apex does serve
+correctly today (200, valid certificate).
+
+**Before asking anyone to edit DNS, read the current target out of the Railway
+dashboard** — Settings → Networking → the `learningai4you.com` custom domain —
+and use exactly what it shows there for that domain. The CLI (`railway domain`)
+lists which domains exist but not their per-domain CNAME targets.
 
 The apex works today only because the old, deleted Railway hostname still
 resolves to an edge IP that happens to serve the domain. When Railway retires
