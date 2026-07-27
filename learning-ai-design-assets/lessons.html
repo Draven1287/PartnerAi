@@ -44,7 +44,7 @@
     .unit-rail{position:fixed;z-index:16;right:14px;top:50%;display:grid;gap:7px;padding:10px 8px;border:1px solid rgba(255,255,255,.86);border-radius:999px;background:linear-gradient(145deg,rgba(255,255,255,.46),rgba(236,241,239,.18));box-shadow:inset 0 1px 1px white,0 12px 34px rgba(35,39,37,.12);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);transform:translateY(-50%)}.unit-rail button{--rail-color:var(--arc-01);position:relative;width:13px;height:13px;padding:0;border:2px solid rgba(255,255,255,.92);border-radius:50%;background:var(--rail-color);box-shadow:0 2px 7px color-mix(in oklab,var(--rail-color) 45%,transparent);cursor:pointer}.unit-rail button[aria-current="true"]{transform:scale(1.55);box-shadow:0 0 0 3px rgba(255,255,255,.66),0 4px 12px color-mix(in oklab,var(--rail-color) 60%,transparent)}.unit-rail button:nth-child(1){--rail-color:var(--arc-01)}.unit-rail button:nth-child(2){--rail-color:var(--arc-02)}.unit-rail button:nth-child(3){--rail-color:var(--arc-03)}.unit-rail button:nth-child(4){--rail-color:var(--arc-04)}.unit-rail button:nth-child(5){--rail-color:var(--arc-05)}.unit-rail button:nth-child(6){--rail-color:var(--arc-06)}.unit-rail button:nth-child(7){--rail-color:var(--arc-07)}.unit-rail button:nth-child(8){--rail-color:var(--arc-08)}.unit-rail button:nth-child(9){--rail-color:var(--arc-09)}.unit-rail button:nth-child(10){--rail-color:var(--arc-10)}.unit-rail button:focus-visible{outline:3px solid #17231f;outline-offset:3px}
     @media(max-width:820px){.unit-rail{right:auto;left:50%;top:auto;bottom:10px;grid-auto-flow:column;margin-left:-105px;transform:none}}
   </style>
-  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26c"><link rel="stylesheet" href="./focus-mini.css"><script src="./theme.js?v=2026-07-26c"></script>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26e"><link rel="stylesheet" href="./focus-mini.css"><script src="./theme.js?v=2026-07-26d"></script>
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">
@@ -125,9 +125,18 @@
       window.clearTimeout(heightRelease);
       heightRelease=window.setTimeout(()=>{catalog.style.minHeight='';},340);
       /* The side rail could select an arc whose tab was scrolled out of view, so
-         the two controls disagreed about where you were. */
-      jump.children[index]?.scrollIntoView({inline:'center',block:'nearest',
-        behavior:document.documentElement.dataset.motion==='standard'?'smooth':'auto'});
+         the two controls disagreed about where you were. scrollIntoView fixed
+         that but also scrolled the page itself: block:'nearest' still moves the
+         document when the target is not fully in view, and at Large and Extra
+         large the taller layout made it move on load, dropping the heading
+         behind the navigation. Centre the tab inside its own rail instead —
+         the same thing theme.js does for the navigation rail. */
+      const tab=jump.children[index];
+      if(tab){
+        const centred=tab.offsetLeft-(jump.clientWidth-tab.offsetWidth)/2;
+        jump.scrollTo({left:Math.max(0,Math.min(centred,jump.scrollWidth-jump.clientWidth)),
+          behavior:document.documentElement.dataset.motion==='standard'?'smooth':'auto'});
+      }
       history.replaceState(null,'',`#arc-${index+1}`);if(focus)section.querySelector('h2').focus();
     }
     arcs.forEach((arc,index)=>{const button=document.createElement('button');button.type='button';button.id=`arc-tab-${index+1}`;button.role='tab';button.textContent=`Arc ${String(index+1).padStart(2,'0')}`;button.style.width='auto';button.style.paddingInline='13px';button.setAttribute('aria-label',`Choose Arc ${index+1}: ${arc}`);button.addEventListener('click',()=>showArc(index));button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let next=index;if(event.key==='ArrowLeft')next=(index-1+arcs.length)%arcs.length;if(event.key==='ArrowRight')next=(index+1)%arcs.length;if(event.key==='Home')next=0;if(event.key==='End')next=arcs.length-1;showArc(next);jump.children[next].focus()});jump.append(button);const railButton=document.createElement('button');railButton.type='button';railButton.setAttribute('aria-label',`Open Arc ${index+1}: ${arc}`);railButton.title=`Arc ${index+1} · ${arc}`;railButton.addEventListener('click',()=>{showArc(index,true);scrollTo({top:Math.max(0,catalog.offsetTop-105),behavior:document.documentElement.dataset.motion==='none'?'auto':'smooth'})});unitRail.append(railButton)});
