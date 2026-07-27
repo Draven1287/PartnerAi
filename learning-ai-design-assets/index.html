@@ -106,9 +106,13 @@
     <div class="exit" id="exit" hidden>
       <h1 class="question" id="exitTitle" tabindex="-1">No problem.</h1>
       <p>Nothing has started. You have no account here and nothing has been saved.</p>
+      <!-- No means no. The only control here is the way back to the question,
+           for someone who mis-tapped. There is deliberately no link onward: a
+           route into the site would make "No" just another way in, which is
+           the opposite of what it is for. Signing in stays at the top right,
+           because that is for people who already have an account. -->
       <div class="exit-links">
         <button class="decline" id="back" type="button">Ask me again</button>
-        <a href="./about.html">What is LearningAI?</a>
       </div>
     </div>
   </main>
