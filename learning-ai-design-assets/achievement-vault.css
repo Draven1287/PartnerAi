@@ -137,7 +137,11 @@
 }
 
 .achievement-object {
-  --rotate-x: 5deg;
+  /* 0deg, not 5deg. JS writes both of these inline on every medal at first
+     paint, so the declaration here was never the value in force — but a
+     fallback that disagrees with the invariant is a trap for the next change,
+     and the invariant is that a medal is square-on or 180deg from it. */
+  --rotate-x: 0deg;
   --rotate-y: 0deg;
   /* Duration is set per gesture in JS from the angle actually travelled, so a
      15deg arrow nudge does not take as long as a 180deg flip. The curve carries
@@ -153,9 +157,14 @@
   place-items: center;
   background: transparent;
   color: inherit;
-  cursor: grab;
   font: inherit;
-  touch-action: pan-y;
+  /* Was `cursor: grab` with `touch-action: pan-y`, both of which advertised and
+     protected a drag gesture that no longer exists. A medal is a button that
+     flips, so it points like one; and handing every direction back to the
+     browser means a finger that starts on a medal can pan the rail sideways,
+     which pan-y specifically prevented. */
+  cursor: pointer;
+  touch-action: auto;
   user-select: none;
   -webkit-user-select: none;
   perspective: 1100px;
@@ -170,13 +179,11 @@
     opacity 240ms ease;
 }
 
-.achievement-object.is-turning {
-  transition: none;
-}
-
-.achievement-object:active {
-  cursor: grabbing;
-}
+/* `.is-turning` used to switch the transition off for the duration of a drag,
+   so the medal tracked the pointer frame for frame instead of easing toward it.
+   Nothing sets the class now — every turn is a 180deg animation from one face
+   to the other — so both rules that read it are gone, along with the
+   `cursor: grabbing` that only ever appeared mid-drag. */
 
 .achievement-object:focus-visible {
   outline:3px solid #17231f;
@@ -271,10 +278,6 @@
   transform-style: preserve-3d;
   transition: transform var(--turn-ms) var(--turn-ease);
   will-change: transform;
-}
-
-.achievement-object.is-turning .achievement-coin {
-  transition: none;
 }
 
 .achievement-face {
@@ -822,11 +825,11 @@ html[data-motion="none"] .achievement-object[data-face="back"] .achievement-fron
   gap:16px;margin:0;padding:14px 2px 18px;
   overflow-x:auto;overscroll-behavior-x:contain;
   scroll-snap-type:x proximity;scroll-padding-inline:2px;
-  scrollbar-width:thin;scrollbar-color:rgba(48,54,52,.32) transparent;
+  /* See "Rail scrollbars" at the end of this file. */
+  scrollbar-width:var(--rail-bar-width,auto);
+  scrollbar-color:var(--rail-bar-thumb,#5b6560) var(--rail-bar-track,rgba(44,51,48,.15));
 }
 .vault-rail:focus-visible{outline:3px solid #17231f;outline-offset:3px;border-radius:22px}
-.vault-rail::-webkit-scrollbar{height:8px}
-.vault-rail::-webkit-scrollbar-thumb{border-radius:999px;background:rgba(48,54,52,.28)}
 .vault-rail .achievement-item{scroll-snap-align:center;padding:20px 13px 18px}
 .milestone-rail{grid-auto-columns:clamp(148px,16vw,176px)}
 
@@ -923,6 +926,12 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
    a class this section stopped using — so its heading sat flush against the
    glass edge and `overflow:hidden` clipped the first letter. */
 .focus-panel.achievement-vault{padding:42px 46px}
+/* "There's no space between ... learning and capability collection." Measured:
+   every other top-level panel on this page and on progress.html is separated by
+   18px, but this one had no margin at all, so its top edge sat flush against
+   the bottom edge of the learning-rhythm card above it and the two read as one
+   slab. 18px is the site's rhythm, not a new number. */
+.focus-panel.achievement-vault{margin-top:18px}
 @media(max-width:900px){.focus-panel.achievement-vault{padding:30px 22px}}
 
 /* A chip that is scrolled into view reads as present; the selected one carries
@@ -1044,31 +1053,51 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
   width:100%;height:44px;margin:0;appearance:none;-webkit-appearance:none;
   border:0;background:transparent;cursor:pointer;
 }
+/* Two stops, and the track says so. It used to be a symmetrical metal gradient
+   with the gold at dead centre, which is exactly where the thumb rested — so
+   the default position read as the middle of a range rather than as one of two
+   states, and the scale under it said Back / Front / Back. The track now ramps
+   once, light at the Front end to graphite at the Back end, and the two detents
+   mark the only two values the input can hold. Painted with background layers
+   on the track pseudo-element rather than extra elements, because a range input
+   has nowhere to put them. */
 .vault-turn input[type="range"]::-webkit-slider-runnable-track{
   height:13px;
-  border:1px solid rgba(41,47,44,.17);border-radius:999px;
-  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
+  border:1px solid rgba(41,47,44,.20);border-radius:999px;
+  background:
+    radial-gradient(circle at 15px 50%, rgba(27,33,31,.30) 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 15px) 50%, rgba(27,33,31,.30) 0 2px, transparent 2.5px),
+    linear-gradient(90deg,#f2f1ec,#d4d8d5 46%,#98a19d 78%,#6f7a76);
   box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
 }
 .vault-turn input[type="range"]::-moz-range-track{
   height:13px;
-  border:1px solid rgba(41,47,44,.17);border-radius:999px;
-  background:linear-gradient(90deg,#8f9794,#edece8 25%,#b58c45 50%,#edece8 75%,#8f9794);
+  border:1px solid rgba(41,47,44,.20);border-radius:999px;
+  background:
+    radial-gradient(circle at 14px 50%, rgba(27,33,31,.30) 0 2px, transparent 2.5px),
+    radial-gradient(circle at calc(100% - 14px) 50%, rgba(27,33,31,.30) 0 2px, transparent 2.5px),
+    linear-gradient(90deg,#f2f1ec,#d4d8d5 46%,#98a19d 78%,#6f7a76);
   box-shadow:inset 0 1px 3px rgba(27,33,31,.24),0 1px 0 rgba(255,255,255,.7);
 }
 .vault-turn input[type="range"]::-webkit-slider-thumb{
   width:30px;height:30px;margin-top:-8.5px;appearance:none;-webkit-appearance:none;
   border:1px solid rgba(255,255,255,.82);border-radius:50%;
   background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
-  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:pointer;
 }
 .vault-turn input[type="range"]::-moz-range-thumb{
   width:28px;height:28px;border:1px solid rgba(255,255,255,.82);border-radius:50%;
   background:radial-gradient(circle at 34% 24%,white,#c8a862 30%,#7d6333 78%);
-  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:grab;
+  box-shadow:0 5px 13px rgba(34,39,37,.28);cursor:pointer;
 }
 .vault-turn input[type="range"]:focus-visible{outline:3px solid #17231f;outline-offset:5px}
-.vault-turn .rotation-stops{justify-content:space-between;margin:-6px 0 0;color:#4f5652;font-size:11px}
+/* Two labels now, not three, one under each end of the track. They were BACK /
+   FRONT / BACK, which put the only useful word in the middle and the same word
+   at both extremes. */
+.vault-turn .rotation-stops{
+  justify-content:space-between;margin:-6px 2px 0;color:#3d4441;
+  font-size:11px;font-weight:740;letter-spacing:.06em;text-transform:uppercase;
+}
 .vault-turn .rotation-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0;justify-content:flex-start}
 .vault-turn .rotation-actions button{min-height:44px;padding:0 18px}
 .vault-turn .turn-help{max-width:74ch;margin:0;color:#4f5652;font-size:12px;line-height:1.5}
@@ -1081,3 +1110,41 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
    column of prose now rather than a two-column panel with an empty half. */
 .medal-inspector .inspector-body{grid-template-columns:minmax(0,1fr)}
 .medal-inspector .selected-achievement-detail{max-width:none}
+
+/* ── Rail scrollbars ────────────────────────────────────────────────────────
+   "We don't have a scrolling tab, but we do. It's kind of unnoticeable on the
+   side." Measured before: the medal rails asked for `scrollbar-width: thin`
+   with a 32%-alpha thumb on a transparent track, which Chrome drew as an 11px
+   bar in a colour close enough to the glass that there was nothing to see —
+   and on any engine using overlay scrollbars there was nothing to see at all
+   until you were already scrolling, which is too late to tell you that you
+   could.
+
+   Two engines, two mechanisms, both needed. Chromium and Firefox honour
+   scrollbar-width/scrollbar-color; Chromium ignores ::-webkit-scrollbar
+   entirely once either standard property is set, so those rules are there for
+   the WebKit versions that support neither. Setting a scrollbar-color at all is
+   also what takes the bar out of overlay mode, so it stays on screen and
+   reserves its own space instead of fading away.
+
+   Colour is the site's graphite against a visible trough — the same family as
+   the rest of the furniture, not a browser default. */
+.vault-rail,
+.milestone-rail{
+  --rail-bar-width:auto;
+  --rail-bar-thumb:#5b6560;
+  --rail-bar-track:rgba(44,51,48,.15);
+}
+.vault-rail::-webkit-scrollbar{height:14px}
+.vault-rail::-webkit-scrollbar-track{
+  border-radius:999px;background:rgba(44,51,48,.15);
+  box-shadow:inset 0 1px 2px rgba(27,33,31,.14);
+}
+.vault-rail::-webkit-scrollbar-thumb{
+  border:3px solid transparent;border-radius:999px;
+  background:#5b6560;background-clip:content-box;
+}
+.vault-rail:hover::-webkit-scrollbar-thumb{background:#39423e;background-clip:content-box}
+/* Hovering the rail darkens the thumb in Chromium and Firefox too — the
+   standard property is the only handle there, so it moves on the container. */
+.vault-rail:hover{--rail-bar-thumb:#39423e}

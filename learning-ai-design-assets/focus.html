@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Focus · LearningAI</title>
   <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c">
-  <link rel="stylesheet" href="./theme.css?v=2026-07-26e">
+  <link rel="stylesheet" href="./theme.css?v=2026-07-26f">
   <link rel="stylesheet" href="./dashboard.css?v=2026-07-26e">
   <link rel="stylesheet" href="./focus.css?v=2026-07-26f">
   <link rel="stylesheet" href="./focus-refinement.css?v=2026-07-26f">
-  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26g">
+  <link rel="stylesheet" href="./achievement-vault.css?v=2026-07-26h">
 </head>
 <body>
   <div class="nav-stage">
@@ -183,7 +183,7 @@
       </div>
 
       <div class="vault-panel" id="capabilityPanel" role="tabpanel" aria-labelledby="vaultTabCapability">
-        <p class="vault-help">Each medal marks a practical human capability you practised, not time served. Drag one sideways to turn it, or press Enter to flip it. Locked medals are safe to inspect—they never start or skip a lesson.</p>
+        <p class="vault-help">Each medal marks a practical human capability you practised, not time served. Choose one, then use the Front / Back slider below to turn it over—or tap it to flip it. Locked medals are safe to inspect—they never start or skip a lesson.</p>
         <div class="vault-rail" id="capabilityGrid" role="group" tabindex="0" aria-label="Arc capability medals. Scroll sideways to see all ten."></div>
         <div class="rail-preview" id="capabilityPreview" role="group" aria-label="Jump to a medal"></div>
       </div>
@@ -201,15 +201,21 @@
       <div class="vault-turn">
         <p class="vault-turn-head">
           <label for="badgeRotation">Turn <b id="turnTargetName">First Signal</b></label>
-          <output id="badgeRotationValue" for="badgeRotation" aria-live="polite">Front · 0°</output>
+          <output id="badgeRotationValue" for="badgeRotation">Front</output>
         </p>
-        <input id="badgeRotation" type="range" min="-180" max="180" step="1" value="0" aria-describedby="badgeTurnHelp">
-        <div class="rotation-stops" aria-hidden="true"><span>Back</span><span>Front</span><span>Back</span></div>
+        <!-- Two stops, not a 361-position dial. min/max/step are what stop the
+             medal from ever being left edge-on: the browser snaps the value to
+             0 or 1 for a drag, a track click, an arrow key, Home and End alike,
+             so there is no in-between value for the page to have to settle.
+             aria-valuetext carries the face, because "0" and "1" are not what a
+             screen reader should read out. -->
+        <input id="badgeRotation" type="range" min="0" max="1" step="1" value="0" aria-valuetext="Front" aria-describedby="badgeTurnHelp">
+        <div class="rotation-stops" aria-hidden="true"><span>Front</span><span>Back</span></div>
         <div class="rotation-actions" aria-label="Quick badge rotation controls">
           <button id="badgeShowFront" type="button">Show front</button>
           <button id="badgeShowBack" type="button">Show back</button>
         </div>
-        <p class="turn-help" id="badgeTurnHelp">Drag a medal sideways with a mouse, trackpad, or finger—a vertical finger gesture still scrolls the page. Press Enter to flip it, or use this slider. Let the slider go and the medal settles on whichever face is nearer.</p>
+        <p class="turn-help" id="badgeTurnHelp">This slider turns whichever medal is selected. It has two positions—front and back—so a medal is always showing one face or the other, never an edge. Move it with the pointer or the arrow keys, or press the buttons. Tapping a medal flips it too.</p>
       </div>
     </section>
 
@@ -251,11 +257,11 @@
     </div>
   </dialog>
 
-  <script src="./theme.js?v=2026-07-26d"></script>
+  <script src="./theme.js?v=2026-07-26e"></script>
   <script src="./nav-behavior.js?v=2026-07-25w"></script>
   <script src="../v2/lessons.js?v=2026-07-25w"></script>
   <script src="./course-state.js?v=2026-07-25w"></script>
   <script src="./learning-api.js?v=2026-07-25w"></script><script src="./focus.js?v=2026-07-26g"></script>
-  <script src="./achievement-vault.js?v=2026-07-26g"></script>
+  <script src="./achievement-vault.js?v=2026-07-26h"></script>
 </body>
 </html>

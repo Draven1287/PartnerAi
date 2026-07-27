@@ -338,7 +338,7 @@
             </span>
           </span>
         </span>
-        <span class="turn-hint" aria-hidden="true">Drag to turn <b>↔</b></span>
+        <span class="turn-hint" aria-hidden="true">Tap to flip <b>⇄</b></span>
       </button>
       <div class="achievement-copy">
         <strong>${item.name}</strong>
@@ -409,22 +409,18 @@
     window.addEventListener('resize', () => syncPreview(container), { passive: true });
   }
 
-  function normalizedDegrees(degrees) {
-    return ((degrees % 360) + 360) % 360;
-  }
+  /* normalizedDegrees() and faceFor() lived here to work out which face was
+     showing after a drag had left the medal at an arbitrary angle. Nothing can
+     produce an arbitrary angle any more, so the face is simply the state we put
+     it in and both helpers have gone.
 
-  function faceFor(degrees) {
-    const normalized = normalizedDegrees(degrees);
-    return normalized >= 90 && normalized < 270 ? 'back' : 'front';
-  }
-
-  function rotationLabel(degrees) {
-    const face = faceFor(degrees);
-    const rounded = Math.round(degrees);
-    if (Math.abs(normalizedDegrees(degrees)) < 2 || Math.abs(normalizedDegrees(degrees) - 360) < 2) return `Front · ${rounded}°`;
-    if (Math.abs(normalizedDegrees(degrees) - 180) < 2) return `Back · ${rounded}°`;
-    return `${face === 'back' ? 'Turning toward back' : 'Turning toward front'} · ${rounded}°`;
-  }
+     Two states and no third. The control used to run -180…0…180 with the scale
+     reading Back / Front / Back, so "Front" was the middle of the track and the
+     medal's resting position looked like a mid-turn parking spot rather than a
+     face. There is now one stop for each face and nothing between them. */
+  const FACE_ANGLE = { front: 0, back: 180 };
+  const faceLabel = face => (face === 'back' ? 'Back' : 'Front');
+  const faceOfValue = value => (Number(value) >= 1 ? 'back' : 'front');
 
   function motionMode() {
     const mode = document.documentElement.dataset.motion;
@@ -432,9 +428,10 @@
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'standard';
   }
 
-  /* One flip should read as one movement, so the duration follows the angle
-     actually travelled: a 15deg arrow nudge is quick, a 180deg turn is not.
-     Reduced motion keeps the turn but shortens it; "none" cuts to the face. */
+  /* Every turn is now 180deg or nothing, but the duration still follows the
+     angle travelled: asking for the face already showing costs no time, so
+     pressing "Show front" twice does not replay the animation. Reduced motion
+     keeps the turn but shortens it; "none" cuts straight to the face. */
   function turnDuration(travel) {
     const mode = motionMode();
     if (mode === 'none') return 0;
@@ -450,38 +447,56 @@
      sliding off the edge as the face turns away. The back face is mirrored by
      its own rotateY(180deg), which cancels the sign, so one value serves both.
      The rim brightens as it swings side-on and catches the light. */
-  function applyLight(object, x, y) {
+  function applyLight(object, y) {
     const angle = y * RAD;
     const across = Math.max(-1.15, Math.min(1.15, -((.23 * Math.cos(angle)) + (1.04 * Math.sin(angle)))));
     const facing = Math.abs(Math.cos(angle));
     const style = object.style;
     style.setProperty('--shine-x', `${(across * 30).toFixed(2)}%`);
-    style.setProperty('--shine-y', `${Math.max(-15, Math.min(12, -6 - (x * .9))).toFixed(2)}%`);
+    /* A constant: nothing tilts the medal any more, so there is no X pose left
+       for the vertical component of the highlight to follow. */
+    style.setProperty('--shine-y', '-6%');
     style.setProperty('--shine-a', (.14 + (.46 * Math.sqrt(facing))).toFixed(3));
     style.setProperty('--sheen', `${(150 - (Math.sin(angle) * 28)).toFixed(1)}deg`);
     style.setProperty('--edge-lum', (.04 + (.26 * Math.abs(Math.sin(angle)))).toFixed(3));
   }
 
-  function setPose(object, x, y, animate = true) {
+  /* The only place a medal's angle is ever written, and it takes a face rather
+     than a number of degrees. No call site can ask for 47deg, so no medal can
+     be left edge-on or part-turned: the control, a tap, the two buttons and the
+     first paint all arrive here with 'front' or 'back'. --rotate-x is written
+     as a literal 0deg for the same reason — the drag that used to lean a medal
+     while it was being turned has gone, and with it the only thing that ever
+     wrote a non-zero X. */
+  function setFace(object, face, animate = true) {
     const pose = poses.get(object);
     if (!pose) return;
-    const nextX = Math.max(-26, Math.min(26, x));
-    const nextY = Math.max(-180, Math.min(180, y));
-    const travel = Math.max(Math.abs(nextY - pose.y), Math.abs(nextX - pose.x) * .8);
-    pose.x = nextX;
-    pose.y = nextY;
-    object.classList.toggle('is-turning', !animate);
-    if (animate) object.style.setProperty('--turn-ms', `${turnDuration(travel)}ms`);
-    object.style.setProperty('--rotate-x', `${pose.x}deg`);
-    object.style.setProperty('--rotate-y', `${pose.y}deg`);
-    applyLight(object, pose.x, pose.y);
-    const face = faceFor(pose.y);
+    const next = FACE_ANGLE[face] ?? 0;
+    object.style.setProperty('--turn-ms', `${animate ? turnDuration(Math.abs(next - pose.y)) : 0}ms`);
+    pose.y = next;
+    object.style.setProperty('--rotate-x', '0deg');
+    object.style.setProperty('--rotate-y', `${next}deg`);
+    applyLight(object, next);
     object.dataset.face = face;
     object.setAttribute('aria-pressed', String(face === 'back'));
-    if (object === activeObject) {
-      rotation.value = String(pose.y);
-      rotationValue.textContent = rotationLabel(pose.y);
-    }
+    if (object === activeObject) syncControl(face);
+  }
+
+  function flip(object) {
+    setFace(object, object.dataset.face === 'back' ? 'front' : 'back');
+  }
+
+  /* One control serves whichever medal is selected, so selecting a medal and
+     turning one both end here. aria-valuetext carries the face to a screen
+     reader — a raw "0" and "1" would be read out otherwise — and the visible
+     <output> is no longer a live region: the slider announces its own value
+     change, and a tap on a medal announces through its aria-pressed. Two live
+     announcements for one action is worse than none. */
+  function syncControl(face) {
+    const value = face === 'back' ? '1' : '0';
+    if (rotation.value !== value) rotation.value = value;
+    rotation.setAttribute('aria-valuetext', faceLabel(face));
+    setText(rotationValue, faceLabel(face));
   }
 
   function selectObject(object) {
@@ -491,177 +506,26 @@
     selectedName.textContent = item?.name || 'badge';
     if (turnTargetName) turnTargetName.textContent = item?.name || 'this medal';
     updateInspector(item);
-    const pose = poses.get(object);
-    if (pose) {
-      rotation.value = String(pose.y);
-      rotationValue.textContent = rotationLabel(pose.y);
-    }
+    syncControl(object.dataset.face === 'back' ? 'back' : 'front');
     syncPreviews();
   }
 
-  function snap(object, direction = 0) {
-    const pose = poses.get(object);
-    if (!pose) return;
-    const next = direction
-      /* A tap must land on an absolute face, not add another turn onto whatever
-         a drag left behind. pose.y can sit well outside [-180,180] after a few
-         drags, which is why "flip" stopped coming back to the front. */
-      ? (faceFor(pose.y) === 'front' ? 180 : 0)
-      : Math.max(-180, Math.min(180, Math.round(pose.y / 180) * 180));
-    setPose(object, 0, next, true);
-    object.classList.remove('is-turning');
-  }
-
+  /* No pointer handlers at all. Turning is the slider's job now — "the slider
+     is the only way they can turn it around, so they do not have to click and
+     drag there" — so setPointerCapture, the primary-button check, the movement
+     threshold and the five different ways a released drag used to settle onto a
+     face are all gone with the gesture they existed to make safe. What is left
+     is a plain button: it selects, and it flips. Enter and Space reach the click
+     handler through the button's own activation behaviour, so there is no
+     keydown handler either, and therefore no arrow-key nudge that could park a
+     medal at 15deg. */
   function wireObject(object) {
-    const pose = {
-      /* Level, not tilted back 4°. The resting tilt sheared the arc numbers on
-         the artwork just enough to make the second half of the collection hard
-         to read without picking a medal up. */
-      x: 0,
-      y: 0,
-      startX: 0,
-      startY: 0,
-      startYRotation: 0,
-      pointerId: null,
-      intent: 'none',
-      moved: false,
-      ignoreClickUntil: 0
-    };
-    poses.set(object, pose);
-    setPose(object, pose.x, pose.y, true);
-
-    /* One place that ends a gesture, so every way of losing the pointer — a
-       release outside the window, another element taking capture, the tab
-       losing focus — lands the medal on a face instead of stranding it
-       mid-turn at whatever angle it happened to hold. */
-    function endGesture(settle = true) {
-      const idle = pose.pointerId === null && pose.intent === 'none';
-      if (pose.pointerId !== null && object.hasPointerCapture(pose.pointerId)) {
-        object.releasePointerCapture(pose.pointerId);
-      }
-      const wasDragging = pose.intent === 'rotate' && pose.moved;
-      const wasScroll = pose.intent === 'scroll';
-      pose.pointerId = null;
-      pose.intent = 'none';
-      pose.moved = false;
-      if (idle || wasScroll || !settle) return;
-      /* A drag that ends anywhere other than on the medal still counts as a
-         drag, so the click it would otherwise synthesise must not flip it. */
-      if (wasDragging) pose.ignoreClickUntil = Date.now() + 450;
-      snap(object);
-    }
-
-    object.addEventListener('pointerdown', event => {
-      selectObject(object);
-      /* Only the primary button, and only the primary pointer. A right-click or
-         a second finger used to start a turn that nothing would ever finish. */
-      if (event.button !== 0 || !event.isPrimary) return;
-      if (document.documentElement.dataset.motion === 'none') return;
-      pose.pointerId = event.pointerId;
-      pose.startX = event.clientX;
-      pose.startY = event.clientY;
-      pose.startYRotation = pose.y;
-      pose.intent = event.pointerType === 'touch' ? 'pending' : 'rotate';
-      pose.moved = false;
-      if (pose.intent === 'rotate') object.setPointerCapture(event.pointerId);
-    });
-
-    object.addEventListener('focus', () => {
-      selectObject(object);
-    });
-
-    object.addEventListener('pointermove', event => {
-      if (pose.pointerId !== event.pointerId) return;
-      /* If no button is down the press is over, however we came to miss the
-         release. Without this the medal follows the bare cursor around the
-         page: "I don't need to click and drag, it just starts dragging." */
-      if (!(event.buttons & 1)) { endGesture(); return; }
-      const dx = event.clientX - pose.startX;
-      const dy = event.clientY - pose.startY;
-      if (pose.intent === 'pending' && Math.hypot(dx, dy) > 9) {
-        if (Math.abs(dy) > Math.abs(dx) * 1.08) {
-          pose.intent = 'scroll';
-          pose.pointerId = null;
-          return;
-        }
-        pose.intent = 'rotate';
-        object.setPointerCapture(event.pointerId);
-      }
-      if (pose.intent !== 'rotate') return;
-      if (Math.abs(dx) > 4) pose.moved = true;
-      if (!pose.moved) return;
-      event.preventDefault();
-      /* Y only. This used to read `Math.max(-18, Math.min(18, 4 - dy * .16))`
-         for the X pose, so a medal that rests square-on leaned 4deg the instant
-         it was touched and up to 18deg if the pointer wandered vertically, then
-         straightened again on release — the medal genuinely looked different
-         while it was being turned than at rest. The resting tilt was removed
-         earlier for the same reason; this was the last of it. The highlight
-         follows the angle, not the cursor, so there is no second lighting model
-         to reconcile — and no layout read per move. */
-      setPose(object, 0, pose.startYRotation + dx * .88, false);
-    });
-
-    object.addEventListener('pointerup', event => {
-      if (pose.pointerId !== event.pointerId) return;
-      if (object.hasPointerCapture(event.pointerId)) object.releasePointerCapture(event.pointerId);
-      const wasDrag = pose.intent === 'rotate' && pose.moved;
-      const wasScroll = pose.intent === 'scroll';
-      pose.pointerId = null;
-      pose.intent = 'none';
-      pose.moved = false;
-      if (wasDrag) {
-        pose.ignoreClickUntil = Date.now() + 450;
-        snap(object);
-      } else if (!wasScroll) {
-        pose.ignoreClickUntil = Date.now() + 450;
-        snap(object, 1);
-      }
-    });
-
-    object.addEventListener('pointercancel', event => {
-      if (pose.pointerId !== event.pointerId) return;
-      endGesture();
-    });
-
-    /* The capture is what keeps a turn following the pointer once it has left
-       the card. If anything takes it away mid-gesture the medal would otherwise
-       stop wherever it was and stay there. */
-    object.addEventListener('lostpointercapture', () => endGesture());
-
-    /* A touch gesture is 'pending' until it is known to be a turn rather than a
-       scroll, and is not captured yet, so it can still leave the element. */
-    object.addEventListener('pointerleave', event => {
-      if (pose.pointerId !== event.pointerId) return;
-      if (object.hasPointerCapture(event.pointerId)) return;
-      endGesture();
-    });
-
-    /* Arrow keys nudge 15deg at a time for fine positioning and deliberately do
-       not settle while the medal has focus. Leaving it does settle, exactly as
-       leaving the rotation slider does. */
-    object.addEventListener('blur', () => {
-      endGesture(false);
-      snap(object);
-    });
-
+    poses.set(object, { y: 0 });
+    setFace(object, 'front', false);
+    object.addEventListener('focus', () => selectObject(object));
     object.addEventListener('click', () => {
       selectObject(object);
-      if (Date.now() < pose.ignoreClickUntil) return;
-      snap(object, 1);
-    });
-
-    object.addEventListener('keydown', event => {
-      if (!['Enter', ' ', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-      event.preventDefault();
-      selectObject(object);
-      pose.ignoreClickUntil = Date.now() + 500;
-      const arrow = event.key === 'ArrowLeft' ? -1 : event.key === 'ArrowRight' ? 1 : 0;
-      /* With animation switched off there is nothing to see between the two
-         faces, so an arrow turns straight to the next one rather than stepping
-         invisibly 15deg at a time. */
-      if (!arrow || motionMode() === 'none') snap(object, arrow || 1);
-      else setPose(object, pose.x, pose.y + (arrow * 15), true);
+      flip(object);
     });
   }
 
@@ -678,7 +542,7 @@
       card.classList.toggle('is-locked', !earnedAt);
       const object = card.querySelector('.achievement-object');
       const progress = progressText(item, current, earnedAt, metrics);
-      object.setAttribute('aria-label', `${item.name}. ${item.meaning} ${progress}. Press Enter to flip, use the arrow keys to turn, or drag horizontally. You can also use the rotation slider.`);
+      object.setAttribute('aria-label', `${item.name}. ${item.meaning} ${progress}. Press Enter to flip it, or use the Front and Back slider below the collection.`);
       card.querySelector('[data-earned-stamp]').textContent = earnedAt ? stamp(earnedAt) : `To earn · ${stampText(item, current, earnedAt)}`;
       card.querySelector('[data-achievement-progress]').textContent = progress;
       const chip = document.querySelector(`.preview-chip[data-target="${item.id}"]`);
@@ -752,43 +616,24 @@
   if (vaultSwitch) activateCollection('capability', false);
   syncPreviews();
 
+  /* A range with two steps cannot be left between them. The browser snaps the
+     value to 0 or 1 for a pointer drag, a click anywhere on the track, an arrow
+     key, Home and End alike, so there is nothing to settle on release and no
+     state in which a medal is edge-on — the whole `settleRotation` apparatus
+     that used to catch a thumb dropped at 90° has no case left to catch. */
   rotation.addEventListener('input', () => {
-    if (!activeObject) return;
-    const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 0, Number(rotation.value), false);
-  });
-
-  /* Releasing the slider has to land the medal on a face, exactly as releasing
-     a drag on the medal itself does. Without this the thumb could be let go at
-     90° and the medal simply stayed edge-on — visually gone, with no way back
-     except finding the slider again. Keyboard steps are left where they are put
-     while the control has focus, and settle on blur. */
-  let rotationKeyed = false;
-  function settleRotation() {
-    if (!activeObject) return;
-    activeObject.classList.remove('is-turning');
-    snap(activeObject);
-  }
-  rotation.addEventListener('keydown', () => { rotationKeyed = true; });
-  rotation.addEventListener('pointerup', settleRotation);
-  rotation.addEventListener('pointercancel', settleRotation);
-  rotation.addEventListener('blur', () => { rotationKeyed = false; settleRotation(); });
-  rotation.addEventListener('change', () => {
-    if (!rotationKeyed) settleRotation();
-    rotationKeyed = false;
+    if (activeObject) setFace(activeObject, faceOfValue(rotation.value));
   });
 
   showFront?.addEventListener('click', () => {
     if (!activeObject) return;
-    const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 0, 0, true);
+    setFace(activeObject, 'front');
     activeObject.focus();
   });
 
   showBack?.addEventListener('click', () => {
     if (!activeObject) return;
-    const pose = poses.get(activeObject);
-    setPose(activeObject, pose?.x ?? 0, 180, true);
+    setFace(activeObject, 'back');
     activeObject.focus();
   });
 
