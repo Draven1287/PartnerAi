@@ -399,7 +399,7 @@
             <p>Encouragement—not a score of intelligence</p>
           </div>
           <div class="badge-shelf" id="badgeShelf" aria-label="Learning achievements">
-            <button class="learning-badge" type="button" data-badge="first-lesson" aria-pressed="true"><span class="badge-orbit badge-art-first-lesson" aria-hidden="true"></span><strong>First Lesson</strong><small>Complete lesson one</small></button>
+            <button class="learning-badge" type="button" data-badge="first-lesson" aria-pressed="false"><span class="badge-orbit badge-art-first-lesson" aria-hidden="true"></span><strong>First Lesson</strong><small>Complete lesson one</small></button>
             <button class="learning-badge" type="button" data-badge="first-five" aria-pressed="false"><span class="badge-orbit badge-art-first-five" aria-hidden="true"></span><strong>First Five</strong><small>5 focused minutes</small></button>
             <button class="learning-badge" type="button" data-badge="focus-25" aria-pressed="false"><span class="badge-orbit badge-art-focus-25" aria-hidden="true"></span><strong>Focus 25</strong><small>Reach the daily guide</small></button>
             <button class="learning-badge" type="button" data-badge="one-hour" aria-pressed="false"><span class="badge-orbit badge-art-one-hour" aria-hidden="true"></span><strong>One Hour</strong><small>60 focused minutes</small></button>
@@ -460,6 +460,33 @@
     courseLessons.slice(0,50).forEach((lesson,index)=>{const point=mountainPath.getPointAtLength(mountainLength*(index/49)),dot=document.createElementNS('http://www.w3.org/2000/svg','circle'),done=courseState.isDone(lesson.id),current=courseState.isUnlocked(lesson)&&!done;dot.setAttribute('cx',point.x);dot.setAttribute('cy',point.y);dot.setAttribute('r',current?'3.6':'2.5');dot.setAttribute('class',`mountain-lesson-dot${done?' complete':''}${current?' current':''}`);dot.style.setProperty('--signal-color',arcColors[Math.min(9,Math.floor(index/5))]);lessonDotGroup.append(dot)});
     courseArcs.slice(0,10).forEach((arc,index)=>{const lessonIndex=Math.min(49,((index+1)*5)-1),point=mountainPath.getPointAtLength(mountainLength*(lessonIndex/49)),dot=document.createElementNS('http://www.w3.org/2000/svg','circle'),arcLessons=courseLessons.filter(lesson=>lesson.arc===arc),done=arcLessons.length&&arcLessons.every(lesson=>courseState.isDone(lesson.id)),active=!done&&index===Math.min(9,Math.floor(courseState.completedCount/5));dot.setAttribute('cx',point.x);dot.setAttribute('cy',point.y);dot.setAttribute('r',index===9?'7':'6');dot.setAttribute('class',`mountain-arc-dot${done?' complete':''}${active?' current':''}`);dot.style.setProperty('--signal-color',arcColors[index]);arcDotGroup.append(dot)});
 
+
+    /* The dashboard badges were decoration: aria-pressed was written into the
+       markup by hand — "First Lesson" permanently earned, the other four
+       permanently not — and #badgeCount never moved off 0. So the dashboard
+       claimed an award you had not earned, and showed nothing when you did.
+       The vault on the Focus page keeps the real record; this reads it. */
+    (() => {
+      const EARNED_KEY = 'learningai-achievements-v2';
+      const badges = [...document.querySelectorAll('.learning-badge[data-badge]')];
+      const count = document.querySelector('#badgeCount');
+      if (!badges.length) return;
+      const paint = () => {
+        let earned = {};
+        try { earned = JSON.parse(localStorage.getItem(EARNED_KEY) || '{}') || {}; } catch {}
+        badges.forEach(button => {
+          const has = Boolean(earned[button.dataset.badge]);
+          button.setAttribute('aria-pressed', String(has));
+        });
+        /* The count is every award on the record, not only the five shown
+           here, so it matches the number the Focus page reports. */
+        if (count) count.textContent = String(Object.keys(earned).length);
+      };
+      paint();
+      window.addEventListener('storage', event => { if (!event.key || event.key === EARNED_KEY) paint(); });
+      window.addEventListener('learningai:progress', paint);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) paint(); });
+    })();
   </script>
 </body>
 </html>

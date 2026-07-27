@@ -59,7 +59,8 @@
     'learningai-toolkit',        // saved notes
     'learningai-note',
     'learningai-learning-rhythm',// focus minutes
-    'learningai-earned',         // awards
+    'learningai-earned',         // awards (older key)
+    'learningai-achievements',   // awards (current key, -v2)
     'learningai-first-lesson-',
     'learningai-site-unlocked',
     'learningai-progress'

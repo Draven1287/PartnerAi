@@ -230,8 +230,12 @@
          noticed, so creating an account looked like the end of the road rather
          than the step before the starting questions. Continue on its own; the
          link remains as a fallback. */
+      /* Preview used to suppress this, which meant anyone with preview on saw
+         a dead-end panel and had to find the link — the flow behaving
+         differently from the flow it exists to preview. Preview changes what
+         is recorded, never where the journey goes. */
       const nextStop=accessNext.getAttribute('href');
-      if(nextStop&&!window.LearningAIReviewMode){
+      if(nextStop){
         success.querySelector('p').textContent=nextStop.includes('lesson-one')?'Your account is ready. Starting your free first lesson…':returning?'Taking you back to your learning…':'Next: six short questions so LearningAI can start at the right level. Continuing now…';
         window.setTimeout(()=>{location.href=nextStop;},1400);
       }
