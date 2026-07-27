@@ -779,3 +779,197 @@ html:not([data-theme="onyx"]) .nav-shell .nav-glass .mobile-nav-menu a{
     color:CanvasText!important;
   }
 }
+
+/* ── "All pages" as an index, not a stack ─────────────────────────────────
+   The menu holds every destination on the site, which is what its name
+   promises. Ten rows four pixels apart, all the same weight, is what made that
+   read as cramped rather than complete. theme.js now emits three named groups;
+   this gives them the room and the ranking to be legible at a glance.
+
+   Everything below is stated at a specificity that clears the
+   html:not([data-theme="onyx"]) block above — that block is one class heavier
+   than a bare .mobile-nav-menu selector, so restating the geometry at matching
+   weight is the only way it holds. */
+html .nav-shell .nav-glass>.mobile-nav-menu{
+  width:min(276px,calc(100vw - 32px))!important;
+  gap:0!important;
+  padding:9px!important;
+  border-radius:24px!important;
+  /* Ten rows, three captions and two rules do not fit under the capsule at
+     Extra large on a short window. Scroll the menu rather than let it run off
+     the bottom of the screen. theme.js rewrites the 100vh here into the zoomed
+     coordinate space at load; see the sweep at the top of theme.js. */
+  max-height:calc(100vh - 150px)!important;
+  overflow:auto!important;
+  overscroll-behavior:contain;
+}
+html .nav-shell .nav-glass .mobile-nav-group{
+  display:grid;
+  /* 3px inside a group, ~39px between them: the separation has to be obviously
+     larger than the spacing, or the captions are doing all the work alone. */
+  gap:3px;
+  padding:9px 0 10px;
+}
+html .nav-shell .nav-glass .mobile-nav-group+.mobile-nav-group{
+  border-top:1px solid rgba(43,49,46,.13);
+}
+html .nav-shell .nav-glass .mobile-nav-group:first-child{padding-top:2px}
+html .nav-shell .nav-glass .mobile-nav-group:last-child{padding-bottom:2px}
+html .nav-shell .nav-glass .mobile-nav-group-label{
+  display:block;
+  padding:0 14px 7px;
+  color:var(--gold-text);
+  font-size:9.5px;
+  font-weight:780;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  text-shadow:none;
+}
+html .nav-shell .nav-glass .mobile-nav-menu a{
+  min-height:44px!important;
+  padding:0 14px!important;
+  border-radius:14px!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+  letter-spacing:-.005em!important;
+}
+html .nav-shell .nav-glass .mobile-nav-menu a[aria-current="page"]{
+  font-weight:730!important;
+  background:rgba(255,255,255,.74)!important;
+  box-shadow:inset 0 0 0 1px rgba(38,44,41,.09),inset 3px 0 0 var(--mineral)!important;
+}
+@media(max-width:820px){
+  /* The capsule is 44px from the right edge of a 375px screen, so an absolutely
+     positioned 276px menu would still fit — but only just. Hold it to the
+     screen the same way the block above does. */
+  html .nav-shell .nav-glass>.mobile-nav-menu{
+    max-height:calc(100vh - 96px)!important;
+    width:min(276px,calc(100vw - 26px))!important;
+  }
+}
+
+/* ── Appearance: surface and accent ───────────────────────────────────────
+   Two settings that are real on every page, because both are expressed only in
+   values this file owns. Nothing here is per-page, so no page can be left
+   behind the way the unfinished dark palette leaves them.
+
+   "landscape" is the authored design and sets nothing: it is named so the
+   attribute is always present and always inspectable.
+
+   Not attempted here: recolouring text. Page stylesheets hold their own greys,
+   and a global text override would have been a change this file cannot verify
+   on the pages it does not own. */
+html[data-surface="plain"] body,
+html[data-surface="contrast"] body{
+  background-image:none!important;
+  background-color:var(--theme-page)!important;
+}
+/* Solid panels: the same treatment prefers-reduced-transparency already asks
+   for, offered as a choice rather than only as a system setting. */
+html[data-surface="contrast"] .nav-glass,
+html[data-surface="contrast"] .dashboard-card,
+html[data-surface="contrast"] .arc-pill,
+html[data-surface="contrast"] .catalog-head,
+html[data-surface="contrast"] .arc-jump,
+html[data-surface="contrast"] .arc,
+html[data-surface="contrast"] .hero,
+html[data-surface="contrast"] .feature,
+html[data-surface="contrast"] .case-study,
+html[data-surface="contrast"] .project-card,
+html[data-surface="contrast"] dialog,
+html[data-surface="contrast"] .dialog-evidence,
+html[data-surface="contrast"] .dialog-section,
+html[data-surface="contrast"] .dialog-materials,
+html[data-surface="contrast"] .dialog-reflection,
+html[data-surface="contrast"] .guide-meta,
+html[data-surface="contrast"] .about-plane,
+html[data-surface="contrast"] .about-section,
+html[data-surface="contrast"] .settings-panel,
+/* Not the chosen ones. A settings card states its selection by inverting to
+   near-black, and a lesson option by its border — both are written at two
+   classes, which this block's html[…] prefix outweighs. Painting them like
+   every other panel put white label text on a near-white card and erased the
+   selected border. The states are excluded rather than restated so there is
+   one description of each, not two that can drift. */
+html[data-surface="contrast"] .choice:not([aria-pressed="true"]),
+html[data-surface="contrast"] .lesson-card,
+html[data-surface="contrast"] .orientation>div,
+html[data-surface="contrast"] .exercise,
+html[data-surface="contrast"] .check,
+html[data-surface="contrast"] .sentence,
+html[data-surface="contrast"] .option:not(.selected),
+html[data-surface="contrast"] .progress-hero,
+html[data-surface="contrast"] .signal-card,
+html[data-surface="contrast"] .arc-key,
+html[data-surface="contrast"] .teaching-hero,
+html[data-surface="contrast"] .teaching-panel,
+html[data-surface="contrast"] .teaching-card,
+html[data-surface="contrast"] .mobile-nav-menu{
+  background:#f7f5ef!important;
+  background-image:none!important;
+  border-color:rgba(38,44,41,.30)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+/* The capsule carries four state variants, each one or two classes heavier than
+   a bare .nav-glass selector. Restated so the choice survives a scroll. */
+html[data-surface="contrast"] .nav-shell .nav-glass,
+html[data-surface="contrast"] .nav-shell.is-scrolling .nav-glass,
+html[data-surface="contrast"] .nav-shell.is-over-content .nav-glass,
+html[data-surface="contrast"] .nav-shell.is-over-content.is-scrolling .nav-glass{
+  background:#f7f5ef!important;
+  background-image:none!important;
+  border-color:rgba(38,44,41,.30)!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  box-shadow:inset 0 1px 0 white,0 10px 26px rgba(35,38,36,.16)!important;
+}
+html[data-surface="contrast"] .nav-glass::before,
+html[data-surface="contrast"] .nav-glass::after{content:none!important}
+/* The engraved text shadows are decoration written for translucent glass over a
+   photograph. On a flat opaque panel they only soften the letterforms. */
+html[data-surface="contrast"] h1,
+html[data-surface="contrast"] h2,
+html[data-surface="contrast"] h3,
+html[data-surface="contrast"] .brand,
+html[data-surface="contrast"] nav a,
+html[data-surface="contrast"] .greeting,
+html[data-surface="contrast"] .dashboard-action,
+html[data-surface="contrast"] .arc-pill strong,
+html[data-surface="contrast"] .lesson-title,
+html[data-surface="contrast"] .open-project,
+html[data-surface="contrast"] .eyebrow,
+html[data-surface="contrast"] .badge,
+html[data-surface="contrast"] .lesson-num,
+html[data-surface="contrast"] .lesson-time i{text-shadow:none!important}
+html[data-surface="contrast"]::after{background:transparent!important}
+
+/* The capability accent. --mineral is the one colour the design uses for "the
+   page you are on", progress, and a chosen answer, so it is the only one worth
+   offering. Brand gold is identity and is deliberately not offered.
+
+   These are not aliases of the existing --sage/--coral/--violet arc tokens,
+   which is where they started. --mineral is not only a fill: three rules in
+   this file paint text with it (.arc-number, .arc-state.ready, and the ready
+   lesson status), and the arc tokens are lighter than --mineral — measured as
+   text on a solid panel, --sage came out at 3.95:1 and --coral at 3.46:1,
+   against the 4.5:1 that size of text needs. Held to oklch lightness 52%, each
+   accent measures at least 4.87:1 on a solid panel and 4.57:1 on paper.
+
+   Left alone: the default --mineral itself, at 4.34:1 on a solid panel and
+   4.07:1 on paper. That is a pre-existing AA shortfall in those three text
+   rules, not one this change introduces, and correcting it would restyle the
+   current-page marker and every progress bar on pages outside this work. It is
+   written down here so it can be fixed deliberately. */
+:root{--accent-sage:oklch(52% .085 155);--accent-coral:oklch(52% .085 36);--accent-violet:oklch(52% .085 305)}
+html[data-accent="sage"]{--mineral:var(--accent-sage)}
+html[data-accent="coral"]{--mineral:var(--accent-coral)}
+html[data-accent="violet"]{--mineral:var(--accent-violet)}
+/* Arcs 4 and 8 were authored as aliases of --mineral. Left alone they would
+   follow the accent, recolouring two of the ten arc identities and collapsing
+   arc 4 into arc 5 whenever sage was chosen. Pin them to the value --mineral
+   held when the arc palette was written; --mineral-base keeps that value
+   nameable, which is also what the Mineral swatch on Settings paints itself
+   with — a swatch drawn in var(--mineral) would follow whichever accent was
+   already chosen and never look like itself. */
+:root{--mineral-base:oklch(55% .075 225);--arc-04:var(--mineral-base);--arc-08:var(--mineral-base)}

@@ -109,6 +109,31 @@
 })();
 (function () {
   const theme = 'light';
+  /* Two appearance choices that are real everywhere, rather than one that is
+     real on the pages somebody remembered to restyle.
+
+     The obvious candidate was the dark "onyx" palette already sitting in
+     theme.css. It is not finished: with data-theme="onyx" forced on, every page
+     still renders light-surfaced controls and near-invisible labels — the
+     selected Motion card's own name drops to a 1.0 contrast ratio, Projects'
+     "View details" to 1.03, the Focus medals stay as white discs. Shipping a
+     switch for it would have broken pages this change is not allowed to repair,
+     so it stays unexposed until the dark palette is actually finished.
+
+     What is offered instead only moves values that theme.css owns for every
+     page at once, so there is no page that can be left behind:
+       surface — whether the photograph is behind the glass, and whether the
+                 panels are translucent at all;
+       accent  — the single capability colour (--mineral) used for the page you
+                 are on, progress fills, and selected answers.
+     Neither leaves the light palette, so no page's text can fall out of
+     contrast the way onyx does.
+
+     Declared up here rather than beside their functions: the boot sequence
+     below runs before the rest of this closure is evaluated, and a `const` in
+     the temporal dead zone throws where a hoisted `function` does not. */
+  const SURFACES = ['landscape', 'plain', 'contrast'];
+  const ACCENTS = ['mineral', 'sage', 'coral', 'violet'];
   const savedMotion = localStorage.getItem('learningai-motion');
   const systemPrefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const defaultMotion = systemPrefersReducedMotion ? 'reduced' : 'standard';
@@ -125,6 +150,11 @@
   applyGlass(glass);
   applyPop(light);
   applyFontScale(savedFontScale);
+  /* Both of these are attributes rather than inline styles so they are visible
+     in the DOM, and both are written here — in a synchronous head script —
+     so the page never paints in one appearance and then flips to another. */
+  applySurface(localStorage.getItem('learningai-surface'));
+  applyAccent(localStorage.getItem('learningai-accent'));
 
   try {
     const prototypeAccount = JSON.parse(localStorage.getItem('learningai-prototype-account') || 'null');
@@ -186,7 +216,33 @@
     return value;
   }
 
+  function applySurface(next) {
+    const value = SURFACES.includes(next) ? next : 'landscape';
+    document.documentElement.dataset.surface = value;
+    return value;
+  }
+
+  function applyAccent(next) {
+    const value = ACCENTS.includes(next) ? next : 'mineral';
+    document.documentElement.dataset.accent = value;
+    return value;
+  }
+
   window.LearningAITheme = {
+    surfaces: () => SURFACES.slice(),
+    accents: () => ACCENTS.slice(),
+    setSurface(next) {
+      const value = applySurface(next);
+      localStorage.setItem('learningai-surface', value);
+      window.dispatchEvent(new CustomEvent('learningai:surface', {detail: value}));
+      return value;
+    },
+    setAccent(next) {
+      const value = applyAccent(next);
+      localStorage.setItem('learningai-accent', value);
+      window.dispatchEvent(new CustomEvent('learningai:accent', {detail: value}));
+      return value;
+    },
     setLight(next) {
       const value = Math.min(100, Math.max(25, Number(next)));
       localStorage.setItem('learningai-light', String(value));
@@ -472,15 +528,32 @@
     ['Notes', './notes.html'],
     ['Projects', './projects.html'],
     ['Gallery', './gallery.html'],
-    ['About', './about.html']
+    ['About', './about.html'],
+    ['Settings', './settings.html']
   ]);
   /* Projects was the destination people gave up looking for, so it is now one of
      the five always-visible routes rather than something you had to open a menu
      called "More" to discover. The menu beside them is the full site index — it
      repeats the visible five so that "All pages" is literally true and nobody
-     has to guess which half of the site a page lives in. */
+     has to guess which half of the site a page lives in.
+
+     What was wrong with it was never the length: it was that ten destinations
+     were rendered as ten identical rows four pixels apart, with no way to tell
+     a lesson route from an account route without reading every label. Named
+     groups fix that, and they are also the answer to "do we need all of these
+     here?" — yes, because the button says All pages, but they now arrive
+     sorted. Settings is included for the same reason: it is a real page, and a
+     gear icon was the only way to reach it. */
   const PRIMARY_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus', 'Projects'];
-  const MENU_ROUTES = ['Dashboard', 'Lessons', 'Progress', 'Focus', 'Projects', 'Gallery', 'Notes', 'About'];
+  const MENU_GROUPS = [
+    { key: 'course', label: 'Your course', routes: ['Dashboard', 'Lessons', 'Progress', 'Focus'] },
+    { key: 'work', label: 'Your work', routes: ['Projects', 'Gallery', 'Notes'] },
+    { key: 'about', label: 'About and account', routes: ['About', 'Settings'] }
+  ];
+  /* Routes with no capsule of their own in the top bar. The "All pages" button
+     wears the current-page marker on their behalf. Settings is deliberately not
+     in this list: it has its own always-visible control, which is already
+     marked, and two current-page markers in one capsule read as a bug. */
   const MENU_ONLY_ROUTES = ['Gallery', 'Notes', 'About'];
   const CURRENT_ROUTE = new Map([
     ['stage-1-navigation-proof.html', 'Dashboard'],
@@ -492,6 +565,7 @@
     ['projects.html', 'Projects'],
     ['gallery.html', 'Gallery'],
     ['about.html', 'About'],
+    ['settings.html', 'Settings'],
     ['adults.html', 'Adults']
   ]);
   const PROTECTED_ROUTES = new Set([
@@ -571,6 +645,11 @@
     return false;
   }
 
+  /* Adults is still conditional on a saved adult age range, and still added and
+     removed at runtime rather than authored into any page. It now lands inside
+     the "About and account" group, above Settings, instead of after the last
+     row of a flat list — an ungrouped append would have left it stranded below
+     the group boxes. */
   function syncAdultsNavigation(age = savedAge()) {
     document.querySelectorAll('.mobile-nav-menu').forEach(menu => {
       menu.querySelector('[data-adults-link]')?.remove();
@@ -578,10 +657,16 @@
       const link = document.createElement('a');
       link.href = './adults.html';
       link.dataset.adultsLink = '';
+      link.dataset.menuRoute = 'Adults';
       link.setAttribute('role', 'menuitem');
       link.textContent = 'Adults';
       if (location.pathname.endsWith('/adults.html')) link.setAttribute('aria-current', 'page');
-      menu.append(link);
+      const host = menu.querySelector('[data-menu-group="about"]') || menu;
+      /* Matched on the data attribute, not the href: review mode rewrites every
+         href to carry ?review=1, so an href selector stops matching. */
+      const settingsLink = host.querySelector('[data-menu-route="Settings"]');
+      if (settingsLink) settingsLink.before(link);
+      else host.append(link);
     });
   }
 
@@ -612,13 +697,31 @@
         // its own, so the capsule still shows where you are.
         button.classList.add('is-current');
       }
-      MENU_ROUTES.forEach(label => {
-        const link = document.createElement('a');
-        link.href = ROUTES.get(label);
-        link.textContent = label;
-        link.setAttribute('role', 'menuitem');
-        if (label === currentLabel) link.setAttribute('aria-current', 'page');
-        menu.append(link);
+      MENU_GROUPS.forEach(group => {
+        const section = document.createElement('div');
+        section.className = 'mobile-nav-group';
+        section.dataset.menuGroup = group.key;
+        /* role="group" is the only container a role="menu" accepts, and its
+           accessible name comes from aria-label. The visible caption is hidden
+           from assistive technology so the group is announced once, not twice,
+           and so a bare <span> never appears as an unexpected menu child. */
+        section.setAttribute('role', 'group');
+        section.setAttribute('aria-label', group.label);
+        const caption = document.createElement('span');
+        caption.className = 'mobile-nav-group-label';
+        caption.setAttribute('aria-hidden', 'true');
+        caption.textContent = group.label;
+        section.append(caption);
+        group.routes.forEach(label => {
+          const link = document.createElement('a');
+          link.href = ROUTES.get(label);
+          link.textContent = label;
+          link.dataset.menuRoute = label;
+          link.setAttribute('role', 'menuitem');
+          if (label === currentLabel) link.setAttribute('aria-current', 'page');
+          section.append(link);
+        });
+        menu.append(section);
       });
       const menuItems = () => [...menu.querySelectorAll('[role="menuitem"],a[data-adults-link]')];
       const closeMenu = ({ focusButton = false } = {}) => {
