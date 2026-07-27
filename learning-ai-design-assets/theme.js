@@ -626,6 +626,15 @@
       return true;
     }
     const file = location.pathname.split('/').pop() || '';
+
+    /* Lesson 1 is the free lesson and never needs an account. lesson.html
+       carries that exemption too, but this guard runs from the head and
+       redirects before the page's own script ever executes — which is why
+       picking Lesson 1 out of the catalogue landed on the sign-in page for
+       anyone who had not finished the questionnaire. */
+    if (file === 'lesson.html'
+        && new URLSearchParams(location.search).get('id') === 'chapter-1') return true;
+
     const firstComplete = Boolean(read('learningai-first-lesson-complete'));
     const accountReady = Boolean(read('learningai-prototype-account'));
     const questionsReady = Boolean(read(ASSESSMENT_KEY));
