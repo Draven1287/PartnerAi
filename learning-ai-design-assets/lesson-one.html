@@ -191,7 +191,32 @@
   if(verifyBothAnswered())document.querySelector('#verifyFeedback').textContent='Both checks answered. You get the score and the reasons at the end of the lesson.';
   verifyBack.addEventListener('click',()=>{if(verifyIndex>0){verifyIndex--;render();goTop();focusCurrentHeading('.verify-card.is-current h3')}});
   verifyAdvance.addEventListener('click',()=>{if(!verifyAnswered(verifyOrder[verifyIndex]))return;if(verifyIndex<verifyOrder.length-1){verifyIndex++;render();goTop();focusCurrentHeading('.verify-card.is-current h3');return}if(verifyBothAnswered())moveLesson(1)});
-  next.addEventListener('click',()=>{if(current===total){if(review){location.href='./lessons.html?review=1';return}const key=dominantSignal(),copy=signalCopy[key]||signalCopy.verify;localStorage.setItem('learningai-first-lesson-pending',JSON.stringify({lessonId:'chapter-1',lessonNumber:1,title:'Use AI Safely Once',completedAt:new Date().toISOString(),controlSignal:key,controlRule:copy.rule,lessonMode,decisions}));localStorage.removeItem(DRAFT_KEY);location.href='./access.html?mode=create';return}moveLesson(1)});
+  /* Finishing the free lesson used to send everyone to the create-account form,
+     including learners who already had an account. Five minutes of work, then a
+     sign-up page you did not need — which is what "lesson one takes me back to
+     the sign-in page" was. The account form is the right destination only for
+     someone who has no account yet. */
+  next.addEventListener('click',()=>{if(current===total){if(review){location.href='./lessons.html?review=1';return}
+    const key=dominantSignal(),copy=signalCopy[key]||signalCopy.verify;
+    const record={lessonId:'chapter-1',lessonNumber:1,title:'Use AI Safely Once',completedAt:new Date().toISOString(),controlSignal:key,controlRule:copy.rule,lessonMode,decisions};
+    localStorage.removeItem(DRAFT_KEY);
+    let account=null;
+    try{account=JSON.parse(localStorage.getItem('learningai-prototype-account')||'null')}catch{}
+    if(!account){
+      localStorage.setItem('learningai-first-lesson-pending',JSON.stringify(record));
+      location.href='./access.html?mode=create';
+      return;
+    }
+    /* Already has an account: record the completion the same way access.html
+       does after signing up, push it to the account, and carry on into the
+       course. Never block on the network — the queue retries. */
+    localStorage.setItem('learningai-first-lesson-complete',JSON.stringify(record));
+    try{window.LearningAIAPI?.saveProgress?.({lessonId:'chapter-1',currentStep:total,completed:true})}catch{}
+    let questionsDone=false;
+    try{questionsDone=Boolean(localStorage.getItem('learningai-diagnostic-prototype'))}catch{}
+    location.href=questionsDone?'./stage-1-navigation-proof.html':'./onboarding.html';
+    return}
+    moveLesson(1)});
   previous.addEventListener('click',()=>moveLesson(-1));
   document.querySelector('#copyCard').addEventListener('click',async event=>{/* event.currentTarget is null once the handler has awaited, so both branches threw and the learner never saw any confirmation. */const button=event.currentTarget;const text=`LearningAI · Lesson 1\n${document.querySelector('#finalRule').textContent}\n${document.querySelector('#finalEvidence').textContent}`;try{await navigator.clipboard.writeText(text);button.textContent='Copied ✓'}catch{button.textContent='Copy failed — select the card text'}window.setTimeout(()=>{button.textContent='Copy my card'},2400)});
   document.querySelector('#openMedalVault').addEventListener('click',()=>{location.href='./focus.html#capabilityGrid'});
