@@ -47,31 +47,38 @@
      recorded by lesson.html / lesson-one.html, or a finished lesson. The names
      and the artwork are unchanged; only what qualifies is. Awards already
      engraved under the old rule are left alone — nothing is taken back. */
+  /* Each pin now has its own pair of drawn SVG faces under ./badges/pins/,
+     named for the id, so the art path is derived rather than carried: a pin
+     cannot be given the wrong picture, and there is no sprite cell to measure.
+     The sheet these used to be cropped out of drew every pin at a three-quarter
+     angle with a cylindrical side wall and a mounting post, which is a shape no
+     stretch can correct — beside ten medals measured square-on (fitted ellipse
+     ratio 1.003) the whole set was the only tilted thing on the page. */
   const milestones = [
-    ['first-lesson', 'First Lesson', 'Finished your first guided lesson.', 'lessons', 1, '12% 25%', '#ef5b58'],
-    ['first-arc', 'First Arc', 'Proved the first complete capability.', 'lessons', 5, '35% 25%', '#57a477'],
-    ['halfway', 'Halfway', 'Completed 25 of 50 lessons.', 'lessons', 25, '61% 25%', '#db9a42'],
-    ['course-complete', 'Course Complete', 'Completed the full 50-lesson path.', 'lessons', 50, '86% 25%', '#54a8b8'],
+    ['first-lesson', 'First Lesson', 'Finished your first guided lesson.', 'lessons', 1, '#ef5b58'],
+    ['first-arc', 'First Arc', 'Proved the first complete capability.', 'lessons', 5, '#57a477'],
+    ['halfway', 'Halfway', 'Completed 25 of 50 lessons.', 'lessons', 25, '#db9a42'],
+    ['course-complete', 'Course Complete', 'Completed the full 50-lesson path.', 'lessons', 50, '#54a8b8'],
     /* Scoped to today, not to all time: finishing the free first lesson is a
        precondition of reaching this page, so an all-time "one lesson step"
        clause would already be true for every learner who can see the pin and
        would prove nothing. */
-    ['first-five', 'First Five', 'Five focused minutes on a day you worked in a lesson.', 'totalSeconds', 5 * 60, '12% 52%', '#ee6c76',
+    ['first-five', 'First Five', 'Five focused minutes on a day you worked in a lesson.', 'totalSeconds', 5 * 60, '#ee6c76',
       { metric: 'lessonStepsToday', target: 1, text: 'a lesson step completed today', unit: 'lesson steps today', unitOne: 'lesson step today' }],
-    ['focus-25', 'Focus 25', 'The 25-minute checkpoint, on a day you did real work.', 'todaySeconds', 25 * 60, '35% 52%', '#9d6bd1',
+    ['focus-25', 'Focus 25', 'The 25-minute checkpoint, on a day you did real work.', 'todaySeconds', 25 * 60, '#9d6bd1',
       { metric: 'lessonStepsToday', target: 1, text: 'a lesson step completed today', unit: 'lesson steps today', unitOne: 'lesson step today' }],
     /* Two finished lessons, not one: the free first lesson is a precondition of
        reaching this page at all, so a one-lesson clause would be satisfied
        before the timer had counted a second and would prove nothing. */
-    ['one-hour', 'One Hour', 'An hour of focused learning and two lessons finished.', 'totalSeconds', 60 * 60, '61% 52%', '#39a9b8',
+    ['one-hour', 'One Hour', 'An hour of focused learning and two lessons finished.', 'totalSeconds', 60 * 60, '#39a9b8',
       { metric: 'lessons', target: 2, text: 'two finished lessons', unit: 'lessons' }],
-    ['five-hours', 'Five Hours', 'Five hours of focused learning and five lessons finished.', 'totalSeconds', 5 * 60 * 60, '86% 52%', '#d69d38',
+    ['five-hours', 'Five Hours', 'Five hours of focused learning and five lessons finished.', 'totalSeconds', 5 * 60 * 60, '#d69d38',
       { metric: 'lessons', target: 5, text: 'five finished lessons', unit: 'lessons' }],
-    ['first-return', 'First Return', 'Came back for another learning session.', 'sessions', 2, '12% 78%', '#42a8c0'],
-    ['five-sessions', 'Five Sessions', 'Returned for five separate sessions.', 'sessions', 5, '35% 78%', '#dc7666'],
-    ['first-note', 'First Note', 'Saved your first optional learning note.', 'notes', 1, '61% 78%', '#d3a23d'],
-    ['first-project', 'First Project', 'Completed your first practical project.', 'projects', 1, '86% 78%', '#4a98ae']
-  ].map(([id, name, meaning, metric, target, sprite, color, also]) => ({ id, name, meaning, metric, target, sprite, color, also, kind: 'milestone' }));
+    ['first-return', 'First Return', 'Came back for another learning session.', 'sessions', 2, '#42a8c0'],
+    ['five-sessions', 'Five Sessions', 'Returned for five separate sessions.', 'sessions', 5, '#dc7666'],
+    ['first-note', 'First Note', 'Saved your first optional learning note.', 'notes', 1, '#d3a23d'],
+    ['first-project', 'First Project', 'Completed your first practical project.', 'projects', 1, '#4a98ae']
+  ].map(([id, name, meaning, metric, target, color, also]) => ({ id, name, meaning, metric, target, art: `./badges/pins/${id}`, color, also, kind: 'milestone' }));
 
   function readJSON(key, fallback) {
     try {
@@ -320,17 +327,21 @@
     return `<span class="achievement-edge" aria-hidden="true">${staves}</span>`;
   }
 
+  /* Both collections are wired the same way now: one square image per face,
+     named for the award, filling the disc. The pins are the drawn SVG pair and
+     the medals the photographed JPG pair, and the only difference left between
+     them is the file extension. The sprite-sheet crop the pins used to need —
+     --sprite-position, --back-position, --back-size — is gone with the sheet. */
   function objectMarkup(item) {
-    const frontStyle = item.kind === 'capability'
-      ? `--front-image:url('${item.art}-front.jpg');--back-image:url('${item.art}-back.jpg')`
-      : `--sprite-position:${item.sprite};--back-image:url('./badges/learningai-small-milestone-pin-backs-concept-v1.png');--back-size:650% 650%;--back-position:${item.sprite}`;
+    const extension = item.kind === 'capability' ? 'jpg' : 'svg';
+    const frontStyle = `--front-image:url('${item.art}-front.${extension}');--back-image:url('${item.art}-back.${extension}')`;
     return `
       <button class="achievement-object" type="button" data-achievement="${item.id}" data-face="front" aria-pressed="false" aria-describedby="selectedBadgeMeaning selectedBadgeStatus">
         <span class="achievement-stage" aria-hidden="true">
           <span class="achievement-coin" style="${frontStyle}">
             ${edgeMarkup()}
-            <span class="achievement-face achievement-front ${item.kind === 'milestone' ? 'milestone-front' : ''}"></span>
-            <span class="achievement-face achievement-back ${item.kind === 'milestone' ? 'milestone-back' : ''}">
+            <span class="achievement-face achievement-front"></span>
+            <span class="achievement-face achievement-back">
               <span class="engraving-plate">
                 <strong>${item.name}</strong>
                 <time data-earned-stamp>Not yet earned</time>

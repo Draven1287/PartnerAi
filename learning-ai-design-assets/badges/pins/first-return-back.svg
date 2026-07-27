@@ -10,9 +10,8 @@
 <rect width="200" height="200" fill="url(#b)"/>
 <circle cx="100" cy="100" r="87" fill="url(#p)"/>
 <circle cx="100" cy="100" r="86" fill="none" stroke="#5f6764" stroke-opacity=".38" stroke-width="2"/>
-<g transform="translate(100 56) scale(.38) translate(-100 -100)"><circle cx="100" cy="100" r="58" fill="none" stroke="#b4bbb8" stroke-width="10"/>
-    <path d="M138.81 56.9A58 58 0 1 1 74.57 47.87" fill="none" stroke="#767e7b" stroke-width="13" stroke-linecap="round"/>
-    <path d="M95.95 42.14 L66.2 36.43 L79.34 61.15 Z" fill="#767e7b"/></g>
+<g transform="translate(100 56) scale(.38) translate(-100 -100)"><path d="M66 134 V96 A34 34 0 0 1 134 96 V116" fill="none" stroke="#767e7b" stroke-width="13" stroke-linecap="round"/>
+    <path d="M134 144 L117 114 L151 114 Z" fill="#767e7b"/></g>
 <text x="100" y="106" text-anchor="middle" textLength="77.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">FIRST</text>
 <text x="100" y="106" text-anchor="middle" textLength="77.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">FIRST</text>
 <text x="100" y="134" text-anchor="middle" textLength="93" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">RETURN</text>

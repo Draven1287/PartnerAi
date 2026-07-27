@@ -4,15 +4,15 @@
 <stop offset="0" stop-color="#f6f7f5"/><stop offset=".3" stop-color="#ccd2cf"/>
 <stop offset=".62" stop-color="#959d9a"/><stop offset=".85" stop-color="#c3c9c6"/>
 <stop offset="1" stop-color="#e9edea"/></linearGradient>
-<radialGradient id="w" cx=".38" cy=".32" r=".82">
-<stop offset="0" stop-color="#3d4548"/><stop offset=".54" stop-color="#252c2e"/>
-<stop offset="1" stop-color="#151a1b"/></radialGradient></defs>
+<radialGradient id="w" cx=".64" cy=".72" r=".86">
+<stop offset="0" stop-color="#394245"/><stop offset=".5" stop-color="#262d2f"/>
+<stop offset="1" stop-color="#161b1c"/></radialGradient></defs>
 <rect width="200" height="200" fill="url(#b)"/>
 <circle cx="100" cy="100" r="87" fill="url(#w)"/>
 <circle cx="100" cy="100" r="87" fill="#9d6bd1" opacity=".09"/>
 <circle cx="100" cy="100" r="86" fill="none" stroke="#0e1213" stroke-opacity=".5" stroke-width="2"/>
-<circle cx="100" cy="100" r="62" fill="none" stroke="#4d5659" stroke-width="10"/>
-    <path d="M100 100 L100 62" fill="none" stroke="#9d6bd1" stroke-width="13" stroke-linecap="round"/>
-    <path d="M100 100 L127 146.77" fill="none" stroke="#9d6bd1" stroke-width="11" stroke-linecap="round"/>
+<circle cx="100" cy="100" r="62" fill="none" stroke="#4a5457" stroke-width="11"/>
+    <path d="M100 100 L100 68" fill="none" stroke="#9d6bd1" stroke-width="15" stroke-linecap="round"/>
+    <path d="M100 100 L129 150.23" fill="none" stroke="#9d6bd1" stroke-width="10" stroke-linecap="round"/>
     <circle cx="100" cy="100" r="10" fill="#9d6bd1"/>
 </svg>

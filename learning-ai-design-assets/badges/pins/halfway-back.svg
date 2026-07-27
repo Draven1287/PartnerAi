@@ -10,7 +10,7 @@
 <rect width="200" height="200" fill="url(#b)"/>
 <circle cx="100" cy="100" r="87" fill="url(#p)"/>
 <circle cx="100" cy="100" r="86" fill="none" stroke="#5f6764" stroke-opacity=".38" stroke-width="2"/>
-<g transform="translate(100 56) scale(.38) translate(-100 -100)"><circle cx="100" cy="100" r="62" fill="none" stroke="#b4bbb8" stroke-width="12"/>
+<g transform="translate(100 56) scale(.38) translate(-100 -100)"><circle cx="100" cy="100" r="62" fill="none" stroke="#b9c0bd" stroke-width="12"/>
     <path d="M100 38A62 62 0 0 1 100 162" fill="none" stroke="#767e7b" stroke-width="14" stroke-linecap="round"/></g>
 <text x="100" y="120" text-anchor="middle" textLength="108.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">HALFWAY</text>
 <text x="100" y="120" text-anchor="middle" textLength="108.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">HALFWAY</text>

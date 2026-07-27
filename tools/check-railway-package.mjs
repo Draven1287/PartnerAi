@@ -48,8 +48,27 @@ const required = [
   'learning-ai-design-assets/achievement-vault.js',
   'learning-ai-design-assets/achievement-vault.css',
   'learning-ai-design-assets/learning-ai-paper-light-v1.png',
-  'learning-ai-design-assets/badges/learningai-small-milestone-pins-concept-v1.png',
-  'learning-ai-design-assets/badges/learningai-small-milestone-pin-backs-concept-v1.png',
+  // The twelve small milestone pins, drawn flat-on: a front and a back each.
+  // They replaced a 4x3 contact sheet whose cells were all rendered at a
+  // three-quarter angle; the two sheets are kept in the tree but nothing
+  // references them, so they are no longer required for a release.
+  ...[
+    'first-lesson',
+    'first-arc',
+    'halfway',
+    'course-complete',
+    'first-five',
+    'focus-25',
+    'one-hour',
+    'five-hours',
+    'first-return',
+    'five-sessions',
+    'first-note',
+    'first-project'
+  ].flatMap(id => [
+    `learning-ai-design-assets/badges/pins/${id}-front.svg`,
+    `learning-ai-design-assets/badges/pins/${id}-back.svg`
+  ]),
   ...Array.from({ length: 10 }, (_, index) => `learning-ai-design-assets/badges/arc-${String(index + 1).padStart(2, '0')}-${[
     'first-signal',
     'pattern-seeker',

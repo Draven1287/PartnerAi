@@ -334,11 +334,14 @@
   pointer-events: none;
 }
 
-.milestone-front {
-  background-image: url("./badges/learningai-small-milestone-pins-concept-v1.png");
-  background-position: var(--sprite-position);
-  background-size: 650% 650%;
-}
+/* A milestone pin used to be cropped out of a 4x3 contact sheet here, at
+   650% 650% and a per-cell background-position. Every cell on that sheet drew
+   the pin at a three-quarter angle, complete with a cylindrical side wall and a
+   mounting post, so the twelve pins were the only tilted objects on a page of
+   ten medals photographed square-on. No crop or stretch can flatten a side wall,
+   so the pins are now drawn flat-on as SVG — one square file per face, under
+   ./badges/pins/ — and they simply use the same --front-image / --back-image
+   path as the medals. That leaves no rule here at all. */
 
 .achievement-back {
   z-index: 2;
@@ -980,22 +983,17 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
 [data-card="arc-9"] {--front-zoom:112.7%;--front-dx:-.0540;--front-dy:-.0153;--back-zoom:111.7%;--back-dx:.0488;--back-dy:-.0186}
 [data-card="arc-10"]{--front-zoom:110.4%;--front-dx:-.0423;--front-dy:-.0181;--back-zoom:109.3%;--back-dx:.0359;--back-dy:-.0145}
 
-/* A milestone pin's back was drawn with `cover`, so all twelve pins from the
-   contact sheet were squeezed into one 104px disc. achievement-vault.js has
-   always emitted --back-position and --back-size for this; no rule ever read
-   them. This is that rule. */
-.milestone-back{
-  background-image:var(--back-image);
-  background-position:var(--back-position,center);
-  background-size:var(--back-size,cover);
-}
+/* The pin backs no longer need a rule of their own. They were cropped out of a
+   contact sheet, so without a --back-position every one of the twelve was
+   squeezed into a single 104px disc; a drawn pin back is one square file that
+   fills the disc from `cover` on .achievement-back like any medal does. */
 
 /* ── The engraving plate ────────────────────────────────────────────────────
-   Every back image has "EARNED JUL 23 2026 · 9:56 AM" engraved into it — the
-   same fabricated moment on all ten arc backs and all twelve pin backs. The
-   plate carries the learner's real status, and it used to sit at the bottom of
-   the face, half of it clipped off by the round edge, leaving the fabricated
-   date fully legible above it. Two dates, one of them untrue.
+   Every arc back image has "EARNED JUL 23 2026 · 9:56 AM" engraved into it —
+   the same fabricated moment on all ten. The plate carries the learner's real
+   status, and it used to sit at the bottom of the face, half of it clipped off
+   by the round edge, leaving the fabricated date fully legible above it. Two
+   dates, one of them untrue.
 
    Measured on the cropped faces: the engraved meaning ends by 66% of the face
    height and the engraved date block runs 68%–82.5%, x 27.5%–73%. The plate
@@ -1008,15 +1006,13 @@ html[data-motion="none"] .vault-rail{transition:none!important;scroll-behavior:a
   padding:0 6px;
   align-content:center;
 }
-/* The pin backs bake a name and a date too, but the pin sits left of centre in
-   its sprite cell, so its engraved name runs from 9.9% to 74% across the disc.
-   A plate wide enough to cover that would have to be wider than the disc is at
-   that height and would come back clipped — which is how the plate looked
-   before. So on a pin the plate covers the fabricated date only (measured at
-   75.2%–81.4% down, 25%–62.2% across), and the engraved name stays: it is the
-   pin's real name, and only the date was invented. Fixing the framing so a pin
-   is centred in its disc needs the sprite cells re-measured or the sheet
-   re-rendered; both are noted in the handover. */
+/* A pin back is drawn, not photographed, so nothing is baked into it that has
+   to be covered up: it carries the pin's name and no date at all. The band from
+   73% down is left deliberately blank in the artwork for this plate, which is
+   the only thing on the page that knows whether a date has been earned. The
+   plate's own <strong> stays hidden because the name is already engraved above
+   it — one name, not two. At 86% the disc still allows x 30.6%–69.4% either
+   side of centre, so a plate inset 16% cannot come back clipped. */
 .milestone-item .achievement-back .engraving-plate{
   left:16%;right:16%;top:73%;bottom:14%;
   padding:0 4px;
