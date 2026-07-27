@@ -20,10 +20,7 @@
 <text x="100" y="106" text-anchor="middle" textLength="62" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">FIVE</text>
 <text x="100" y="134" text-anchor="middle" textLength="124" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">SESSIONS</text>
 <text x="100" y="134" text-anchor="middle" textLength="124" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">SESSIONS</text>
-<rect x="52" y="142" width="96" height="28" rx="6" fill="#7f8783" fill-opacity=".4"/>
-<rect x="52" y="142" width="96" height="28" rx="6" fill="none" stroke="#565e5b" stroke-opacity=".4" stroke-width="1.3"/>
-<path d="M59.5 143.5H140.5" fill="none" stroke="#3f4744" stroke-opacity=".32" stroke-width="2" stroke-linecap="round"/>
-<path d="M59.5 168.7H140.5" fill="none" stroke="#ffffff" stroke-opacity=".78" stroke-width="1.8" stroke-linecap="round"/>
-<path d="M53.5 150V162" fill="none" stroke="#3f4744" stroke-opacity=".22" stroke-width="1.4" stroke-linecap="round"/>
-<path d="M146.5 150V162" fill="none" stroke="#ffffff" stroke-opacity=".52" stroke-width="1.4" stroke-linecap="round"/>
+<rect x="52" y="142" width="96" height="28" rx="6" fill="#6f7773" fill-opacity=".15"/>
+<path d="M52 164V148A6 6 0 0 1 58 142H142A6 6 0 0 1 148 148" fill="none" stroke="#3d4542" stroke-opacity=".3" stroke-width="1.5"/>
+<path d="M148 148V164A6 6 0 0 1 142 170H58A6 6 0 0 1 52 164" fill="none" stroke="#ffffff" stroke-opacity=".72" stroke-width="1.7"/>
 </svg>

@@ -23,10 +23,7 @@
 <text x="100" y="107" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="17" font-weight="700" fill="#474e4b">BUILDER</text>
 <text x="100" y="123" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.8" fill="#ffffff" fill-opacity=".45" transform="translate(0 1.2)">ARC 08</text>
 <text x="100" y="123" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="9.5" font-weight="700" letter-spacing="1.8" fill="#6b736f">ARC 08</text>
-<rect x="48" y="132" width="104" height="36" rx="7" fill="#7f8783" fill-opacity=".42"/>
-<rect x="48" y="132" width="104" height="36" rx="7" fill="none" stroke="#565e5b" stroke-opacity=".42" stroke-width="1.4"/>
-<path d="M56.5 133.6H143.5" fill="none" stroke="#3f4744" stroke-opacity=".34" stroke-width="2.2" stroke-linecap="round"/>
-<path d="M56.5 166.6H143.5" fill="none" stroke="#ffffff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>
-<path d="M49.6 141.5V158.5" fill="none" stroke="#3f4744" stroke-opacity=".24" stroke-width="1.6" stroke-linecap="round"/>
-<path d="M150.4 141.5V158.5" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round"/>
+<rect x="48" y="132" width="104" height="36" rx="7" fill="#6f7773" fill-opacity=".15"/>
+<path d="M48 161V139A7 7 0 0 1 55 132H145A7 7 0 0 1 152 139" fill="none" stroke="#3d4542" stroke-opacity=".3" stroke-width="1.7"/>
+<path d="M152 139V161A7 7 0 0 1 145 168H55A7 7 0 0 1 48 161" fill="none" stroke="#ffffff" stroke-opacity=".72" stroke-width="1.9"/>
 </svg>
