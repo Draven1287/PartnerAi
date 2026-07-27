@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Submit a project · LearningAI</title>
+  <title>Share a project · LearningAI</title>
   <meta name="robots" content="noindex, nofollow" />
   <style>
     :root{color-scheme:light;--ink:#171816;--muted:#5b625d;--gold:#a8843f;--glass:rgba(255,255,255,.43);--line:rgba(44,44,38,.14);--shadow:0 18px 60px rgba(42,38,28,.12),0 2px 8px rgba(42,38,28,.08);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
@@ -16,165 +16,253 @@
     .nav-glass{position:relative;overflow:hidden;border-color:rgba(255,255,255,.72);background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.045) 48%,rgba(214,219,216,.13));box-shadow:inset 0 1px 1px white,inset 0 -1px 1px rgba(45,46,42,.2),inset 1px 0 0 rgba(255,255,255,.5),0 18px 45px rgba(38,36,30,.18),0 3px 8px rgba(38,36,30,.11);backdrop-filter:blur(18px) saturate(1.5) brightness(1.04) contrast(1.04);-webkit-backdrop-filter:blur(18px) saturate(1.5) brightness(1.04) contrast(1.04)}.nav-glass:before{content:"";position:absolute;z-index:0;inset:1px 9% auto;height:24%;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,0));opacity:.9;pointer-events:none}.nav-glass:after{content:"";position:absolute;z-index:0;inset:0;border-radius:inherit;background:linear-gradient(100deg,rgba(255,255,255,.3),transparent 15%,transparent 78%,rgba(255,255,255,.2));box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);pointer-events:none}.nav-glass>*{position:relative;z-index:1}.brand,nav a,.greeting{color:#22231f;text-shadow:0 1px 0 white,0 2px 3px rgba(37,35,30,.24),0 6px 12px rgba(37,35,30,.08)}.settings{border:1px solid rgba(255,255,255,.82)}
     .nav-stage{height:100vh}.nav-shell{--drag-x:0px;--drag-y:0px;transform:translate3d(var(--drag-x),var(--drag-y),0)}.nav-shell.is-passing{transform:translate3d(var(--drag-x),calc(var(--drag-y) - 104px),0) scale(.985);pointer-events:none}.nav-glass{user-select:none}.nav-glass a,.nav-glass button{cursor:pointer}
 
-    /* .button, .choice and .crumb all set a display, which outranks the user-agent
-       [hidden] rule and left hidden controls on screen. Make hiding win. */
+    /* .button, .choice, .crumb and .step-rail li all set a display, which outranks
+       the user-agent [hidden] rule and left hidden controls on screen. Make
+       hiding win. */
     [hidden]{display:none!important}
-    main{width:min(880px,calc(100vw - 36px));margin:118px auto 120px}
-    .panel{margin-top:20px;padding:clamp(26px,4vw,42px);border:1px solid rgba(255,255,255,.78);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21));box-shadow:inset 0 1px 1px rgba(255,255,255,.98),inset 0 -1px 0 rgba(35,39,38,.12),0 22px 66px rgba(37,40,38,.105);backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
-    .crumbs{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:9px;margin:0 0 4px;overflow:visible}.crumb{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(255,255,255,.9);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(226,225,218,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.14);color:#22231f;font-size:12.5px;font-weight:720;text-decoration:none;white-space:nowrap}.crumb:hover{background:linear-gradient(180deg,#fff,rgba(233,232,225,.72))}
-    .eyebrow{margin:0 0 13px;color:#75623b;font-size:10.5px;font-weight:720;letter-spacing:.17em;text-transform:uppercase}
-    h1{margin:0;font-size:clamp(38px,6vw,64px);font-weight:520;letter-spacing:-.055em;line-height:.96;text-shadow:0 1px 0 rgba(255,255,255,.92),0 3px 9px rgba(37,40,38,.15)}
-    .lead{max-width:640px;margin:20px 0 0;color:#2f3630;font-size:17px;line-height:1.55}
-    h2{margin:0 0 12px;font-size:25px;font-weight:560;letter-spacing:-.04em;text-shadow:0 1px 0 rgba(255,255,255,.9)}
-    h3{margin:0 0 9px;color:#413620;font-size:10.5px;font-weight:720;letter-spacing:.15em;text-transform:uppercase}
+
+    main{width:min(880px,calc(100vw - 36px));margin:118px auto 120px;display:grid;gap:18px}
+    .panel{padding:clamp(24px,4vw,40px);border:1px solid rgba(255,255,255,.78);border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.43),rgba(255,255,255,.10) 58%,rgba(218,226,226,.21));box-shadow:inset 0 1px 1px rgba(255,255,255,.98),inset 0 -1px 0 rgba(35,39,38,.12),0 22px 66px rgba(37,40,38,.105);backdrop-filter:blur(25px) saturate(1.6);-webkit-backdrop-filter:blur(25px) saturate(1.6)}
+    .crumbs{display:flex;flex-wrap:wrap;gap:9px;margin:0}.crumb{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid rgba(255,255,255,.9);border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(226,225,218,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.14);color:#22231f;font-size:12.5px;font-weight:720;text-decoration:none;white-space:nowrap}.crumb:hover{background:linear-gradient(180deg,#fff,rgba(233,232,225,.72))}
+
+    .eyebrow{margin:0 0 12px;color:#75623b;font-size:10.5px;font-weight:720;letter-spacing:.17em;text-transform:uppercase}
+    h1{margin:0;max-width:16ch;font-size:clamp(36px,5.4vw,56px);font-weight:520;letter-spacing:-.055em;line-height:.98;text-shadow:0 1px 0 rgba(255,255,255,.92),0 3px 9px rgba(37,40,38,.15)}
+    .lead{max-width:56ch;margin:15px 0 0;color:#2f3630;font-size:17px;line-height:1.55}
+    h2{margin:0;font-size:26px;font-weight:560;letter-spacing:-.04em;text-shadow:0 1px 0 rgba(255,255,255,.9)}
+    h3{margin:0 0 8px;color:#413620;font-size:10.5px;font-weight:720;letter-spacing:.15em;text-transform:uppercase}
     p,li{color:#2f3630;font-size:14.5px;line-height:1.62}
     a{color:#1d3a33}
-    .surface{margin-top:16px;padding:18px 20px;border:1px solid rgba(255,255,255,.62);border-radius:17px;background:linear-gradient(160deg,rgba(255,255,255,.32),rgba(255,255,255,.22)),rgba(50,55,52,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.72)}
-    .surface p:first-child{margin-top:0}.surface p:last-child{margin-bottom:0}
-    .field{margin-top:20px}.field label,legend{display:block;margin-bottom:7px;color:#25302b;font-size:13px;font-weight:720;letter-spacing:-.005em}
-    .hint{margin:6px 0 0;color:#303732;font-size:12.5px;line-height:1.5}
-    input[type=text],input[type=url],select,textarea{display:block;width:100%;min-height:48px;padding:12px 14px;border:1px solid rgba(41,48,44,.28);border-radius:15px;background:rgba(255,255,255,.72);color:#171816;font:inherit;font-size:15px;line-height:1.45}
-    textarea{min-height:118px;resize:vertical}
+
+    /* Inner surface: the one recessed treatment on the page. */
+    .surface{padding:15px 17px;border:1px solid rgba(255,255,255,.62);border-radius:17px;background:linear-gradient(160deg,rgba(255,255,255,.27),rgba(255,255,255,.27)),rgba(50,55,52,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.72)}
+    .surface p{margin:0}
+
+    /* --- step rail ---------------------------------------------------- */
+    .step-rail{display:flex;flex-wrap:wrap;gap:7px;margin:0 0 22px;padding:0;list-style:none}
+    .step-rail li{display:flex;align-items:center;gap:9px;min-width:0;min-height:44px;padding:0 15px 0 9px;border:1px solid rgba(255,255,255,.6);border-radius:999px;background:rgba(255,255,255,.2);color:#333b36;font-size:12.5px;font-weight:660;letter-spacing:-.01em;overflow-wrap:anywhere}
+    .step-rail li[aria-current="step"]{border-color:rgba(255,255,255,.94);background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(228,227,220,.62));box-shadow:inset 0 1px 1px white,0 6px 14px rgba(43,39,30,.12);color:#171816;font-weight:740}
+    .step-num{display:flex;flex:0 0 auto;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(45,52,48,.17);color:#242c28;font-size:12px;font-weight:760}
+    .step-rail li[aria-current="step"] .step-num{background:#24312d;color:#fff}
+    .step-rail li.is-done .step-num{background:#2f6b4f;color:#fff}
+
+    .step-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin:0 0 4px}
+    .step-head .eyebrow{margin:0}
+    .step-note{margin:10px 0 0;max-width:66ch;color:#303732;font-size:14px;line-height:1.55}
+
+    /* --- fields -------------------------------------------------------- */
+    .fields{display:grid;gap:18px;margin-top:20px}
+    .field{display:grid;gap:6px;min-width:0}
+    label,legend{display:block;color:#25302b;font-size:13.5px;font-weight:720;letter-spacing:-.005em}
+    /* Measured over the darkest 2% of the paper backdrop through the thinnest
+       part of the panel gradient: #4c534e fell to 3.46:1 there. */
+    .optional{margin-left:3px;color:#333a35;font-size:12.5px;font-weight:600;letter-spacing:0}
+    .hint{margin:0;max-width:66ch;color:#303732;font-size:12.5px;line-height:1.5}
+    input[type=text],input[type=url],select,textarea{display:block;width:100%;max-width:100%;min-height:48px;padding:12px 14px;border:1px solid rgba(41,48,44,.28);border-radius:15px;background:rgba(255,255,255,.72);color:#171816;font:inherit;font-size:15px;line-height:1.45}
+    textarea{min-height:112px;resize:vertical}
+    textarea.short{min-height:76px}
     select{min-height:48px;appearance:none;background-image:linear-gradient(45deg,transparent 49%,#3d443f 50%,#3d443f 56%,transparent 57%),linear-gradient(-45deg,transparent 49%,#3d443f 50%,#3d443f 56%,transparent 57%);background-position:calc(100% - 22px) 21px,calc(100% - 15px) 21px;background-size:7px 7px;background-repeat:no-repeat;padding-right:44px}
-    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+    input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,li:focus-visible,section:focus-visible{outline:3px solid #17231f;outline-offset:2px}
     input[type=text]:invalid:not(:placeholder-shown),input[type=url]:invalid:not(:placeholder-shown),textarea:invalid:not(:placeholder-shown){border-color:#8c3722}
     ::placeholder{color:#59605b;opacity:1}
     code{padding:1px 5px;border-radius:6px;background:rgba(41,48,44,.10);font-size:.92em}
-    fieldset{margin:20px 0 0;padding:16px 18px;border:1px solid rgba(41,48,44,.22);border-radius:17px;background:rgba(255,255,255,.24)}legend{padding:0 6px;margin:0}
-    /* A 22px box is not a touch target. The label is the rest of the target, so
-       it carries the full 44px row and the whole width of the fieldset. */
-    .choice{display:flex;align-items:flex-start;gap:11px;padding:2px 0}.choice input{flex:0 0 auto;width:24px;height:24px;margin:12px 0 0;accent-color:#24312d}.choice label{display:flex;flex:1 1 auto;align-items:center;min-height:48px;padding:6px 0;margin:0;cursor:pointer}.choice span{color:#303732;font-size:13.5px;font-weight:500;line-height:1.5}
-    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-    .button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 20px;border:1px solid rgba(49,54,49,.2);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(228,227,220,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.12);color:#1c231f;font:inherit;font-size:14px;font-weight:720;text-decoration:none;cursor:pointer}
+    fieldset{min-width:0;margin:0;padding:0;border:0}
+    legend{padding:0;margin:0 0 9px}
+
+    /* A 24px box is not a touch target. The label carries the rest of the row,
+       so the whole 48px band and full width are clickable. */
+    .choice-grid{display:grid;gap:9px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+    .choice-list{display:grid;gap:7px}
+    .choice{display:flex;align-items:center;gap:11px;min-width:0;padding:2px 14px 2px 12px;border:1px solid rgba(255,255,255,.6);border-radius:17px;background:rgba(255,255,255,.24);box-shadow:inset 0 1px 0 rgba(255,255,255,.66)}
+    .choice input{flex:0 0 auto;width:24px;height:24px;margin:0;accent-color:#24312d}
+    .choice label{display:flex;flex:1 1 auto;align-items:center;min-width:0;min-height:48px;padding:6px 0;margin:0;color:#26302b;font-size:13.5px;font-weight:560;line-height:1.45;cursor:pointer}
+    /* theme.css owns .choice's background and border-color with !important, so a
+       selected row has to announce itself with something that rule leaves alone. */
+    .choice:has(input:checked){box-shadow:inset 0 0 0 2px rgba(36,49,45,.5),inset 0 1px 0 rgba(255,255,255,.66)}
+
+    /* Deliberately one flowing sentence rather than a flex row: as a flex item
+       the trailing link stopped being inline text and lost the target-size
+       inline exemption while gaining nothing. */
+    .reply-line{margin:0;color:#2c332e;font-size:14px;line-height:1.6}
+    .reply-line b{font-weight:700;overflow-wrap:anywhere}
+
+    /* --- actions and status --------------------------------------------- */
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+    /* One action row for the whole form, so the buttons sit in the same place on
+       every step. Back stays left; the right cluster is pushed over by its own
+       margin rather than space-between, which would strand the primary on the
+       left on step one, where there is no Back button. */
+    .form-actions{display:flex;flex-wrap:wrap;gap:10px}
+    .form-actions .right{display:flex;flex-wrap:wrap;gap:10px;margin-left:auto}
+    /* Panels, rail, status and actions space themselves; the empty status
+       collapses out of the grid entirely so no gap is left behind. */
+    #submitPanel{display:grid;gap:16px}
+    #submitPanel .step-rail{margin:0}
+    #submitPanel>.status{margin:0}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 20px;border:1px solid rgba(49,54,49,.2);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(228,227,220,.6));box-shadow:inset 0 1px 1px white,0 7px 16px rgba(43,39,30,.12);color:#1c231f;font:inherit;font-size:14px;font-weight:720;text-decoration:none;cursor:pointer;transition:background 160ms ease}
     .button:hover{background:linear-gradient(180deg,#fff,rgba(235,234,227,.7))}
     .button.primary{border-color:rgba(20,28,24,.6);background:#24312d;box-shadow:0 8px 18px rgba(30,38,34,.24);color:#fff}.button.primary:hover{background:#1a2521}
+    .button.quiet{border-color:rgba(49,54,49,.16);background:rgba(255,255,255,.34);box-shadow:none}.button.quiet:hover{background:rgba(255,255,255,.62)}
     .button[disabled]{opacity:.55;cursor:not-allowed}
-    .status{margin:18px 0 0;padding:16px 18px;border-left:4px solid #4c5a55;border-radius:0 15px 15px 0;background:rgba(255,255,255,.4);color:#2e3630;font-size:14px;line-height:1.58}
+    .status{margin:16px 0 0;padding:15px 17px;border-left:4px solid #4c5a55;border-radius:0 15px 15px 0;background:rgba(255,255,255,.4);color:#2e3630;font-size:14px;line-height:1.58}
     .status:empty{display:none}
     .status.is-good{border-left-color:#2f6b4f}.status.is-warn{border-left-color:#8a6a1f}.status.is-bad{border-left-color:#8c3722}
     .status strong{display:block;margin-bottom:5px;color:#1d231f;font-size:14.5px}
-    .review-list{margin:0;padding:0;list-style:none}.review-list div{padding:12px 0;border-top:1px solid rgba(45,52,48,.16)}.review-list div:first-child{border-top:0}.review-list dt{color:#303732;font-size:11px;font-weight:720;letter-spacing:.1em;text-transform:uppercase}.review-list dd{margin:5px 0 0;color:#2c332e;font-size:14.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
-    .record{padding:14px 16px;margin-top:10px;border:1px solid rgba(41,48,44,.2);border-radius:15px;background:rgba(255,255,255,.3)}.record h4{margin:0 0 5px;font-size:15px;font-weight:640;letter-spacing:-.02em;overflow-wrap:anywhere}.record p{margin:3px 0 0;font-size:12.5px;color:#303732}.record .tag{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(41,48,44,.22);background:rgba(255,255,255,.55);font-size:11px;font-weight:720}
-    .to-line{display:grid;gap:4px}.to-line b{color:#212a25;font-size:15px;font-weight:680;overflow-wrap:anywhere}
-    #confirmPanel,#resultPanel{scroll-margin-top:112px}
-    @media(max-width:820px){.nav-shell{width:calc(100vw - 20px);margin-top:10px}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto;min-height:56px;padding:6px 7px}.brand span:last-child{display:none}nav{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{flex:0 0 auto;padding-inline:7px}.welcome{display:none}.settings{grid-column:3;margin-left:4px}main{width:calc(100vw - 20px);margin-top:94px}.panel{border-radius:24px}}
-    @media(prefers-reduced-motion:reduce){html:not([data-motion="standard"]) .nav-shell{transition:opacity 1ms linear}html:not([data-motion="standard"]) .nav-shell.is-passing{transform:none;filter:none;opacity:0}}
-    html[data-motion="none"] .nav-shell,html[data-motion="reduced"] .nav-shell{transition:opacity 1ms linear}
-    html[data-motion="none"] .nav-shell.is-passing,html[data-motion="reduced"] .nav-shell.is-passing{transform:none;filter:none;opacity:0}
+    /* A one-line signed-in confirmation should not cost a whole block of hero. */
+    .status strong:only-child{margin-bottom:0}
+    header.panel .status{margin-top:15px;padding:12px 16px}
+
+    /* --- review, result, device record ---------------------------------- */
+    .review-list{margin:16px 0 0;padding:0}.review-list div{display:grid;gap:4px;padding:12px 0;border-top:1px solid rgba(45,52,48,.16)}.review-list div:first-child{border-top:0}
+    .review-list dt{min-width:0;color:#303732;font-size:11px;font-weight:720;letter-spacing:.1em;text-transform:uppercase;overflow-wrap:anywhere}
+    .review-list dd{min-width:0;margin:0;color:#2c332e;font-size:14.5px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+    @media(min-width:760px){.review-list div{grid-template-columns:minmax(0,190px) minmax(0,1fr);gap:6px 20px;align-items:baseline}}
+    .record{padding:14px 16px;margin-top:10px;border:1px solid rgba(41,48,44,.2);border-radius:17px;background:rgba(255,255,255,.3)}.record h4{margin:0 0 5px;font-size:15px;font-weight:640;letter-spacing:-.02em;overflow-wrap:anywhere}.record p{margin:3px 0 0;font-size:12.5px;color:#303732}.record .tag{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border-radius:999px;border:1px solid rgba(41,48,44,.22);background:rgba(255,255,255,.55);font-size:11px;font-weight:720}
+    /* Sits on bare paper, not on a panel, so it takes the body ink. */
+    .footnote{margin:0;max-width:74ch;padding:0 6px;color:#2c332e;font-size:13px;line-height:1.6;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+
+    #step1,#step2,#step3,#confirmPanel,#resultPanel{scroll-margin-top:126px}
+    @media(max-width:820px){
+      .nav-shell{width:calc(100vw - 20px);margin-top:10px}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto;min-height:56px;padding:6px 7px}.brand span:last-child{display:none}nav{justify-content:flex-start;overflow-x:auto;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{flex:0 0 auto;padding-inline:7px}.welcome{display:none}.settings{grid-column:3;margin-left:4px}
+      main{width:calc(100vw - 20px);margin-top:94px}.panel{border-radius:24px}
+      /* Full-width stack on a phone, ordered by what a learner reaches for
+         first. display:contents lifts the right-hand cluster into the same grid
+         so `order` can address all three buttons. */
+      .form-actions{display:grid;gap:10px}
+      .form-actions .right{display:contents}
+      .form-actions .button{width:100%}
+      #advanceButton{order:1}#backStep{order:2}.form-actions .right a.button{order:3}
+    }
   </style>
-  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26e"><script src="./theme.js?v=2026-07-26d"></script>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-26f"><script src="./theme.js?v=2026-07-26e"></script>
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">
     <a class="brand" href="./stage-1-navigation-proof.html" aria-label="LearningAI dashboard"><span class="mark" aria-hidden="true"></span><span>LearningAI</span></a>
-    <nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./progress.html">Progress</a><a href="./lessons.html">Lessons</a><a href="./focus.html">Focus</a><a href="./projects.html">Projects</a><a href="./about.html">About</a></nav>
+    <nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./progress.html">Progress</a><a href="./lessons.html">Lessons</a><a href="./focus.html">Focus</a><a href="./projects.html" aria-current="page">Projects</a><a href="./about.html">About</a></nav>
     <div class="welcome"><span class="greeting" id="greeting">Welcome</span></div>
     <a class="settings" href="./settings.html" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.13.36.34.7.6 1 .3.3.7.44 1.1.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></svg></a>
   </div></header></div>
 
   <main>
-    <nav class="crumbs" aria-label="Back to Projects"><a class="crumb" href="./projects.html">← Back to Projects</a><a class="crumb" href="./submission-policy.html">Submission and deletion policy</a></nav>
+    <nav class="crumbs" aria-label="Back to Projects"><a class="crumb" href="./projects.html">← Back to Projects</a><a class="crumb" href="./submission-policy.html">How submissions are handled</a></nav>
 
     <header class="panel">
       <p class="eyebrow">Projects</p>
-      <h1>Submit a project for review</h1>
-      <p class="lead">Send your work to Aarav for a private read. Submitting is a request for review. It is never permission to publish.</p>
-      <div class="surface"><p><strong>What this page does today.</strong> Your submission is recorded on your LearningAI account so it cannot be lost. LearningAI cannot send email yet, so nothing is emailed from here and this page will never tell you an email went out. If you want a copy to reach Aarav today as well, the <a href="./gallery.html#contact">Gallery contact page</a> prepares a message you can send from your own email.</p></div>
-    </header>
-
-    <section class="panel" id="accountPanel" aria-labelledby="accountTitle">
-      <h2 id="accountTitle">Your account</h2>
+      <h1>Share what you made</h1>
+      <p class="lead">Three short steps. Aarav reads it privately — sending is a request for a review, never permission to publish.</p>
       <p class="status" id="accountStatus" role="status" aria-live="polite">Checking whether you are signed in…</p>
       <div class="actions" id="accountActions" hidden>
         <a class="button primary" id="signInLink" href="./access.html?returning=1">Sign in →</a>
         <button class="button" id="retryAccount" type="button">Check again</button>
       </div>
-    </section>
+    </header>
 
-    <form class="panel" id="submitPanel" hidden aria-labelledby="formTitle">
-      <h2 id="formTitle">About your project</h2>
-      <p>Everything below is stored on your account with your submission. Keep private information out: no real names, school or team details, addresses, faces, voices, contact details, or anything belonging to another person.</p>
+    <form id="submitPanel" hidden novalidate>
+      <ol class="step-rail" id="stepRail">
+        <li aria-current="step"><span class="step-num" aria-hidden="true">1</span><span>What you made</span></li>
+        <li><span class="step-num" aria-hidden="true">2</span><span>How AI helped</span></li>
+        <li><span class="step-num" aria-hidden="true">3</span><span>Before you send</span></li>
+      </ol>
 
-      <div class="field">
-        <label for="projectKey">Which project is this?</label>
-        <select id="projectKey" name="projectKey">
-          <option value="">Choose a project…</option>
-        </select>
-        <p class="hint" id="projectKeyHint">Choosing one fills in a starting title. You can change the title afterwards.</p>
-      </div>
+      <section class="panel" id="step1" tabindex="-1" aria-labelledby="step1Title">
+        <div class="step-head"><p class="eyebrow">Step 1 of 3</p></div>
+        <h2 id="step1Title">What you made</h2>
+        <p class="step-note">Keep private details out — yours and other people’s. <a href="./submission-policy.html#leave-out">See what counts.</a></p>
+        <div class="fields">
+          <div class="field">
+            <label for="projectKey">Which project is this? <span class="optional">Optional</span></label>
+            <select id="projectKey" name="projectKey" aria-describedby="projectKeyHint">
+              <option value="">Choose a project…</option>
+            </select>
+            <p class="hint" id="projectKeyHint">Picking one fills in a starting title, which you can change.</p>
+          </div>
+          <div class="field">
+            <label for="title">Project title</label>
+            <input id="title" name="title" type="text" maxlength="180" required placeholder="A short name for what you made" aria-describedby="titleHint" />
+            <p class="hint" id="titleHint">Required.</p>
+          </div>
+          <div class="field">
+            <label for="projectUrl">Link to your work <span class="optional">Optional</span></label>
+            <input id="projectUrl" name="projectUrl" type="url" maxlength="500" pattern="https://.+" title="A project link must start with https://" placeholder="https://…" aria-describedby="urlHint" />
+            <p class="hint" id="urlHint">Must start with <code>https://</code>. Files cannot be attached — link to them, or describe them below.</p>
+          </div>
+          <div class="field">
+            <label for="summary">What is it?</label>
+            <textarea id="summary" name="summary" maxlength="1500" required placeholder="What you built, who it is for, and what a reader would see." aria-describedby="summaryHint"></textarea>
+            <p class="hint" id="summaryHint">Required. A short paragraph is plenty.</p>
+          </div>
+        </div>
+      </section>
 
-      <div class="field">
-        <label for="title">Project title <span aria-hidden="true">*</span></label>
-        <input id="title" name="title" type="text" maxlength="180" required placeholder="A short name for what you made" aria-describedby="titleHint" />
-        <p class="hint" id="titleHint">Required. Up to 180 characters.</p>
-      </div>
+      <section class="panel" id="step2" tabindex="-1" aria-labelledby="step2Title" hidden>
+        <div class="step-head"><p class="eyebrow">Step 2 of 3</p></div>
+        <h2 id="step2Title">How AI helped</h2>
+        <p class="step-note">The one part every review reads closely.</p>
+        <div class="fields">
+          <div class="field">
+            <label for="contribution">What did AI do, and what did you decide or check yourself?</label>
+            <textarea id="contribution" name="contribution" maxlength="1500" required placeholder="Where AI helped, and which choices and checks were yours." aria-describedby="contributionHint"></textarea>
+            <p class="hint" id="contributionHint">Required.</p>
+          </div>
+          <div class="field">
+            <label for="learned">Anything that went wrong? <span class="optional">Optional</span></label>
+            <textarea class="short" id="learned" name="learned" maxlength="600" placeholder="One mistake and what you took from it." aria-describedby="learnedHint"></textarea>
+            <p class="hint" id="learnedHint">A single line is enough — and it is what makes a project useful to other learners.</p>
+          </div>
+        </div>
+      </section>
 
-      <div class="field">
-        <label for="projectUrl">Link to your work</label>
-        <input id="projectUrl" name="projectUrl" type="url" maxlength="500" pattern="https://.+" title="A project link must start with https://" placeholder="https://…" aria-describedby="urlHint" />
-        <p class="hint" id="urlHint">Optional. Must start with <code>https://</code>. Files cannot be attached here — link to them, or describe them below.</p>
-      </div>
+      <section class="panel" id="step3" tabindex="-1" aria-labelledby="step3Title" hidden>
+        <div class="step-head"><p class="eyebrow">Step 3 of 3</p></div>
+        <h2 id="step3Title">Before you send</h2>
+        <div class="fields">
+          <fieldset>
+            <legend id="ageLegend">Your age range</legend>
+            <div class="choice-grid" role="group" aria-labelledby="ageLegend">
+              <div class="choice"><input id="ageUnder" name="ageRange" type="radio" value="under-18" required /><label for="ageUnder">Under 18</label></div>
+              <div class="choice"><input id="ageAdult" name="ageRange" type="radio" value="18-plus" required /><label for="ageAdult">18 or older</label></div>
+            </div>
+            <p class="hint" id="under18Note" style="margin-top:9px" hidden>Under 18: only a pseudonym can ever appear, and a parent or guardian approves the exact preview first. <a href="./submission-policy.html#under-18">Read the rule.</a></p>
+          </fieldset>
 
-      <div class="field">
-        <label for="summary">What did you make? <span aria-hidden="true">*</span></label>
-        <textarea id="summary" name="summary" maxlength="2500" required placeholder="The goal, what you built, and what a reader would see." aria-describedby="summaryHint"></textarea>
-        <p class="hint" id="summaryHint">Required. Up to 2,500 characters.</p>
-      </div>
+          <div class="field">
+            <label for="publicName" id="publicNameLabel">Public name to use if this is ever published <span class="optional">Optional</span></label>
+            <input id="publicName" name="publicName" type="text" maxlength="80" placeholder="A pseudonym or nickname" aria-describedby="publicNameHint" />
+            <p class="hint" id="publicNameHint">Nothing is published without a separate approval.</p>
+          </div>
 
-      <div class="field">
-        <label for="contribution">What did AI do, and what did you decide or check yourself? <span aria-hidden="true">*</span></label>
-        <textarea id="contribution" name="contribution" maxlength="2500" required placeholder="Where AI helped, and which choices and checks were yours." aria-describedby="contributionHint"></textarea>
-        <p class="hint" id="contributionHint">Required. This is the part reviews look at most closely.</p>
-      </div>
+          <fieldset>
+            <legend id="confirmLegend">Confirm</legend>
+            <div class="choice-list" role="group" aria-labelledby="confirmLegend">
+              <div class="choice"><input id="ownsWork" name="ownsWork" type="checkbox" required /><label for="ownsWork">I made this, or I have permission to share it.</label></div>
+              <div class="choice"><input id="privacyCleared" name="privacyCleared" type="checkbox" required /><label for="privacyCleared">I took out private details — mine and other people’s.</label></div>
+              <div class="choice" id="guardianChoice" hidden><input id="guardianApproval" name="guardianApproval" type="checkbox" /><label for="guardianApproval">I understand a parent or guardian must approve anything before it is published.</label></div>
+            </div>
+          </fieldset>
 
-      <div class="field">
-        <label for="learned">What went wrong, and what did you learn?</label>
-        <textarea id="learned" name="learned" maxlength="1500" placeholder="One mistake and the lesson you took from it."></textarea>
-        <p class="hint">Optional, but a mistake and its lesson make a project far more useful to other learners.</p>
-      </div>
+          <p class="surface reply-line">Replies go to <b id="replyAddress">…</b> — the address on your account. <a href="./submission-policy.html#reply">Why you cannot change it here.</a></p>
+        </div>
+      </section>
 
-      <fieldset>
-        <legend>Your age range <span aria-hidden="true">*</span></legend>
-        <p class="hint" style="margin-top:0">Different publication rules apply to learners under 18.</p>
-        <div class="choice"><input id="ageUnder" name="ageRange" type="radio" value="under-18" required /><label for="ageUnder"><span>Under 18</span></label></div>
-        <div class="choice"><input id="ageAdult" name="ageRange" type="radio" value="18-plus" required /><label for="ageAdult"><span>18 or older</span></label></div>
-      </fieldset>
-
-      <div class="field">
-        <label for="publicName" id="publicNameLabel">Public name to use if this is ever published</label>
-        <input id="publicName" name="publicName" type="text" maxlength="80" placeholder="A pseudonym or nickname" aria-describedby="publicNameHint" />
-        <p class="hint" id="publicNameHint">Optional. Nothing is published without a separate approval. A learner under 18 may only appear under a non-identifying pseudonym — not a real name, username, handle, school, team, employer, or city.</p>
-      </div>
-
-      <fieldset>
-        <legend>Before you send <span aria-hidden="true">*</span></legend>
-        <div class="choice"><input id="ownsWork" name="ownsWork" type="checkbox" required /><label for="ownsWork"><span>I made this work, or I have permission to share it.</span></label></div>
-        <div class="choice"><input id="privacyCleared" name="privacyCleared" type="checkbox" required /><label for="privacyCleared"><span>I removed real names, school or team details, addresses, exact age or birthday, faces, voices, contact details, and other people’s private information.</span></label></div>
-        <div class="choice"><input id="reviewOnly" name="reviewOnly" type="checkbox" required /><label for="reviewOnly"><span>I understand this is a request for a private review and is not permission to publish.</span></label></div>
-        <div class="choice" id="guardianChoice" hidden><input id="guardianApproval" name="guardianApproval" type="checkbox" /><label for="guardianApproval"><span>I understand that because I am under 18, a parent or guardian must separately approve the exact preview before anything of mine appears publicly.</span></label></div>
-      </fieldset>
-
-      <div class="surface to-line">
-        <h3>Where this goes</h3>
-        <p style="margin:0">Recorded on your LearningAI account for Aarav’s private review queue. If Aarav replies, the reply goes to the address on your account:</p>
-        <b id="replyAddress">…</b>
-        <p class="hint" style="margin:0">You cannot type a different address here — LearningAI only ever writes to the account you signed in with. To change it, change the account.</p>
-      </div>
-
-      <div class="actions">
-        <button class="button primary" type="submit" id="reviewButton">Review before sending →</button>
-        <a class="button" href="./projects.html">Cancel</a>
-      </div>
       <p class="status" id="formStatus" role="status" aria-live="polite"></p>
+      <div class="form-actions">
+        <button class="button quiet" type="button" id="backStep" hidden>← Back</button>
+        <div class="right">
+          <a class="button quiet" href="./projects.html">Cancel</a>
+          <button class="button primary" type="submit" id="advanceButton">Continue →</button>
+        </div>
+      </div>
     </form>
 
     <section class="panel" id="confirmPanel" hidden aria-labelledby="confirmTitle" tabindex="-1">
+      <div class="step-head"><p class="eyebrow">Last look</p></div>
       <h2 id="confirmTitle">Check this, then send</h2>
-      <p>Nothing has been sent yet. This is exactly what will be recorded.</p>
+      <p class="step-note">Nothing has been sent yet. This is exactly what will be recorded.</p>
       <dl class="review-list" id="confirmList"></dl>
+      <p class="surface" style="margin-top:18px">Sending asks for a private review. It is not permission to publish, and nothing of yours appears anywhere until you approve an exact preview. <a href="./submission-policy.html#after">What happens next.</a></p>
       <div class="actions">
         <button class="button primary" type="button" id="sendButton">Send for review</button>
-        <button class="button" type="button" id="editButton">Go back and edit</button>
+        <button class="button quiet" type="button" id="editButton">Go back and edit</button>
       </div>
       <p class="status" id="sendStatus" role="status" aria-live="polite"></p>
     </section>
@@ -186,21 +274,13 @@
     </section>
 
     <section class="panel" id="localPanel" hidden aria-labelledby="localTitle">
-      <h2 id="localTitle">Submissions from this device</h2>
-      <p>A record of what this browser tried to send, and what actually happened. Stored on this device only.</p>
+      <h2 id="localTitle">From this device</h2>
+      <p class="step-note">What this browser tried to send, and what actually happened. Stored on this device only.</p>
       <div id="localList"></div>
-      <div class="actions"><button class="button" type="button" id="clearLocal">Clear this device record</button></div>
+      <div class="actions"><button class="button quiet" type="button" id="clearLocal">Clear this device record</button></div>
     </section>
 
-    <section class="panel" aria-labelledby="policyTitle">
-      <h2 id="policyTitle">What happens after you send</h2>
-      <ol>
-        <li>Aarav reads the project privately for safety, clarity, ownership, and useful evidence. Review is manual and no response time is promised.</li>
-        <li>If it is not selected, it stays unpublished and the submission is deleted within 30 days of the decision.</li>
-        <li>If it may be selected, LearningAI builds the exact publication preview and asks for a separate written approval. Under-18 work also needs a guardian’s approval of that preview.</li>
-      </ol>
-      <p>You can ask for a submission to be withdrawn or deleted at any time by writing to <a href="mailto:learningai4youprojects@duck.com?subject=LearningAI%20privacy%20or%20deletion%20request">learningai4youprojects@duck.com</a>. <a href="./submission-policy.html">Read the full submission and deletion policy.</a></p>
-    </section>
+    <p class="footnote">Every submission is read privately, stays unpublished unless you approve a preview, and is deleted on request. <a href="./submission-policy.html">Read how submissions are handled</a>, or write to <a href="mailto:learningai4youprojects@duck.com?subject=LearningAI%20privacy%20or%20deletion%20request">learningai4youprojects@duck.com</a>.</p>
   </main>
 
   <script src="./learning-api.js?v=2026-07-26d"></script><script src="./nav-behavior.js?v=2026-07-26b"></script>
@@ -231,6 +311,9 @@
       const sendStatus = $('sendStatus');
       const resultStatus = $('resultStatus');
       const sendButton = $('sendButton');
+      const advanceButton = $('advanceButton');
+      const backStep = $('backStep');
+      const stepRail = $('stepRail');
       const projectKey = $('projectKey');
       const guardianChoice = $('guardianChoice');
       const guardianApproval = $('guardianApproval');
@@ -263,9 +346,9 @@
         });
       }
 
-      /* Programmatic focus alone left the confirm step 800px below the fold, so
-         pressing the button looked like nothing happened. Move the view too, and
-         only animate the move when motion is set to standard. */
+      /* Programmatic focus alone left the next panel below the fold, so pressing
+         the button looked like nothing happened. Move the view too, and only
+         animate the move when motion is set to standard. */
       function focusPanel(node) {
         node.focus({ preventScroll: true });
         node.scrollIntoView({
@@ -296,6 +379,68 @@
         } catch {}
       };
 
+      /* ---- steps -------------------------------------------------------- */
+
+      const STEP_IDS = ['step1', 'step2', 'step3'];
+      const LAST_STEP = STEP_IDS.length - 1;
+      let step = 0;
+
+      /* A control inside the guardian row must not be validated while that row is
+         hidden. The step panel itself is hidden whenever it is not the current
+         one, so it is the single [hidden] ancestor that does not disqualify a
+         field. */
+      function stepFields(index) {
+        const panel = $(STEP_IDS[index]);
+        return [...panel.querySelectorAll('input, select, textarea')].filter(element => {
+          if (element.disabled) return false;
+          const hiddenAncestor = element.closest('[hidden]');
+          return !hiddenAncestor || hiddenAncestor === panel;
+        });
+      }
+
+      const NEEDS = {
+        title: 'Give your project a title first.',
+        summary: 'Say what you made first.',
+        contribution: 'Say what AI did and what you decided first.',
+        ageRange: 'Choose your age range.',
+        ownsWork: 'Confirm that you made this, or have permission to share it.',
+        privacyCleared: 'Confirm that you have taken private details out.',
+        guardianApproval: 'Confirm you understand the parent or guardian approval step.'
+      };
+
+      function firstProblem(index) {
+        for (const element of stepFields(index)) {
+          if (element.checkValidity()) continue;
+          if (element.id === 'projectUrl') return [element, 'A project link must start with https:// . Correct it, or clear the box.'];
+          return [element, NEEDS[element.name || element.id] || 'Fill this in first.'];
+        }
+        return null;
+      }
+
+      function goToStep(next, moveFocus) {
+        step = Math.max(0, Math.min(LAST_STEP, next));
+        STEP_IDS.forEach((id, index) => { $(id).hidden = index !== step; });
+        [...stepRail.children].forEach((item, index) => {
+          if (index === step) item.setAttribute('aria-current', 'step');
+          else item.removeAttribute('aria-current');
+          item.classList.toggle('is-done', index < step);
+        });
+        backStep.hidden = step === 0;
+        advanceButton.textContent = step === LAST_STEP ? 'Review before sending →' : 'Continue →';
+        setStatus(formStatus, '', '', '');
+        if (moveFocus) focusPanel($(STEP_IDS[step]));
+      }
+
+      function blockOn(problem) {
+        setStatus(formStatus, 'bad', 'Not ready yet.', problem[1]);
+        problem[0].focus();
+      }
+
+      backStep.addEventListener('click', () => {
+        goToStep(step - 1, true);
+        saveDraft();
+      });
+
       /* ---- form state ------------------------------------------------- */
 
       const fields = ['projectKey', 'title', 'projectUrl', 'summary', 'contribution', 'learned', 'publicName'];
@@ -310,13 +455,12 @@
         values.ageRange = ageValue();
         values.ownsWork = $('ownsWork').checked;
         values.privacyCleared = $('privacyCleared').checked;
-        values.reviewOnly = $('reviewOnly').checked;
         values.guardianApproval = $('guardianApproval').checked;
         return values;
       }
 
       function saveDraft() {
-        writeJson(DRAFT_KEY, { ...readForm(), savedAt: new Date().toISOString() });
+        writeJson(DRAFT_KEY, { ...readForm(), step, savedAt: new Date().toISOString() });
       }
 
       function restoreDraft() {
@@ -327,9 +471,16 @@
         if (draft.ageRange === '18-plus') $('ageAdult').checked = true;
         $('ownsWork').checked = Boolean(draft.ownsWork);
         $('privacyCleared').checked = Boolean(draft.privacyCleared);
-        $('reviewOnly').checked = Boolean(draft.reviewOnly);
         $('guardianApproval').checked = Boolean(draft.guardianApproval);
         syncAge();
+        /* Return people to the step they left, but never past an answer that is
+           now missing — a restored step 3 with an empty title would only fail at
+           the end. */
+        let start = Number.isInteger(draft.step) ? Math.min(LAST_STEP, Math.max(0, draft.step)) : 0;
+        for (let index = 0; index < start; index += 1) {
+          if (firstProblem(index)) { start = index; break; }
+        }
+        goToStep(start, false);
       }
 
       function syncAge() {
@@ -337,9 +488,10 @@
         guardianChoice.hidden = !under;
         guardianApproval.required = under;
         if (!under) guardianApproval.checked = false;
-        $('publicNameLabel').textContent = under
-          ? 'Pseudonym to use if this is ever published'
-          : 'Public name to use if this is ever published';
+        $('under18Note').hidden = !under;
+        $('publicNameLabel').firstChild.textContent = under
+          ? 'Pseudonym to use if this is ever published '
+          : 'Public name to use if this is ever published ';
       }
 
       projectKey.addEventListener('change', () => {
@@ -396,6 +548,11 @@
 
       /* ---- confirm step ------------------------------------------------ */
 
+      /* Only ever called from the send handler, so `reviewOnly` records a real
+         act: the learner pressed Send on a screen that states the review-only
+         rule directly above the button. It used to be a fourth checkbox on the
+         first screen, which taught nobody anything they had not already read in
+         the page title. */
       function payloadFrom(values) {
         return {
           title: values.title.slice(0, 180),
@@ -412,7 +569,8 @@
             confirmations: {
               ownsWork: values.ownsWork,
               privacyCleared: values.privacyCleared,
-              reviewOnly: values.reviewOnly,
+              reviewOnly: true,
+              reviewOnlyAgreedBy: 'send-button-notice',
               guardianApprovalUnderstood: values.ageRange === 'under-18' ? values.guardianApproval : null
             },
             submittedAt: new Date().toISOString()
@@ -427,7 +585,7 @@
           ['Link', values.projectUrl || 'None'],
           ['What you made', values.summary],
           ['AI and your own decisions', values.contribution],
-          ['What you learned', values.learned || 'Not answered'],
+          ['What went wrong', values.learned || 'Not answered'],
           ['Age range', values.ageRange === 'under-18' ? 'Under 18' : '18 or older'],
           ['Public name if published', values.publicName || 'Not chosen yet'],
           ['Recorded on the account', account.email],
@@ -453,22 +611,44 @@
       submitPanel.addEventListener('submit', event => {
         event.preventDefault();
         if (!account) return;
+        const problem = firstProblem(step);
+        if (problem) return blockOn(problem);
+        setStatus(formStatus, '', '', '');
+        if (step < LAST_STEP) {
+          goToStep(step + 1, true);
+          saveDraft();
+          return;
+        }
+        /* A restored draft can land on the last step with an earlier answer
+           missing. Check every step before the confirm screen, and go back to
+           the first one that is not ready. */
+        for (let index = 0; index <= LAST_STEP; index += 1) {
+          const earlier = firstProblem(index);
+          if (!earlier) continue;
+          goToStep(index, true);
+          blockOn(earlier);
+          return;
+        }
         const values = readForm();
         if (values.projectUrl && !/^https:\/\/.+/i.test(values.projectUrl)) {
+          goToStep(0, true);
           setStatus(formStatus, 'bad', 'That link cannot be sent.', 'A project link must start with https:// . Remove it or correct it.');
           $('projectUrl').focus();
           return;
         }
-        setStatus(formStatus, '', '', '');
         pending = values;
         showConfirm(values);
       });
 
-      $('editButton').addEventListener('click', () => {
+      function backToForm() {
         confirmPanel.hidden = true;
+        resultPanel.hidden = true;
         submitPanel.hidden = false;
+        goToStep(0, true);
         $('title').focus();
-      });
+      }
+
+      $('editButton').addEventListener('click', backToForm);
 
       /* ---- sending ------------------------------------------------------ */
 
@@ -494,15 +674,10 @@
 
       function editAgainButton() {
         const button = document.createElement('button');
-        button.className = 'button';
+        button.className = 'button quiet';
         button.type = 'button';
         button.textContent = 'Edit the submission';
-        button.addEventListener('click', () => {
-          resultPanel.hidden = true;
-          confirmPanel.hidden = true;
-          submitPanel.hidden = false;
-          $('title').focus();
-        });
+        button.addEventListener('click', backToForm);
         return button;
       }
 
@@ -611,9 +786,7 @@
         $('replyAddress').textContent = user.email || 'your account email';
         const signedInName = user.displayName || 'Learner';
         $('greeting').textContent = window.LearningAIGreeting?.navText(signedInName) || ('Welcome, ' + signedInName);
-        setStatus(accountStatus, 'good', 'Signed in as ' + (user.displayName || 'Learner') + '.', [
-          'Your submission is recorded against ' + (user.email || 'your account') + '. That is the address a reply would go to, and it is not shown in the Gallery.'
-        ]);
+        setStatus(accountStatus, 'good', 'Signed in as ' + signedInName + '.', '');
         restoreDraft();
         /* Arriving from a specific project brief must select that project even
            when an older draft named a different one — otherwise the button says
@@ -644,6 +817,7 @@
       $('retryAccount').addEventListener('click', checkAccount);
       renderRecords();
       syncAge();
+      goToStep(0, false);
       checkAccount();
     })();
   </script>
