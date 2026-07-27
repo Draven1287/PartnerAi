@@ -1,7 +1,45 @@
+/* Preview mode: opening any lesson without finishing the ones before it.
+
+   It used to be `?review=1` and nothing else, restricted to localhost. The
+   restriction is right — a query string travels in a shared link, so anyone
+   handed one could skip the whole course — but it meant the "Open lesson
+   preview" button in Settings did nothing at all on the live site: it linked
+   to lessons.html?review=1, review never switched on, and the route guard
+   bounced the visitor exactly as if they had never asked. A control that
+   silently does nothing in production is worse than no control.
+
+   So preview is now a switch stored on this device, set from Settings, and it
+   works wherever the site runs. It cannot be handed to someone else in a URL,
+   which was the thing worth preventing. The query string still works on a
+   local preview host, for development.
+
+   Preview still records nothing: the storage guard below drops every
+   learningai- write for as long as it is on. */
 (() => {
-  const reviewHost = ['127.0.0.1', 'localhost', '::1', '[::1]'].includes(location.hostname.toLowerCase());
-  const review = reviewHost && new URLSearchParams(location.search).get('review') === '1';
+  const PREVIEW_KEY = 'learningai-preview-lessons';
+  const previewHost = ['127.0.0.1', 'localhost', '::1', '[::1]'].includes(location.hostname.toLowerCase());
+  const fromQuery = new URLSearchParams(location.search).get('review') === '1';
+  let stored = false;
+  try { stored = localStorage.getItem(PREVIEW_KEY) === 'on'; } catch {}
+  const review = stored || (previewHost && fromQuery);
+
   window.LearningAIReviewMode = review;
+  window.LearningAIPreview = {
+    key: PREVIEW_KEY,
+    isOn: () => review,
+    /* Written before the guard installs, so turning preview ON is recorded and
+       turning it OFF can still reach storage while the guard is active. */
+    set(on) {
+      try {
+        if (on) localStorage.setItem(PREVIEW_KEY, 'on');
+        else {
+          const remove = Storage.prototype.removeItem;
+          remove.call(localStorage, PREVIEW_KEY);
+        }
+      } catch {}
+      return Boolean(on);
+    }
+  };
   if (!review || window.__learningAIReviewStorageGuard) return;
   window.__learningAIReviewStorageGuard = true;
   const setItem = Storage.prototype.setItem;
@@ -12,7 +50,9 @@
     return setItem.call(this, key, value);
   };
   Storage.prototype.removeItem = function (key) {
-    if (this === window.localStorage && String(key).startsWith('learningai-')) return;
+    // The preview switch itself must stay writable, or preview could be turned
+    // on and never off again: the guard it installs would swallow the removal.
+    if (this === window.localStorage && key !== PREVIEW_KEY && String(key).startsWith('learningai-')) return;
     return removeItem.call(this, key);
   };
   Storage.prototype.clear = function () {
