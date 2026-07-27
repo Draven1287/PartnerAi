@@ -19,7 +19,9 @@
     .mode-confirmation{min-height:20px;margin:10px 0 0;color:#4d5954;font-size:12px;font-weight:680}
     .lesson-card.is-decision-step>.actions{display:none}
     .first-pin-reveal{display:grid;grid-template-columns:76px 1fr;align-items:center;gap:17px;margin-top:22px;padding:16px 18px;border:1px solid rgba(239,91,88,.28);border-radius:20px;background:linear-gradient(145deg,rgba(255,255,255,.62),rgba(255,239,237,.30));box-shadow:inset 0 1px 0 rgba(255,255,255,.88),0 14px 30px rgba(135,70,66,.10)}
-    .first-pin-art{width:68px;height:68px;border-radius:50%;background:url("./badges/learningai-small-milestone-pins-concept-v1.png") 12% 25%/650% 650% no-repeat;box-shadow:inset 2px 3px 6px rgba(255,255,255,.62),inset -3px -4px 7px rgba(32,37,35,.22),0 9px 18px rgba(239,91,88,.18);animation:pinEarned 760ms cubic-bezier(.2,.9,.25,1) both}
+    /* The drawn First Lesson face, not a cell cropped out of the old contact
+       sheet — that sheet drew every pin at a three-quarter angle. */
+    .first-pin-art{width:68px;height:68px;border-radius:50%;background:url("./badges/pins/first-lesson-front.svg") center/cover no-repeat;box-shadow:inset 2px 3px 6px rgba(255,255,255,.62),inset -3px -4px 7px rgba(32,37,35,.22),0 9px 18px rgba(239,91,88,.18);animation:pinEarned 760ms cubic-bezier(.2,.9,.25,1) both}
     .first-pin-copy strong,.first-pin-copy span,.first-pin-copy time{display:block}.first-pin-copy strong{font-size:16px}.first-pin-copy span{margin-top:5px;color:#5d6561;font-size:12px;line-height:1.4}.first-pin-copy time{margin-top:7px;color:#9a4f49;font-size:10px;font-weight:780;letter-spacing:.08em;text-transform:uppercase}
     @keyframes pinEarned{from{opacity:0;transform:scale(.45) rotateY(-130deg)}65%{transform:scale(1.09) rotateY(12deg)}to{opacity:1;transform:none}}
     @media(max-width:760px){.mode-picker{display:grid}.mode-choice{max-width:none}}

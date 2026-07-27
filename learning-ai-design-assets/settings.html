@@ -70,6 +70,19 @@
     .profile-form{display:grid;gap:12px;margin-top:21px}.profile-form label{display:grid;gap:7px;color:#565d59;font-size:11px;font-weight:720}.profile-form input{height:47px;padding:0 14px;border:1px solid rgba(42,47,44,.14);border-radius:14px;background:rgba(255,255,255,.4);font:inherit}.profile-form button,.settings-action{min-height:45px;padding:0 16px;border:1px solid rgba(40,45,42,.16);border-radius:13px;background:rgba(255,255,255,.42);color:#252b28;font:inherit;font-size:12.5px;font-weight:730;cursor:pointer}.settings-action{margin-top:20px}.account-note{grid-column:1/-1}.account-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.account-actions .settings-action{margin-top:0;display:inline-flex;align-items:center;text-decoration:none}.danger{border-color:rgba(149,70,58,.34)!important;color:#6f382e!important}.status{min-height:17px;margin-top:14px!important;font-size:12px!important;color:#565d59!important}.privacy-link{display:inline-flex;margin-top:16px;color:#5d5238;font-size:12px;font-weight:720}
     .choice-current{min-height:20px;margin-top:15px!important;color:#232a26!important;font-size:14.5px!important;font-weight:730!important;line-height:1.45!important}
     .choice-current b{color:#101613}
+    /* Text size: one continuous control instead of three named jumps.
+       The appearance slider above is 8px tall, which is 8px of hit target. This
+       one is authored as a 44px-tall transparent input with the track painted
+       inside it, so the whole band is grabbable at the size every other control
+       on this page is held to, and the thumb is 30px rather than a hairline.
+       -webkit and Firefox pseudo-elements cannot share a rule — one unknown
+       selector drops the whole block — so they are written out separately. */
+    .size-slider{width:100%;height:44px;margin:0;padding:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}
+    .size-slider::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:linear-gradient(90deg,#cfd3cc,#8e9691 44%,#2b332f);box-shadow:inset 0 1px 2px rgba(20,25,23,.24)}
+    .size-slider::-moz-range-track{height:10px;border-radius:999px;background:linear-gradient(90deg,#cfd3cc,#8e9691 44%,#2b332f);box-shadow:inset 0 1px 2px rgba(20,25,23,.24)}
+    .size-slider::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:30px;height:30px;margin-top:-10px;border:1px solid rgba(100,85,48,.34);border-radius:50%;background:linear-gradient(145deg,#fff,#e6e2d7);box-shadow:0 5px 15px rgba(31,34,32,.24);cursor:grab}
+    .size-slider::-moz-range-thumb{width:30px;height:30px;border:1px solid rgba(100,85,48,.34);border-radius:50%;background:linear-gradient(145deg,#fff,#e6e2d7);box-shadow:0 5px 15px rgba(31,34,32,.24);cursor:grab}
+    .size-slider:focus-visible{outline:3px solid #17231f;outline-offset:2px}
     @media(max-width:820px){.nav-shell,.settings-main{width:calc(100vw - 20px)}.nav-glass{grid-template-columns:auto minmax(0,1fr) auto}.brand span:last-child,.welcome{display:none}nav{justify-content:flex-start}.settings-main{margin-top:100px}.settings-grid{grid-template-columns:1fr}.account-note{grid-column:auto}.settings-panel{padding:26px 21px}.choice-row{grid-template-columns:1fr}.accent-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
@@ -77,16 +90,16 @@
   <div class="nav-stage"><header class="nav-shell"><div class="nav-glass"><a class="brand" href="./stage-1-navigation-proof.html"><span class="mark"></span><span>LearningAI</span></a><nav aria-label="Primary"><a href="./stage-1-navigation-proof.html">Dashboard</a><a href="./progress.html">Progress</a><a href="./lessons.html">Lessons</a><a href="./focus.html">Focus</a><a href="./projects.html">Projects</a><a href="./about.html">About</a></nav><div class="welcome"><span class="greeting">Welcome</span></div><a class="settings" href="./settings.html" aria-current="page" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1v-4a1.7 1.7 0 0 0 .6-1 1.7 1.7 0 0 0-.34-1.88l2.83-2.83A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6V3h4v.09a1.7 1.7 0 0 0 1.4 1.51 1.7 1.7 0 0 0 1.88-.34l2.83 2.83A1.7 1.7 0 0 0 19.4 9a1.7 1.7 0 0 0 .6 1v4a1.7 1.7 0 0 0-.6 1Z"/></svg></a></div></header></div>
   <main class="settings-main"><div class="settings-head"><p class="eyebrow">Settings</p><h1>Make LearningAI comfortable.</h1><p>Adjust the reading experience, your name, the surface, the accent colour, and the amount of motion without changing the course itself.</p></div><div class="settings-grid">
     <section class="settings-panel account-note appearance-panel"><h2>Background visibility</h2><p>One control adjusts the landscape, glass, and text contrast together. Slide left for a darker, quieter page; slide right to show more of the landscape.</p><div class="light-control"><div class="light-value"><strong id="lightValue">72%</strong><span id="appearanceLabel">Recommended</span></div><input class="light-slider" id="lightSlider" type="range" min="0" max="100" step="1" value="72" aria-label="Background visibility"><div class="light-labels"><span>Darkest</span><span>Show more landscape</span></div></div><button class="settings-action" id="resetAppearance" type="button">Reset to recommended</button><p class="status">With the landscape turned off below, this still sets how dark the page is and how solid the glass looks.</p></section>
-    <section class="settings-panel"><h2>Page surface</h2><p>Choose what sits behind the glass. Plain paper removes the photograph. High contrast removes it and makes every panel solid instead of see-through.</p><div class="choice-row" role="group" aria-label="Page surface"><button class="choice choice-tight" type="button" data-surface-choice="landscape"><strong>Landscape</strong><span>Photograph behind glass</span></button><button class="choice choice-tight" type="button" data-surface-choice="plain"><strong>Plain paper</strong><span>Flat background, same glass</span></button><button class="choice choice-tight" type="button" data-surface-choice="contrast"><strong>High contrast</strong><span>Flat background, solid panels</span></button></div><p class="status choice-current" id="surfaceCurrent" aria-live="polite">Page surface is set to <b>Landscape</b>.</p></section>
+    <section class="settings-panel"><h2>Page surface</h2><p>Choose what sits behind the glass. Plain paper removes the photograph. High contrast removes it and makes every panel solid instead of see-through. Dark repaints the whole site in light text on a dark page.</p><div class="choice-row" role="group" aria-label="Page surface"><button class="choice choice-tight" type="button" data-surface-choice="landscape"><strong>Landscape</strong><span>Photograph behind glass</span></button><button class="choice choice-tight" type="button" data-surface-choice="plain"><strong>Plain paper</strong><span>Flat background, same glass</span></button><button class="choice choice-tight" type="button" data-surface-choice="contrast"><strong>High contrast</strong><span>Flat background, solid panels</span></button><button class="choice choice-tight" type="button" data-surface-choice="dark"><strong>Dark</strong><span>Light text on a dark page</span></button></div><p class="status choice-current" id="surfaceCurrent" aria-live="polite">Page surface is set to <b>Landscape</b>.</p></section>
     <section class="settings-panel"><h2>Accent colour</h2><p>The colour that marks the page you are on, fills progress bars, and shows a chosen answer. The gold LearningAI mark does not change.</p><div class="accent-row" role="group" aria-label="Accent colour"><button class="accent" type="button" data-accent-choice="mineral" style="--swatch:var(--mineral-base)"><i aria-hidden="true"></i>Mineral blue</button><button class="accent" type="button" data-accent-choice="sage" style="--swatch:var(--accent-sage)"><i aria-hidden="true"></i>Sage green</button><button class="accent" type="button" data-accent-choice="coral" style="--swatch:var(--accent-coral)"><i aria-hidden="true"></i>Coral</button><button class="accent" type="button" data-accent-choice="violet" style="--swatch:var(--accent-violet)"><i aria-hidden="true"></i>Violet</button></div><p class="status choice-current" id="accentCurrent" aria-live="polite">Accent colour is set to <b>Mineral blue</b>.</p></section>
     <section class="settings-panel"><h2>Motion</h2><p>Choose subtle movement, minimal transitions, or a completely still interface.</p><div class="choice-row" role="group" aria-label="Motion"><button class="choice" type="button" data-motion-choice="standard"><strong>Standard</strong><span>Subtle movement</span></button><button class="choice" type="button" data-motion-choice="reduced"><strong>Reduced</strong><span>Minimal transitions</span></button><button class="choice" type="button" data-motion-choice="none"><strong>No motion</strong><span>Everything stays still</span></button></div><p class="status choice-current" id="motionCurrent" aria-live="polite">Motion is set to <b>Standard</b>.</p></section>
-    <section class="settings-panel"><h2>Text size</h2><p>Increase interface and lesson text without changing the content. Normal is 16px.</p><div class="choice-row" role="group" aria-label="Text size"><button class="choice" type="button" data-font-choice="normal"><strong>Normal</strong><span>16px · default</span></button><button class="choice" type="button" data-font-choice="large"><strong>Large</strong><span>20px · more comfortable</span></button><button class="choice" type="button" data-font-choice="xl"><strong>Extra large</strong><span>24px · maximum clarity</span></button></div><p class="status choice-current" id="fontCurrent" aria-live="polite">Text size is set to <b>Normal</b>.</p></section>
+    <section class="settings-panel"><h2>Text size</h2><p>Increase interface and lesson text without changing the content. Slide one pixel at a time, from the default 16px up to 24px.</p><div class="light-control"><div class="light-value"><strong id="textSizeValue">16px</strong><span id="textSizeLabel">Default</span></div><input class="size-slider" id="textSizeSlider" type="range" min="16" max="24" step="1" value="16" aria-label="Text size in pixels"><div class="light-labels"><span>16px · default</span><span>24px · largest</span></div></div><button class="settings-action" id="resetTextSize" type="button">Reset to 16px</button><p class="status choice-current" id="fontCurrent" aria-live="polite">Text size is set to <b>16px</b> · the default.</p></section>
     <section class="settings-panel"><h2>Account name</h2><p>This name appears in your welcome message and is saved to your LearningAI account.</p><form class="profile-form" id="profileForm"><label><span>Display name</span><input id="displayName" name="displayName" maxlength="40" required></label><button type="submit">Save name</button><p class="status" id="profileStatus" aria-live="polite"></p></form></section>
     <section class="settings-panel"><h2>Preview every lesson</h2><p>Open any lesson without completing the ones before it. Useful for checking the course. Preview mode saves nothing: no progress, no notes, no answers.</p><a class="settings-action" href="./lessons.html?review=1" style="display:inline-flex;align-items:center;text-decoration:none">Open lesson preview</a></section>
-    <section class="settings-panel"><h2>Starting questions</h2><p>Answer the six starting questions again if your experience has changed. This clears your recorded starting point and asks them from the beginning.</p><button class="settings-action" id="retakeQuestions" type="button">Answer the questions again</button><p class="status">Changing the result does not erase completed lessons or Saved Notes.</p></section>
+    <section class="settings-panel"><h2>Starting questions</h2><p>Answer the six starting questions again if your experience has changed. This clears your recorded starting point and asks them from the beginning.</p><button class="settings-action" id="retakeQuestions" type="button">Answer the questions again</button><p class="status">Changing the result does not erase completed lessons or Saved Notes. Your age answer is not asked again: it is given once and kept.</p></section>
     <section class="settings-panel account-note"><h2>Account and learning record</h2><p>Your account keeps your answers, progress, and Saved Notes together. Accounts on this browser, switching between them, and permanent deletion all live on one page.</p><div class="account-actions"><a class="settings-action" href="./accounts.html">Accounts on this browser</a><button class="settings-action" id="signOut" type="button">Sign out on this device</button><a class="settings-action danger" href="./accounts.html#delete">Delete account and learning data</a></div><p class="status" id="deleteStatus" aria-live="polite">Deleting an account is permanent. It asks you to type DELETE first.</p><a class="privacy-link" href="./about.html#privacy">Read the privacy commitment</a></section>
   </div></main>
-  <script src="./nav-behavior.js?v=2026-07-26b"></script>
+  <script src="./nav-behavior.js?v=2026-07-27a"></script>
   <script>
     const slider=document.querySelector('#lightSlider'),value=document.querySelector('#lightValue'),appearanceLabel=document.querySelector('#appearanceLabel');
     /* 0 is now a real setting, so an absent key has to be told apart from a
@@ -112,32 +125,74 @@
     document.querySelector('#resetAppearance').addEventListener('click',()=>{slider.value='72';applyAppearance(72);slider.focus()});
 
     const MOTION_NAMES={standard:'Standard',reduced:'Reduced',none:'No motion'};
-    const FONT_NAMES={normal:'Normal',large:'Large',xl:'Extra large'};
-    const FONT_SCALES={normal:1,large:1.25,xl:1.5};
-    const SURFACE_NAMES={landscape:'Landscape',plain:'Plain paper',contrast:'High contrast'};
+    const SURFACE_NAMES={landscape:'Landscape',plain:'Plain paper',contrast:'High contrast',dark:'Dark'};
     /* Each one says what actually changed, so the sentence under the control is
        evidence rather than a restatement of the button that was pressed. */
-    const SURFACE_EFFECTS={landscape:'the photograph is behind the glass',plain:'the photograph is off and the panels stay see-through',contrast:'the photograph is off and every panel is solid'};
+    const SURFACE_EFFECTS={landscape:'the photograph is behind the glass',plain:'the photograph is off and the panels stay see-through',contrast:'the photograph is off and every panel is solid',dark:'the page is dark and every label is light'};
     const ACCENT_NAMES={mineral:'Mineral blue',sage:'Sage green',coral:'Coral',violet:'Violet'};
     const motionCurrent=document.querySelector('#motionCurrent'),fontCurrent=document.querySelector('#fontCurrent');
     const surfaceCurrent=document.querySelector('#surfaceCurrent'),accentCurrent=document.querySelector('#accentCurrent');
-    const rootPixels=()=>{const size=parseFloat(getComputedStyle(document.documentElement).fontSize);return Number.isFinite(size)?size:16};
+
+    /* ── Text size ──────────────────────────────────────────────────────────
+       Three buttons meant the smallest step available was +25%. This is the
+       same setting as a continuous range, in the unit it produces: the number
+       on the slider is the number of pixels the interface is drawn at.
+
+       The range's own bounds come from theme.js rather than being written
+       twice, so the control cannot drift from what the theme will accept. */
+    const sizeSlider=document.querySelector('#textSizeSlider'),sizeValue=document.querySelector('#textSizeValue'),sizeLabel=document.querySelector('#textSizeLabel');
+    const SIZE=LearningAITheme.textSizeRange();
+    sizeSlider.min=String(SIZE.min);sizeSlider.max=String(SIZE.max);sizeSlider.step=String(SIZE.step);
+    const sizeWord=px=>px===SIZE.min?'Default':px<=18?'A little larger':px<=21?'Larger':'Largest';
+    const sizeShare=px=>px===SIZE.base?'the default':`${Math.round(px/SIZE.base*100)}% of the default`;
+    const showSize=px=>{
+      sizeValue.textContent=`${px}px`;
+      sizeLabel.textContent=sizeWord(px);
+      sizeSlider.setAttribute('aria-valuetext',`${px} pixels · ${sizeShare(px)}`);
+    };
+    /* Applying a size zooms the page from its top-left corner, which pushes
+       this control down the screen by however much everything above it grew —
+       enough at the far end to move it out from under the pointer. Measure
+       where it was, apply, and scroll by the difference so it stays put. The
+       scroll is explicitly instant: html has scroll-behavior:smooth under
+       Standard motion, and an animated correction would lag the drag. */
+    const applySize=px=>{
+      const before=sizeSlider.getBoundingClientRect().top;
+      LearningAITheme.setTextSize(px);
+      sync();
+      const moved=sizeSlider.getBoundingClientRect().top-before;
+      if(Math.abs(moved)>0.5)window.scrollBy({top:moved,left:0,behavior:'instant'});
+    };
+    /* While a pointer is down the thumb is captured, and the browser recomputes
+       the value from the pointer's position along a track that re-zooming has
+       just moved and stretched — so applying on every input event makes a drag
+       fight itself. During a drag the readout follows live and the page is
+       repainted on release. Keyboard use never sets this flag, so arrow keys
+       stay immediate. */
+    let draggingSize=false;
+    sizeSlider.addEventListener('pointerdown',()=>{draggingSize=true});
+    const endSizeDrag=()=>{if(!draggingSize)return;draggingSize=false;applySize(Number(sizeSlider.value))};
+    sizeSlider.addEventListener('pointerup',endSizeDrag);
+    sizeSlider.addEventListener('pointercancel',endSizeDrag);
+    window.addEventListener('pointerup',endSizeDrag);
+    sizeSlider.addEventListener('input',()=>{const px=Number(sizeSlider.value);showSize(px);if(!draggingSize)applySize(px)});
+    document.querySelector('#resetTextSize').addEventListener('click',()=>{sizeSlider.value=String(SIZE.base);applySize(SIZE.base);sizeSlider.focus()});
+
     const sync=()=>{
       const motion=document.documentElement.dataset.motion||'standard';
-      const font=document.documentElement.dataset.fontScale||'normal';
+      const size=Number(document.documentElement.dataset.textSize)||SIZE.base;
       const surface=document.documentElement.dataset.surface||'landscape';
       const accent=document.documentElement.dataset.accent||'mineral';
       document.querySelectorAll('[data-motion-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.motionChoice===motion)));
-      document.querySelectorAll('[data-font-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.fontChoice===font)));
       document.querySelectorAll('[data-surface-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.surfaceChoice===surface)));
       document.querySelectorAll('[data-accent-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.accentChoice===accent)));
+      if(!draggingSize){sizeSlider.value=String(size);showSize(size)}
       motionCurrent.innerHTML=`Motion is set to <b>${MOTION_NAMES[motion]||motion}</b>.`;
-      fontCurrent.innerHTML=`Text size is set to <b>${FONT_NAMES[font]||font}</b> · ${Math.round(rootPixels()*(FONT_SCALES[font]||1))}px.`;
+      fontCurrent.innerHTML=`Text size is set to <b>${size}px</b> · ${sizeShare(size)}.`;
       surfaceCurrent.innerHTML=`Page surface is set to <b>${SURFACE_NAMES[surface]||surface}</b> · ${SURFACE_EFFECTS[surface]||''}.`;
       accentCurrent.innerHTML=`Accent colour is set to <b>${ACCENT_NAMES[accent]||accent}</b>.`;
     };
     document.querySelectorAll('[data-motion-choice]').forEach(button=>button.addEventListener('click',()=>{LearningAITheme.setMotion(button.dataset.motionChoice);sync()}));
-    document.querySelectorAll('[data-font-choice]').forEach(button=>button.addEventListener('click',()=>{LearningAITheme.setFontScale(button.dataset.fontChoice);sync()}));
     document.querySelectorAll('[data-surface-choice]').forEach(button=>button.addEventListener('click',()=>{LearningAITheme.setSurface(button.dataset.surfaceChoice);sync()}));
     document.querySelectorAll('[data-accent-choice]').forEach(button=>button.addEventListener('click',()=>{LearningAITheme.setAccent(button.dataset.accentChoice);sync()}));
 
@@ -148,7 +203,12 @@
     nameInput.value=previewName;
     document.querySelector('#profileForm').addEventListener('submit',async event=>{event.preventDefault();const name=nameInput.value.trim().replace(/\s+/g,' ');if(!name){profileStatus.textContent='Add a display name first.';return}profileStatus.textContent='Saving…';const session=await window.LearningAIAPI.me();if(!session.ok){profileStatus.textContent='Sign in again before changing your account name.';return}const saved=await window.LearningAIAPI.updateProfile({displayName:name});if(!saved.ok){profileStatus.textContent=window.LearningAIAPI.friendlyError(saved);return}const account={...session.user,...saved.user,displayName:saved.user?.displayName||name,mode:'postgres'};localStorage.setItem('learningai-prototype-account',JSON.stringify(account));window.LearningAIAccounts?.remember(account);profileStatus.textContent='Name saved.';document.querySelector('.greeting').textContent=greetingText(account.displayName||name)});
 
-    document.querySelector('#retakeQuestions').addEventListener('click',()=>{if(window.LearningAIReviewMode){document.querySelector('#profileStatus').textContent='Review mode cannot change learner answers.';return}['learningai-diagnostic-prototype','learningai-diagnostic-draft-prototype','learningai-age-range-prototype','learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key));location.href='./onboarding.html'});
+    /* learningai-age-range-prototype is no longer cleared here. Age is answered
+       once and then fixed, and clearing it made "answer the questions again" a
+       back door to a second age answer — the same thing the age control on this
+       page was removed to prevent. The six starting questions are re-asked; the
+       age question renders as a statement of what was already chosen. */
+    document.querySelector('#retakeQuestions').addEventListener('click',()=>{if(window.LearningAIReviewMode){document.querySelector('#profileStatus').textContent='Review mode cannot change learner answers.';return}['learningai-diagnostic-prototype','learningai-diagnostic-draft-prototype','learningai-site-unlocked'].forEach(key=>localStorage.removeItem(key));location.href='./onboarding.html'});
     /* clearDevice() removes every learningai-* key, including notes that have not
        reached the account and every in-progress lesson draft. The browser account
        roster is deliberately kept so the signed-out account stays listed and

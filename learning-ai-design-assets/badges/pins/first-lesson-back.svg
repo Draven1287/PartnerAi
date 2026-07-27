@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="First Lesson pin, back">
+<title>First Lesson pin, back</title>
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#f6f7f5"/><stop offset=".3" stop-color="#ccd2cf"/>
+<stop offset=".62" stop-color="#959d9a"/><stop offset=".85" stop-color="#c3c9c6"/>
+<stop offset="1" stop-color="#e9edea"/></linearGradient>
+<linearGradient id="p" x1=".1" y1="0" x2=".9" y2="1">
+<stop offset="0" stop-color="#e3e7e4"/><stop offset=".5" stop-color="#c9cfcc"/>
+<stop offset="1" stop-color="#dee2df"/></linearGradient></defs>
+<rect width="200" height="200" fill="url(#b)"/>
+<circle cx="100" cy="100" r="87" fill="url(#p)"/>
+<circle cx="100" cy="100" r="86" fill="none" stroke="#5f6764" stroke-opacity=".38" stroke-width="2"/>
+<g transform="translate(100 56) scale(.38) translate(-100 -100)"><circle cx="100" cy="100" r="62" fill="none" stroke="#b4bbb8" stroke-width="12"/>
+    <circle cx="100" cy="38" r="16" fill="#767e7b"/></g>
+<text x="100" y="106" text-anchor="middle" textLength="77.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">FIRST</text>
+<text x="100" y="106" text-anchor="middle" textLength="77.5" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">FIRST</text>
+<text x="100" y="134" text-anchor="middle" textLength="93" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#ffffff" fill-opacity=".5" transform="translate(0 1.4)">LESSON</text>
+<text x="100" y="134" text-anchor="middle" textLength="93" font-family="system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" font-size="22" font-weight="700" fill="#474e4b">LESSON</text>
+</svg>

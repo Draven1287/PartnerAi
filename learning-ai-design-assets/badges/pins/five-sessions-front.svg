@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200" role="img" aria-label="Five Sessions pin, front">
+<title>Five Sessions pin, front</title>
+<defs><linearGradient id="b" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#f6f7f5"/><stop offset=".3" stop-color="#ccd2cf"/>
+<stop offset=".62" stop-color="#959d9a"/><stop offset=".85" stop-color="#c3c9c6"/>
+<stop offset="1" stop-color="#e9edea"/></linearGradient>
+<radialGradient id="w" cx=".38" cy=".32" r=".82">
+<stop offset="0" stop-color="#3d4548"/><stop offset=".54" stop-color="#252c2e"/>
+<stop offset="1" stop-color="#151a1b"/></radialGradient></defs>
+<rect width="200" height="200" fill="url(#b)"/>
+<circle cx="100" cy="100" r="87" fill="url(#w)"/>
+<circle cx="100" cy="100" r="87" fill="#dc7666" opacity=".09"/>
+<circle cx="100" cy="100" r="86" fill="none" stroke="#0e1213" stroke-opacity=".5" stroke-width="2"/>
+<circle cx="100" cy="100" r="58" fill="none" stroke="#4d5659" stroke-width="8"/>
+    <circle cx="100" cy="42" r="15" fill="#dc7666"/>
+    <circle cx="155.16" cy="82.08" r="15" fill="#dc7666"/>
+    <circle cx="134.09" cy="146.92" r="15" fill="#dc7666"/>
+    <circle cx="65.91" cy="146.92" r="15" fill="#dc7666"/>
+    <circle cx="44.84" cy="82.08" r="15" fill="#dc7666"/>
+</svg>
