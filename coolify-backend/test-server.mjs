@@ -73,6 +73,10 @@ function createFakeDb() {
   };
 
   return {
+    /* Test-only window on the audit log. No route reads it, so without this
+       the one thing an administrator deletion has to leave behind could not
+       be asserted at all. */
+    __audits: audits,
     async init() {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
@@ -1164,6 +1168,119 @@ async function runRouteChecks(db, label) {
       body: { email: signup.body.user.email, password: 'new-learning-pass' }
     });
     assert.equal(loginAfterEnable.response.status, 200);
+
+    /* Administrator hard delete — DELETE /api/admin/learner/:id.
+       Every refusal is asserted before the one success, because the whole
+       value of this route is the things it declines to do. */
+    const adminDeleteEmail = `admin-delete-${randomUUID()}@example.com`;
+    const adminDeleteSignup = await request('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: adminDeleteEmail, password: 'admin-delete-learning-pass', displayName: 'Admin Delete Me' }
+    });
+    assert.equal(adminDeleteSignup.response.status, 201);
+    const adminDeleteUserId = adminDeleteSignup.body.user.id;
+
+    // No admin session at all.
+    const adminDeleteNoSession = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json' },
+      body: { confirmation: adminDeleteEmail }
+    });
+    assert.equal(adminDeleteNoSession.response.status, 401);
+
+    // A learner session is not an admin session.
+    const adminDeleteAsLearner = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: cookieHeader(adminDeleteSignup.headers.get('set-cookie')), 'x-csrf-token': adminDeleteSignup.body.csrfToken },
+      body: { confirmation: adminDeleteEmail }
+    });
+    assert.equal(adminDeleteAsLearner.response.status, 401);
+
+    // Admin session, no CSRF header.
+    const adminDeleteNoCsrf = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: adminCookie },
+      body: { confirmation: adminDeleteEmail }
+    });
+    assert.equal(adminDeleteNoCsrf.response.status, 403);
+    assert.equal(adminDeleteNoCsrf.body.error, 'csrf_required');
+
+    // The typed confirmation is the account's email; a different account's
+    // email, and the fixed word the learner-facing flow uses, are both refused.
+    for (const wrong of ['DELETE', 'delete', '', 'someone-else@example.com', adminDeleteEmail.replace('@', '+typo@')]) {
+      const refused = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+        method: 'DELETE',
+        headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+        body: { confirmation: wrong }
+      });
+      assert.equal(refused.response.status, 400, `confirmation "${wrong}" must be refused`);
+      assert.equal(refused.body.error, 'confirmation_required');
+    }
+
+    // Nothing was deleted by any of the above.
+    const survived = await request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: adminDeleteEmail, password: 'admin-delete-learning-pass' }
+    });
+    assert.equal(survived.response.status, 200);
+
+    const adminDeleteUnknown = await request('/api/admin/learner/user-does-not-exist', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+      body: { confirmation: adminDeleteEmail }
+    });
+    assert.equal(adminDeleteUnknown.response.status, 404);
+
+    // Case and surrounding space are normalised, the way sign-in normalises them.
+    const adminDeleted = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+      body: { confirmation: `  ${adminDeleteEmail.toUpperCase()}  ` }
+    });
+    assert.equal(adminDeleted.response.status, 200);
+    assert.equal(adminDeleted.body.deleted.email, adminDeleteEmail);
+    assert.equal(adminDeleted.body.deleted.id, adminDeleteUserId);
+    assert.equal(adminDeleted.body.deleted.displayName, 'Admin Delete Me');
+
+    const learnersAfterAdminDelete = await request('/api/admin/learners', { headers: { cookie: adminCookie } });
+    assert.equal(learnersAfterAdminDelete.response.status, 200);
+    assert.ok(!learnersAfterAdminDelete.body.learners.some(row => row.id === adminDeleteUserId));
+
+    const loginAfterAdminDelete = await request('/api/auth/login', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: { email: adminDeleteEmail, password: 'admin-delete-learning-pass' }
+    });
+    assert.equal(loginAfterAdminDelete.response.status, 401);
+
+    // Deleting twice reports that there was nothing to delete.
+    const adminDeleteAgain = await request(`/api/admin/learner/${encodeURIComponent(adminDeleteUserId)}`, {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json', cookie: adminCookie, 'x-csrf-token': adminLogin.body.csrfToken },
+      body: { confirmation: adminDeleteEmail }
+    });
+    assert.equal(adminDeleteAgain.response.status, 404);
+
+    /* The record has to survive the deletion it documents. deleteUserAccount()
+       removes every audit row whose target_user_id is the deleted learner, so
+       an audit written before the delete, or carrying target_user_id, would be
+       erased by it — leaving no evidence at all that the account ever existed
+       or that anyone removed it. This asserts the record is still there and
+       still names both parties. */
+    if (Array.isArray(db.__audits)) {
+      const record = db.__audits.filter(event => event.eventName === 'admin_account_hard_delete');
+      assert.equal(record.length, 1, 'exactly one hard-delete audit record must survive');
+      assert.equal(record[0].targetUserId, undefined, 'the record must not hang off the deleted user row');
+      assert.equal(record[0].adminUserId, adminLogin.body.admin.id, 'the record must name the administrator');
+      assert.equal(record[0].payload.email, adminDeleteEmail, 'the record must name the deleted account');
+      assert.equal(record[0].payload.displayName, 'Admin Delete Me');
+      assert.equal(record[0].payload.deletedUserId, adminDeleteUserId);
+      assert.equal(record[0].payload.source, 'admin_console');
+      // and nothing of the deleted learner's own audit history is left
+      assert.equal(db.__audits.some(event => event.targetUserId === adminDeleteUserId), false);
+    }
 
     const editBlocked = await request('/api/admin/curriculum/lessons/chapter-1', {
       method: 'PUT',

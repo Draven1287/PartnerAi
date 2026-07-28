@@ -111,7 +111,11 @@
     .rulecard-reveal{min-height:44px;margin-top:14px;padding:0 15px;border:1px solid rgba(50,55,52,.18);border-radius:13px;background:rgba(255,255,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);color:#212724;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
     .rulecard-reveal:hover{background:rgba(255,255,255,.6)}
     .rulecard-reveal:focus-visible,.rulecard-link:focus-visible{outline:3px solid #17231f;outline-offset:2px}
-    .rulecard-link{display:block;width:fit-content;max-width:100%;margin-top:16px;color:#204450;font-size:13px;font-weight:730;text-underline-offset:4px;overflow-wrap:anywhere}
+    /* The card's closing link is a destination, not a word in a sentence, so it
+       carries a 44px target. The padding does that; the two margins hand back
+       exactly what the padding added, so the card is the same height and the
+       text sits on the same line as before. */
+    .rulecard-link{display:block;width:fit-content;max-width:100%;margin-top:2px;margin-bottom:-14px;padding-block:14px;color:#204450;font-size:13px;font-weight:730;text-underline-offset:4px;overflow-wrap:anywhere}
     /* Turning the page. */
     .rulebook-controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px;margin-top:16px}
     .rulebook-step{min-height:44px;padding:0 17px;border:1px solid rgba(50,55,52,.18);border-radius:14px;background:rgba(255,255,255,.42);box-shadow:inset 0 1px 0 rgba(255,255,255,.8);color:#212724;font:inherit;font-size:13px;font-weight:700;cursor:pointer}

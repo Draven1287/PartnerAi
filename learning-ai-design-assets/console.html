@@ -141,7 +141,7 @@
       border-radius:999px;background:var(--inner);text-shadow:none}
     .spacer{flex:1}
     .conn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-size:12.5px;font-weight:640;
-      padding:8px 14px;border-radius:999px;border:var(--bw) solid var(--inner-line);cursor:pointer;
+      min-height:44px;padding:8px 14px;border-radius:999px;border:var(--bw) solid var(--inner-line);cursor:pointer;
       background:var(--inner);color:var(--text-dim)}
     .conn .dot{width:9px;height:9px;border-radius:50%;background:var(--text-faint);flex:none}
     .conn.ok{color:var(--good-ink);background:var(--good-soft)}
@@ -160,7 +160,7 @@
     .seg{display:inline-flex;border:var(--bw) solid var(--inner-line);border-radius:999px;padding:3px;gap:2px;
       background:var(--inner)}
     .seg button{border:0;background:transparent;color:var(--text-dim);font:inherit;font-size:12.5px;
-      font-weight:640;padding:6px 13px;border-radius:999px;cursor:pointer}
+      font-weight:640;min-height:44px;padding:6px 13px;border-radius:999px;cursor:pointer}
     .seg button.on{background:var(--inner-2);color:var(--text);
       box-shadow:inset 0 1px 1px rgba(255,255,255,.85),0 2px 6px var(--shadow)}
 
@@ -378,7 +378,7 @@
     .diag-note{font-size:12.5px;color:var(--text-faint);margin-top:16px;line-height:1.55}
 
     /* ---------- buttons, notes, prose ---------- */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:15px;font:inherit;
+    .btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:11px 18px;border-radius:15px;font:inherit;
       font-size:14px;font-weight:650;cursor:pointer;border:var(--bw) solid transparent}
     .btn-primary{background:#26312d;color:#fff;border-color:#26312d;
       box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px rgba(29,35,33,.15)}
@@ -386,6 +386,48 @@
     .btn-ghost{background:var(--inner);color:var(--text);border-color:var(--inner-line)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
     .btn-sm{padding:9px 14px;font-size:13px;border-radius:13px}
+    /* ---------- the one destructive control ---------- */
+    /* Prefixed .dz-* for the same reason .check became .dcheck: theme.css
+       styles a list of site classes globally and with !important, and a
+       console class must never be repaintable by a site rule. Nothing here
+       animates or transitions, so there is nothing for data-motion to turn
+       off — the three motion modes are identical on this block by
+       construction. */
+    .btn-danger{background:var(--bad-solid);color:var(--on-solid);border-color:var(--bad-solid);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 18px rgba(112,36,40,.16)}
+    .dz{padding:20px 24px 24px;border-top:var(--bw) solid var(--inner-line)}
+    .dz h3{margin:0 0 4px;font-size:15.5px;font-weight:740;color:var(--bad-ink);letter-spacing:-.01em}
+    /* The warning is a sibling *before* the form in source order, so it is read
+       before the control is reached by eye, by screen reader and by Tab. */
+    .dz-warn{margin:10px 0 16px;padding:14px 16px;border:var(--bw) solid var(--inner-line);
+      border-left:3px solid var(--bad-solid);border-radius:0 15px 15px 0;background:var(--bad-soft);
+      color:var(--text);font-size:13px;line-height:1.62}
+    .dz-warn b{font-weight:750}
+    .dz-target{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 16px;padding:13px 16px;
+      border:var(--bw) solid var(--inner-line);border-radius:17px;background:var(--inner)}
+    .dz-target .l{font-size:10px;font-weight:740;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--text-faint)}
+    .dz-target .nm{font-size:14.5px;font-weight:680;color:var(--text)}
+    .dz-target .em{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);overflow-wrap:anywhere}
+    .dz-facts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 0 18px}
+    @media(max-width:620px){.dz-facts{grid-template-columns:1fr}}
+    .dz-facts h4{margin:0 0 7px;font-size:10px;font-weight:740;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--text-faint)}
+    .dz-facts ul{margin:0;padding-left:17px;font-size:12.5px;line-height:1.62;color:var(--text-dim)}
+    .dz-facts .gone li::marker{color:var(--bad-solid)}
+    .dz-facts .kept li::marker{color:var(--text-faint)}
+    .dz form{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin:0}
+    .dz label.field{margin-bottom:0;flex:1 1 320px;min-width:0;text-transform:none;letter-spacing:0;
+      font-size:12px;color:var(--text)}
+    .dz label.field .fl{display:block}
+    .dz label.field .fx{font-family:var(--font-mono);font-weight:720;overflow-wrap:anywhere}
+    .dz label.field input{min-height:44px;font-family:var(--font-mono)}
+    .dz .btn{min-height:44px}
+    .dz .status{flex-basis:100%}
+    .dz-done{margin:14px 24px 0;padding:13px 16px;border:var(--bw) solid var(--inner-line);
+      border-left:3px solid var(--good-solid);border-radius:0 15px 15px 0;background:var(--good-soft);
+      color:var(--text);font-size:12.5px;line-height:1.6}
+    .dz-done b{font-weight:740}
     /* render() appends the raw-JSON disclosure as a sibling of the panels, so
        each of these lands directly on the photograph. Every one gets glass. */
     .glance,.foot,#overviewRaw:not(:empty),
@@ -497,7 +539,7 @@
     <div>
       <p class="eyebrow">Admin · learning analytics</p>
       <h1>Backend Console</h1>
-      <div class="env" id="env">env: <b>production</b> · <span id="envHost">learningai4you.com</span> · read-only</div>
+      <div class="env" id="env">env: <b>production</b> · <span id="envHost">learningai4you.com</span> · read-only apart from account deletion</div>
     </div>
     <div class="head-side">
       <span class="meta" id="who" style="font-size:12.5px;color:var(--text-faint);font-weight:620"></span>
@@ -541,7 +583,7 @@
     <section id="tab-questionnaire" class="tabpanel" hidden><div id="assessment"></div></section>
     <section id="tab-connection" class="tabpanel" hidden><div id="health"></div></section>
 
-    <p class="foot">Everything on this page is read straight from the production database through <code>/api/admin/*</code>. Nothing here is sample data, and nothing on this page writes. Where a number is missing it is because the API has not recorded it — each section says so in its own words, and the raw response is one disclosure away.</p>
+    <p class="foot">Everything on this page is read straight from the production database through <code>/api/admin/*</code>, and none of it is sample data. One control writes: <b>Delete this account permanently</b>, at the foot of the learner you have selected under Learners. It erases that learner and their data from the database, it cannot be undone, and it is the only thing here that changes anything. Where a number is missing it is because the API has not recorded it — each section says so in its own words, and the raw response is one disclosure away.</p>
   </div>
 </div>
 
@@ -1202,6 +1244,191 @@ function learnerDetailHtml(view) {
     + `<div class="detail-grid">${cells.join('')}</div>`;
 }
 
+/* ---------- deleting one account --------------------------------------- */
+
+/* The only control on this page that writes, and the only one that destroys.
+   Three things are true of it and are stated in this order: it cannot be
+   undone, it names the account it is about to destroy, and it will not fire
+   until that account's own email address has been typed out.
+
+   The confirmation is the email rather than the word DELETE — which is what
+   the learner-facing flow at accounts.html asks its own owner to type. For a
+   learner deleting themselves there is only one possible target, so a fixed
+   word is enough. Here there are as many targets as there are rows, and a
+   fixed word confirms all of them identically: the same five keystrokes end
+   whichever account happens to be selected. Typing the address means the
+   confirmation cannot be transferred from the account it was meant for to the
+   one that is actually highlighted. The server enforces the same rule, so
+   re-enabling the button in devtools buys nothing.
+
+   The two lists are the ones accounts.html already shows its own learners,
+   rewritten in the third person. They stay honest about backups, sent email
+   and server logs, which this deletion does not reach. */
+const DELETE_GONE = [
+  'The account itself: email address, password and display name',
+  'Their six starting-question answers and recorded level',
+  'Lesson progress, completed lessons and quiz answers',
+  'Saved Notes and project submissions',
+  'Recorded focus minutes and page visits',
+  'Every audit record naming them, including their own name changes'
+];
+const DELETE_KEPT = [
+  'Email LearningAI has already sent them',
+  'Database backups, until they age out on their own schedule',
+  'Hosting-level server logs, which record requests but not lesson answers',
+  'Any CSV exported from this console before now',
+  'The audit record of this deletion, which names you, them and the time'
+];
+
+function learnerDangerHtml(view) {
+  if (!view) return '';
+  const id = view.id;
+  if (id === undefined || id === null || String(id) === '') {
+    return '<div class="dz"><h3>Delete this account permanently</h3>'
+      + '<p class="dz-warn">This payload carries no learner id, so there is nothing this page could ask '
+      + 'the API to delete. Nothing about this account can be removed from here.</p></div>';
+  }
+  const email = String(view.email || '');
+  const name = String(view.name || '');
+  if (!email) {
+    return '<div class="dz"><h3>Delete this account permanently</h3>'
+      + '<p class="dz-warn">Deletion is confirmed by typing the account\'s own email address, and this '
+      + 'record has no email on it. Nothing is offered here rather than fall back to a confirmation that '
+      + 'would fit any account equally.</p></div>';
+  }
+
+  const facts = '<div class="dz-facts">'
+    + '<div><h4>Removed from the database</h4><ul class="gone">'
+    + DELETE_GONE.map(item => `<li>${esc(item)}</li>`).join('') + '</ul></div>'
+    + '<div><h4>Not removed</h4><ul class="kept">'
+    + DELETE_KEPT.map(item => `<li>${esc(item)}</li>`).join('') + '</ul></div>'
+    + '</div>';
+
+  return '<div class="dz">'
+    + '<h3>Delete this account permanently</h3>'
+    + '<p class="dz-warn"><b>This cannot be undone.</b> The account and everything stored against it are '
+    + 'removed from the database outright — there is no restore, no undo and no recovery from this console '
+    + 'or anywhere else. Read the name and address below before going further: what is deleted is the '
+    + 'account selected in the list above, not the one you were last looking at.</p>'
+    + '<div class="dz-target"><span class="l">About to delete</span>'
+    + `<span class="nm">${esc(name || '(no display name)')}</span>`
+    + `<span class="em">${esc(email)}</span></div>`
+    + facts
+    + `<form id="learnerDeleteForm" autocomplete="off" data-id="${esc(String(id))}" data-email="${esc(email)}" data-name="${esc(name)}">`
+    /* label.field is display:grid, so every child is a row of its own. The
+       prompt is therefore one element, not three text nodes around a span,
+       which is what stacked "Type / address / to confirm" down the page. */
+    + '<label class="field" for="learnerDeleteConfirm">'
+    + `<span class="fl">Type <span class="fx">${esc(email)}</span> to confirm</span>`
+    + '<input id="learnerDeleteConfirm" name="confirmation" type="text" autocomplete="off" '
+    + 'autocapitalize="none" autocorrect="off" spellcheck="false" '
+    + `placeholder="${esc(email)}" aria-describedby="learnerDeleteStatus"></label>`
+    + '<button class="btn btn-danger" id="learnerDeleteButton" type="submit" disabled>'
+    + 'Delete this account permanently</button>'
+    + '<p class="status" id="learnerDeleteStatus" role="status" aria-live="polite"></p>'
+    + '</form></div>';
+}
+
+/* Survives the reload that follows a deletion, so the page can still say what
+   it did after the list it did it to has been refetched. */
+let LAST_DELETION = null;
+
+function deletionReceiptHtml() {
+  if (!LAST_DELETION) return '';
+  const who = LAST_DELETION.name
+    ? `${LAST_DELETION.name} (${LAST_DELETION.email})`
+    : LAST_DELETION.email;
+  return `<p class="dz-done"><b>Deleted.</b> ${esc(who)} and the data stored against that account were `
+    + `removed from the database at ${esc(fullDate(LAST_DELETION.at))}. This cannot be undone. `
+    + 'The audit record of it is in <code>audit_events</code> under '
+    + '<code>admin_account_hard_delete</code>. Backups, email already sent and server logs are not affected.</p>';
+}
+
+function syncDeleteControl() {
+  const form = $('#learnerDeleteForm');
+  const input = $('#learnerDeleteConfirm');
+  const button = $('#learnerDeleteButton');
+  const status = $('#learnerDeleteStatus');
+  if (!form || !input || !button) return;
+  const wanted = String(form.dataset.email || '').trim().toLowerCase();
+  const typed = String(input.value || '').trim().toLowerCase();
+  const matches = Boolean(wanted) && typed === wanted;
+  button.disabled = !matches;
+  if (!status) return;
+  status.className = 'status';
+  if (!typed) status.textContent = '';
+  else if (!matches) status.textContent = 'That is not the address on this account, so the button stays off.';
+  else status.textContent = 'The delete button is now on. Pressing it destroys this account for good.';
+}
+
+async function deleteSelectedLearner() {
+  const form = $('#learnerDeleteForm');
+  const input = $('#learnerDeleteConfirm');
+  const button = $('#learnerDeleteButton');
+  const status = $('#learnerDeleteStatus');
+  if (!form || !input || !button || !status) return;
+  const id = String(form.dataset.id || '');
+  const email = String(form.dataset.email || '');
+  const say = (text, bad) => { status.className = bad ? 'status bad' : 'status'; status.textContent = text; };
+
+  /* Checked again here rather than trusting the disabled attribute: a button
+     can be re-enabled from the console in two keystrokes. The API checks it a
+     third time, which is the check that actually counts. */
+  if (!id || !email || input.value.trim().toLowerCase() !== email.trim().toLowerCase()) {
+    say('Type the account\'s email address exactly to confirm. Nothing was deleted.', true);
+    syncDeleteControl();
+    return;
+  }
+  const label = `${email}${form.dataset.name ? ` (${form.dataset.name})` : ''}`;
+  if (!confirm(`Delete ${label} permanently?\n\nThe account and every lesson answer, note, minute and `
+    + 'submission belonging to it are removed from the database. This cannot be undone.')) {
+    say('Cancelled. Nothing was deleted.');
+    return;
+  }
+
+  button.disabled = true;
+  input.disabled = true;
+  say('Deleting…');
+  const result = await api('/api/admin/learner/' + encodeURIComponent(id), {
+    method: 'DELETE',
+    body: JSON.stringify({ confirmation: email })
+  });
+
+  if (!result.ok) {
+    input.disabled = false;
+    syncDeleteControl();
+    /* Every one of these ends by saying what the state now is. A destructive
+       action that failed must never leave the reader guessing whether it
+       half-happened. */
+    if (result.status === 0) {
+      say('Could not reach the service. The request may not have left this page at all — refresh and '
+        + 'check whether the account is still listed before trying again.', true);
+    } else if (result.status === 401) {
+      say('Your admin session has expired, so the API refused the request. Nothing was deleted. Sign in again.', true);
+    } else if (result.status === 403) {
+      say('The API refused the request as unauthorised. Nothing was deleted. Reload the page and sign in again.', true);
+    } else if (result.status === 404) {
+      say('The API has no account with that id — it may already be gone. Nothing was deleted just now. '
+        + 'Refresh to see the current list.', true);
+    } else if (result.error === 'confirmation_required') {
+      say('The API did not accept that confirmation, so nothing was deleted.', true);
+    } else {
+      say(`The API refused the request (${String(result.error || result.status)}). Nothing was deleted.`, true);
+    }
+    return;
+  }
+
+  const deleted = (result.deleted && typeof result.deleted === 'object') ? result.deleted : {};
+  LAST_DELETION = {
+    email: String(deleted.email || email),
+    name: String(deleted.displayName || form.dataset.name || ''),
+    at: new Date()
+  };
+  say('Deleted. Reloading the list…');
+  LEARNER_SELECTED = -1;
+  await load();
+}
+
 /* ---------- learners tab ------------------------------------------------ */
 
 let LEARNER_VIEWS = [];
@@ -1226,10 +1453,32 @@ function paintLearnerList() {
       ? `Showing ${searching ? `${list.length} matching` : `all ${list.length}`} learners · click a row for the full record`
       : '';
   }
-  if (detail) {
+  const danger = $('#learnerDanger');
+  if (detail || danger) {
     const chosen = LEARNER_VIEWS.find(view => view.index === LEARNER_SELECTED)
       || (LEARNER_QUERY.trim() ? null : LEARNER_VIEWS[0]);
-    detail.innerHTML = chosen ? learnerDetailHtml(chosen) : '';
+    if (detail) detail.innerHTML = chosen ? learnerDetailHtml(chosen) : '';
+    /* The detail grid is happy to keep showing a learner the search has since
+       filtered out — it is only a record. The delete control is not: it would
+       be offering to destroy an account that is no longer one of the rows on
+       screen, under a warning that says the account is "selected in the list
+       above". So it is withdrawn until the selection is visible again.
+
+       Rebuilding it with the selection is also what throws away a half-typed
+       confirmation the moment a different learner is picked. A confirmation
+       may only ever apply to the account that was on screen when it was
+       typed. */
+    if (danger) {
+      const visible = chosen && list.some(view => view.index === chosen.index);
+      danger.innerHTML = visible
+        ? learnerDangerHtml(chosen)
+        : (chosen
+          ? '<div class="dz"><h3>Delete this account permanently</h3>'
+            + `<p class="dz-warn">The record above is ${esc(chosen.email || chosen.name || 'a learner')}, `
+            + 'who no longer matches the search, so no delete control is shown. Clear the search, or pick a '
+            + 'learner from the rows above, and it comes back for whoever is actually selected.</p></div>'
+          : '');
+    }
   }
 }
 
@@ -1240,6 +1489,7 @@ function learnersHtml(context) {
 
   if (!views.length) {
     return '<div class="panel"><div class="panel-h"><h2>Learners</h2></div>'
+      + deletionReceiptHtml()
       + emptyBox('No learners yet. Anyone who signs up on learningai4you.com appears here straight away, with the lessons they have finished.')
       + '</div>';
   }
@@ -1268,9 +1518,11 @@ function learnersHtml(context) {
 
   return '<div class="panel">'
     + `<div class="panel-h"><h2>Learners</h2>${search}</div>`
+    + deletionReceiptHtml()
     + '<div id="learnerInfo" style="padding:0 24px 10px;font-size:12.5px;color:var(--text-faint);font-weight:620"></div>'
     + '<div id="learnerList"></div>'
     + '<div id="learnerDetail"></div>'
+    + '<div id="learnerDanger"></div>'
     + '</div>'
     + '<div class="panel"><div class="panel-h"><h2>Everything stored</h2>'
     + `<span class="meta">${esc(String(context.learnerRows.length))} rows · every column</span></div>`
@@ -1732,6 +1984,18 @@ document.addEventListener('input', event => {
     LEARNER_QUERY = event.target.value || '';
     paintLearnerList();
   }
+  /* Deliberately not routed through paintLearnerList(): that redraws the whole
+     block, which would destroy the field being typed into. */
+  if (event.target && event.target.id === 'learnerDeleteConfirm') syncDeleteControl();
+});
+
+/* The delete form is built by paintLearnerList(), so it cannot carry its own
+   listener. submit bubbles, so one delegated listener covers every rebuild. */
+document.addEventListener('submit', event => {
+  if (event.target && event.target.id === 'learnerDeleteForm') {
+    event.preventDefault();
+    deleteSelectedLearner();
+  }
 });
 
 /* ---------- connection pill --------------------------------------------- */
@@ -1853,7 +2117,10 @@ async function load() {
   const envName = health.env || health.environment || 'production';
   const host = (location.protocol === 'http:' || location.protocol === 'https:') ? location.host : 'file://';
   $('#env').innerHTML = 'env: <b>' + esc(String(envName)) + '</b> · ' + esc(host)
-    + (sha ? ' · build ' + esc(String(sha).slice(0, 12)) : '') + ' · read-only';
+    /* This used to say plainly "read-only", and it was true. Deleting an
+       account is the one thing on this page that writes, so the line has to
+       stop claiming otherwise. */
+    + (sha ? ' · build ' + esc(String(sha).slice(0, 12)) : '') + ' · read-only apart from account deletion';
 
   if (refresh) refresh.disabled = false;
 }

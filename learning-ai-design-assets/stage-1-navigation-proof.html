@@ -292,7 +292,7 @@
   </style>
   <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c">
   <link rel="stylesheet" href="./theme.css?v=2026-07-27b">
-  <link rel="stylesheet" href="./dashboard.css?v=2026-07-26b">
+  <link rel="stylesheet" href="./dashboard.css?v=2026-07-28a">
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer">
@@ -322,7 +322,7 @@
     </header>
   </div>
 
-  <aside class="dashboard-unit-rail" id="dashboardUnitRail" aria-label="Open a course arc"></aside>
+  <aside class="dashboard-unit-rail" id="dashboardUnitRail" aria-hidden="true"></aside>
 
   <main class="plane-wrap" aria-label="LearningAI dashboard">
     <section class="dashboard-plane">
@@ -430,12 +430,8 @@
     const courseLessons=Array.isArray(window.LESSONS)?window.LESSONS:[];
     const courseArcs=[...new Set(courseLessons.map(lesson=>lesson.arc))];
     const dashboardUnitRail=document.querySelector('#dashboardUnitRail');
-    courseArcs.forEach((arc,index)=>{
-      const link=document.createElement('a');
-      link.href=`./lessons.html#arc-${index+1}`;
-      link.setAttribute('aria-label',`Open Arc ${index+1}: ${arc}`);
-      link.title=`Arc ${index+1} · ${arc}`;
-      dashboardUnitRail.append(link);
+    courseArcs.forEach(()=>{
+      dashboardUnitRail.append(document.createElement('span'));
     });
     document.querySelector('#dashboardProgressCount').textContent=`${courseState.completedCount} of ${courseState.total} lessons`;
     document.querySelector('#dashboardProgressPercent').textContent=`${courseState.percentage}%`;

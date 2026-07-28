@@ -32,11 +32,14 @@
 .free-note { margin: 18px 0 0; color: #222725; font-size: 13px; font-weight: 650; }
 .dashboard-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px; }
 .resume-note { margin: 11px 0 0; color: #56615c; font-size: 12px; font-weight: 650; }
-.dashboard-quiet-links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 18px; }
-.dashboard-quiet-links a { color: #4f5854; font-size: 12px; font-weight: 680; text-underline-offset: 4px; }
+/* Three standalone destinations, not words in a sentence, so each one carries
+   a 44px target. The list's margin gives back what the min-height adds above
+   the text, so the links sit on the line they always did. */
+.dashboard-quiet-links { display: flex; flex-wrap: wrap; gap: 0 16px; margin-top: 4px; }
+.dashboard-quiet-links a { display: inline-flex; align-items: center; min-height: 44px; color: #4f5854; font-size: 12px; font-weight: 680; text-underline-offset: 4px; }
 .dashboard-action { display: inline-flex; align-items: center; min-height: 46px; padding: 0 19px; border: 1px solid rgba(34,38,37,.13); border-radius: 15px; color: #171a19; background: rgba(255,255,255,.42); box-shadow: inset 0 1px 0 white, 0 7px 18px rgba(36,39,38,.08); font-size: 13px; font-weight: 680; text-decoration: none; }
 .dashboard-action.primary { color: white; border-color: #242a29; background: #242a29; box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 10px 22px rgba(22,25,24,.18); }
-.account-shortcut { position: absolute; left: 54px; bottom: 28px; display: inline-flex; align-items: center; gap: 8px; color: #646b68; font-size: 11px; text-decoration: none; }
+.account-shortcut { position: absolute; left: 54px; bottom: 14px; display: inline-flex; align-items: center; min-height: 44px; gap: 8px; color: #646b68; font-size: 11px; text-decoration: none; }
 .account-shortcut svg { width: 15px; height: 15px; }
 
 .progress-card { min-height: 410px; padding: 54px 42px 34px; }
@@ -101,7 +104,7 @@
 .focus-copy h2, .badges-head h2 { margin: 0; font-size: 27px; font-weight: 590; letter-spacing: -.04em; }
 .focus-copy > p:not(.dashboard-eyebrow):not(.focus-feedback) { max-width: 470px; margin: 12px 0 0; color: #5e6561; font-size: 14px; line-height: 1.55; }
 .focus-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 25px; }
-.focus-button { display:inline-flex;align-items:center;justify-content:center;min-height: 42px; padding: 0 16px; border: 1px solid rgba(37,42,40,.14); border-radius: 14px; color: #202523; background: rgba(255,255,255,.38); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 7px 18px rgba(34,39,37,.08); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;text-decoration:none; }
+.focus-button { display:inline-flex;align-items:center;justify-content:center;min-height: 44px; padding: 0 16px; border: 1px solid rgba(37,42,40,.14); border-radius: 14px; color: #202523; background: rgba(255,255,255,.38); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 7px 18px rgba(34,39,37,.08); font: inherit; font-size: 12px; font-weight: 700; cursor: pointer;text-decoration:none; }
 .focus-button.primary { color: white; border-color: #29302d; background: #29302d; }
 .focus-button:hover { transform: translateY(-1px); }
 .focus-button:focus-visible, .learning-badge:focus-visible { outline:3px solid #17231f; outline-offset: 3px; }
@@ -143,17 +146,22 @@
 .badge-vault-link:focus-visible { outline:3px solid #17231f;outline-offset:4px;border-radius:3px; }
 
 .dashboard-unit-rail { position: fixed; z-index: 16; right: 14px; top: 50%; display: grid; gap: 7px; padding: 10px 8px; border: 1px solid rgba(255,255,255,.88); border-radius: 999px; background: linear-gradient(145deg,rgba(255,255,255,.48),rgba(236,241,239,.2)); box-shadow: inset 0 1px 1px white,0 12px 34px rgba(35,39,37,.13); backdrop-filter: blur(20px) saturate(1.2); -webkit-backdrop-filter: blur(20px) saturate(1.2); transform: translateY(-50%); }
-.dashboard-unit-rail a { --rail-color: var(--arc-01); width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.92); border-radius: 50%; background: var(--rail-color); box-shadow: 0 2px 7px color-mix(in oklab,var(--rail-color) 45%,transparent); transition: transform .16s ease,box-shadow .16s ease; }
-.dashboard-unit-rail a:hover,.dashboard-unit-rail a:focus-visible { transform: scale(1.45); box-shadow: 0 0 0 3px rgba(255,255,255,.68),0 4px 12px color-mix(in oklab,var(--rail-color) 60%,transparent); }
-.dashboard-unit-rail a:focus-visible { outline:3px solid #17231f; }
-.dashboard-unit-rail a:nth-child(1){--rail-color:var(--arc-01)}.dashboard-unit-rail a:nth-child(2){--rail-color:var(--arc-02)}.dashboard-unit-rail a:nth-child(3){--rail-color:var(--arc-03)}.dashboard-unit-rail a:nth-child(4){--rail-color:var(--arc-04)}.dashboard-unit-rail a:nth-child(5){--rail-color:var(--arc-05)}.dashboard-unit-rail a:nth-child(6){--rail-color:var(--arc-06)}.dashboard-unit-rail a:nth-child(7){--rail-color:var(--arc-07)}.dashboard-unit-rail a:nth-child(8){--rail-color:var(--arc-08)}.dashboard-unit-rail a:nth-child(9){--rail-color:var(--arc-09)}.dashboard-unit-rail a:nth-child(10){--rail-color:var(--arc-10)}
+/* Ten 13px dots, 20px apart, in a strip 213px tall on a desktop and 209px wide
+   on a phone. They were links to lessons.html#arc-N, and there is no way to
+   give ten of them a 44px target: the hit areas would overlap by more than
+   their own pitch, so the topmost dot would take the clicks meant for its
+   neighbours, and on a phone ten 44px targets do not fit across the screen at
+   all. The rail is now what it always looked like — the colour key for the ten
+   arcs. Opening an arc is the "Choose an arc" link's job, and that is 44px. */
+.dashboard-unit-rail span { --rail-color: var(--arc-01); display: block; width: 13px; height: 13px; border: 2px solid rgba(255,255,255,.92); border-radius: 50%; background: var(--rail-color); box-shadow: 0 2px 7px color-mix(in oklab,var(--rail-color) 45%,transparent); }
+.dashboard-unit-rail span:nth-child(1){--rail-color:var(--arc-01)}.dashboard-unit-rail span:nth-child(2){--rail-color:var(--arc-02)}.dashboard-unit-rail span:nth-child(3){--rail-color:var(--arc-03)}.dashboard-unit-rail span:nth-child(4){--rail-color:var(--arc-04)}.dashboard-unit-rail span:nth-child(5){--rail-color:var(--arc-05)}.dashboard-unit-rail span:nth-child(6){--rail-color:var(--arc-06)}.dashboard-unit-rail span:nth-child(7){--rail-color:var(--arc-07)}.dashboard-unit-rail span:nth-child(8){--rail-color:var(--arc-08)}.dashboard-unit-rail span:nth-child(9){--rail-color:var(--arc-09)}.dashboard-unit-rail span:nth-child(10){--rail-color:var(--arc-10)}
 
 @media (max-width: 820px) {
   .dashboard-unit-rail { right: auto; left: 50%; top: auto; bottom: 10px; grid-auto-flow: column; margin-left: -105px; transform: none; }
   .dashboard-plane { grid-template-columns: 1fr; }
   .welcome-card, .progress-card { min-height: 0; padding: 42px 25px 34px; }
   .welcome-card { padding-bottom: 68px; }
-  .account-shortcut { left: 25px; bottom: 23px; }
+  .account-shortcut { left: 25px; bottom: 9px; }
   .journey-card { grid-column: auto; padding: 30px 24px 22px; }
   .learning-rhythm { grid-column: auto; grid-template-columns: minmax(0, 1fr); }
   .focus-card, .badges-card { min-height: 0; padding: 30px 24px; }

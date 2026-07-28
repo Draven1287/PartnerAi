@@ -1515,6 +1515,49 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const learner = await database.adminLearner(decodeURIComponent(url.pathname.replace('/api/admin/learner/', '')));
         return learner ? sendJson(res, 200, { ok: true, learner }, { req }) : sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
       }
+      /* The administrator erasing somebody else's account. This is the hard
+         delete: the row and everything cascading from it leave the database.
+         `account-action` with action:'delete' is the *soft* one — it keeps the
+         row, blanks the email and sets deleted_at — and both are kept because
+         they answer different questions.
+
+         The confirmation the caller must type is the account's own email
+         rather than a fixed word. A fixed word confirms any row equally, so a
+         mis-selected learner is destroyed by the same keystrokes as the
+         intended one; an email only ever confirms the account it belongs to.
+         The check is here, on the server, not only in the console. */
+      if (req.method === 'DELETE' && url.pathname.startsWith('/api/admin/learner/')) {
+        const session = await requireAdmin(req, res, database, { csrf: true, url });
+        if (!session) return;
+        const userId = decodeURIComponent(url.pathname.replace('/api/admin/learner/', ''));
+        // Permissive on purpose: real ids are uuids, the in-memory databases
+        // used by the tests issue `user-1`. Both pass; anything that could not
+        // be an id is refused before it reaches a query.
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(userId)) return sendJson(res, 400, { ok: false, error: 'invalid_user_id' }, { req });
+        const body = await readJsonBody(req);
+        if (!body) return sendJson(res, 400, { ok: false, error: 'invalid_json' }, { req });
+        const learner = await database.adminLearner(userId);
+        const target = learner?.user;
+        if (!target) return sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
+        if (!target.email || normalizeEmail(String(body.confirmation || '')) !== normalizeEmail(target.email)) {
+          return sendJson(res, 400, { ok: false, error: 'confirmation_required' }, { req });
+        }
+        const identity = { id: target.id, email: target.email, displayName: target.displayName || '' };
+        const deleted = await database.deleteUserAccount(userId);
+        if (!deleted) return sendJson(res, 404, { ok: false, error: 'not_found' }, { req });
+        /* Written *after* the delete, and with no target_user_id. Both matter:
+           deleteUserAccount() runs `DELETE FROM audit_events WHERE
+           target_user_id = $1`, so a record written first would be erased by
+           the very deletion it documents, and audit_events.target_user_id is
+           ON DELETE SET NULL, so it could not name the account afterwards
+           either. The identity therefore lives in the payload. */
+        await database.audit({
+          adminUserId: session.admin.id,
+          eventName: 'admin_account_hard_delete',
+          payload: { ...identity, deletedUserId: identity.id, source: 'admin_console' }
+        });
+        return sendJson(res, 200, { ok: true, deleted: identity }, { req });
+      }
       if (req.method === 'GET' && url.pathname === '/api/admin/lesson-analytics') {
         const session = await requireAdmin(req, res, database, { url });
         if (!session) return;
