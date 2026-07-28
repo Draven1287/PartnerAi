@@ -198,6 +198,15 @@ export async function runHygiene({ page, origin, report, quick }) {
             const rect = el.getBoundingClientRect();
             if (rect.width === 0 || rect.right <= limit) continue;
             if (getComputedStyle(el).position === 'fixed') continue;
+            // A child of a horizontal scroller is meant to extend past the
+            // viewport — that is what the rail is for. Listing them buried the
+            // real culprit under the arc tabs and the medal rail.
+            let scrolled = false;
+            for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+              const ox = getComputedStyle(p).overflowX;
+              if (ox === 'auto' || ox === 'scroll') { scrolled = true; break; }
+            }
+            if (scrolled) continue;
             const id = el.id ? '#' + el.id : (typeof el.className === 'string' && el.className.trim() ? '.' + el.className.trim().split(/\\s+/)[0] : '');
             culprits.push(el.tagName.toLowerCase() + id + ' right:' + Math.round(rect.right));
           }
