@@ -82,6 +82,37 @@
        are the same thing again and one honest rule covers the orphan — a last
        child in an odd position has no partner, so it takes the whole row. */
     .settings-grid{grid-template-columns:minmax(0,1fr)}
+    /* A rule with a real selector outranks the user-agent [hidden] rule, and
+       .fb-detail sets a display. Make hiding win — this is the shape of the bug
+       that once left a hidden field on the sign-in form. */
+    [hidden]{display:none!important}
+    .feedback-panel{margin-top:18px}
+    .fb-form{display:grid;gap:22px;margin-top:24px}
+    .fb-q{min-width:0;margin:0;padding:0;border:0}
+    .fb-q legend{padding:0;margin:0 0 11px;color:#2a312d;font-size:15px;font-weight:730;letter-spacing:-.01em}
+    .fb-opts{display:flex;flex-wrap:wrap;gap:9px}
+    /* The label is the target and the radio is the control. Hiding the input
+       rather than drawing a fake one keeps the keyboard and screen-reader
+       behaviour a radio group gives for free. */
+    .fb-opt{position:relative;display:inline-flex;align-items:center;min-height:44px;padding:0 16px;
+      border:2px solid rgba(42,47,44,.18);border-radius:14px;background:rgba(255,255,255,.34);
+      color:#252b28;font-size:13px;font-weight:690;line-height:1.3;cursor:pointer}
+    /* Same treatment .diagnostic-options-prototype input already uses in
+       theme.css: the radio is present for the keyboard and the accessibility
+       tree, the label is the thing you can hit, and pointer-events stay on the
+       label so the 44px box is what receives the tap. */
+    .fb-opt input{position:absolute;opacity:0;pointer-events:none}
+    .fb-opt:hover{background:rgba(255,255,255,.6)}
+    .fb-opt:has(input:checked){border-color:#141a17;background:#1f2724;color:#fff}
+    .fb-opt:has(input:focus-visible){outline:3px solid #17231f;outline-offset:3px}
+    .fb-detail{display:grid;gap:8px}
+    .fb-detail span{color:#4a514c;font-size:12.5px;font-weight:700}
+    .fb-form textarea{width:100%;min-height:96px;padding:13px 14px;border:1px solid rgba(42,48,45,.2);
+      border-radius:14px;background:rgba(255,255,255,.5);color:#1c211f;font:inherit;font-size:15px;resize:vertical}
+    .fb-form textarea:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+    .fb-send{justify-self:start;min-height:44px}
+    .fb-note{margin:0;color:#4f5651;font-size:12.5px;line-height:1.55}
+    @media(max-width:820px){.fb-opts{gap:8px}.fb-opt{flex:1 1 100%;justify-content:flex-start}}
     .settings-pairs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
     .settings-pairs>*:last-child:nth-child(odd){grid-column:1/-1}
     .profile-form{display:grid;gap:12px;margin-top:21px}.profile-form label{display:grid;gap:7px;color:#565d59;font-size:11px;font-weight:720}.profile-form input{height:47px;padding:0 14px;border:1px solid rgba(42,47,44,.14);border-radius:14px;background:rgba(255,255,255,.4);font:inherit}.profile-form button,.settings-action{min-height:45px;padding:0 16px;border:1px solid rgba(40,45,42,.16);border-radius:13px;background:rgba(255,255,255,.42);color:#252b28;font:inherit;font-size:12.5px;font-weight:730;cursor:pointer}.settings-action{margin-top:20px}.account-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.account-actions .settings-action{margin-top:0;display:inline-flex;align-items:center;text-decoration:none}.status{min-height:17px;margin-top:14px!important;font-size:12px!important;color:#565d59!important}.privacy-link{display:inline-flex;align-items:center;min-height:44px;margin-top:2px;color:#5d5238;font-size:12px;font-weight:720}
@@ -148,6 +179,24 @@
     <section class="settings-panel"><h2>Text size</h2><p>Sets the size of every label, button and lesson without changing a word of the content. The page resizes as you move the slider. Half a pixel at a time, from 14px up to 24px; the default is 16px.</p><div class="light-control"><div class="light-value"><strong id="textSizeValue">16px</strong><span id="textSizeLabel">Default</span></div><input class="size-slider" id="textSizeSlider" type="range" min="14" max="24" step="0.5" value="16" aria-label="Text size in pixels"><div class="light-labels"><span>14px · smallest</span><span>24px · largest</span></div></div><button class="settings-action" id="resetTextSize" type="button">Reset to 16px</button><p class="status choice-current" id="fontCurrent" aria-live="polite">Text size is set to <b>16px</b> · the default.</p></section>
     <section class="settings-panel"><h2>Preview every lesson</h2><p>Open any lesson without finishing the ones before it. Useful for checking the course. Preview saves nothing while it is on: no progress, no notes, no answers.</p><button class="settings-action" type="button" id="previewToggle" aria-pressed="false">Turn preview on</button><p class="status" id="previewStatus" role="status">Preview is off. Lessons unlock in order.</p></section>
     </div>
+    <section class="settings-panel feedback-panel" id="understand">
+      <h2>How it is going</h2>
+      <p>Four questions about this site, not about you. Nothing is marked and there is no right answer — it is the only way Aarav finds out which parts work and which parts do not.</p>
+      <form class="fb-form" id="feedbackForm" novalidate>
+        <fieldset class="fb-q"><legend>How is the course going for you?</legend><div class="fb-opts"><label class="fb-opt"><input type="radio" name="going" value="great">Really well</label><label class="fb-opt"><input type="radio" name="going" value="good">Pretty good</label><label class="fb-opt"><input type="radio" name="going" value="mixed">Mixed</label><label class="fb-opt"><input type="radio" name="going" value="hard">Hard going</label><label class="fb-opt"><input type="radio" name="going" value="stuck">I am stuck</label></div></fieldset><fieldset class="fb-q"><legend>What has been hardest so far?</legend><div class="fb-opts"><label class="fb-opt"><input type="radio" name="hardest" value="lessons">The lessons themselves</label><label class="fb-opt"><input type="radio" name="hardest" value="next">Knowing what to do next</label><label class="fb-opt"><input type="radio" name="hardest" value="projects">The projects</label><label class="fb-opt"><input type="radio" name="hardest" value="returning">Coming back to it</label><label class="fb-opt"><input type="radio" name="hardest" value="none">Nothing so far</label></div></fieldset><fieldset class="fb-q"><legend>Has anything been broken or confusing?</legend><div class="fb-opts"><label class="fb-opt"><input type="radio" name="snag" value="yes">Yes</label><label class="fb-opt"><input type="radio" name="snag" value="no">No</label></div></fieldset><fieldset class="fb-q"><legend>Would you tell a friend to use this?</legend><div class="fb-opts"><label class="fb-opt"><input type="radio" name="recommend" value="yes">Yes</label><label class="fb-opt"><input type="radio" name="recommend" value="maybe">Maybe</label><label class="fb-opt"><input type="radio" name="recommend" value="no">No</label></div></fieldset>
+        <label class="fb-detail" id="snagDetailField" hidden>
+          <span>What was broken or confusing?</span>
+          <textarea name="snagDetail" maxlength="1000" placeholder="Which page, and what happened."></textarea>
+        </label>
+        <label class="fb-detail">
+          <span>Anything else you want to say? Optional.</span>
+          <textarea name="comment" maxlength="1000" placeholder="Anything at all."></textarea>
+        </label>
+        <button class="settings-action fb-send" type="submit" id="feedbackSend">Send this</button>
+        <p class="fb-note">Your answers are stored on your account, so Aarav can see how far through you were when you wrote them. Deleting your account deletes these answers too.</p>
+        <p class="status" id="feedbackStatus" role="status" aria-live="polite"></p>
+      </form>
+    </section>
   </div></main>
   <script src="./nav-behavior.js?v=2026-07-28b"></script>
   <script>
@@ -310,6 +359,74 @@
       const losses=[unsynced?`${unsynced} note${unsynced===1?'':'s'} not yet saved to your account`:'',drafts?`${drafts} lesson draft${drafts===1?'':'s'}`:''].filter(Boolean);
       if(!confirm('Sign out on this device?'+(losses.length?`\n\nThis will erase ${losses.join(' and ')} from this browser.`:'')+'\n\nYour account, completed lessons and saved answers are kept.'))return;
       status.textContent='Signing out…';await window.LearningAIAPI.logout();clearDevice();location.replace('./lesson-one.html?signedout=1')});
+    /* --- the feedback form ------------------------------------------------
+       Four closed answers and two optional free-text fields. It refuses to
+       send a half-answered form rather than storing a blank the console would
+       have to draw, and it never claims a send that did not happen. */
+    (() => {
+      const form = document.querySelector('#feedbackForm');
+      if (!form) return;
+      const status = document.querySelector('#feedbackStatus');
+      const send = document.querySelector('#feedbackSend');
+      const detail = document.querySelector('#snagDetailField');
+      const QUESTIONS = ['going', 'hardest', 'snag', 'recommend'];
+
+      /* The "what was broken" box only makes sense after Yes, and a hidden box
+         must not keep carrying an answer the learner can no longer see. */
+      form.addEventListener('change', () => {
+        const snag = form.querySelector('input[name="snag"]:checked')?.value;
+        const wanted = snag === 'yes';
+        if (!wanted && !detail.hidden) detail.querySelector('textarea').value = '';
+        detail.hidden = !wanted;
+      });
+
+      const lessonsDone = () => {
+        try {
+          const progress = JSON.parse(localStorage.getItem('learningai-progress') || 'null');
+          return Object.keys(progress?.completed || {}).length;
+        } catch { return 0 }
+      };
+
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const entry = { lessonsDone: lessonsDone() };
+        const missing = [];
+        for (const name of QUESTIONS) {
+          const picked = form.querySelector(`input[name="${name}"]:checked`);
+          if (!picked) { missing.push(name); continue }
+          entry[name] = picked.value;
+        }
+        if (missing.length) {
+          status.dataset.tone = 'error';
+          status.textContent = `Answer all four questions first — ${missing.length} still to go. Nothing has been sent.`;
+          form.querySelector(`input[name="${missing[0]}"]`)?.focus();
+          return;
+        }
+        entry.snagDetail = entry.snag === 'yes' ? form.querySelector('[name="snagDetail"]').value.trim() : '';
+        entry.comment = form.querySelector('[name="comment"]').value.trim();
+
+        if (window.LearningAIReviewMode) {
+          status.dataset.tone = 'error';
+          status.textContent = 'Preview is on, so nothing is saved. Turn preview off to send this.';
+          return;
+        }
+        send.disabled = true;
+        status.dataset.tone = '';
+        status.textContent = 'Sending…';
+        const result = await window.LearningAIAPI.submitSiteFeedback(entry);
+        send.disabled = false;
+        if (result.ok) {
+          status.dataset.tone = 'ok';
+          status.textContent = 'Sent. Thank you — you can answer again any time, and both answers are kept.';
+          form.reset();
+          detail.hidden = true;
+          return;
+        }
+        status.dataset.tone = 'error';
+        status.textContent = `Not sent, so nothing was recorded. ${window.LearningAIAPI.friendlyError(result)}`;
+      });
+    })();
+
     sync();
   </script>
 </body>

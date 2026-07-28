@@ -330,6 +330,32 @@ function validateFeedbackRequest(body) {
   };
 }
 
+/* The four closed questions, as data. The console counts these values and the
+   Settings form renders these labels, so a value the form cannot produce must
+   never reach the table — an unrecognised answer would appear in the charts as
+   a slice nobody can explain. */
+const SITE_FEEDBACK_CHOICES = {
+  going: ['great', 'good', 'mixed', 'hard', 'stuck'],
+  hardest: ['lessons', 'next', 'projects', 'returning', 'none'],
+  snag: ['yes', 'no'],
+  recommend: ['yes', 'maybe', 'no']
+};
+
+function validateSiteFeedback(body) {
+  if (!body || typeof body !== 'object') return null;
+  const entry = {};
+  for (const [field, allowed] of Object.entries(SITE_FEEDBACK_CHOICES)) {
+    const value = safeText(body[field] || '', 40);
+    if (!allowed.includes(value)) return null;
+    entry[field] = value;
+  }
+  entry.snagDetail = entry.snag === 'yes' ? safeText(body.snagDetail || '', 1000) : '';
+  entry.comment = safeText(body.comment || '', 1000);
+  const lessons = Number(body.lessonsDone);
+  entry.lessonsDone = Number.isFinite(lessons) ? Math.max(0, Math.min(50, Math.round(lessons))) : 0;
+  return entry;
+}
+
 function validateProjectReview(body) {
   if (!body || typeof body !== 'object') return null;
   const title = safeText(body.title || '', 180);
@@ -1504,6 +1530,12 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const legacyRows = process.env.INCLUDE_LEGACY_MINUTES_JSON === 'true' ? summarize(await readRows(dataFile)) : [];
         return sendJson(res, 200, { ok: true, leaderboard: mergeLeaderboards(legacyRows, await database.leaderboard()) }, { req });
       }
+      if (req.method === 'GET' && url.pathname === '/api/admin/site-feedback') {
+        const session = await requireAdmin(req, res, database, { url });
+        if (!session) return;
+        const limit = Number(url.searchParams.get('limit')) || 40;
+        return sendJson(res, 200, { ok: true, summary: await database.siteFeedbackSummary({ limit }) }, { req });
+      }
       if (req.method === 'GET' && url.pathname === '/api/admin/learners') {
         const session = await requireAdmin(req, res, database, { url });
         if (!session) return;
@@ -1812,6 +1844,17 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         const access = await launchAccessForUser(database, session.user.id);
         if (request.lessonId !== SAMPLE_LESSON_ID && !access.fullAccess) return sendLaunchLocked(res, req, access);
         return sendJson(res, 201, { ok: true, request: await database.createFeedbackRequest(session.user.id, request) }, { req });
+      }
+      if (req.method === 'POST' && url.pathname === '/api/v2/site-feedback') {
+        if (!rateLimit(req, 'site-feedback', 12, 60 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });
+        const session = await requireUser(req, res, database, { csrf: true });
+        if (!session) return;
+        const entry = validateSiteFeedback(await readJsonBody(req));
+        if (!entry) return sendJson(res, 400, { ok: false, error: 'invalid_feedback' }, { req });
+        /* Deliberately not gated on full access. Somebody who has done one
+           lesson and stopped is exactly who this needs to hear from. */
+        const saved = await database.createSiteFeedback(session.user.id, entry);
+        return sendJson(res, 201, { ok: true, feedback: saved }, { req });
       }
       if (req.method === 'POST' && url.pathname === '/api/v2/project-review') {
         if (!rateLimit(req, 'project-review', 30, 15 * 60_000)) return sendJson(res, 429, { ok: false, error: 'rate_limited' }, { req });

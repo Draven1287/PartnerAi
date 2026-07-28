@@ -63,7 +63,12 @@ assert.ok(!app.includes("['under-13', 'Under 13']"), 'The 13+ product must not i
 assert.ok(app.includes('Learning AI is designed for ages 13+.'), 'The age-range control must state the 13+ scope');
 assert.ok(privacy.includes('For learners ages 13–17'), 'Privacy guidance must address the intended minor audience');
 assert.ok(privacy.includes('This course does not contain a live AI chatbot.'), 'Privacy guidance must distinguish this course from outside AI services');
-assert.ok(database.includes('const MIGRATION_VERSION = 8') && database.includes('interaction_transfer_id_unique') && database.includes('quiz_transfer_id_unique'), 'Guest-answer retries need database-enforced idempotency');
+/* The point of this check is the two unique indexes, not the number beside
+   MIGRATION_VERSION. Pinning the literal meant every later migration failed a
+   gate that had nothing to say about it. Assert the floor instead. */
+const migrationVersion = Number((database.match(/const MIGRATION_VERSION = (\d+)/) || [])[1]);
+assert.ok(migrationVersion >= 8, `Schema must be at migration 8 or later, found ${migrationVersion || 'none'}`);
+assert.ok(database.includes('interaction_transfer_id_unique') && database.includes('quiz_transfer_id_unique'), 'Guest-answer retries need database-enforced idempotency');
 const exitSuccessCall = "e.target.classList.add('right'); fb.textContent = '✓ ' + o.feedback; recordInteraction(s, { selected: o.text, correct: true, feedback: o.feedback }); ctx.unlock();";
 assert.equal(app.split(exitSuccessCall).length - 1, 1, 'A correct exit check must be recorded exactly once');
 assert.ok(frontendServer.includes("const CANONICAL_HOST = String(process.env.CANONICAL_HOST"), 'Frontend must accept an explicit canonical host');

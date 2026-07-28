@@ -337,6 +337,7 @@
        may tell a learner an email was sent. Deliberately absent from the
        auto-drain below — a submission is only ever sent when a learner asks. */
     submitProjectReview: review => request('/api/v2/project-review', { method: 'POST', body: review }),
+    submitSiteFeedback: entry => request('/api/v2/site-feedback', { method: 'POST', body: entry }),
     recordVisit: visit => request('/api/v2/visit', { method: 'POST', body: visit }),
     updateProfile: profile => request('/api/v2/profile', { method: 'PUT', body: profile }),
     deleteAccount: () => request('/api/v2/account', { method: 'DELETE', body: { confirmation: 'DELETE' } })

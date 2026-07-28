@@ -5,7 +5,7 @@ import pg from 'pg';
 import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
-const MIGRATION_VERSION = 8;
+const MIGRATION_VERSION = 9;
 const CONTENT_VERSION = 'v2-2026-07-17';
 const FREE_LESSON_NUMS = [1, 7, 11, 16, 21, 26, 31, 36, 41, 46];
 const COURSE_LESSON_COUNT = 50;
@@ -191,6 +191,7 @@ export function createDb(options = {}) {
     if (version < 6) await migrateV6();
     if (version < 7) await migrateV7();
     if (version < 8) await migrateV8();
+  if (version < 9) await migrateV9();
     await seedLessons();
     await seedAdmin();
     await importLegacyJsonStore();
@@ -674,6 +675,34 @@ export function createDb(options = {}) {
         WHERE user_id IS NOT NULL AND client_session_id IS NOT NULL;
     `);
     await query('INSERT INTO schema_migrations(version) VALUES (8) ON CONFLICT DO NOTHING');
+  }
+
+  /* Site feedback: what a learner thinks of the course. Distinct from
+     ai_feedback_requests, which is feedback ON a learner's work. Four closed
+     answers so the console can count them, and two free-text fields for the
+     things a fixed list never anticipates.
+
+     ON DELETE CASCADE, so deleting an account really does take the feedback
+     with it. That loses a data point, which is the right trade: a learner who
+     asks to be forgotten should not still be in the charts. */
+  async function migrateV9() {
+    await query(`
+      CREATE TABLE IF NOT EXISTS site_feedback (
+        id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        going text NOT NULL,
+        hardest text NOT NULL,
+        snag text NOT NULL,
+        recommend text NOT NULL,
+        snag_detail text,
+        comment text,
+        lessons_done integer NOT NULL DEFAULT 0,
+        created_at timestamptz NOT NULL DEFAULT now()
+      );
+      CREATE INDEX IF NOT EXISTS site_feedback_created_idx ON site_feedback(created_at DESC);
+      CREATE INDEX IF NOT EXISTS site_feedback_user_idx ON site_feedback(user_id, created_at DESC);
+    `);
+    await query('INSERT INTO schema_migrations(version) VALUES (9) ON CONFLICT DO NOTHING');
   }
 
   async function seedLessons() {
@@ -1556,6 +1585,69 @@ export function createDb(options = {}) {
     };
   }
 
+  /* One row per submission. A learner may answer more than once — a view
+     three lessons in and one at lesson forty are different data points, and
+     silently overwriting the first would hide exactly the change worth seeing. */
+  async function createSiteFeedback(userId, entry) {
+    const result = await query(`INSERT INTO site_feedback(
+        user_id, going, hardest, snag, recommend, snag_detail, comment, lessons_done)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id, created_at`, [
+      userId, entry.going, entry.hardest, entry.snag, entry.recommend,
+      entry.snagDetail || null, entry.comment || null, Number(entry.lessonsDone) || 0
+    ]);
+    return { id: result.rows[0].id, createdAt: result.rows[0].created_at };
+  }
+
+  const feedbackTally = async column => {
+    // Column is never caller-supplied: the four names are fixed below.
+    const result = await query(
+      `SELECT ${column} AS value, count(*)::int AS count FROM site_feedback GROUP BY 1 ORDER BY 2 DESC`);
+    return result.rows.map(row => ({ value: row.value, count: row.count }));
+  };
+
+  /* Everything the console needs in one round trip: the four tallies it draws,
+     the free text it lists, and the counts that give those numbers a scale. */
+  async function siteFeedbackSummary({ limit = 40 } = {}) {
+    const [going, hardest, snag, recommend, totals, recent] = await Promise.all([
+      feedbackTally('going'),
+      feedbackTally('hardest'),
+      feedbackTally('snag'),
+      feedbackTally('recommend'),
+      query(`SELECT count(*)::int AS responses,
+                    count(DISTINCT user_id)::int AS learners,
+                    max(created_at) AS latest,
+                    avg(lessons_done)::float AS mean_lessons
+             FROM site_feedback`),
+      query(`SELECT sf.id, sf.going, sf.hardest, sf.snag, sf.recommend, sf.snag_detail,
+                    sf.comment, sf.lessons_done, sf.created_at, u.display_name, u.email
+             FROM site_feedback sf JOIN users u ON u.id = sf.user_id
+             WHERE (sf.snag_detail IS NOT NULL AND sf.snag_detail <> '')
+                OR (sf.comment IS NOT NULL AND sf.comment <> '')
+             ORDER BY sf.created_at DESC LIMIT $1`, [Math.min(Number(limit) || 40, 200)])
+    ]);
+    const row = totals.rows[0] || {};
+    return {
+      responses: row.responses || 0,
+      learners: row.learners || 0,
+      latest: row.latest || null,
+      meanLessons: row.mean_lessons == null ? null : Math.round(row.mean_lessons * 10) / 10,
+      tallies: { going, hardest, snag, recommend },
+      written: recent.rows.map(item => ({
+        id: item.id,
+        going: item.going,
+        hardest: item.hardest,
+        snag: item.snag,
+        recommend: item.recommend,
+        snagDetail: item.snag_detail || '',
+        comment: item.comment || '',
+        lessonsDone: item.lessons_done,
+        createdAt: item.created_at,
+        displayName: item.display_name || '',
+        email: item.email || ''
+      }))
+    };
+  }
+
   async function createFeedbackRequest(userId, { lessonId = null, stepIndex = null, requestType = 'feedback', prompt = {} }) {
     const result = await query(`INSERT INTO ai_feedback_requests(user_id, lesson_id, step_index, request_type, prompt_json)
       VALUES ($1, NULLIF($2, ''), $3, $4, $5::jsonb) RETURNING id, status, created_at`, [
@@ -2112,6 +2204,8 @@ export function createDb(options = {}) {
     curriculumLesson,
     accessForUser,
     dashboardForUser,
+    createSiteFeedback,
+    siteFeedbackSummary,
     createFeedbackRequest,
     createProjectReview,
     createTutorSession,

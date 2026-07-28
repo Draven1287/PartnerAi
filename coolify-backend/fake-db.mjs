@@ -26,6 +26,7 @@ export function createFakeDb(options = {}) {
   const minuteEntries = [];
   const visits = [];
   const interactions = [];
+  const siteFeedback = [];
   const audits = [];
   let nextUserId = 1;
   const lessons = Array.isArray(options.lessons) && options.lessons.length ? options.lessons : [{
@@ -76,7 +77,7 @@ export function createFakeDb(options = {}) {
       admin.password_hash = await hashPassword(process.env.ADMIN_PASSWORD);
     },
     async health() {
-      return { dbStatus: 'ok', migrationVersion: 8 };
+      return { dbStatus: 'ok', migrationVersion: 9 };
     },
     async createUser({ email, passwordHash, displayName }) {
       const row = { id: `user-${nextUserId++}`, email, password_hash: passwordHash, display_name: displayName, disabled: false };
@@ -397,6 +398,30 @@ export function createFakeDb(options = {}) {
       };
     },
     accessForUser,
+    async createSiteFeedback(userId, entry) {
+      const row = { id: `sf-${siteFeedback.length + 1}`, userId, ...entry, createdAt: new Date().toISOString() };
+      siteFeedback.push(row);
+      return { id: row.id, createdAt: row.createdAt };
+    },
+    async siteFeedbackSummary({ limit = 40 } = {}) {
+      const rows = siteFeedback;
+      const tally = field => {
+        const counts = new Map();
+        for (const row of rows) counts.set(row[field], (counts.get(row[field]) || 0) + 1);
+        return [...counts].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count);
+      };
+      const written = rows.filter(r => r.snagDetail || r.comment).slice(-limit).reverse();
+      return {
+        responses: rows.length,
+        learners: new Set(rows.map(r => r.userId)).size,
+        latest: rows.length ? rows[rows.length - 1].createdAt : null,
+        meanLessons: rows.length
+          ? Math.round((rows.reduce((sum, r) => sum + (r.lessonsDone || 0), 0) / rows.length) * 10) / 10
+          : null,
+        tallies: { going: tally('going'), hardest: tally('hardest'), snag: tally('snag'), recommend: tally('recommend') },
+        written: written.map(r => ({ ...r, displayName: 'Test Learner', email: 'test@example.com' }))
+      };
+    },
     async createFeedbackRequest() { return { id: 'feedback-1', status: 'queued' }; },
     async createProjectReview() { return { id: 'project-1', status: 'queued' }; },
     async createTutorSession() { return { id: 'session-1', status: 'open' }; },

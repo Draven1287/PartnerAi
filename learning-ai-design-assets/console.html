@@ -397,6 +397,37 @@
       box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 18px rgba(112,36,40,.16)}
     /* Quiet until asked for. It reads as an ordinary row, not a red button
        waiting to be hit, and the marker is the only thing that says it opens. */
+    /* Charts are drawn inline: the CSP is 'self', so no charting library can
+       ever load here. Every figure also states its number and share in text —
+       the drawing is the summary, not the only copy of the data. */
+    .fb-top{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;padding:0 24px 18px}
+    .fb-stat{padding:15px 17px;border:var(--bw) solid var(--inner-line);border-radius:12px;background:var(--inner)}
+    .fb-stat b{display:block;font-size:26px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+    .fb-stat span{display:block;margin-top:4px;font-size:11.5px;color:var(--text-dim)}
+    .fb-charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;padding:0 24px 22px}
+    .fb-chart{padding:18px 20px;border:var(--bw) solid var(--inner-line);border-radius:12px;background:var(--inner)}
+    .fb-chart h3{margin:0 0 3px;font-size:13.5px;font-weight:740;color:var(--text)}
+    .fb-chart .q{margin:0 0 14px;font-size:11.5px;color:var(--text-faint)}
+    .fb-donut{display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+    .fb-donut svg{flex:0 0 auto}
+    .fb-legend{flex:1 1 160px;min-width:0;margin:0;padding:0;list-style:none;font-size:12px}
+    .fb-legend li{display:flex;align-items:baseline;gap:8px;padding:3px 0;color:var(--text-dim)}
+    .fb-key{flex:0 0 auto;width:10px;height:10px;border-radius:3px}
+    .fb-legend .lbl{flex:1 1 auto;min-width:0;color:var(--text)}
+    .fb-legend .num{flex:0 0 auto;font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim)}
+    .fb-bars{display:grid;gap:11px}
+    .fb-bar .row{display:flex;justify-content:space-between;gap:10px;margin-bottom:5px;font-size:12px}
+    .fb-bar .row span:first-child{color:var(--text)}
+    .fb-bar .row span:last-child{font-family:var(--font-mono);font-size:11.5px;color:var(--text-dim)}
+    .fb-bar .track{height:9px;border-radius:99px;background:var(--inner-2);overflow:hidden}
+    .fb-bar .fill{display:block;height:100%;border-radius:inherit}
+    .fb-written{padding:0 24px 24px;display:grid;gap:12px}
+    .fb-note-card{padding:15px 17px;border:var(--bw) solid var(--inner-line);border-radius:12px;background:var(--inner)}
+    .fb-note-card .who{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;margin-bottom:8px;font-size:11px;color:var(--text-faint)}
+    .fb-note-card .who b{font-size:12.5px;font-weight:700;color:var(--text)}
+    .fb-note-card p{margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--text);overflow-wrap:anywhere}
+    .fb-note-card p.snag{padding-left:11px;border-left:3px solid var(--warn-solid)}
+    .fb-note-card .tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--inner-2);font-size:10.5px;font-weight:700;color:var(--text-dim)}
     .dz-fold{border-top:var(--bw) solid var(--inner-line)}
     .dz-fold>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
       min-height:44px;padding:12px 24px;cursor:pointer;list-style:none;
@@ -598,6 +629,7 @@
     <section id="tab-learners" class="tabpanel" hidden><div id="learners"></div></section>
     <section id="tab-lessons" class="tabpanel" hidden><div id="lessons"></div></section>
     <section id="tab-questionnaire" class="tabpanel" hidden><div id="assessment"></div></section>
+    <section id="tab-understand" class="tabpanel" hidden><div id="understand"></div></section>
     <section id="tab-connection" class="tabpanel" hidden><div id="health"></div></section>
 
     <p class="foot">Everything on this page is read straight from the production database through <code>/api/admin/*</code>, and none of it is sample data. One control writes: <b>Delete this account permanently</b>, at the foot of the learner you have selected under Learners. It erases that learner and their data from the database, it cannot be undone, and it is the only thing here that changes anything. Where a number is missing it is because the API has not recorded it — each section says so in its own words, and the raw response is one disclosure away.</p>
@@ -1950,6 +1982,131 @@ function healthHtml(context) {
   return html;
 }
 
+/* ---------- Understand: what learners say ------------------------------- */
+
+/* The four closed questions, with the wording the learner actually saw. The
+   console must never invent a label for a value it does not recognise — an
+   unknown value is shown raw so it is obvious something has drifted. */
+const FEEDBACK_QUESTIONS = [
+  { key: 'going', title: 'How it is going', asked: 'How is the course going for you?', shape: 'donut',
+    order: ['great', 'good', 'mixed', 'hard', 'stuck'],
+    labels: { great: 'Really well', good: 'Pretty good', mixed: 'Mixed', hard: 'Hard going', stuck: 'I am stuck' },
+    /* A sentiment ramp, and every step a different colour. --lv-builder is the
+       same value as --good-solid, which put "Really well" and "Hard going"
+       in matching swatches. */
+    colours: { great: 'var(--good-solid)', good: 'var(--accent)', mixed: 'var(--lv-foundation)', hard: 'var(--warn-solid)', stuck: 'var(--bad-solid)' } },
+  { key: 'hardest', title: 'What is hardest', asked: 'What has been hardest so far?', shape: 'bars',
+    order: ['lessons', 'next', 'projects', 'returning', 'none'],
+    labels: { lessons: 'The lessons themselves', next: 'Knowing what to do next', projects: 'The projects', returning: 'Coming back to it', none: 'Nothing so far' },
+    colours: { lessons: 'var(--bad-solid)', next: 'var(--warn-solid)', projects: 'var(--accent)', returning: 'var(--lv-foundation)', none: 'var(--good-solid)' } },
+  { key: 'snag', title: 'Hit something broken', asked: 'Has anything been broken or confusing?', shape: 'donut',
+    order: ['no', 'yes'],
+    labels: { no: 'No', yes: 'Yes' },
+    colours: { no: 'var(--good-solid)', yes: 'var(--bad-solid)' } },
+  { key: 'recommend', title: 'Would tell a friend', asked: 'Would you tell a friend to use this?', shape: 'bars',
+    order: ['yes', 'maybe', 'no'],
+    labels: { yes: 'Yes', maybe: 'Maybe', no: 'No' },
+    colours: { yes: 'var(--good-solid)', maybe: 'var(--warn-solid)', no: 'var(--bad-solid)' } }
+];
+
+const pct = (count, total) => (total ? Math.round((count / total) * 1000) / 10 : 0);
+
+/* Rows in the question's own order, so a chart does not reshuffle itself
+   between loads and become impossible to compare with the last one. */
+function feedbackRows(question, tally) {
+  const counts = new Map((tally || []).map(row => [row.value, row.count]));
+  const known = question.order.map(value => ({
+    value, label: question.labels[value], colour: question.colours[value], count: counts.get(value) || 0
+  }));
+  const strays = [...counts.keys()].filter(value => !question.order.includes(value))
+    .map(value => ({ value, label: value + ' (unrecognised)', colour: 'var(--text-faint)', count: counts.get(value) }));
+  return [...known, ...strays];
+}
+
+/* A donut drawn with one stroked circle per slice and stroke-dasharray as the
+   arc length. No path maths, no library, and it degrades to a plain ring when
+   a single answer holds everything. */
+function donutSvg(rows, total) {
+  const R = 54, C = 2 * Math.PI * R;
+  let offset = 0;
+  const arcs = rows.filter(row => row.count > 0).map(row => {
+    const len = (row.count / total) * C;
+    const seg = `<circle cx="70" cy="70" r="${R}" fill="none" stroke="${row.colour}" stroke-width="22"`
+      + ` stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"`
+      + ` transform="rotate(-90 70 70)"></circle>`;
+    offset += len;
+    return seg;
+  }).join('');
+  return `<svg viewBox="0 0 140 140" width="140" height="140" role="img" aria-label="${esc(rows.map(r => `${r.label}: ${r.count}`).join(', '))}">`
+    + `<circle cx="70" cy="70" r="${R}" fill="none" stroke="var(--inner-2)" stroke-width="22"></circle>`
+    + arcs
+    + `<text x="70" y="70" text-anchor="middle" dominant-baseline="central" fill="var(--text)"`
+    + ` font-size="26" font-weight="700">${total}</text>`
+    + `<text x="70" y="90" text-anchor="middle" fill="var(--text-faint)" font-size="9">${total === 1 ? 'reply' : 'replies'}</text>`
+    + `</svg>`;
+}
+
+function feedbackChart(question, tally, total) {
+  const rows = feedbackRows(question, tally);
+  const head = `<h3>${esc(question.title)}</h3><p class="q">${esc(question.asked)}</p>`;
+  if (!total) return `<div class="fb-chart">${head}<p class="q">No replies yet.</p></div>`;
+
+  if (question.shape === 'donut') {
+    const legend = rows.map(row => `<li><span class="fb-key" style="background:${row.colour}"></span>`
+      + `<span class="lbl">${esc(row.label)}</span>`
+      + `<span class="num">${row.count} · ${pct(row.count, total)}%</span></li>`).join('');
+    return `<div class="fb-chart">${head}<div class="fb-donut">${donutSvg(rows, total)}<ul class="fb-legend">${legend}</ul></div></div>`;
+  }
+  const top = Math.max(...rows.map(row => row.count), 1);
+  const bars = rows.map(row => `<div class="fb-bar">`
+    + `<div class="row"><span>${esc(row.label)}</span><span>${row.count} · ${pct(row.count, total)}%</span></div>`
+    + `<div class="track"><span class="fill" style="width:${(row.count / top) * 100}%;background:${row.colour}"></span></div>`
+    + `</div>`).join('');
+  return `<div class="fb-chart">${head}<div class="fb-bars">${bars}</div></div>`;
+}
+
+function paintUnderstand(summary) {
+  const host = $('#understand');
+  if (!host) return;
+  if (!summary) {
+    host.innerHTML = '<div class="panel"><div class="panel-h"><h2>Understand</h2></div>'
+      + '<div class="panel-b"><p class="empty">Could not load the feedback. Nothing is wrong with the answers themselves — the request failed.</p></div></div>';
+    return;
+  }
+  const total = summary.responses || 0;
+  const stats = [
+    [total, total === 1 ? 'reply' : 'replies'],
+    [summary.learners || 0, (summary.learners === 1 ? 'learner' : 'learners') + ' answered'],
+    [summary.meanLessons == null ? '—' : summary.meanLessons, 'lessons done on average'],
+    [toDate(summary.latest) ? dateText(toDate(summary.latest)) : '—', 'most recent']
+  ].map(([value, label]) => `<div class="fb-stat"><b>${esc(String(value))}</b><span>${esc(label)}</span></div>`).join('');
+
+  const charts = FEEDBACK_QUESTIONS
+    .map(question => feedbackChart(question, summary.tallies?.[question.key], total)).join('');
+
+  const written = (summary.written || []).map(item => {
+    const stamp = toDate(item.createdAt);
+    const when = stamp ? dateText(stamp) : '';
+    const who = `<div class="who"><b>${esc(item.displayName || '(no name)')}</b>`
+      + `<span>${esc(item.email || '')}</span>`
+      + `<span class="tag">${esc(item.lessonsDone)} lesson${item.lessonsDone === 1 ? '' : 's'} done</span>`
+      + `<span>${esc(when)}</span></div>`;
+    const snag = item.snagDetail ? `<p class="snag">${esc(item.snagDetail)}</p>` : '';
+    const comment = item.comment ? `<p>${esc(item.comment)}</p>` : '';
+    return `<div class="fb-note-card">${who}${snag}${comment}</div>`;
+  }).join('');
+
+  host.innerHTML = '<div class="panel"><div class="panel-h"><h2>Understand</h2>'
+    + `<span class="meta">${esc(plural(total, 'reply', 'replies'))} from the form in Settings</span></div>`
+    + (total
+      ? `<div class="fb-top">${stats}</div><div class="fb-charts">${charts}</div>`
+        + (written
+          ? `<div class="panel-h"><h2>In their own words</h2><span class="meta">${esc(plural(summary.written.length, 'note', 'notes'))}</span></div><div class="fb-written">${written}</div>`
+          : '<div class="panel-b"><p class="empty">Nobody has written anything in the two text boxes yet. The counts above are all there is so far.</p></div>')
+      : '<div class="panel-b"><p class="empty">No replies yet. The form is at the foot of Settings, under <b>How it is going</b>. Nothing appears here until a learner sends one.</p></div>')
+    + '</div>';
+}
+
 /* ---------- tabs -------------------------------------------------------- */
 
 const TABS = [
@@ -1957,6 +2114,7 @@ const TABS = [
   { key: 'learners', name: 'Learners', icon: 'users' },
   { key: 'lessons', name: 'Lessons', icon: 'book' },
   { key: 'questionnaire', name: 'Questionnaire', icon: 'list' },
+  { key: 'understand', name: 'Understand', icon: 'pulse' },
   { key: 'connection', name: 'Connection', icon: 'refresh' }
 ];
 let ACTIVE_TAB = 'overview';
@@ -2042,11 +2200,12 @@ async function load() {
   paintConn('warn', 'Checking connection…');
 
   const started = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-  const [overview, learners, lessons, assessment, health] = await Promise.all([
+  const [overview, learners, lessons, assessment, feedback, health] = await Promise.all([
     api('/api/admin/overview'),
     api('/api/admin/learners'),
     api('/api/admin/lesson-analytics'),
     api('/api/admin/assessment-analytics'),
+    api('/api/admin/site-feedback'),
     api('/api/health')
   ]);
   const healthMs = ((typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now()) - started;
@@ -2122,12 +2281,20 @@ async function load() {
   render($('#lessons'), () => lessonsHtml(context), lessons);
   render($('#assessment'), () => assessmentHtml(context), assessment);
   paintQuestions();
+  /* Drawn even when the request failed: paintUnderstand says so plainly
+     rather than leaving the tab looking as though nobody has replied. */
+  try {
+    paintUnderstand(feedback.ok ? feedback.summary : null);
+  } catch (error) {
+    paintUnderstand(null);
+  }
   render($('#health'), () => healthHtml(context), health);
 
   LAST_COUNTS = {
     learners: learnerRows.length,
     lessons: lessonRows.length,
-    questionnaire: attemptRows.length
+    questionnaire: attemptRows.length,
+    understand: feedback.ok ? (feedback.summary?.responses ?? 0) : undefined
   };
   paintTabs(LAST_COUNTS);
 
