@@ -190,6 +190,17 @@ export function expectedLanding(route, state) {
    which it is its own landing, and hygiene uses that state — otherwise the
    dashboard gets measured four times under four other pages' names, which is
    a way of testing nothing while appearing thorough. */
+/* Every state in which this page is the page you land on, most-advanced first.
+   A page can look different to a signed-out visitor and a signed-in learner —
+   lesson one shows "Already have an account? Sign in" only to the former, and
+   measuring one state hid an undersized control on the live site. */
+export function statesWherePageIsItself(route) {
+  const ranked = everyState().sort((a, b) =>
+    (a.preview ? 1 : 0) - (b.preview ? 1 : 0)
+    || (b.account + b.freeLesson + b.questionnaire) - (a.account + a.freeLesson + a.questionnaire));
+  return ranked.filter(state => expectedLanding(route, state).split('?')[0] === route.file);
+}
+
 export function stateWherePageIsItself(route) {
   /* Prefer the ordinary learner: preview off, as far through the course as
      the page needs. Preview would also open every course page, but measuring

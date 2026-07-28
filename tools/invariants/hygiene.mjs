@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import {
   ROUTES, QUICK_ROUTES, routePath, routeName, VIEWPORTS, TEXT_SIZES, QUICK_TEXT_SIZES,
   MIN_TARGET_PX, MIN_CONTRAST, MIN_CONTRAST_LARGE, ALLOWED_EXTERNAL, IGNORED_CONSOLE,
-  stateWherePageIsItself
+  stateWherePageIsItself, statesWherePageIsItself, stateName
 } from './spec.mjs';
 import { seedState } from './routing.mjs';
 
@@ -142,7 +142,20 @@ export async function runHygiene({ page, origin, report, quick }) {
       `CSP is 'self'; these will be blocked in production: ${[...new Set(external)].slice(0, 4).join(', ')}`
     );
 
-    // --- every interactive target is reachable by a finger -----------------
+    /* --- every interactive target is reachable by a finger ----------------
+       Measured signed in AND signed out. A control that only exists in one of
+       those was invisible here: lesson one's "Already have an account? Sign in"
+       is hidden the moment there is an account, so it was never measured, and
+       it shipped at 30px tall. */
+    const plain = statesWherePageIsItself(route).filter(candidate => !candidate.preview);
+    const targetStates = [...new Map(
+      [plain[0] || state, plain[plain.length - 1] || state].map(s => [stateName(s), s])
+    ).values()];
+
+    for (const targetState of targetStates) {
+      const label = targetStates.length > 1 ? `  [${stateName(targetState)}]` : '';
+      await seedState(page, origin, targetState);
+      await page.goto(url);
     for (const viewport of [VIEWPORTS[0], VIEWPORTS[2]]) {
       await page.viewport(viewport.width, viewport.height);
       const small = await page.evaluate(`
@@ -163,11 +176,14 @@ export async function runHygiene({ page, origin, report, quick }) {
         return [...new Set(bad)].slice(0, 8);
       `);
       report.check(
-        `hygiene/targets-44px  ${name} @${viewport.name}`,
+        `hygiene/targets-44px  ${name} @${viewport.name}${label}`,
         small.length === 0,
         small.join(', ')
       );
     }
+    }
+    await seedState(page, origin, state);
+    await page.goto(url);
 
     // --- contrast of text over glass ---------------------------------------
     await page.viewport(1280, 900);
