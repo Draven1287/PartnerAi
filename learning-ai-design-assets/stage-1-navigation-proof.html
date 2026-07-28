@@ -413,7 +413,7 @@
     </section>
   </main>
 
-  <script src="./theme.js?v=2026-07-27d"></script>
+  <script src="./theme.js?v=2026-07-27e"></script>
   <script src="./arc-rail.js?v=2026-07-26b"></script>
   <script src="./nav-behavior.js?v=2026-07-27a"></script>
   <script src="../v2/lessons.js?v=2026-07-26b"></script>
@@ -446,7 +446,7 @@
     const nextLesson=courseState.next;
     const dashboardAccessNote=document.querySelector('#dashboardAccessNote');
     if(courseState.completedCount>0)dashboardAccessNote.textContent='Your progress is saved as you learn. Continue with the next unlocked lesson.';
-    const reviewMode=new URLSearchParams(location.search).get('review')==='1';
+    const reviewMode=Boolean(window.LearningAIReviewMode);/* theme.js owns preview: the stored switch, or ?review=1 on a local host. */
     const readDraft=lesson=>{if(reviewMode||!lesson)return null;try{const draft=JSON.parse(localStorage.getItem(`learningai-lesson-draft:${lesson.id}`)||'null');return draft&&Number.isInteger(Number(draft.index))?draft:null}catch{return null}};
     const formatSavedTime=value=>{const date=new Date(value);return Number.isNaN(date.getTime())?'recently':date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})};
     if(nextLesson){const reviewSuffix=reviewMode?(nextLesson.num===1?'?review=1':'&review=1'):'';const lessonHref=nextLesson.num===1?`./lesson-one.html${reviewSuffix}`:`./lesson.html?id=${nextLesson.id}${reviewSuffix}`;const nextLink=document.querySelector('#dashboardNextLesson'),primaryLink=document.querySelector('#dashboardPrimaryLesson'),draft=readDraft(nextLesson),resumeNote=document.querySelector('#dashboardResumeNote'),reward=document.querySelector('#dashboardNextReward');nextLink.textContent=`Next: ${nextLesson.title} →`;nextLink.href=lessonHref;reward.textContent=`Complete Lesson ${nextLesson.num} to light Signal ${String(nextLesson.num).padStart(2,'0')} and save what you practised.`;if(draft){const step=Math.min((nextLesson.steps?.length||1),Number(draft.index)+1);primaryLink.textContent=`Resume · Step ${step} of ${nextLesson.steps.length} →`;resumeNote.hidden=false;resumeNote.textContent=`Lesson ${nextLesson.num} draft saved on this device at ${formatSavedTime(draft.updatedAt)}.`}else{primaryLink.textContent=courseState.completedCount?`Continue Lesson ${nextLesson.num} →`:'Start lesson one →'}primaryLink.href=lessonHref}else{const reviewSuffix=reviewMode?'?review=1':'';const nextLink=document.querySelector('#dashboardNextLesson'),primaryLink=document.querySelector('#dashboardPrimaryLesson');nextLink.textContent='All 50 lessons complete — review your path →';nextLink.href=`./progress.html${reviewSuffix}`;primaryLink.textContent='Review your completed path →';primaryLink.href=`./progress.html${reviewSuffix}`;dashboardAccessNote.textContent='You completed all 50 lessons. Revisit any lesson or review the capabilities you practised.';document.querySelector('#dashboardNextReward').textContent='All 50 Signals are lit. Your full practice path is ready to review.'}

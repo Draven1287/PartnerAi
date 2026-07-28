@@ -53,17 +53,32 @@
      So the block is a list of what preview is actually protecting, and
      everything else — identity, the account roster, the preview switch
      itself, and the appearance settings — stays writable. */
+  /* Kept as a list rather than a rule because the harness checks it key by
+     key: tools/check-invariants.mjs fails if a learningai- key is not
+     classified here or in the writable set. That is how the eight below were
+     found — the list predated every one of them, so preview was recording
+     project work, notebooks and queued minutes, and could delete them. */
   const RECORD_PREFIXES = [
-    'learningai-lesson-',        // progress, drafts, evidence
-    'learningai-diagnostic-',    // questionnaire answers
-    'learningai-toolkit',        // saved notes
+    'learningai-lesson-',            // progress, drafts, evidence
+    'learningai-v2-lesson-notes',    // per-lesson notebook
+    'learningai-diagnostic-',        // questionnaire answers
+    'learningai-toolkit',            // saved notes
     'learningai-note',
-    'learningai-learning-rhythm',// focus minutes
-    'learningai-earned',         // awards (older key)
-    'learningai-achievements',   // awards (current key, -v2)
+    'learningai-learning-rhythm',    // focus minutes
+    'learningai-minute-sync-queue',  // minutes waiting to reach the server
+    'learningai-earned',             // awards (older key)
+    'learningai-achievements',       // awards (current key, -v2)
     'learningai-first-lesson-',
     'learningai-site-unlocked',
-    'learningai-progress'
+    'learningai-progress',
+    /* Named in full rather than by prefix: the harness classifies key by key,
+       and a bare prefix reads as an unclassified key of its own. */
+    'learningai-projects',                      // project work
+    'learningai-project-completions',
+    'learningai-project-submission-draft',
+    'learningai-project-submission-records',
+    'learningai-completed-projects',            // older completions key
+    'learningai-age-range'           // selects the audience, so it is a record
   ];
   const isCourseRecord = key => {
     const name = String(key);

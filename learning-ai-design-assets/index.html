@@ -6,7 +6,7 @@
   <title>LearningAI</title>
   <meta name="description" content="Learn how to use AI without handing over your judgment.">
   <link rel="stylesheet" href="./theme.css?v=2026-07-27b">
-  <script src="./theme.js?v=2026-07-27d"></script>
+  <script src="./theme.js?v=2026-07-27e"></script>
   <script src="./learning-api.js?v=2026-07-26c"></script>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#171a18}
@@ -121,7 +121,11 @@
        they left off; only a genuine first visit sees this page. */
     (async () => {
       const params = new URLSearchParams(location.search);
-      if (params.get('review') === '1') { location.replace('./stage-1-navigation-proof.html?review=1'); return; }
+      /* theme.js owns preview — the stored switch, or ?review=1 on a local
+         host. Re-deriving it from the query string here meant that with
+         preview on from Settings, the site root still asked the first-visit
+         question and routed as if gated. */
+      if (window.LearningAIReviewMode) { location.replace('./stage-1-navigation-proof.html'); return; }
       const session = await window.LearningAIAPI.me();
       if (session.ok) {
         const state = await window.LearningAIAPI.state();
