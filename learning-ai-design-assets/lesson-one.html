@@ -218,7 +218,7 @@
        does after signing up, push it to the account, and carry on into the
        course. Never block on the network — the queue retries. */
     localStorage.setItem('learningai-first-lesson-complete',JSON.stringify(record));
-    try{window.LearningAIAPI?.saveProgress?.({lessonId:'chapter-1',currentStep:total,completed:true})}catch{}
+    try{window.LearningAIAPI?.queueProgress?.({lessonId:'chapter-1',currentStep:total,completed:true})?.catch(()=>{})}catch{}
     let questionsDone=false;
     try{questionsDone=Boolean(localStorage.getItem('learningai-diagnostic-prototype'))}catch{}
     location.href=questionsDone?'./stage-1-navigation-proof.html':'./onboarding.html';
