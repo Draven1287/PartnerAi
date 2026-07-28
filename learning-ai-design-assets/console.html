@@ -395,7 +395,24 @@
        construction. */
     .btn-danger{background:var(--bad-solid);color:var(--on-solid);border-color:var(--bad-solid);
       box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 18px rgba(112,36,40,.16)}
-    .dz{padding:20px 24px 24px;border-top:var(--bw) solid var(--inner-line)}
+    /* Quiet until asked for. It reads as an ordinary row, not a red button
+       waiting to be hit, and the marker is the only thing that says it opens. */
+    .dz-fold{border-top:var(--bw) solid var(--inner-line)}
+    .dz-fold>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
+      min-height:44px;padding:12px 24px;cursor:pointer;list-style:none;
+      font-size:12.5px;font-weight:700;color:var(--text-dim)}
+    .dz-fold>summary::-webkit-details-marker{display:none}
+    .dz-fold>summary::before{content:"›";display:inline-block;width:11px;
+      font-size:14px;font-weight:700;color:var(--text-faint)}
+    .dz-fold[open]>summary::before{content:"⌄"}
+    .dz-fold>summary:hover{color:var(--bad-ink)}
+    .dz-fold>summary:focus-visible{outline:3px solid #17231f;outline-offset:-3px}
+    .dz-fold[open]>summary{color:var(--bad-ink)}
+    .dz-fold-hint{font-weight:600;font-size:11.5px;color:var(--text-faint)}
+    .dz{padding:4px 24px 24px}
+    /* The withdrawn-control explanation is not behind a fold: it is a sentence
+       saying why there is nothing to open, so it keeps its own separator. */
+    .dz-plain{padding-top:20px;border-top:var(--bw) solid var(--inner-line)}
     .dz h3{margin:0 0 4px;font-size:15.5px;font-weight:740;color:var(--bad-ink);letter-spacing:-.01em}
     /* The warning is a sibling *before* the form in source order, so it is read
        before the control is reached by eye, by screen reader and by Tab. */
@@ -1304,8 +1321,12 @@ function learnerDangerHtml(view) {
     + DELETE_KEPT.map(item => `<li>${esc(item)}</li>`).join('') + '</ul></div>'
     + '</div>';
 
-  return '<div class="dz">'
-    + '<h3>Delete this account permanently</h3>'
+  /* Folded away, and closed again every time this block is rebuilt — which is
+     on every selection change. Deleting an account should take three separate
+     deliberate acts (open this, type the address, confirm), and none of them
+     should be sitting open on screen from the last learner you looked at. */
+  return '<details class="dz-fold"><summary>Delete this account<span class="dz-fold-hint">Permanent. Opens the confirmation.</span></summary>'
+    + '<div class="dz">'
     + '<p class="dz-warn"><b>This cannot be undone.</b> The account and everything stored against it are '
     + 'removed from the database outright — there is no restore, no undo and no recovery from this console '
     + 'or anywhere else. Read the name and address below before going further: what is deleted is the '
@@ -1326,7 +1347,7 @@ function learnerDangerHtml(view) {
     + '<button class="btn btn-danger" id="learnerDeleteButton" type="submit" disabled>'
     + 'Delete this account permanently</button>'
     + '<p class="status" id="learnerDeleteStatus" role="status" aria-live="polite"></p>'
-    + '</form></div>';
+    + '</form></div></details>';
 }
 
 /* Survives the reload that follows a deletion, so the page can still say what
@@ -1473,7 +1494,7 @@ function paintLearnerList() {
       danger.innerHTML = visible
         ? learnerDangerHtml(chosen)
         : (chosen
-          ? '<div class="dz"><h3>Delete this account permanently</h3>'
+          ? '<div class="dz dz-plain"><h3>Delete this account permanently</h3>'
             + `<p class="dz-warn">The record above is ${esc(chosen.email || chosen.name || 'a learner')}, `
             + 'who no longer matches the search, so no delete control is shown. Clear the search, or pick a '
             + 'learner from the rows above, and it comes back for whoever is actually selected.</p></div>'
