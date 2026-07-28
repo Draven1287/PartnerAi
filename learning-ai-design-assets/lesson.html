@@ -64,7 +64,7 @@
     const stepResults=new Map();
     /* A step somebody moved past without finishing still belongs in the review.
        Dropping it would shrink the denominator and quietly inflate the score. */
-    const GRADED_KINDS={classify:'Sorting',workflowChain:'Workflow order',exitCheck:'Check',agentSpec:'Agent permissions',verify:'Checking sequence',tryLive:'Your attempt'};
+    const GRADED_KINDS={classify:'Sorting',workflowChain:'Workflow order',exitCheck:'Check',agentDesign:'Agent permissions',verify:'Checking sequence',tryLive:'Your attempt'};
     const markUnanswered=()=>{const current=lesson.steps[index],label=GRADED_KINDS[current?.kind];
       if(!label||stepResults.has(index))return;
       recordResult(label,current.title||current.question||'',false,'You moved past this one without finishing it. Open the lesson again whenever you want to try it.')};
