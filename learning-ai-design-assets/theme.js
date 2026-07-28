@@ -1147,7 +1147,10 @@
     }
     if (!guardPrototypeRoute()) return;
     syncCanonicalNavigation(); syncCoreNavigation(); syncAdultsNavigation(); setupMobileNavigationMenu(); propagateReviewMode(); syncGreeting();
-    if (location.pathname.endsWith('/adults.html') && !isAdult(savedAge())) {
+    /* Preview opens every page, and this one had the same fault the route
+       guard did: it checked the age and never the preview switch, so "open
+       any lesson" stopped at the one page an adult age gates. */
+    if (location.pathname.endsWith('/adults.html') && !window.LearningAIReviewMode && !isAdult(savedAge())) {
       /* Only send someone to the questionnaire if the questionnaire is still
          owed. Someone who finished it and skipped the age question is not owed
          anything — onboarding.html would bounce them straight back out, and two
