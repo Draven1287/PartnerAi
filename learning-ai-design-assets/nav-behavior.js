@@ -2,10 +2,6 @@
   const navShell = document.querySelector('#navShell') || document.querySelector('.nav-shell');
   if (!navShell) return;
 
-  document.querySelectorAll('nav a').forEach(link => {
-    if (link.textContent.trim() === 'Progress') link.href = './progress.html';
-  });
-
   let lastY = window.scrollY;
   let settleTimer = 0;
   const reveal = () => navShell.classList.remove('is-passing');

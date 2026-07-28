@@ -314,8 +314,12 @@
   window.addEventListener('learningai:progress',renderTimeEstimate);
   const PROGRESS_KEYS=[window.LearningAICourseState?.key,'learningai-first-lesson-complete'];
   window.addEventListener('storage',event=>{if(!event.key||PROGRESS_KEYS.includes(event.key))renderTimeEstimate()});
-  const previewName=new URLSearchParams(location.search).get('name')||window.LearningAIUser?.displayName||'Aarav';
-  document.querySelector('#greeting').textContent=`Welcome back, ${previewName}`;
+  /* theme.js overwrites this at DOMContentLoaded, so it is normally invisible
+     — but not when guardPrototypeRoute() returns early, and a stranger seeing
+     the author's own name is worse than a generic greeting. Every other page
+     falls back to 'Learner' and asks LearningAIGreeting for the wording. */
+  const previewName=new URLSearchParams(location.search).get('name')||window.LearningAIUser?.displayName||'Learner';
+  document.querySelector('#greeting').textContent=window.LearningAIGreeting?.navText(previewName)||`Welcome, ${previewName}`;
   void window.LearningAIAPI.flushMinuteQueue();
   if(new URLSearchParams(location.search).get('checkpoint')==='preview')setTimeout(()=>dialog.showModal(),350);
   wireDial();setInterval(render,1000);renderTimeEstimate();render();

@@ -27,6 +27,10 @@
   const count = document.querySelector('#badgeCount');
   const shelf = document.querySelector('#badgeShelf');
   const detail = document.querySelector('#badgeDetail');
+  /* The guard at the top only tests for .learning-rhythm, and focus.html
+     carries that markup without the three badge elements — so loading this
+     there would throw on the next line. Check what we actually use. */
+  if (!toggle || !finish || !clock || !ring || !feedback || !count || !shelf || !detail) return;
   const circumference = 2 * Math.PI * 66;
   ring.style.strokeDasharray = String(circumference);
 

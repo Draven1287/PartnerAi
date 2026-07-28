@@ -13,7 +13,7 @@
    test is not "is it false in the file" — that passes forever after one edit —
    but "does it follow the store, in both directions". */
 import { readdirSync, readFileSync } from 'node:fs';
-import { ROUTES, QUICK_ROUTES, routePath, routeName, DATA_DRIVEN_STATE, PREVIEW_DERIVATION, PREVIEW_DERIVATION_ALLOWED } from './spec.mjs';
+import { ROUTES, QUICK_ROUTES, routePath, routeName, DATA_DRIVEN_STATE, PREVIEW_DERIVATION, PREVIEW_DERIVATION_ALLOWED, STRUCTURAL_EXEMPT } from './spec.mjs';
 import { seedState } from './routing.mjs';
 
 const assets = new URL('../../learning-ai-design-assets/', import.meta.url);
@@ -153,10 +153,23 @@ export async function runCascade({ page, origin, report, quick }) {
       }
       return [...new Set(dead)];
     `);
+    /* A rule can be unmatched here and still be right — one the page builds at
+       runtime, or one guarding a shape the page does not have yet. Those are
+       listed in the spec with a stated reason. Anything else is a failure. */
+    const exempt = STRUCTURAL_EXEMPT[route.file] || {};
+    const real = dead.filter(selector => !(selector in exempt));
+    const stale = Object.keys(exempt).filter(selector => !dead.includes(selector));
     report.check(
       `cascade/structural-rules-match  ${routeName(route)}`,
-      dead.length === 0,
-      `written to place an element, matches nothing on this page: ${dead.join(' | ')}`
+      real.length === 0,
+      `written to place an element, matches nothing on this page: ${real.join(' | ')}`
+    );
+    /* An exemption that no longer describes anything has outlived its rule, and
+       left in place it would silently cover whatever takes that selector next. */
+    report.check(
+      `cascade/exemptions-still-apply  ${routeName(route)}`,
+      stale.length === 0,
+      `exempted in spec.mjs but no longer unmatched — delete the exemption: ${stale.join(' | ')}`
     );
   }
 

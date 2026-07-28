@@ -6,8 +6,8 @@
   <title>LearningAI</title>
   <meta name="description" content="Learn how to use AI without handing over your judgment.">
   <link rel="stylesheet" href="./theme.css?v=2026-07-27b">
-  <script src="./theme.js?v=2026-07-27f"></script>
-  <script src="./learning-api.js?v=2026-07-26c"></script>
+  <script src="./theme.js?v=2026-07-28b"></script>
+  <script src="./learning-api.js?v=2026-07-28b"></script>
   <style>
     :root{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:#171a18}
     *{box-sizing:border-box}
@@ -125,13 +125,21 @@
          recorded, never where the journey goes — the routing table asserts
          that index behaves identically with preview on and off. */
       const session = await window.LearningAIAPI.me();
+      let served = null;
       if (session.ok) {
         const state = await window.LearningAIAPI.state();
-        if (state.ok) window.LearningAIAPI.hydrateLocalState(state.state);
+        if (state.ok) { served = state.state; window.LearningAIAPI.hydrateLocalState(state.state); }
       }
-      const done = localStorage.getItem('learningai-first-lesson-pending') || localStorage.getItem('learningai-first-lesson-complete');
+      /* Preview drops writes to the course records but not to the account, so
+         hydrateLocalState cannot land and these read empty for somebody who
+         has in fact finished the lesson — which sent them back to lesson one.
+         Falling back to what the server just said is what keeps the promise
+         above true. Both fallbacks mirror hydrateLocalState exactly. */
+      const done = localStorage.getItem('learningai-first-lesson-pending')
+        || localStorage.getItem('learningai-first-lesson-complete')
+        || (served?.progress || []).some(row => row?.lessonId === 'chapter-1' && row.completedAt);
       const account = localStorage.getItem('learningai-prototype-account');
-      const questions = localStorage.getItem('learningai-diagnostic-prototype');
+      const questions = localStorage.getItem('learningai-diagnostic-prototype') || served?.assessment;
       if (!done && !account) return;                       // first visit: stay here
       if (!done) { location.replace('./lesson-one.html'); return; }
       if (!account) { location.replace('./access.html?mode=create'); return; }

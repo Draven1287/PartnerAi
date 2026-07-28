@@ -133,7 +133,7 @@
       #advanceButton{order:1}#backStep{order:2}.form-actions .right a.button{order:3}
     }
   </style>
-  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-27b"><script src="./theme.js?v=2026-07-27f"></script>
+  <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c"><link rel="stylesheet" href="./theme.css?v=2026-07-27b"><script src="./theme.js?v=2026-07-28b"></script>
 </head>
 <body>
   <div class="nav-stage" aria-label="Primary navigation layer"><header class="nav-shell" id="navShell"><div class="nav-glass">
@@ -283,7 +283,7 @@
     <p class="footnote">Every submission is read privately, stays unpublished unless you approve a preview, and is deleted on request. <a href="./submission-policy.html">Read how submissions are handled</a>, or write to <a href="mailto:learningai4youprojects@duck.com?subject=LearningAI%20privacy%20or%20deletion%20request">learningai4youprojects@duck.com</a>.</p>
   </main>
 
-  <script src="./learning-api.js?v=2026-07-26d"></script><script src="./nav-behavior.js?v=2026-07-27a"></script>
+  <script src="./learning-api.js?v=2026-07-28b"></script><script src="./nav-behavior.js?v=2026-07-28b"></script>
   <script>
     (() => {
       const DRAFT_KEY = 'learningai-project-submission-draft';
@@ -655,6 +655,11 @@
       function finish(tone, headline, body, actions) {
         resultPanel.hidden = false;
         confirmPanel.hidden = true;
+        /* "Go back and edit" stays live while the send is in flight, so the
+           form can be back on screen by the time this resolves. Showing the
+           result beside an editable form is bad enough; line 708 then wipes
+           the draft being edited. */
+        submitPanel.hidden = true;
         setStatus(resultStatus, tone, headline, body);
         $('resultActions').replaceChildren(...(actions || []));
         focusPanel(resultPanel);
@@ -684,6 +689,9 @@
       sendButton.addEventListener('click', async () => {
         if (!pending || !account) return;
         sendButton.disabled = true;
+        // Editing mid-send puts the form back on screen underneath the result,
+        // and the draft is cleared the moment the send lands.
+        $('editButton').disabled = true;
         setStatus(sendStatus, '', 'Sending…', 'Nothing has been recorded yet.');
         const localId = 'local-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
         const values = pending;
@@ -694,6 +702,7 @@
           result = { ok: false, error: 'network_error', status: 0 };
         }
         sendButton.disabled = false;
+        $('editButton').disabled = false;
         setStatus(sendStatus, '', '', '');
 
         if (result.ok && result.review) {

@@ -350,3 +350,24 @@ export const IGNORED_CONSOLE = [
   /favicon\.ico/,
   /Failed to load resource.*40[34]/
 ];
+
+/* Structural rules that genuinely cannot match the page as it first loads, but
+   are not mistakes. Keyed by file, and every entry has to say why — an
+   exemption without a reason is how a real dead rule gets waved through.
+
+   Anything not listed here that cannot match is still a failure. */
+export const STRUCTURAL_EXEMPT = {
+  'submit-project.html': {
+    '.status strong:only-child':
+      'setStatus(node, tone, headline, body) builds a lone <strong> whenever body ' +
+      'is omitted, which several callers do. The rule is live; this check only ' +
+      'ever sees the initial DOM.'
+  },
+  'settings.html': {
+    '.settings-pairs > :last-child:nth-child(2n+1)':
+      'The standard orphan guard for a two-column grid: an odd last panel spans ' +
+      'the full width. Four static panels today, so it cannot fire — correct code ' +
+      'waiting on a fifth panel, not a dead rule. Deleting it buys nothing and ' +
+      'plants a layout bug the day one is added.'
+  }
+};

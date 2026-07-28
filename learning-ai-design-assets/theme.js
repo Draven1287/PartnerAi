@@ -823,7 +823,11 @@
   }
 
   function guardPrototypeRoute() {
-    const params = new URLSearchParams(location.search);
+    /* Preview opens every page. This guard never checked it, which is why
+       "preview every lesson" did nothing at all — the setting switched on, the
+       storage guard installed, and then this sent the visitor straight back.
+       Preview is deliberate and device-local, so it is allowed to unlock;
+       nothing it does is recorded. */
     const reviewMode = window.LearningAIReviewMode === true;
     if (reviewMode) {
       document.querySelectorAll('a[href^="./"]').forEach(link => {
@@ -848,12 +852,6 @@
     const firstComplete = Boolean(read('learningai-first-lesson-complete'));
     const accountReady = Boolean(read('learningai-prototype-account'));
     const questionsReady = Boolean(read(ASSESSMENT_KEY));
-    /* Preview opens every page. This guard never checked it, which is why
-       "preview every lesson" did nothing at all — the setting switched on, the
-       storage guard installed, and then this sent the visitor straight back.
-       Preview is deliberate and device-local, so it is allowed to unlock;
-       nothing it does is recorded. */
-    if (window.LearningAIReviewMode) return true;
 
     // Otherwise unlock is derived from the three required milestones. The
     // cached flag is only a convenience for older previews and must never

@@ -6,8 +6,8 @@
   <title>Accounts · LearningAI</title>
   <link rel="stylesheet" href="./glass-finish.css?v=2026-07-26c">
   <link rel="stylesheet" href="./theme.css?v=2026-07-27b">
-  <script src="./learning-api.js?v=2026-07-26b"></script>
-  <script src="./theme.js?v=2026-07-27f"></script>
+  <script src="./learning-api.js?v=2026-07-28b"></script>
+  <script src="./theme.js?v=2026-07-28b"></script>
   <style>
     :root{--ink:#171a18;--muted:#525954;--gold:#9a7937;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;color:var(--ink)}
     *{box-sizing:border-box}
@@ -136,7 +136,7 @@
       <p class="status" id="deleteStatus" aria-live="polite"></p>
     </section>
   </main>
-  <script src="./nav-behavior.js?v=2026-07-27a"></script>
+  <script src="./nav-behavior.js?v=2026-07-28b"></script>
   <script>
     (() => {
       const accountsApi = window.LearningAIAccounts;
@@ -268,7 +268,7 @@
         location.href = './access.html?mode=signin';
       }
 
-      function forgetEntry(entry) {
+      async function forgetEntry(entry) {
         if (window.LearningAIReviewMode) {
           setStatus(listStatus, 'Review mode cannot change the account list.', 'error');
           return;
@@ -280,7 +280,10 @@
         const wasActive = entry.active;
         accountsApi?.forget(entry.key);
         if (wasActive) {
-          window.LearningAIAPI.logout().catch(() => {});
+          /* switchTo awaits the same call. Not awaiting it here meant the
+             "was removed from this browser" status could be shown while the
+             server session was still open. */
+          await window.LearningAIAPI.logout().catch(() => ({ ok: false }));
           clearDevice();
         }
         render();

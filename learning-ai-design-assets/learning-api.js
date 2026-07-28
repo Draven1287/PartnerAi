@@ -84,14 +84,34 @@
       return [];
     }
   };
-  async function flushMinuteQueue() {
+  /* Two flushes can overlap: drain() runs on load and again on every `online`
+     event, and queueMinutes() calls the flush itself. Both read the same
+     pending array, and whichever finishes last writes its own `remaining` —
+     discarding an entry the other had already sent, or resurrecting one it
+     had cleared. Chaining makes a second caller wait rather than race. */
+  let minuteFlush = Promise.resolve();
+  const flushMinuteQueue = () => {
+    const next = minuteFlush.then(runMinuteFlush, runMinuteFlush);
+    minuteFlush = next.catch(() => {});
+    return next;
+  };
+  async function runMinuteFlush() {
     const pending = readMinuteQueue();
     if (!pending.length) return { ok: true, pending: 0 };
-    const remaining = [];
+    const failed = new Set();
     for (const entry of pending) {
       const result = await request('/api/v2/minutes', { method: 'POST', body: entry });
-      if (!result.ok) remaining.push(entry);
+      if (!result.ok) failed.add(JSON.stringify(entry));
     }
+    // Re-read for the same reason as the progress queue above. queueMinutes
+    // keys on clientSessionId, so that is what identifies one of ours.
+    const snapshots = new Map(pending.map(entry => [entry?.clientSessionId, JSON.stringify(entry)]));
+    const remaining = readMinuteQueue().filter(entry => {
+      const mine = snapshots.get(entry?.clientSessionId);
+      const text = JSON.stringify(entry);
+      if (mine === undefined || mine !== text) return true;
+      return failed.has(text);
+    });
     localStorage.setItem(MINUTE_QUEUE_KEY, JSON.stringify(remaining.slice(-50)));
     return { ok: remaining.length === 0, pending: remaining.length };
   }
@@ -115,15 +135,34 @@
       return [];
     }
   };
-  async function flushProgressQueue() {
+  // Serialized for the same reason as the minute queue above.
+  let progressFlush = Promise.resolve();
+  const flushProgressQueue = () => {
+    const next = progressFlush.then(runProgressFlush, runProgressFlush);
+    progressFlush = next.catch(() => {});
+    return next;
+  };
+  async function runProgressFlush() {
     const pending = readProgressQueue();
     if (!pending.length) return { ok: true, pending: 0 };
-    const remaining = [];
+    const failed = new Set();
     for (const entry of pending) {
       const result = await request('/api/v2/progress', { method: 'POST', body: entry });
       // A 401 means nobody is signed in yet; keep the entry for the next session.
-      if (!result.ok) remaining.push(entry);
+      if (!result.ok) failed.add(JSON.stringify(entry));
     }
+    /* Re-read rather than writing back our own snapshot. A lesson finished
+       while these POSTs were in flight is already in storage, and overwriting
+       with `pending` erased it — losing exactly the completion the queue
+       exists to protect. Keep anything that arrived since, anything re-queued
+       with newer detail, and our own entries only where the send failed. */
+    const snapshots = new Map(pending.map(entry => [entry?.lessonId, JSON.stringify(entry)]));
+    const remaining = readProgressQueue().filter(entry => {
+      const mine = snapshots.get(entry?.lessonId);
+      const text = JSON.stringify(entry);
+      if (mine === undefined || mine !== text) return true;
+      return failed.has(text);
+    });
     localStorage.setItem(PROGRESS_QUEUE_KEY, JSON.stringify(remaining.slice(-100)));
     return { ok: remaining.length === 0, pending: remaining.length };
   }
