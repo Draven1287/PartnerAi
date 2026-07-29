@@ -22,33 +22,34 @@ export default {
       "title": "Which part is doing each job?",
       "prompt": "Sort each job. Get it wrong as often as you like — the point is to see the parts, not one magic box.",
       "buckets": [
-        "Person",
-        "Product or model",
-        "Optional tool"
+        "You",
+        "The app",
+        "The guesser",
+        "A helper"
       ],
       "items": [
         {
-          "text": "Sets the goal: get home safely",
+          "text": "Decides the goal: get home safely",
           "answer": 0
         },
         {
-          "text": "Provides the chat or search screen",
+          "text": "Shows you the screen you type into",
           "answer": 1
         },
         {
-          "text": "Predicts a useful-looking response from the context",
-          "answer": 1
-        },
-        {
-          "text": "Looks up a live transport timetable when available",
+          "text": "Writes the answer by guessing which words come next",
           "answer": 2
         },
         {
-          "text": "Checks the official schedule and chooses what to do",
+          "text": "Looks up today's real bus times",
+          "answer": 3
+        },
+        {
+          "text": "Checks the real timetable and decides what to do",
           "answer": 0
         }
       ],
-      "reveal": "The app is the surface, the model predicts the response, and a tool may fetch current information. None of those parts receives the consequence if the bus time is wrong. The person checks and decides."
+      "reveal": "The app is the screen. The guesser writes. A helper can fetch something real. None of those three pays for it if the bus time is wrong. You check, and you decide."
     },
     {
       "kind": "reveal",

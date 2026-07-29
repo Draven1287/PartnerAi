@@ -56,9 +56,9 @@ export default {
     },
     {
       "kind": "reveal",
-      "title": "The output is only one part of the system",
-      "body": "When you type into an AI product, five parts are involved: you bring a goal; the app receives your request; a model predicts a response from patterns and context; optional tools may add search, files, memory, or calculations; and then you decide whether to edit, reject, verify, or act. The model does not receive the consequence if the answer is wrong. You and the people affected do.\n\nThat is why safety comes before technical detail. A fluent answer can be useful material, but it is not permission to share private information or proof that a current claim is true. The machine produces an output. Human judgment turns—or refuses to turn—that output into action.",
-      "mistake": "Treating the chatbot as one all-knowing object, then assuming its polished answer has already completed the checking and deciding for you.",
+      "title": "The answer is one part. You are another.",
+      "body": "An AI answer is not one clever box that knows things. A few parts do the work, and you are one of them.\n\nThe app takes your words. A guesser writes the answer \u2014 it is working out which words usually come next, not looking anything up. Sometimes an extra tool is plugged in that can check something real. Then it comes back to you.\n\nHere is the part that matters. If the answer is wrong, the guesser does not pay for it. You do, and so does anyone it affects.\n\nSo this lesson is about staying safe before it is about anything technical. A smooth answer is useful material. It is not permission to share something private, and it is not proof that anything in it is true.\n\nThe machine writes. You decide.",
+      "mistake": "Treating it as one clever box that knows everything, and assuming its tidy answer has already done the checking and the deciding for you.",
       "good": "Name the job you are giving AI, remove information it does not need, and keep the final check and decision with a person."
     },
     {
