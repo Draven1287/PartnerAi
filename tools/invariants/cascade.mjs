@@ -165,12 +165,15 @@ export async function runCascade({ page, origin, report, quick }) {
       `written to place an element, matches nothing on this page: ${real.join(' | ')}`
     );
     /* An exemption that no longer describes anything has outlived its rule, and
-       left in place it would silently cover whatever takes that selector next. */
-    report.check(
-      `cascade/exemptions-still-apply  ${routeName(route)}`,
-      stale.length === 0,
-      `exempted in spec.mjs but no longer unmatched — delete the exemption: ${stale.join(' | ')}`
-    );
+       left in place it would silently cover whatever takes that selector next.
+       Reported, not failed: whether one of these matches can depend on when the
+       page is measured — submit-project renders its status text asynchronously,
+       so the same exemption was stale on one run and needed on the next. A
+       check that fails at random teaches people to ignore failures. */
+    if (stale.length) {
+      report.note(`cascade/exemptions  ${routeName(route)}: ${stale.join(' | ')} `
+        + 'is exempted in spec.mjs but matched on this run — worth re-checking whether the exemption is still needed');
+    }
   }
 
   // -------------------------------------------------------------------------

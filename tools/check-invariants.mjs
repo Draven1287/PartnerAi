@@ -6,6 +6,7 @@
      node tools/check-invariants.mjs                # 1,800 cases, ~7 min
      node tools/check-invariants.mjs --quick        # ~950 cases, ~3.5 min
      node tools/check-invariants.mjs --only=routing,storage
+     node tools/check-invariants.mjs --only=fresh-device   (starts a real backend)
      node tools/check-invariants.mjs --verbose      # print every passing case too
      CHROME_PATH=/path/to/chrome node tools/check-invariants.mjs
 
@@ -89,6 +90,7 @@ import { runStorage } from './invariants/storage.mjs';
 import { runFlows } from './invariants/flows.mjs';
 import { runCascade } from './invariants/cascade.mjs';
 import { runHygiene, runParse } from './invariants/hygiene.mjs';
+import { runFreshDevice } from './invariants/fresh-device.mjs';
 
 const argv = process.argv.slice(2);
 const quick = argv.includes('--quick');
@@ -134,13 +136,16 @@ try {
     runParse({ report });
   }
 
-  const needsBrowser = ['routing', 'storage', 'flows', 'cascade', 'hygiene'].some(wants);
+  const needsBrowser = ['routing', 'storage', 'flows', 'cascade', 'hygiene', 'fresh-device'].some(wants);
+  /* Only fresh-device needs a backend, and standing one up costs a couple of
+     seconds, so the other suites do not pay for it. */
+  const needsBackend = wants('fresh-device');
   if (needsBrowser) {
-    site = await startSite();
+    site = await startSite({ withBackend: needsBackend });
     browser = await launchBrowser();
     page = await browser.newPage();
     await page.viewport(1280, 900);
-    const context = { page, origin: site.origin, report, quick };
+    const context = { page, origin: site.origin, report, quick, site };
 
     if (wants('routing')) {
       console.log(`${BOLD}routing${OFF} truth table over account x free-lesson x questionnaire x preview`);
@@ -161,6 +166,10 @@ try {
     if (wants('hygiene')) {
       console.log(`${BOLD}hygiene${OFF} console, resources, targets, contrast, overflow`);
       await runHygiene(context);
+    }
+    if (wants('fresh-device')) {
+      console.log(`${BOLD}fresh${OFF}   signed in on the server, unknown to this browser`);
+      await runFreshDevice(context);
     }
   }
 } catch (error) {
