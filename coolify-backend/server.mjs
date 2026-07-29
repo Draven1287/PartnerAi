@@ -403,6 +403,15 @@ function minutesFromNow(minutes) {
   return new Date(Date.now() + minutes * 60 * 1000).toISOString();
 }
 
+/* A cookie value is attacker-controlled and need not be valid percent-encoding.
+   decodeURIComponent('%') throws, and one such header on POST /api/auth/logout
+   killed the process: the handler was returned rather than awaited, so the
+   URIError escaped the request try/catch and became an unhandled rejection,
+   which Node 22 exits on. Unauthenticated, no CSRF, no valid origin needed.
+
+   A value that will not decode is passed through raw. It cannot match a real
+   session token, so the request simply fails to authenticate, which is the
+   correct outcome for a malformed cookie. */
 function parseCookies(req) {
   return Object.fromEntries(String(req.headers.cookie || '')
     .split(';')
@@ -410,7 +419,11 @@ function parseCookies(req) {
     .filter(Boolean)
     .map(part => {
       const index = part.indexOf('=');
-      return index === -1 ? [part, ''] : [part.slice(0, index), decodeURIComponent(part.slice(index + 1))];
+      if (index === -1) return [part, ''];
+      const raw = part.slice(index + 1);
+      let value = raw;
+      try { value = decodeURIComponent(raw); } catch { value = raw; }
+      return [part.slice(0, index), value];
     }));
 }
 
@@ -1491,9 +1504,9 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         return res.end();
       }
 
-      if (req.method === 'POST' && url.pathname === '/api/auth/signup') return handleSignup(req, res, database);
-      if (req.method === 'POST' && url.pathname === '/api/auth/login') return handleLogin(req, res, database);
-      if (req.method === 'POST' && url.pathname === '/api/auth/logout') return handleLogout(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/signup') return await handleSignup(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/login') return await handleLogin(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/logout') return await handleLogout(req, res, database);
       if (req.method === 'GET' && url.pathname === '/api/auth/me') {
         const session = await requireUser(req, res, database);
         if (!session) return;
@@ -1501,11 +1514,11 @@ export function createServer({ db = null, dataFile = DATA_FILE } = {}) {
         await database.rotateCsrf(session.session.token_hash, hashToken(csrfToken));
         return sendJson(res, 200, { ok: true, user: session.user, csrfToken }, { req });
       }
-      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/request') return handlePasswordResetRequest(req, res, database);
-      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/confirm') return handlePasswordResetConfirm(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/request') return await handlePasswordResetRequest(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/auth/password-reset/confirm') return await handlePasswordResetConfirm(req, res, database);
 
-      if (req.method === 'POST' && url.pathname === '/api/admin/login') return handleAdminLogin(req, res, database);
-      if (req.method === 'POST' && url.pathname === '/api/admin/logout') return handleAdminLogout(req, res, database, { url });
+      if (req.method === 'POST' && url.pathname === '/api/admin/login') return await handleAdminLogin(req, res, database);
+      if (req.method === 'POST' && url.pathname === '/api/admin/logout') return await handleAdminLogout(req, res, database, { url });
       if (req.method === 'GET' && url.pathname === '/api/admin/me') {
         const session = await requireAdmin(req, res, database, { url });
         if (!session) return;

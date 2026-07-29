@@ -660,6 +660,38 @@ async function runRouteChecks(db, label) {
     assert.equal(apiHealth.response.status, 200);
     assert.equal(apiHealth.body.dbStatus, 'ok');
 
+    /* A malformed cookie must not take the process down.
+
+       `Cookie: sess=%` on POST /api/auth/logout used to kill the server:
+       decodeURIComponent threw inside parseCookies, and the handler was
+       returned rather than awaited, so the URIError escaped the request
+       try/catch and became an unhandled rejection — which Node 22 exits on.
+       Unauthenticated, no CSRF, no valid origin. Anyone could stop the API at
+       will.
+
+       Every route that takes a body and every shape of bad encoding, because
+       the fault was in shared cookie parsing rather than in one handler. The
+       server still answering afterwards is the whole assertion. */
+    const hostileCookies = [
+      ['/api/auth/logout', 'sess=%'],
+      ['/api/auth/login', 'learningai_session=%E0%A4%A'],
+      ['/api/auth/signup', 'a=%zz'],
+      ['/api/admin/login', 'x=100%'],
+      ['/api/auth/password-reset/request', 'b=%FF%FE']
+    ];
+    for (const [path, cookie] of hostileCookies) {
+      const hostile = await request(path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', cookie },
+        body: {}
+      });
+      assert.ok(hostile.response.status >= 200 && hostile.response.status < 600,
+        `${label}: ${path} gave no answer for cookie ${cookie}`);
+      const survived = await request('/api/health');
+      assert.equal(survived.response.status, 200,
+        `${label}: the server stopped answering after ${path} received cookie ${cookie}`);
+    }
+
     const signup = await request('/api/auth/signup', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
