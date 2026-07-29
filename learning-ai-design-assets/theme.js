@@ -822,6 +822,101 @@
     });
   }
 
+  /* ---- the guard's server check ---------------------------------------
+     This guard used to decide entirely from localStorage. The account lives on
+     the server, so a learner signed in on a second browser — or one who had
+     cleared site data — looked exactly like a first-time visitor: sent back to
+     lesson one from every page, made to redo it, then asked to sign in when he
+     already was. That is what happened to a real learner, and it is why the
+     guard now asks the server before sending anybody backwards.
+
+     theme.js loads before learning-api.js on some pages and without it on
+     others, so this cannot call LearningAIAPI. It resolves the origin the same
+     way learning-api.js does and writes only the three keys the guard reads. */
+  const GUARD_RECHECK = 'learningai-guard-rechecked';
+
+  const apiBase = () => {
+    const loopback = host => ['127.0.0.1', 'localhost', '::1', '[::1]'].includes(String(host || '').toLowerCase());
+    try {
+      const stored = localStorage.getItem('learningai-api-origin');
+      if (stored) {
+        const parsed = new URL(stored, location.href);
+        if (parsed.origin === location.origin) return parsed.origin;
+        if (loopback(location.hostname) && loopback(parsed.hostname)) return parsed.origin;
+      }
+    } catch {}
+    return location.origin;
+  };
+
+  /* Only the keys this guard tests, and only in the direction that unlocks.
+     Nothing here may delete a record: a server that has not caught up yet must
+     never erase work this device is still holding. */
+  function adoptServerState(state) {
+    if (!state || typeof state !== 'object') return;
+    try {
+      const user = state.user || {};
+      if ((user.id || user.email) && !localStorage.getItem('learningai-prototype-account')) {
+        localStorage.setItem('learningai-prototype-account', JSON.stringify({
+          id: user.id || '', email: user.email || '',
+          displayName: user.displayName || user.display_name || 'Learner', mode: 'postgres'
+        }));
+      }
+      const first = (Array.isArray(state.progress) ? state.progress : [])
+        .find(row => row?.lessonId === 'chapter-1' && row.completedAt);
+      if (first && !localStorage.getItem('learningai-first-lesson-complete')) {
+        localStorage.setItem('learningai-first-lesson-complete',
+          JSON.stringify({ lessonId: 'chapter-1', completedAt: first.completedAt }));
+        localStorage.removeItem('learningai-first-lesson-pending');
+      }
+      if (state.assessment && !localStorage.getItem(ASSESSMENT_KEY)) {
+        localStorage.setItem(ASSESSMENT_KEY, JSON.stringify(state.assessment));
+      }
+    } catch {}
+  }
+
+  const guardDestination = () => !read('learningai-first-lesson-complete') ? './lesson-one.html'
+    : !read('learningai-prototype-account') ? './access.html?mode=create'
+    : './onboarding.html';
+
+  async function verifyWithServerBeforeSendingBack(destination) {
+    /* The flag guards the reload, not the request. Setting it before the fetch
+       meant the first locked page used up the one check for the whole tab, and
+       every page after it was redirected without ever asking. */
+    let alreadyReloaded = false;
+    try { alreadyReloaded = sessionStorage.getItem(GUARD_RECHECK) === '1'; } catch {}
+
+    // Hide rather than show a page we may be about to leave.
+    const root = document.documentElement;
+    const previous = root.style.visibility;
+    root.style.visibility = 'hidden';
+
+    let state = null;
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const response = await fetch(`${apiBase()}/api/v2/state`, {
+        credentials: 'include', headers: { accept: 'application/json' }, signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (response.ok) state = (await response.json())?.state || null;
+    } catch {}
+
+    if (!state) { location.replace(destination); return; }
+    adoptServerState(state);
+
+    const ok = Boolean(read('learningai-first-lesson-complete'))
+      && Boolean(read('learningai-prototype-account'))
+      && Boolean(read(ASSESSMENT_KEY));
+    /* Recomputed, not the destination worked out before the server answered.
+       Somebody whose only missing piece is the questionnaire was still being
+       sent to lesson one to redo a lesson the server knew he had finished. */
+    if (!ok || alreadyReloaded) { location.replace(guardDestination()); return; }
+    try { sessionStorage.setItem(GUARD_RECHECK, '1'); } catch {}
+    root.style.visibility = previous;
+    // Reload so the page initialises with the state it should have had.
+    location.reload();
+  }
+
   function guardPrototypeRoute() {
     /* Preview opens every page. This guard never checked it, which is why
        "preview every lesson" did nothing at all — the setting switched on, the
@@ -857,15 +952,16 @@
     // cached flag is only a convenience for older previews and must never
     // bypass a missing lesson, learner record, or questionnaire.
     const unlocked = firstComplete && accountReady && questionsReady;
+    if (unlocked) { try { sessionStorage.removeItem(GUARD_RECHECK); } catch {} }
     if (unlocked && !read('learningai-site-unlocked')) localStorage.setItem('learningai-site-unlocked', 'true');
     if (!unlocked && read('learningai-site-unlocked')) localStorage.removeItem('learningai-site-unlocked');
     if (file === 'onboarding.html') {
-      if (!firstComplete) { location.replace('./lesson-one.html'); return false; }
-      if (!accountReady) { location.replace('./access.html?mode=create'); return false; }
+      if (!firstComplete) { verifyWithServerBeforeSendingBack('./lesson-one.html'); return false; }
+      if (!accountReady) { verifyWithServerBeforeSendingBack('./access.html?mode=create'); return false; }
     }
     if (!PROTECTED_ROUTES.has(file) || unlocked) return true;
     const destination = !firstComplete ? './lesson-one.html' : !accountReady ? './access.html?mode=create' : './onboarding.html';
-    location.replace(destination);
+    verifyWithServerBeforeSendingBack(destination);
     return false;
   }
 

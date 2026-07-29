@@ -281,7 +281,12 @@ export const WRITABLE_KEYS = [
   ['learningai-font-scale', 'text size'],
   ['learningai-glass-nav-position-v1', 'where the nav was dragged'],
   ['learningai-api-origin', 'which backend this device talks to'],
-  ['learningai-csrf', 'request credential, not a record']
+  ['learningai-csrf', 'request credential, not a record'],
+  /* sessionStorage, and only a "we have already reloaded once" marker so the
+     route guard's server check cannot bounce a page forever. It records
+     nothing about the learner and must stay writable, or preview would trap
+     the very learner the check exists to rescue. */
+  ['learningai-guard-rechecked', 'one-shot reload marker for the route guard']
 ];
 
 /* Keys that appear in the source only as a prefix or a fragment, and are
