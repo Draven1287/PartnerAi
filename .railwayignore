@@ -1,0 +1,32 @@
+# What `railway up` uploads. Without this the CLI indexed the whole 210MB
+# working directory — 72MB of .git and 67MB of .claude worktrees, none of it
+# needed to run the site — and the upload timed out before it ever reached the
+# builder.
+#
+# frontend-server.mjs only ever serves /learning-ai-design-assets/, /v2/, /v3/
+# and four named files, so nothing below is reachable in production.
+# check-railway-package.mjs asserts what must still be present.
+
+.git
+.claude
+node_modules
+
+# A full second copy of the repo.
+.claude/worktrees
+
+# Internal working material. docs/ also holds the launch handoff, which carries
+# credentials — it is untracked, so git never shipped it, but `railway up`
+# uploads the working directory and had been putting it in the image.
+docs
+design
+reviews
+v2-redesign
+coolify-backend-v2
+
+*.zip
+*.pem
+*.key
+**/.env
+**/.env.*
+!**/.env.example
+.DS_Store
