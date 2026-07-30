@@ -27,6 +27,28 @@
     .catalog-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:42px;align-items:end;padding:48px 50px;border:1px solid rgba(168,132,63,.38);border-radius:32px;background:linear-gradient(145deg,rgba(255,255,255,.52),rgba(255,255,255,.22));box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 24px 70px rgba(44,39,28,.08);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
     .eyebrow{margin:0 0 14px;color:#786743;font-size:11px;font-weight:700;letter-spacing:.17em;text-transform:uppercase}.catalog-head h1{margin:0;max-width:620px;font-size:clamp(42px,6vw,72px);font-weight:530;letter-spacing:-.055em;line-height:.95}.lead{max-width:650px;margin:20px 0 0;color:#555751;font-size:17px;line-height:1.55}.catalog-summary{min-width:150px;padding-left:24px;border-left:1px solid rgba(50,49,42,.13)}.catalog-summary strong{display:block;font-size:34px;font-weight:520;letter-spacing:-.04em}.catalog-summary span{display:block;margin-top:6px;color:var(--muted);font-size:12px}
     .review-banner{margin:0 0 14px;padding:12px 16px;border:1px solid rgba(168,132,63,.4);border-radius:14px;background:rgba(255,250,235,.6);color:#5f4d24;font-size:13px;line-height:1.5}.review-banner a{color:#171816;font-weight:700}
+    /* Three parts, named and counted, above the arc tabs. The kicker carries
+       "Part 2 of 3" so a reader always knows how much course is left — the
+       thing ten numbered arc tabs never told them. */
+    /* .arc-jump button sets display:grid, which outranks the user-agent
+       [hidden]{display:none}, so hiding the arcs outside the current part was a
+       no-op — the property was set and all ten tabs stayed on screen. Make
+       hiding win. This is the same fault that once left a hidden field on the
+       sign-in form. */
+    [hidden]{display:none!important}
+    .part-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 14px}
+    .part-tab{display:grid;gap:3px;min-height:44px;padding:14px 16px;text-align:left;
+      border:2px solid rgba(50,48,42,.14);border-radius:18px;background:rgba(255,255,255,.34);
+      color:#252b28;font:inherit;cursor:pointer}
+    .part-tab:hover{background:rgba(255,255,255,.6)}
+    .part-tab:focus-visible{outline:3px solid #17231f;outline-offset:3px}
+    .part-tab[aria-selected="true"]{border-color:#141a17;background:#1f2724;color:#fff}
+    .part-kicker{font-size:10px;font-weight:760;letter-spacing:.16em;text-transform:uppercase;color:#7a6a45}
+    .part-tab[aria-selected="true"] .part-kicker{color:#d8b76b}
+    .part-name{font-size:17px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
+    .part-count{font-size:11.5px;font-weight:650;color:#6a716c}
+    .part-tab[aria-selected="true"] .part-count{color:#cfd6d2}
+    @media(max-width:820px){.part-strip{grid-template-columns:1fr;gap:8px}.part-tab{padding:12px 14px}}
     .arc-jump{display:flex;justify-content:center;gap:7px;margin:18px 0 28px;padding:9px;border:1px solid rgba(255,255,255,.65);border-radius:18px;background:rgba(255,255,255,.38);box-shadow:0 8px 30px rgba(44,39,28,.06);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);overflow-x:auto;
       /* The arc tabs scroll sideways below about 900px and the scrollbar was
          switched off outright, so there was no sign at all that arcs 6–10 were
@@ -100,6 +122,7 @@
       <div class="focus-mini-actions"><button class="focus-mini-button" data-focus-toggle type="button">Start focus</button><a class="focus-mini-link" href="./focus.html">Focus & badges</a></div>
     </section>
     <p class="review-banner" id="reviewBanner" hidden>Preview mode — every lesson is open and <strong>nothing you do here is saved</strong>. <a href="./lessons.html">Leave preview</a></p>
+    <div class="part-strip" id="partStrip" role="tablist" aria-label="Choose a part"></div>
     <div class="arc-jump" id="arcJump" role="tablist" aria-label="Choose an arc"></div>
     <div class="catalog" id="catalog"></div>
   </main>
@@ -118,14 +141,61 @@
        the catalog promises a lesson that does not exist at that link.
        Both numbers come from tools/estimate-lesson-time.mjs; `--apply` rewrites
        the literal below and `--check` fails if it drifts. */
+    /* The three parts. The backend has always sorted learners into Foundation,
+       Explorer and Builder, and every lesson already carries one — but the
+       catalogue never showed it, so ten numbered arc tabs told a reader nothing
+       about where they were or how much was left. A real learner said fifty was
+       so many it stopped making sense.
+
+       Cut on arc boundaries rather than on the backend's 9/15/26, which splits
+       mid-theme and leaves a final part of twenty-six lessons. */
+    const PARTS=[
+      {name:'Getting started',blurb:'What it is, how it works, and how to talk to it.',arcs:[0,1,2]},
+      {name:'Using it well',blurb:'Trust, craft, judgment, and staying yourself.',arcs:[3,4,5,6]},
+      {name:'Building with it',blurb:'Real life, real projects, and what you make.',arcs:[7,8,9]}
+    ];
+    const partOfArc=index=>PARTS.findIndex(part=>part.arcs.includes(index));
     const LESSON_ONE_MINUTES=17;
     const minutesFor=lesson=>lesson.num===1?LESSON_ONE_MINUTES:(Number(lesson.minutes)||0);
     const jump=document.querySelector('#arcJump');const catalog=document.querySelector('#catalog');const unitRail=document.querySelector('#unitRail');
     document.querySelector('#catalogPercent').textContent=`${courseState.percentage}%`;document.querySelector('#catalogCount').textContent=`${courseState.completedCount} of ${courseState.total} lessons complete`;const catalogProgress=document.querySelector('#catalogProgress');catalogProgress.setAttribute('aria-valuenow',String(courseState.completedCount));catalogProgress.setAttribute('aria-valuetext',`${courseState.completedCount} of ${courseState.total} lessons complete`);catalogProgress.querySelector('span').style.width=`${courseState.percentage}%`;
     const reviewMode=Boolean(window.LearningAIReviewMode);/* theme.js owns preview: the stored switch, or ?review=1 on a local host. */const readDraft=lesson=>{if(reviewMode)return null;try{const draft=JSON.parse(localStorage.getItem(`learningai-lesson-draft:${lesson.id}`)||'null');return draft&&Number.isInteger(Number(draft.index))?draft:null}catch{return null}};const savedLabel=value=>{const date=new Date(value);return Number.isNaN(date.getTime())?'saved recently':`saved ${date.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}`};
+    let CURRENT_PART=0;
+    const strip=document.querySelector('#partStrip');
+    /* Named, counted and numbered, so "Part 2 of 3 · 6 of 20 done" replaces
+       "Arc 07". Every part stays reachable — nothing is locked, because being
+       shut out of the course is the failure this product has already had. */
+    function paintParts(){
+      if(!strip)return;
+      strip.replaceChildren();
+      PARTS.forEach((part,i)=>{
+        const inPart=lessons.filter(lesson=>part.arcs.includes(arcs.indexOf(lesson.arc)));
+        const done=inPart.filter(lesson=>courseState.isDone(lesson.id)).length;
+        const button=document.createElement('button');
+        button.type='button';button.role='tab';button.id=`part-tab-${i+1}`;
+        button.className='part-tab';
+        button.setAttribute('aria-selected',String(i===CURRENT_PART));
+        button.tabIndex=i===CURRENT_PART?0:-1;
+        button.innerHTML=`<span class="part-kicker">Part ${i+1} of ${PARTS.length}</span>`
+          +`<span class="part-name">${part.name}</span>`
+          +`<span class="part-count">${done} of ${inPart.length} done</span>`;
+        button.addEventListener('click',()=>{ if(i!==CURRENT_PART) showArc(part.arcs[0],true); });
+        strip.append(button);
+      });
+    }
+
     function showArc(index,focus=false){
       const arc=arcs[index],inArc=lessons.filter(lesson=>lesson.arc===arc);
-      jump.querySelectorAll('button').forEach((button,i)=>{button.setAttribute('aria-selected',String(i===index));button.tabIndex=i===index?0:-1});
+      CURRENT_PART=partOfArc(index);
+      /* Only the arcs of the part being read. Ten tabs at once was the whole
+         complaint: a reader could not tell where they were in fifty lessons. */
+      jump.querySelectorAll('button').forEach((button,i)=>{
+        const mine=partOfArc(i)===CURRENT_PART;
+        button.hidden=!mine;
+        button.setAttribute('aria-selected',String(i===index));
+        button.tabIndex=i===index?0:-1;
+      });
+      paintParts();
       unitRail.querySelectorAll('span').forEach((dot,i)=>{dot.dataset.current=String(i===index)});
       /* Arc panels differ in height by up to ~127px. Replacing the contents
          outright let the page jump under the reader's finger. Pin the current
