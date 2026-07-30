@@ -428,6 +428,21 @@
     .fb-note-card p{margin:0 0 6px;font-size:13px;line-height:1.6;color:var(--text);overflow-wrap:anywhere}
     .fb-note-card p.snag{padding-left:11px;border-left:3px solid var(--warn-solid)}
     .fb-note-card .tag{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--inner-2);font-size:10.5px;font-weight:700;color:var(--text-dim)}
+    .as-pick{padding:0 24px 20px}
+    .as-pick label{display:block;margin-bottom:8px;font-size:11.5px;font-weight:740;color:var(--text-dim)}
+    .as-pick input{width:100%;max-width:420px;min-height:46px;padding:0 14px;border:var(--bw) solid var(--inner-line);
+      border-radius:11px;background:var(--inner);color:var(--text);font:inherit;font-size:14px;font-family:var(--font-mono)}
+    .as-pick input:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+    .as-hits{display:grid;gap:7px;margin-top:13px;max-width:620px}
+    .as-hit{display:flex;flex-wrap:wrap;gap:5px 12px;align-items:baseline;width:100%;min-height:46px;
+      padding:11px 14px;border:var(--bw) solid var(--inner-line);border-radius:11px;background:var(--inner);
+      color:var(--text);font:inherit;text-align:left;cursor:pointer}
+    .as-hit:hover{border-color:var(--accent)}
+    .as-hit[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+    .as-hit:focus-visible{outline:3px solid #17231f;outline-offset:2px}
+    .as-hit b{font-size:13.5px;font-weight:700}
+    .as-hit span{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);overflow-wrap:anywhere}
+    .as-hit em{font-style:normal;font-size:11px;color:var(--text-faint)}
     .dz-fold{border-top:var(--bw) solid var(--inner-line)}
     .dz-fold>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;
       min-height:44px;padding:12px 24px;cursor:pointer;list-style:none;
@@ -630,6 +645,7 @@
     <section id="tab-lessons" class="tabpanel" hidden><div id="lessons"></div></section>
     <section id="tab-questionnaire" class="tabpanel" hidden><div id="assessment"></div></section>
     <section id="tab-understand" class="tabpanel" hidden><div id="understand"></div></section>
+    <section id="tab-settings" class="tabpanel" hidden><div id="adminSettings"></div></section>
     <section id="tab-connection" class="tabpanel" hidden><div id="health"></div></section>
 
     <p class="foot">Everything on this page is read straight from the production database through <code>/api/admin/*</code>, and none of it is sample data. One control writes: <b>Delete this account permanently</b>, at the foot of the learner you have selected under Learners. It erases that learner and their data from the database, it cannot be undone, and it is the only thing here that changes anything. Where a number is missing it is because the API has not recorded it — each section says so in its own words, and the raw response is one disclosure away.</p>
@@ -1367,18 +1383,18 @@ function learnerDangerHtml(view) {
     + `<span class="nm">${esc(name || '(no display name)')}</span>`
     + `<span class="em">${esc(email)}</span></div>`
     + facts
-    + `<form id="learnerDeleteForm" autocomplete="off" data-id="${esc(String(id))}" data-email="${esc(email)}" data-name="${esc(name)}">`
+    + `<form class="dz-form" autocomplete="off" data-id="${esc(String(id))}" data-email="${esc(email)}" data-name="${esc(name)}">`
     /* label.field is display:grid, so every child is a row of its own. The
        prompt is therefore one element, not three text nodes around a span,
        which is what stacked "Type / address / to confirm" down the page. */
-    + '<label class="field" for="learnerDeleteConfirm">'
+    + '<label class="field">'
     + `<span class="fl">Type <span class="fx">${esc(email)}</span> to confirm</span>`
-    + '<input id="learnerDeleteConfirm" name="confirmation" type="text" autocomplete="off" '
+    + '<input class="dz-confirm" name="confirmation" type="text" autocomplete="off" '
     + 'autocapitalize="none" autocorrect="off" spellcheck="false" '
-    + `placeholder="${esc(email)}" aria-describedby="learnerDeleteStatus"></label>`
-    + '<button class="btn btn-danger" id="learnerDeleteButton" type="submit" disabled>'
+    + `placeholder="${esc(email)}"></label>`
+    + '<button class="btn btn-danger dz-button" type="submit" disabled>'
     + 'Delete this account permanently</button>'
-    + '<p class="status" id="learnerDeleteStatus" role="status" aria-live="polite"></p>'
+    + '<p class="status dz-status" role="status" aria-live="polite"></p>'
     + '</form></div></details>';
 }
 
@@ -1397,12 +1413,16 @@ function deletionReceiptHtml() {
     + '<code>admin_account_hard_delete</code>. Backups, email already sent and server logs are not affected.</p>';
 }
 
-function syncDeleteControl() {
-  const form = $('#learnerDeleteForm');
-  const input = $('#learnerDeleteConfirm');
-  const button = $('#learnerDeleteButton');
-  const status = $('#learnerDeleteStatus');
-  if (!form || !input || !button) return;
+/* Scoped to the form it was given, never looked up by id. The Learners tab and
+   the Settings tab both render this block, so a document-level lookup returned
+   whichever came first in the markup — which could be a different account
+   entirely from the one being confirmed. */
+function syncDeleteControl(form) {
+  if (!form) return;
+  const input = form.querySelector('.dz-confirm');
+  const button = form.querySelector('.dz-button');
+  const status = form.querySelector('.dz-status');
+  if (!input || !button) return;
   const wanted = String(form.dataset.email || '').trim().toLowerCase();
   const typed = String(input.value || '').trim().toLowerCase();
   const matches = Boolean(wanted) && typed === wanted;
@@ -1414,12 +1434,12 @@ function syncDeleteControl() {
   else status.textContent = 'The delete button is now on. Pressing it destroys this account for good.';
 }
 
-async function deleteSelectedLearner() {
-  const form = $('#learnerDeleteForm');
-  const input = $('#learnerDeleteConfirm');
-  const button = $('#learnerDeleteButton');
-  const status = $('#learnerDeleteStatus');
-  if (!form || !input || !button || !status) return;
+async function deleteSelectedLearner(form) {
+  if (!form) return;
+  const input = form.querySelector('.dz-confirm');
+  const button = form.querySelector('.dz-button');
+  const status = form.querySelector('.dz-status');
+  if (!input || !button || !status) return;
   const id = String(form.dataset.id || '');
   const email = String(form.dataset.email || '');
   const say = (text, bad) => { status.className = bad ? 'status bad' : 'status'; status.textContent = text; };
@@ -1982,6 +2002,68 @@ function healthHtml(context) {
   return html;
 }
 
+/* ---------- Settings: delete any account -------------------------------- */
+
+/* The same deletion the Learners tab offers, reached by searching instead of by
+   whatever row happens to be selected. It shares learnerDangerHtml and the one
+   submit handler, so there is a single deletion path and a single confirmation
+   rule — a second copy would drift, and this is the one control on the site
+   that cannot afford that.
+
+   Nothing is preselected. Deleting an account should start with looking for it. */
+let SETTINGS_QUERY = '';
+let SETTINGS_PICKED = null;
+
+function settingsMatches() {
+  const q = SETTINGS_QUERY.trim().toLowerCase();
+  if (q.length < 2) return [];
+  return LEARNER_VIEWS.filter(view => view.search.includes(q)).slice(0, 8);
+}
+
+/* The shell is built once and only the results and the danger zone are
+   replaced. Rebuilding the whole panel on each keystroke destroyed and
+   recreated the search input, which loses focus and the caret mid-word — and
+   made the field impossible to drive at all. */
+function settingsShell() {
+  const host = $('#adminSettings');
+  if (!host || host.dataset.built === '1') return;
+  host.dataset.built = '1';
+  host.innerHTML = '<div class="panel"><div class="panel-h"><h2>Delete an account</h2>'
+    + '<span class="meta">any learner, found by email or name</span></div>'
+    + '<div class="as-pick">'
+    + '<label for="adminAccountSearch">Find the account</label>'
+    + '<input id="adminAccountSearch" type="search" autocomplete="off" spellcheck="false" placeholder="email or name">'
+    + '<div id="adminAccountHits"></div>'
+    + '</div>'
+    + '<div id="adminAccountDanger"></div>'
+    + '</div>';
+}
+
+function paintAdminSettings() {
+  settingsShell();
+  const hits = $('#adminAccountHits');
+  const danger = $('#adminAccountDanger');
+  if (!hits || !danger) return;
+
+  const typed = SETTINGS_QUERY.trim();
+  const matches = settingsMatches();
+  hits.innerHTML = typed.length < 2
+    ? `<p class="empty">Type at least two characters of an email or name. ${esc(plural(LEARNER_VIEWS.length, 'account'))} on file.</p>`
+    : matches.length
+      ? `<div class="as-hits">${matches.map(view => `<button class="as-hit" type="button" data-pick="${esc(String(view.id))}"`
+          + ` aria-pressed="${String(view.id) === String(SETTINGS_PICKED)}">`
+          + `<b>${esc(view.name || '(no name)')}</b><span>${esc(view.email || '')}</span></button>`).join('')}</div>`
+      : `<p class="empty">Nothing matches &ldquo;${esc(typed)}&rdquo;. Deletion is by exact account, so nothing is offered until one does.</p>`;
+
+  /* Only ever the account still visible in the list above. Rebuilding this is
+     also what throws away a half-typed confirmation, and a confirmation may
+     only apply to the account that was on screen when it was typed. */
+  const chosen = SETTINGS_PICKED && matches.some(view => String(view.id) === String(SETTINGS_PICKED))
+    ? matches.find(view => String(view.id) === String(SETTINGS_PICKED))
+    : null;
+  danger.innerHTML = chosen ? learnerDangerHtml(chosen) : '';
+}
+
 /* ---------- Understand: what learners say ------------------------------- */
 
 /* The four closed questions, with the wording the learner actually saw. The
@@ -2115,6 +2197,7 @@ const TABS = [
   { key: 'lessons', name: 'Lessons', icon: 'book' },
   { key: 'questionnaire', name: 'Questionnaire', icon: 'list' },
   { key: 'understand', name: 'Understand', icon: 'pulse' },
+  { key: 'settings', name: 'Settings', icon: 'target' },
   { key: 'connection', name: 'Connection', icon: 'refresh' }
 ];
 let ACTIVE_TAB = 'overview';
@@ -2145,8 +2228,26 @@ function showTab(key, counts) {
 
 let LAST_COUNTS = null;
 
+document.addEventListener('input', event => {
+  if (event.target && event.target.id === 'adminAccountSearch') {
+    SETTINGS_QUERY = event.target.value;
+    // Narrowing the search must not leave a selection the list no longer shows.
+    if (SETTINGS_PICKED && !settingsMatches().some(v => String(v.id) === String(SETTINGS_PICKED))) SETTINGS_PICKED = null;
+    paintAdminSettings();
+  }
+});
+
 document.addEventListener('click', event => {
   const tabButton = event.target.closest('[data-tab]');
+  /* Picking a different account rebuilds the danger zone, which is what throws
+     away a half-typed confirmation. A confirmation may only ever apply to the
+     account that was on screen when it was typed. */
+  const pick = event.target.closest('[data-pick]');
+  if (pick) {
+    SETTINGS_PICKED = SETTINGS_PICKED === pick.dataset.pick ? null : pick.dataset.pick;
+    paintAdminSettings();
+    return;
+  }
   if (tabButton) { showTab(tabButton.dataset.tab); return; }
   const goto = event.target.closest('[data-goto]');
   if (goto) { showTab(goto.dataset.goto); return; }
@@ -2165,15 +2266,16 @@ document.addEventListener('input', event => {
   }
   /* Deliberately not routed through paintLearnerList(): that redraws the whole
      block, which would destroy the field being typed into. */
-  if (event.target && event.target.id === 'learnerDeleteConfirm') syncDeleteControl();
+  // Whichever copy raised it, and only that one.
+  if (event.target && event.target.classList?.contains('dz-confirm')) syncDeleteControl(event.target.closest('.dz-form'));
 });
 
 /* The delete form is built by paintLearnerList(), so it cannot carry its own
    listener. submit bubbles, so one delegated listener covers every rebuild. */
 document.addEventListener('submit', event => {
-  if (event.target && event.target.id === 'learnerDeleteForm') {
+  if (event.target && event.target.classList?.contains('dz-form')) {
     event.preventDefault();
-    deleteSelectedLearner();
+    deleteSelectedLearner(event.target);
   }
 });
 
@@ -2288,6 +2390,7 @@ async function load() {
   } catch (error) {
     paintUnderstand(null);
   }
+  paintAdminSettings();
   render($('#health'), () => healthHtml(context), health);
 
   LAST_COUNTS = {
