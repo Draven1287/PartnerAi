@@ -724,11 +724,11 @@
         {
           "kind": "classify",
           "title": "What can you honestly say?",
-          "prompt": "For each one, pick the strongest thing you are allowed to claim. Do not judge by how good it looks.",
+          "prompt": "For each one, pick the strongest thing you are allowed to say. Do not judge by how good it looks.",
           "buckets": [
-            "Generation is documented",
-            "Retrieval is documented",
-            "Origin is still unclear"
+            "It says it made this",
+            "It says it found this",
+            "It does not say"
           ],
           "items": [
             {
@@ -1012,11 +1012,11 @@
         {
           "kind": "classify",
           "title": "What kind of claim is this?",
-          "prompt": "Sort each line by how you should weigh it up.",
+          "prompt": "Sort each line by what kind of claim it is.",
           "buckets": [
-            "Test whether it can actually do it",
-            "The words do not prove a feeling",
-            "Get a real person involved"
+            "A claim I can test",
+            "A feeling it cannot have",
+            "Too serious for an app"
           ],
           "items": [
             {
@@ -1304,11 +1304,11 @@
         {
           "kind": "classify",
           "title": "Which door shows the least?",
-          "prompt": "Pick the simplest door that still works. Typing is enough whenever you can describe the task in words.",
+          "prompt": "Pick the simplest way that still works. Typing is enough whenever you can describe the task in words.",
           "buckets": [
-            "Typing is enough",
-            "Talking may be easiest",
-            "A cropped photo may be easiest"
+            "Type it",
+            "Say it",
+            "Show it"
           ],
           "items": [
             {
@@ -1587,8 +1587,8 @@
           "title": "Which part is missing?",
           "prompt": "Each line adds ONE real thing. Is it your Goal and Context — what you want to do, and who you are? Or your Constraints and Format — your limits, and the shape you want back?",
           "buckets": [
-            "Goal / Context",
-            "Constraints / Format"
+            "What I want, and who I am",
+            "My limits, and the shape I want back"
           ],
           "items": [
             {
@@ -2489,13 +2489,13 @@
         {
           "kind": "classify",
           "title": "Which one is it?",
-          "prompt": "Sort each example into the thing it really describes. Real apps mix these up and label them differently, so the point is to keep the five questions separate in your head.",
+          "prompt": "Sort each example by which question it answers. Real apps mix these up and label them differently, so the point is to keep the five questions separate in your head.",
           "buckets": [
-            "Still in this chat",
-            "Kept in your chat list",
-            "Remembered on purpose",
-            "Kept behind the scenes",
-            "Used to build the next one"
+            "What it can see right now",
+            "What is saved in your chat list",
+            "What it brings to a new chat",
+            "How long it is kept, and who can read it",
+            "Whether it trains the next version"
           ],
           "items": [
             {
@@ -2635,9 +2635,9 @@
           "title": "What does the proof actually show?",
           "prompt": "Sort each one. Use 'cannot tell' whenever the answer does not show what happened behind it.",
           "buckets": [
-            "Guessing only (the model)",
-            "It used a helper (a tool)",
-            "It worked through steps (an agent)",
+            "It only guessed",
+            "It used a helper",
+            "It worked through steps",
             "Cannot tell from this"
           ],
           "items": [
@@ -2780,11 +2780,11 @@
         {
           "kind": "classify",
           "title": "Which dial is this?",
-          "prompt": "Each phrase turns one dial. Sort it by what it changes: the hat, the reader, or the shape.",
+          "prompt": "Each phrase turns one dial. Sort it by what it changes: who it is being, who it is for, or how it should look.",
           "buckets": [
-            "The hat",
-            "The reader",
-            "The shape"
+            "Who it is being",
+            "Who it is for",
+            "How it should look"
           ],
           "items": [
             {
@@ -5781,7 +5781,7 @@
           "title": "A real lock, or just a promise?",
           "prompt": "Sort each protection. A real lock stops the action happening. A promise only asks it to behave, and cannot prove the action is impossible.",
           "buckets": [
-            "A real lock, or proof you can see",
+            "A real limit you can see",
             "Only a promise"
           ],
           "items": [
@@ -6240,10 +6240,10 @@
         {
           "kind": "classify",
           "title": "Which piece is this?",
-          "prompt": "Sort each line. Is it a line you hold, or a move you make? You are taking stock before you build the page.",
+          "prompt": "Sort each one. Is it a rule you keep, or a step you take? You are taking stock before you build the page.",
           "buckets": [
-            "A line I hold",
-            "A move I make"
+            "A rule I keep",
+            "A step I take"
           ],
           "items": [
             {

@@ -27,11 +27,11 @@ export default {
     {
       "kind": "classify",
       "title": "Which dial is this?",
-      "prompt": "Each phrase turns one dial. Sort it by what it changes: the hat, the reader, or the shape.",
+      "prompt": "Each phrase turns one dial. Sort it by what it changes: who it is being, who it is for, or how it should look.",
       "buckets": [
-        "The hat",
-        "The reader",
-        "The shape"
+        "Who it is being",
+        "Who it is for",
+        "How it should look"
       ],
       "items": [
         {

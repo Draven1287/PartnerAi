@@ -29,8 +29,8 @@ export default {
       "title": "Which part is missing?",
       "prompt": "Each line adds ONE real thing. Is it your Goal and Context — what you want to do, and who you are? Or your Constraints and Format — your limits, and the shape you want back?",
       "buckets": [
-        "Goal / Context",
-        "Constraints / Format"
+        "What I want, and who I am",
+        "My limits, and the shape I want back"
       ],
       "items": [
         {

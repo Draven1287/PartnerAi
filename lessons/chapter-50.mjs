@@ -27,10 +27,10 @@ export default {
     {
       "kind": "classify",
       "title": "Which piece is this?",
-      "prompt": "Sort each line. Is it a line you hold, or a move you make? You are taking stock before you build the page.",
+      "prompt": "Sort each one. Is it a rule you keep, or a step you take? You are taking stock before you build the page.",
       "buckets": [
-        "A line I hold",
-        "A move I make"
+        "A rule I keep",
+        "A step I take"
       ],
       "items": [
         {

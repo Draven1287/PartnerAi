@@ -27,11 +27,11 @@ export default {
     {
       "kind": "classify",
       "title": "What kind of claim is this?",
-      "prompt": "Sort each line by how you should weigh it up.",
+      "prompt": "Sort each line by what kind of claim it is.",
       "buckets": [
-        "Test whether it can actually do it",
-        "The words do not prove a feeling",
-        "Get a real person involved"
+        "A claim I can test",
+        "A feeling it cannot have",
+        "Too serious for an app"
       ],
       "items": [
         {

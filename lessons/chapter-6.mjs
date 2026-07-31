@@ -27,11 +27,11 @@ export default {
     {
       "kind": "classify",
       "title": "What can you honestly say?",
-      "prompt": "For each one, pick the strongest thing you are allowed to claim. Do not judge by how good it looks.",
+      "prompt": "For each one, pick the strongest thing you are allowed to say. Do not judge by how good it looks.",
       "buckets": [
-        "Generation is documented",
-        "Retrieval is documented",
-        "Origin is still unclear"
+        "It says it made this",
+        "It says it found this",
+        "It does not say"
       ],
       "items": [
         {

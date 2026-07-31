@@ -29,9 +29,9 @@ export default {
       "title": "What does the proof actually show?",
       "prompt": "Sort each one. Use 'cannot tell' whenever the answer does not show what happened behind it.",
       "buckets": [
-        "Guessing only (the model)",
-        "It used a helper (a tool)",
-        "It worked through steps (an agent)",
+        "It only guessed",
+        "It used a helper",
+        "It worked through steps",
         "Cannot tell from this"
       ],
       "items": [

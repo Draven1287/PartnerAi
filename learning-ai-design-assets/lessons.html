@@ -129,7 +129,7 @@
     <div class="catalog" id="catalog"></div>
   </main>
 
-  <script src="../v2/lessons.js?v=2026-07-28c"></script><script src="./course-state.js?v=2026-07-26b"></script><script src="./nav-behavior.js?v=2026-07-28b"></script><script src="./focus-mini.js?v=2026-07-26b"></script>
+  <script src="../v2/lessons.js?v=2026-07-30b"></script><script src="./course-state.js?v=2026-07-26b"></script><script src="./nav-behavior.js?v=2026-07-28b"></script><script src="./focus-mini.js?v=2026-07-26b"></script>
   <script>
     document.querySelector('.settings').href='./settings.html';
     let heightRelease=0;
@@ -151,10 +151,15 @@
 
        Cut on arc boundaries rather than on the backend's 9/15/26, which splits
        mid-theme and leaves a final part of twenty-six lessons. */
+    /* Named for what is actually in them. "Using it well" held the scam and
+       deepfake lessons and "when NOT to use AI", which is not where somebody
+       worried about a scam text would look; "Building with it" held money,
+       health and shopping. Names stay short because the part box has about
+       three characters of slack at 874px with the largest text. */
     const PARTS=[
-      {name:'Getting started',blurb:'What it is, how it works, and how to talk to it.',arcs:[0,1,2]},
-      {name:'Using it well',blurb:'Trust, craft, judgment, and staying yourself.',arcs:[3,4,5,6]},
-      {name:'Building with it',blurb:'Real life, real projects, and what you make.',arcs:[7,8,9]}
+      {name:'Getting started',blurb:'What it is, how to ask, and staying safe.',arcs:[0,1,2]},
+      {name:'When to trust it',blurb:'Checking claims, spotting fakes, and when to stop.',arcs:[3,4,5,6]},
+      {name:'Using it for real',blurb:'Money, health, projects, and things you build.',arcs:[7,8,9]}
     ];
     const partOfArc=index=>PARTS.findIndex(part=>part.arcs.includes(index));
     const LESSON_ONE_MINUTES=17;

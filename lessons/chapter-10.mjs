@@ -27,11 +27,11 @@ export default {
     {
       "kind": "classify",
       "title": "Which door shows the least?",
-      "prompt": "Pick the simplest door that still works. Typing is enough whenever you can describe the task in words.",
+      "prompt": "Pick the simplest way that still works. Typing is enough whenever you can describe the task in words.",
       "buckets": [
-        "Typing is enough",
-        "Talking may be easiest",
-        "A cropped photo may be easiest"
+        "Type it",
+        "Say it",
+        "Show it"
       ],
       "items": [
         {

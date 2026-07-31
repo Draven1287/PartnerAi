@@ -57,7 +57,7 @@ export default {
       "title": "A real lock, or just a promise?",
       "prompt": "Sort each protection. A real lock stops the action happening. A promise only asks it to behave, and cannot prove the action is impossible.",
       "buckets": [
-        "A real lock, or proof you can see",
+        "A real limit you can see",
         "Only a promise"
       ],
       "items": [

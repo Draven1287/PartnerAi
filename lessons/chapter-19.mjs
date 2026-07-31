@@ -27,13 +27,13 @@ export default {
     {
       "kind": "classify",
       "title": "Which one is it?",
-      "prompt": "Sort each example into the thing it really describes. Real apps mix these up and label them differently, so the point is to keep the five questions separate in your head.",
+      "prompt": "Sort each example by which question it answers. Real apps mix these up and label them differently, so the point is to keep the five questions separate in your head.",
       "buckets": [
-        "Still in this chat",
-        "Kept in your chat list",
-        "Remembered on purpose",
-        "Kept behind the scenes",
-        "Used to build the next one"
+        "What it can see right now",
+        "What is saved in your chat list",
+        "What it brings to a new chat",
+        "How long it is kept, and who can read it",
+        "Whether it trains the next version"
       ],
       "items": [
         {
