@@ -26,6 +26,13 @@
   html[data-text-zoom="in"] body *{min-width:0;hyphens:auto;overflow-wrap:anywhere}
   html[data-text-zoom="in"] .nav-glass nav>*,
   html[data-text-zoom="in"] .arc-rail>*,
+  /* A lesson's answer options are words a reader has to weigh against each
+     other, so breaking one mid-word — "profess/ional", "somew/here" — reads as
+     the page being broken rather than as a long word. Measured at 375px and the
+     largest text: exempting these changes the line count on one lesson only,
+     costs about 16px of height there, and the page still has no overflow. */
+  html[data-text-zoom="in"] .pick-opt,
+  html[data-text-zoom="in"] .part-tab .part-name,
   html[data-text-zoom="in"] .vault-rail>*{min-width:auto;overflow-wrap:normal}
 }
 *:focus-visible{outline:3px solid #17231f;outline-offset:3px}
