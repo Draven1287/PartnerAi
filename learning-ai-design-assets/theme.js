@@ -861,12 +861,36 @@
           displayName: user.displayName || user.display_name || 'Learner', mode: 'postgres'
         }));
       }
-      const first = (Array.isArray(state.progress) ? state.progress : [])
-        .find(row => row?.lessonId === 'chapter-1' && row.completedAt);
+      const rows = Array.isArray(state.progress) ? state.progress : [];
+      const first = rows.find(row => row?.lessonId === 'chapter-1' && row.completedAt);
       if (first && !localStorage.getItem('learningai-first-lesson-complete')) {
         localStorage.setItem('learningai-first-lesson-complete',
           JSON.stringify({ lessonId: 'chapter-1', completedAt: first.completedAt }));
         localStorage.removeItem('learningai-first-lesson-pending');
+      }
+      /* Every finished lesson, not only the free one. Copying chapter-1 alone
+         got a learner past the route guard and then straight into the lock:
+         the catalogue read "1 of 50", lesson 2 said START, and 3, 4 and 5 all
+         showed "Your current next lesson is 2" — four lessons he had genuinely
+         finished, offered back to him to redo. learningai-progress is what the
+         unlock gate and every counter actually read.
+
+         Merged, never replaced: work done on this device while the server was
+         unreachable must survive meeting a server that has not caught up. */
+      if (rows.length) {
+        let completed = {};
+        try {
+          const held = JSON.parse(localStorage.getItem('learningai-progress') || 'null');
+          if (held && typeof held.completed === 'object' && held.completed) completed = { ...held.completed };
+        } catch {}
+        let added = 0;
+        for (const row of rows) {
+          if (!row?.lessonId || !row.completedAt || completed[row.lessonId]) continue;
+          completed[row.lessonId] = { completedAt: row.completedAt };
+          added += 1;
+        }
+        if (added) localStorage.setItem('learningai-progress',
+          JSON.stringify({ completed, savedAt: new Date().toISOString() }));
       }
       if (state.assessment && !localStorage.getItem(ASSESSMENT_KEY)) {
         localStorage.setItem(ASSESSMENT_KEY, JSON.stringify(state.assessment));

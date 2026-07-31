@@ -71,12 +71,46 @@ export async function runFreshDevice({ page, origin, report, site }) {
     await new Promise(resolve => setTimeout(resolve, 2_500));
     const where = await landedOn(page);
     const asked = path.split('?')[0];
-    report.check(
+    if (!report.check(
       `fresh-device/opens  ${path}`,
       where.split('?')[0] === asked,
       `asked for ${path} and landed on ${where} — a signed-in learner was sent backwards`
+    )) continue;
+
+    /* Arriving is not the same as being let in. A locked-out learner renders
+       the locked card on exactly the URL he asked for, so checking the URL
+       alone passed him as fine — which is how a real learner was found stuck
+       on a second device with lessons 3, 4 and 5 all telling him to go back
+       and redo lesson 2. */
+    const shut = await page.evaluate(`
+      const locked = document.querySelector('#locked');
+      const lockedOut = Boolean(locked && locked.classList.contains('open'));
+      const player = document.querySelector('#player');
+      const hiddenPlayer = Boolean(player && player.classList.contains('hidden'));
+      const text = (document.body.innerText || '');
+      return JSON.stringify({ lockedOut, hiddenPlayer,
+        saysGoBack: /opens after|current next lesson/i.test(text),
+        lessonsSeen: (text.match(/(\\d+) of 50 lessons/) || [])[1] || null });
+    `);
+    const state = JSON.parse(shut);
+    report.check(
+      `fresh-device/lets-him-in  ${path}`,
+      !state.lockedOut && !state.saysGoBack,
+      `the page opened but shut him out${state.saysGoBack ? ' — it tells him to go back and redo a finished lesson' : ''}`
     );
   }
+
+  /* And the count the catalogue shows must be the work the server holds. */
+  await forgetDevice();
+  await page.goto(`${origin}/learning-ai-design-assets/lessons.html`, { budget: 15_000 });
+  await new Promise(resolve => setTimeout(resolve, 2_500));
+  const counted = await page.evaluate(
+    `return ((document.body.innerText || '').match(/(\\d+) of 50 lessons/) || [])[1] || '0';`);
+  report.check(
+    'fresh-device/progress-carries-over',
+    Number(counted) >= 3,
+    `the catalogue says ${counted} of 50 done, but three lessons are recorded on the server`
+  );
 
   /* And the other half: somebody with no account at all must still be kept out,
      or the fix that rescued the learner would have opened the course to

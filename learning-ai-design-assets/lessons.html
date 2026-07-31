@@ -45,6 +45,8 @@
     .part-tab[aria-selected="true"]{border-color:#141a17;background:#1f2724;color:#fff}
     .part-kicker{font-size:10px;font-weight:760;letter-spacing:.16em;text-transform:uppercase;color:#7a6a45}
     .part-tab[aria-selected="true"] .part-kicker{color:#d8b76b}
+    .part-blurb{font-size:12px;line-height:1.4;color:#6a716c}
+    .part-tab[aria-selected="true"] .part-blurb{color:#cfd6d2}
     .part-name{font-size:17px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
     .part-count{font-size:11.5px;font-weight:650;color:#6a716c}
     .part-tab[aria-selected="true"] .part-count{color:#cfd6d2}
@@ -115,7 +117,7 @@
   <aside class="unit-rail" id="unitRail" aria-hidden="true"></aside>
 
   <main>
-    <header class="catalog-head"><div><p class="eyebrow">Lessons</p><h1>Choose an arc</h1><p class="lead">Explore every arc, then begin with the free first lesson. The remaining lessons unlock in order so each capability has the foundation it needs.</p></div><div class="catalog-summary"><strong id="catalogPercent">0%</strong><span id="catalogCount">0 of 50 lessons complete</span><div class="catalog-progress" id="catalogProgress" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-valuetext="0 of 50 lessons complete"><span></span></div></div></header>
+    <header class="catalog-head"><div><p class="eyebrow">Lessons</p><h1>Choose a lesson</h1><p class="lead">The course comes in three parts. Start with the free first lesson; the rest open in order, so each one has what it needs.</p></div><div class="catalog-summary"><strong id="catalogPercent">0%</strong><span id="catalogCount">0 of 50 lessons complete</span><div class="catalog-progress" id="catalogProgress" role="progressbar" aria-label="Course progress" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-valuetext="0 of 50 lessons complete"><span></span></div></div></header>
     <section class="focus-mini" data-focus-mini aria-label="Learning focus timer">
       <div class="focus-mini-copy"><span class="focus-mini-label">Focus while you learn</span><strong class="focus-mini-title">Your timer follows you into every lesson.</strong><span class="focus-mini-status" data-focus-status>A 25-minute checkpoint is recommended.</span></div>
       <div class="focus-mini-meter" aria-label="Progress toward today’s 25-minute recommendation"><svg viewBox="0 0 56 56" aria-hidden="true"><circle class="focus-mini-track" cx="28" cy="28" r="22"/><circle class="focus-mini-value" data-focus-ring cx="28" cy="28" r="22"/></svg><span class="focus-mini-time" data-focus-clock>00:00</span></div>
@@ -175,11 +177,28 @@
         button.type='button';button.role='tab';button.id=`part-tab-${i+1}`;
         button.className='part-tab';
         button.setAttribute('aria-selected',String(i===CURRENT_PART));
+        button.setAttribute('aria-controls','catalog');
         button.tabIndex=i===CURRENT_PART?0:-1;
         button.innerHTML=`<span class="part-kicker">Part ${i+1} of ${PARTS.length}</span>`
           +`<span class="part-name">${part.name}</span>`
+          +`<span class="part-blurb">${part.blurb}</span>`
           +`<span class="part-count">${done} of ${inPart.length} done</span>`;
         button.addEventListener('click',()=>{ if(i!==CURRENT_PART) showArc(part.arcs[0],true); });
+        /* Roving tabindex means only the selected tab is tabbable, so without
+           this the other two parts could not be reached by keyboard at all.
+           Same keys the arc tablist already answers to. */
+        button.addEventListener('keydown',event=>{
+          if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key))return;
+          event.preventDefault();
+          const last=PARTS.length-1;
+          let next=i;
+          if(event.key==='ArrowLeft'||event.key==='ArrowUp')next=i===0?last:i-1;
+          else if(event.key==='ArrowRight'||event.key==='ArrowDown')next=i===last?0:i+1;
+          else if(event.key==='Home')next=0;
+          else next=last;
+          showArc(PARTS[next].arcs[0]);
+          strip.querySelector(`#part-tab-${next+1}`)?.focus();
+        });
         strip.append(button);
       });
     }
@@ -245,7 +264,19 @@
     }
     arcs.forEach((arc,index)=>{const button=document.createElement('button');button.type='button';button.id=`arc-tab-${index+1}`;button.role='tab';button.textContent=`Arc ${String(index+1).padStart(2,'0')}`;button.style.width='auto';button.style.paddingInline='13px';button.setAttribute('aria-label',`Choose Arc ${index+1}: ${arc}`);button.addEventListener('click',()=>showArc(index));button.addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let next=index;if(event.key==='ArrowLeft')next=(index-1+arcs.length)%arcs.length;if(event.key==='ArrowRight')next=(index+1)%arcs.length;if(event.key==='Home')next=0;if(event.key==='End')next=arcs.length-1;showArc(next);jump.children[next].focus()});jump.append(button);const railDot=document.createElement('span');unitRail.append(railDot)});
     if(reviewMode){const b=document.querySelector('#reviewBanner');if(b)b.hidden=false;}
-    if(lessons.length!==50||arcs.length!==10){catalog.innerHTML='<section class="arc" role="alert"><div class="arc-meta"><span class="arc-number">!</span><h2>Lessons could not load</h2><p>The course manifest is missing or incomplete. Reload this page; if the problem continues, return to the Dashboard.</p><a class="lesson is-ready" href="./stage-1-navigation-proof.html">Return to Dashboard →</a></div></section>';jump.hidden=true;unitRail.hidden=true}else{const requestedArc=Math.min(arcs.length-1,Math.max(0,(Number(location.hash.replace('#arc-',''))||1)-1));showArc(requestedArc)}
+    if(lessons.length!==50||arcs.length!==10){catalog.innerHTML='<section class="arc" role="alert"><div class="arc-meta"><span class="arc-number">!</span><h2>Lessons could not load</h2><p>The course manifest is missing or incomplete. Reload this page; if the problem continues, return to the Dashboard.</p><a class="lesson is-ready" href="./stage-1-navigation-proof.html">Return to Dashboard →</a></div></section>';jump.hidden=true;unitRail.hidden=true}else{/* Open where the learner actually is. Always opening Arc 01 meant somebody
+         twenty-two lessons in arrived on a part reading "15 of 15 done" with their
+         next lesson nowhere on screen. An explicit #arc-N still wins. */
+      const askedFor=Number(location.hash.replace('#arc-',''));
+      const nextUp=lessons.find(lesson=>!courseState.isDone(lesson.id));
+      /* Finished the whole course: open at the end, not back at the beginning.
+         There is nothing to resume, and Part 1 is the least likely place they
+         want to be. */
+      const resumeArc=nextUp?Math.max(0,arcs.indexOf(nextUp.arc)):arcs.length-1;
+      const requestedArc=Number.isFinite(askedFor)&&askedFor>0
+        ? Math.min(arcs.length-1,askedFor-1)
+        : resumeArc;
+      showArc(requestedArc)}
   </script>
 </body>
 </html>
