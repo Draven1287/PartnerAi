@@ -196,7 +196,31 @@
      visitor who has not got one. */
   try{if(localStorage.getItem('learningai-prototype-account')){const hint=document.querySelector('#signInHint');if(hint)hint.hidden=true}}catch{}
   function hasAccount(){try{return Boolean(localStorage.getItem('learningai-prototype-account'))}catch{return false}}
-  function render(){const path=lessonPath();if(!path.includes(current))current=path[0];const pathIndex=path.indexOf(current);document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===current));lessonCard.classList.toggle('is-decision-step',current===2);document.querySelector('#decisionEyebrow').textContent=`Decision lab · ${requiredDecisionCount()} choices`;document.querySelector('#completionSummary').textContent='You made four real choices. You kept private things private. You saw the parts behind the answer. You checked a claim before acting on it.';count.textContent=`Lesson 01 · Step ${pathIndex+1} of ${path.length}`;track.style.width=`${(pathIndex+1)/path.length*100}%`;previous.disabled=pathIndex===0;next.textContent=current===total?(review?'Return to lesson path →':(hasAccount()?'Finish and save →':'Create account to save →')):'Next →';next.disabled=false;next.hidden=current===2||current===6;document.querySelector('#decisionStatus').textContent=`${requiredQuestions().filter(question=>Boolean(decisions[question])).length} of ${requiredDecisionCount()} complete`;renderDecisionRound();renderVerification();renderVerifyReview();updatePersonalization();saveDraft()}
+  /* This used to be one fixed sentence, written every render: "You made four
+     real choices. You kept private things private. You checked a claim before
+     acting on it." — shown word for word to somebody who skipped all four
+     choices and both checks, directly above a review reading "0 of 2, not
+     answered".
+
+     A course about not believing confident claims cannot end by making one up
+     about the reader's own work. Say what actually happened. */
+  function completionSummary(){
+    const total=requiredDecisionCount();
+    const made=requiredQuestions().filter(question=>Boolean(decisions[question])).length;
+    const checksTotal=verifyOrder.length,checked=verifyAnsweredCount(),right=verifyScore();
+    const lines=[];
+    lines.push(made===total?`You made all ${total} choices yourself.`
+      :made?`You made ${made} of the ${total} choices.`
+      :'You read it through without making the choices.');
+    lines.push('You saw the parts behind the answer.');
+    lines.push(checked===0?'The two checks are still there whenever you want them.'
+      :checked<checksTotal?`You answered ${checked} of the ${checksTotal} checks.`
+      :right===checksTotal?'You checked both claims, and both matched.'
+      :`You answered both checks; ${right} of ${checksTotal} matched.`);
+    return lines.join(' ');
+  }
+
+  function render(){const path=lessonPath();if(!path.includes(current))current=path[0];const pathIndex=path.indexOf(current);document.querySelectorAll('.step').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===current));lessonCard.classList.toggle('is-decision-step',current===2);document.querySelector('#decisionEyebrow').textContent=`Decision lab · ${requiredDecisionCount()} choices`;document.querySelector('#completionSummary').textContent=completionSummary();count.textContent=`Lesson 01 · Step ${pathIndex+1} of ${path.length}`;track.style.width=`${(pathIndex+1)/path.length*100}%`;previous.disabled=pathIndex===0;next.textContent=current===total?(review?'Return to lesson path →':(hasAccount()?'Finish and save →':'Create account to save →')):'Next →';next.disabled=false;next.hidden=current===2||current===6;document.querySelector('#decisionStatus').textContent=`${requiredQuestions().filter(question=>Boolean(decisions[question])).length} of ${requiredDecisionCount()} complete`;renderDecisionRound();renderVerification();renderVerifyReview();updatePersonalization();saveDraft()}
   const goTop=()=>window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches||document.documentElement.dataset.motion==='reduced'||document.documentElement.dataset.motion==='none'?'auto':'smooth'});
   document.querySelectorAll('.decision-card').forEach(card=>{const question=card.dataset.question;card.querySelectorAll('.option').forEach(option=>{if(decisions[question]===option.dataset.signal)option.classList.add('selected');option.addEventListener('click',()=>{card.querySelectorAll('.option').forEach(item=>item.classList.remove('selected'));option.classList.add('selected');decisions[question]=option.dataset.signal;card.classList.add('has-answer');card.querySelector('.decision-feedback').textContent=feedback[option.dataset.signal];render()})});if(decisions[question]){card.classList.add('has-answer');card.querySelector('.decision-feedback').textContent=feedback[decisions[question]]}});
   decisionBack.addEventListener('click',()=>{if(decisionIndex>0){decisionIndex--;render();goTop();focusCurrentHeading('.decision-card.is-current h3')}});
